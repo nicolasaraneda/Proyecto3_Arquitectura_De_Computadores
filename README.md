@@ -16,7 +16,7 @@ El proyecto parte del repositorio [nic0villegasc/pochoco_soc](https://github.com
 
 ## Cómo se juega
 
-1. Al encender, el display muestra `00` y los LEDs están apagados. Se aprieta cualquier botón para comenzar. El instante de esa pulsación siembra el generador pseudoaleatorio.
+1. Al encender, el display muestra `00` y los LEDs alternan (1 y 3 con 2 y 4). Se aprieta cualquier botón para comenzar. El instante de esa pulsación siembra el generador pseudoaleatorio.
 2. En cada ronda se encienden los cuatro LEDs por 3 segundos, y el display muestra el número de ronda.
 3. Después queda encendido un solo LED, elegido al azar. Hay que apretar lo antes posible el botón que corresponde a ese LED.
 4. Si es el correcto, el display muestra el tiempo de reacción en décimas de segundo. Si es incorrecto, o si se aprietan dos botones a la vez, el display muestra `EE` y la ronda se reinicia completa, sin perder los aciertos acumulados.
@@ -158,10 +158,10 @@ Medido con `nextpnr-ice40` a 25 MHz sobre la HX1K:
 
 | Recurso        | Usado / Disponible | Porcentaje |
 |----------------|--------------------|------------|
-| `ICESTORM_LC`  | 1139 / 1280        | 88 %       |
+| `ICESTORM_LC`  | 1137 / 1280        | 88 %       |
 | `ICESTORM_RAM` | 12 / 16            | 75 %       |
 | `SB_IO`        | 27 / 72            | 37 %       |
-| Fmax           | 45,3 MHz           | PASS a 25 MHz |
+| Fmax           | 44,5 MHz           | PASS a 25 MHz |
 
 Antes de sacar el contador de décimas del hardware, el diseño usaba 1210 / 1280 LCs (94 %).
 

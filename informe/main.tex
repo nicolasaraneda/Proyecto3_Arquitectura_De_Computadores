@@ -1,0 +1,337 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{textcomp}
+\renewcommand{\tablename}{Tabla}\renewcommand{\figurename}{Figura}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amsmath,amssymb}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{needspace}
+
+\hypersetup{colorlinks=true,linkcolor=blue!60!black,urlcolor=blue!60!black}
+\captionsetup{font=small,labelfont=bf}
+\setlength{\parskip}{3pt}
+\setlength{\parindent}{0pt}
+\setlength{\emergencystretch}{3em}
+\usepackage{xurl}
+\lstset{basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true,frame=single,framerule=0.3pt,backgroundcolor=\color{gray!5},breaklines=true}
+
+\newcommand{\sig}[1]{\texttt{#1}}
+\newcommand{\bit}[1]{\texttt{#1}}
+
+\title{\textbf{Proyecto 2: Juego en Assembly sobre Pochoco SoC}\\[4pt]\Large Juego de reflejos en RV32E con assembler propio}
+\author{Arquitectura de Computadores \\ Universidad de los Andes \\ Semestre 2026-2 \\[6pt] \textit{Integrantes:} Nicolás Araneda \quad Vicente Calderón \quad Santiago Muñoz}
+\date{Octubre de 2026}
+
+\begin{document}
+\maketitle
+
+Todo el código está en \url{https://github.com/Vcalderone/Proyecto2_Arquitectura_De_Computadores}. Este documento usa los mismos nombres de módulo, etiqueta y constante que el repositorio.
+
+%=====================================================================
+\section{Arquitectura del juego, contador de ciclos y temporización}
+%=====================================================================
+
+\subsection{Arquitectura}
+
+El diseño parte de \sig{nic0villegasc/pochoco\_soc}, que aporta el Espino Core (RV32E), una RAM de 512 palabras compartida entre instrucciones y datos, y el bloque de periféricos. El top propio, \sig{rtl/game\_top.v}, instancia \sig{pochoco\_soc} con \sig{MemFile = "sw/game.hex"} y expone los pines de la Go Board definidos en \sig{goboard.pcf}. El programa ocupa 115 de las 512 palabras y queda dentro del bitstream, porque la RAM se inicializa con \sig{\$readmemh} al sintetizar.
+
+La RAM parte en \sig{0x0000\_0000}, que es también la dirección de arranque del core, y los periféricos en \sig{0x8000\_0000} (bit 31 de la dirección en uno). La Tabla~\ref{tab:periph} muestra los registros que usa el programa.
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Offset} & \textbf{Nombre} & \textbf{Acceso} & \textbf{Bits} & \textbf{Función} \\
+\midrule
+\sig{0x00} & DISP   & Escritura & \sig{[7:0]}  & Dos dígitos del display, un nibble por dígito \\
+\sig{0x04} & LEDS   & Escritura & \sig{[3:0]}  & Los cuatro LEDs \\
+\sig{0x08} & BTN    & Lectura   & \sig{[3:0]}  & Los cuatro botones, sincronizados y con debounce \\
+\sig{0x0C} & CYCLES & Lectura   & \sig{[31:0]} & Contador libre de ciclos de reloj \\
+\bottomrule
+\end{tabular}
+\caption{Registros de periférico, con offsets desde \sig{0x8000\_0000}. Fuente: \sig{docs/memory\_map.md}.}
+\label{tab:periph}
+\end{table}
+
+El display decodifica cada nibble en hexadecimal, así que para mostrar el número 37 hay que escribir \sig{0x37} y no el decimal 37 (\sig{0x25}). Por eso el programa convierte a BCD antes de escribir, en la subrutina \sig{show\_bcd}.
+
+\subsection{Modificaciones al RTL}
+
+La Tabla~\ref{tab:rtl} resume los cambios respecto del repositorio base. El core y la RAM no se modificaron.
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{@{}p{3.3cm}p{5.2cm}p{6.5cm}@{}}
+\toprule
+\textbf{Archivo} & \textbf{Cambio} & \textbf{Motivo} \\
+\midrule
+\sig{pochoco\_periph.v} & Contador CYCLES de 32 bits en el offset \sig{0x0C} & Contador de ciclos accesible por el programa, que pide el enunciado \\
+\sig{pochoco\_periph.v} & Sincronizador de dos flip-flops y debounce entre \sig{i\_Switch} y BTN & Los botones son asíncronos y rebotan \\
+\sig{debounce.v} & Archivo nuevo con el debounce de los cuatro botones & Mismo esquema del Proyecto 1: un cambio se acepta tras tres muestras iguales, una cada $2^{15}$ ciclos (1,31\,ms) \\
+\sig{pochoco\_soc.v} & Reset de encendido de 16 a 4096 ciclos (164\,\textmu s) & En la placa, con 16 ciclos el core partía antes de que la RAM entregara datos válidos \\
+\sig{pochoco\_soc.v} & El esclavo SPI deja de instanciarse & El juego no lo usa y ocupa unas 86 celdas lógicas; sus pines quedan con valor fijo \\
+\sig{game\_top.v} & Archivo nuevo & Top de síntesis pedido por el enunciado \\
+\bottomrule
+\end{tabular}
+\caption{Modificaciones al RTL respecto del repositorio base.}
+\label{tab:rtl}
+\end{table}
+
+Con estos cambios el diseño usa 1137 de 1280 celdas lógicas (88\,\%) y 12 de 16 bloques de RAM de la iCE40 HX1K, con una frecuencia máxima de 44,5\,MHz según \sig{nextpnr-ice40}, sobre los 25\,MHz del reloj de la placa.
+
+\subsection{Unidad de tiempo y conversión desde ciclos}
+
+El reloj es el oscilador de 25\,MHz de la Go Board, sin PLL. CYCLES suma 1 en cada ciclo desde el reset y el software no lo puede detener ni reiniciar, así que toda duración se mide como la diferencia entre dos lecturas. La resta es de 32 bits y sale correcta aunque el contador haya dado la vuelta entre ambas lecturas (lo hace cada $2^{32}/25\,\text{MHz} \approx 172$\,s), y por eso las comparaciones de duración usan \sig{bltu}, sin signo.
+
+La unidad de tiempo del juego es la décima de segundo. Una décima equivale a
+\[
+\text{CYCLES\_PER\_TENTH} = \frac{f_{clk}}{10} = \frac{25\,000\,000}{10} = 2\,500\,000 \ \text{ciclos},
+\]
+y una duración medida en décimas es
+\[
+t = \left\lfloor \frac{\text{CYCLES}_1 - \text{CYCLES}_0}{2\,500\,000} \right\rfloor .
+\]
+El core no tiene multiplicación ni división, así que \sig{cyc2tenths} divide por restas repetidas y \sig{wait\_tenths} pasa de décimas a ciclos por sumas repetidas. \sig{CLK\_HZ} y \sig{CYCLES\_PER\_TENTH} son dos literales separados en \sig{game.s} porque el assembler no evalúa expresiones: si cambia la frecuencia, hay que cambiar ambos.
+
+Se dejó un solo contador de ciclos, sin un contador de décimas en hardware. Un contador de décimas libre está en una fase cualquiera cuando el programa lo lee, así que la misma duración real se lee a veces como $N$ y a veces como $N+1$ décimas. Midiendo en ciclos el error de cuantización baja a un ciclo (40\,ns).
+
+\subsection{Temporización de los tres segundos}
+
+La espera al inicio de cada ronda es \sig{ESPERA\_TENTHS = 30}. \sig{wait\_tenths} la convierte primero a $30 \times 2\,500\,000 = 75\,000\,000$ ciclos, toma una lectura de CYCLES y repite lecturas hasta que la diferencia llega a ese total:
+
+\needspace{6\baselineskip}
+\begin{lstlisting}
+    lw   x9, OFF_CYCLES(x2)    # marca inicial
+wt_wait_loop:
+    lw   x13, OFF_CYCLES(x2)   # marca actual
+    sub  x14, x13, x9
+    bltu x14, x11, wt_wait_loop  # x11 = total en ciclos
+\end{lstlisting}
+
+La salida del lazo ocurre en la primera lectura con una diferencia mayor o igual al total, así que la espera dura 3,0\,s o unos pocos ciclos más, nunca menos, como pide el \textit{al menos tres segundos} del enunciado.
+
+\subsection{Máquina de estados}
+
+La Tabla~\ref{tab:fsm} resume el programa. Los nombres son las etiquetas de \sig{sw/game.s}.
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{@{}lp{3.6cm}p{8.4cm}@{}}
+\toprule
+\textbf{Estado} & \textbf{Salida} & \textbf{Qué hace} \\
+\midrule
+\sig{\_start}       & --                         & Fija la base de periféricos, el polinomio del LFSR, aciertos y suma en cero \\
+\sig{start\_screen} & \sig{00}, LEDs apagados    & Espera una pulsación, siembra el LFSR con CYCLES y espera a que se suelte \\
+\sig{round\_begin}  & Cuatro LEDs, número de ronda & Espera \sig{ESPERA\_TENTHS} décimas \\
+\sig{arm}           & Solo el LED objetivo       & Espera que no haya botones apretados, sortea el objetivo y toma $t_0$ \\
+\sig{wait\_press}   & --                         & Lee BTN en un lazo y avanza el LFSR en cada vuelta \\
+\sig{miss}          & \sig{EE}, LEDs apagados    & Botón distinto del objetivo: espera \sig{ERROR\_TENTHS} y vuelve a \sig{round\_begin} \\
+\sig{hit}           & Tiempo en décimas          & Mide, suma, incrementa aciertos y muestra el tiempo \sig{MOSTRAR\_TENTHS} décimas \\
+\sig{finish}        & \sig{AA}, luego el promedio & Calcula el promedio, hace parpadear los LEDs y una pulsación vuelve a \sig{\_start} \\
+\bottomrule
+\end{tabular}
+\caption{Estados del programa del juego.}
+\label{tab:fsm}
+\end{table}
+
+Hay una pantalla de inicio porque el LFSR se siembra con el instante de una pulsación del jugador; sin ella el LED de la primera ronda sería el mismo en cada encendido. Un error reinicia la ronda completa, incluidos los tres segundos, y no modifica los aciertos ni la suma. La comparación del botón es sobre la máscara completa de cuatro bits, así que cualquier valor distinto del LED objetivo cuenta como error.
+
+%=====================================================================
+\section{Assembly documentado, medición de tiempo y promedio}
+%=====================================================================
+
+\subsection{Organización del programa}
+
+RV32E tiene 16 registros. El programa no usa stack: las subrutinas no son recursivas, así que cada nivel de llamada tiene su propio registro de retorno, \sig{x1} para \sig{show\_bcd} y \sig{wait\_tenths} y \sig{x15} para \sig{div} y \sig{cyc2tenths}. Ninguna subrutina escribe \sig{x2} a \sig{x8}, por lo que el estado del juego se conserva entre llamadas sin guardarlo en memoria (Tabla~\ref{tab:regs}).
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Registro} & \textbf{Contenido} & \textbf{Registro} & \textbf{Contenido} \\
+\midrule
+\sig{x1}  & Retorno de nivel 1 & \sig{x6}     & Suma de tiempos en décimas \\
+\sig{x2}  & Base de periféricos \sig{0x80000000} & \sig{x7} & Máscara del LED objetivo \\
+\sig{x3}  & Estado del LFSR & \sig{x8}        & $t_0$ de la ronda, en ciclos \\
+\sig{x4}  & Polinomio del LFSR & \sig{x9}--\sig{x14} & Temporales \\
+\sig{x5}  & Aciertos & \sig{x15}              & Retorno de nivel 2 \\
+\bottomrule
+\end{tabular}
+\caption{Asignación de registros en \sig{game.s}.}
+\label{tab:regs}
+\end{table}
+
+Las subrutinas son \sig{div} (división entera sin signo por restas, con el divisor en \sig{x12}), \sig{cyc2tenths} (ciclos a décimas), \sig{show\_bcd} (escribe un valor de 0 a 99 en el display como dos dígitos decimales) y \sig{wait\_tenths} (espera un número de décimas).
+
+\subsection{Generación pseudoaleatoria}
+
+La ALU del Espino Core ejecuta los desplazamientos como sumas, así que se usa un LFSR de Galois que desplaza hacia la izquierda: el bit que sale es el bit 31, que es el signo del registro, y desplazar un lugar es sumar el registro consigo mismo.
+
+\begin{lstlisting}
+wait_press:
+    lw   x9, OFF_BTN(x2)
+    blt  x3, x0, wp_feedback   # bit 31 de x3 en uno
+    add  x3, x3, x3            # x3 <- x3 << 1
+    j    wp_lfsr_done
+wp_feedback:
+    add  x3, x3, x3
+    xor  x3, x3, x4            # x3 <- x3 ^ POLY
+\end{lstlisting}
+
+El polinomio \sig{POLY = 0x04C11DB7} es primitivo de grado 32, con período $2^{32}-1$. La semilla es el valor de CYCLES en el instante de la pulsación de inicio (si es cero se fuerza a uno, porque cero es un punto fijo del LFSR), y después el estado solo avanza. El paso del LFSR está dentro del lazo que espera la pulsación, que da una vuelta cada pocos ciclos, así que el estado avanza cientos de miles de pasos por ronda y depende de cada tiempo de reacción del jugador. El LED objetivo son los dos bits bajos del estado al armar la ronda, y su máscara se arma duplicando un uno esa cantidad de veces.
+
+\subsection{Medición del tiempo de respuesta}
+
+La medición parte en \sig{arm}, inmediatamente después de encender el LED objetivo, y termina en \sig{hit}, apenas se lee el botón correcto:
+
+\begin{lstlisting}
+arm_shift_done:
+    sw   x7, OFF_LEDS(x2)     # enciende solo el LED objetivo
+    lw   x8, OFF_CYCLES(x2)   # t0 en ciclos
+...
+hit:
+    lw   x9, OFF_CYCLES(x2)
+    sub  x10, x9, x8          # duracion en ciclos
+    jal  x15, cyc2tenths      # x10 = decimas
+\end{lstlisting}
+
+Se interpretó que el \textit{mismo instante lógico en que comienza la ronda} es el encendido del LED objetivo, porque es desde ahí que el jugador puede reaccionar. Entre la escritura a LEDS y la lectura de $t_0$ pasan unos tres ciclos (120\,ns), despreciables frente a una décima. \sig{cyc2tenths} trunca hacia abajo y satura en \sig{MAX\_TENTHS = 99}, el máximo de dos dígitos, y el mismo corte limita su lazo a 99 vueltas. Al tiempo medido se suma el retardo del debounce, de 4 a 5\,ms.
+
+\subsection{Promedio de las diez rondas}
+
+Al completar \sig{RONDAS} aciertos, \sig{finish} muestra \sig{AA} durante \sig{PROMEDIO\_TENTHS} décimas, para distinguir el promedio del tiempo de la última ronda, y después el promedio con los LEDs parpadeando:
+
+\begin{lstlisting}
+    mv   x10, x6              # suma en decimas
+    li   x12, RONDAS          # divisor
+    jal  x15, div             # x10 = suma / RONDAS
+    jal  x1, show_bcd
+\end{lstlisting}
+
+El promedio queda en décimas, truncado. El divisor es \sig{RONDAS} y no un 10 fijo, porque en la evaluación se pide cambiar una constante del juego: con un 10 fijo, cambiar \sig{RONDAS} terminaría el juego en otra ronda pero seguiría dividiendo por 10. \sig{show\_bcd} usa la misma \sig{div} con divisor 10.
+
+\subsection{Verificación en simulación}
+
+\sig{tb/game\_tb.v} recorre una partida completa con un error deliberado. Inyecta un tiempo de reacción conocido de 12 décimas y exige que el display muestre \sig{12} en cada ronda y como promedio. La misma prueba se corre con \sig{RONDAS = 4}, donde el promedio también debe dar 12 (con un divisor fijo en 10 daría $48/10 = 4$). Para que la simulación dure segundos, el programa se ensambla con \sig{-D CYCLES\_PER\_TENTH=2500}. \sig{tb/game\_top\_tb.v} prueba los botones con rebotes inyectados y el avance de CYCLES. Todo se corre con \sig{make check}.
+
+%=====================================================================
+\section{Assembler: codificación, etiquetas, validación y pruebas}
+%=====================================================================
+
+El assembler está en \sig{assembler/}, en Python 3 sin dependencias externas, y no invoca ningún assembler RISC-V. Genera un archivo con una palabra de 32 bits en hexadecimal por línea:
+
+\begin{lstlisting}
+python3 assembler/asm.py sw/game.s -o sw/game.hex [-D NOMBRE=VALOR ...]
+\end{lstlisting}
+
+\sig{make asm} hace lo mismo. La opción \sig{-D} reemplaza el valor de un \sig{.equ} sin editar el archivo.
+
+\subsection{Sintaxis aceptada}
+
+Una instrucción por línea, operandos separados por comas y comentarios desde \sig{\#} hasta el fin de línea. Las etiquetas son \sig{nombre:} y pueden ir solas en una línea o antes de una instrucción. Los accesos a memoria usan \sig{desplazamiento(registro)}. Los literales pueden ser decimales, hexadecimales (\sig{0x}) o binarios (\sig{0b}), con signo opcional. Mnemónicos, registros y directivas no distinguen mayúsculas; etiquetas y constantes sí.
+
+Las directivas son \sig{.equ NOMBRE, valor}, que define una constante, y \sig{.word}, que emite palabras y acepta etiquetas. \sig{.section}, \sig{.text} y \sig{.global} se aceptan y se ignoran. Los registros van de \sig{x0} a \sig{x15}, también con sus nombres ABI (\sig{zero}, \sig{ra}, \sig{sp}, \sig{a0}, etc.). Un registro \sig{x16} o mayor es error, aunque cabría en los cinco bits del campo, porque RV32E no lo tiene.
+
+\subsection{Instrucciones que usa el juego}
+
+El assembler codifica las instrucciones de RV32I en los formatos R, I, S, B, U y J, sin \sig{ecall}, \sig{ebreak}, \sig{fence} ni CSR. La Tabla~\ref{tab:instr} muestra las que usa \sig{game.s}.
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Formato} & \textbf{Instrucciones} \\
+\midrule
+R & \sig{add}, \sig{sub}, \sig{xor} \\
+I & \sig{addi}, \sig{andi}, \sig{xori}, \sig{lw}, \sig{jalr} \\
+S & \sig{sw} \\
+B & \sig{beq}, \sig{bne}, \sig{blt}, \sig{bltu} \\
+U & \sig{lui} \\
+J & \sig{jal} \\
+Pseudo & \sig{li}, \sig{mv}, \sig{j} \\
+\bottomrule
+\end{tabular}
+\caption{Instrucciones usadas por \sig{sw/game.s}.}
+\label{tab:instr}
+\end{table}
+
+Los desplazamientos (\sig{sll}, \sig{srl}, \sig{sra} y sus versiones con inmediato) se rechazan salvo con la opción \sig{--allow-shifts}, porque el core los ejecuta como suma y el programa correría mal sin ningún aviso.
+
+\subsection{Tratamiento de etiquetas e inmediatos}
+
+El assembler recorre el archivo dos veces. En la primera pasada lleva la dirección actual desde cero y guarda cada etiqueta con su dirección y cada \sig{.equ} con su valor; como \sig{li} puede ocupar una o dos palabras, se calcula su tamaño en esta pasada. En la segunda pasada codifica cada línea con la tabla de símbolos completa, lo que permite saltar a una etiqueta definida más abajo. En saltos y bifurcaciones el inmediato codificado es la dirección de la etiqueta menos la dirección de la instrucción.
+
+Los rangos son de $-2048$ a $2047$ para los formatos I y S, desplazamientos pares de $-4096$ a $4094$ bytes para las bifurcaciones, pares de $\pm 2^{20}$ bytes para \sig{jal}, y 20 bits sin signo para \sig{lui}. Un valor fuera de rango es error.
+
+\textbf{Expansión de \sig{li}.} Si el valor cabe en 12 bits con signo se emite un \sig{addi}; si sus 12 bits bajos son cero, un \sig{lui}; si no, \sig{lui} seguido de \sig{addi}. En este último caso, si el bit 11 del valor es uno, \sig{addi} lo interpreta como un inmediato negativo y resta 4096. Por eso la parte alta se redondea:
+\[
+hi = \left\lfloor \frac{valor + \text{0x800}}{4096} \right\rfloor, \qquad lo = valor - 4096\,hi .
+\]
+Para \sig{li x4, 0x04C11DB7} (el polinomio del LFSR) los 12 bits bajos son \sig{0xDB7}, con el bit 11 en uno, así que $hi = \text{0x04C12}$ y $lo = -585$. Se emiten \sig{lui x4, 0x04C12} y \sig{addi x4, x4, -585}, que en \sig{sw/game.hex} son \sig{04c12237} y \sig{db720213}.
+
+\subsection{Ejemplo de traducción a código máquina}
+
+Con \sig{.equ OFF\_LEDS, 4}, la instrucción \sig{sw x9, OFF\_LEDS(x2)} de \sig{round\_begin} escribe \sig{x9} en la dirección \sig{x2 + 4 = 0x8000\_0004}, el registro LEDS. \sig{sw} es de formato S, con el inmediato de 12 bits dividido en dos campos (Tabla~\ref{tab:sw}).
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{@{}lllc@{}}
+\toprule
+\textbf{Campo} & \textbf{Bits} & \textbf{Valor} & \textbf{Binario} \\
+\midrule
+\sig{imm[11:5]} & 31--25 & 4, bits 11 a 5        & \bit{0000000} \\
+\sig{rs2}       & 24--20 & \sig{x9}, dato        & \bit{01001} \\
+\sig{rs1}       & 19--15 & \sig{x2}, base        & \bit{00010} \\
+\sig{funct3}    & 14--12 & \sig{sw}              & \bit{010} \\
+\sig{imm[4:0]}  & 11--7  & 4, bits 4 a 0         & \bit{00100} \\
+\sig{opcode}    & 6--0   & store                 & \bit{0100011} \\
+\bottomrule
+\end{tabular}
+\caption{Codificación de \sig{sw x9, OFF\_LEDS(x2)}.}
+\label{tab:sw}
+\end{table}
+
+\begin{lstlisting}
+0000000 01001 00010 010 00100 0100011
+0000 0000 1001 0001 0010 0010 0010 0011  =  0x00912223
+\end{lstlisting}
+
+La palabra \sig{00912223} está en la línea 18 de \sig{sw/game.hex}.
+
+\subsection{Validación y pruebas}
+
+El assembler se detiene con un mensaje que indica el número de línea ante: registro desconocido o mayor que \sig{x15}, desplazamiento sin \sig{--allow-shifts}, mnemónico o directiva desconocidos, etiqueta o constante repetida o no definida, inmediato fuera de rango, número incorrecto de operandos, operando de memoria mal escrito, salto a dirección impar o fuera de alcance, y programa de más de 512 palabras.
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{@{}lcp{9.2cm}@{}}
+\toprule
+\textbf{Archivo} & \textbf{Tests} & \textbf{Qué verifica} \\
+\midrule
+\sig{test\_golden.py}     & 3  & \sig{blink.s}, \sig{7seg.s} y \sig{buttons\_leds.s} dan los mismos \sig{.hex} del repositorio base \\
+\sig{test\_formats.py}    & 8  & Codificaciones calculadas a mano que los ejemplos no cubren \\
+\sig{test\_pseudo.py}     & 16 & Pseudo-instrucciones y casos de \sig{li}, incluida la corrección de signo \\
+\sig{test\_directives.py} & 10 & \sig{.equ}, \sig{.word} y directivas ignoradas \\
+\sig{test\_defines.py}    & 3  & Opción \sig{-D} \\
+\sig{test\_validation.py} & 28 & Los errores del párrafo anterior, con casos en los límites de rango \\
+\sig{test\_roundtrip.py}  & 5  & Ensamblar, desensamblar con \sig{disasm.py} y volver a ensamblar da lo mismo \\
+\midrule
+\textbf{Total}            & \textbf{73} & Se corren con \sig{make test} \\
+\bottomrule
+\end{tabular}
+\caption{Pruebas del assembler, en \sig{assembler/tests/}.}
+\label{tab:tests}
+\end{table}
+
+Las pruebas contra los \sig{.hex} del repositorio base comparan con archivos generados por otra herramienta, sin depender de nuestra lectura del manual. La prueba de ida y vuelta cubre las instrucciones que esos tres ejemplos no usan.
+
+\end{document}
