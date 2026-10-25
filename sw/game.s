@@ -487,7 +487,7 @@ show_bcd:
 # total. La resta es modular, así que funciona aun si el contador da la vuelta,
 # y la comparación es bltu porque esa diferencia no tiene signo.
 #
-# Cuantización: un ciclo, 40 ns. La espera siempre sale igual o un pelo más
+# Cuantización: un ciclo, 100 ns. La espera siempre sale igual o un pelo más
 # larga que la pedida, nunca más corta.
 # -----------------------------------------------------------------------------
 wait_tenths:
