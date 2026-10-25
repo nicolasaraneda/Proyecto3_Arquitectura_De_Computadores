@@ -55,16 +55,6 @@ SIM_RONDAS := 4
 SIM_HEX    := sw/game_sim.hex
 SIM_HEX_R4 := sw/game_sim_r4.hex
 
-# espino_register_file.v instancia SB_RAM40_4K, así que la simulación
-# necesita el modelo de comportamiento de las celdas iCE40 que trae yosys.
-# yosys-config existe en oss-cad-suite pero no si yosys vino del gestor de
-# paquetes, así que se prueban también las rutas habituales de instalación.
-YOSYS_DATDIR := $(shell yosys-config --datdir 2>/dev/null)
-CELLS_SIM_TRY := $(YOSYS_DATDIR)/ice40/cells_sim.v \
-                 /usr/share/yosys/ice40/cells_sim.v \
-                 /usr/local/share/yosys/ice40/cells_sim.v
-CELLS_SIM ?= $(firstword $(wildcard $(CELLS_SIM_TRY)))
-
 .PHONY: all prog asm asm-all test sim check clean stats
 
 # Default target
@@ -109,20 +99,12 @@ test:
 # Los testbenches llaman a $fatal si algún check falla, así que vvp devuelve
 # un código de salida distinto de cero y make se detiene.
 sim: $(SIM_HEX) $(SIM_HEX_R4) | $(BUILD)
-	@if [ -z "$(CELLS_SIM)" ]; then \
-	  echo "error: no se encontro ice40/cells_sim.v, que la simulacion necesita"; \
-	  echo "       porque rtl/espino_core/espino_register_file.v instancia SB_RAM40_4K."; \
-	  echo "       Se probo, en este orden:"; \
-	  for p in $(CELLS_SIM_TRY); do echo "         $$p"; done; \
-	  echo "       Pasalo a mano con:  make sim CELLS_SIM=/ruta/a/ice40/cells_sim.v"; \
-	  exit 1; \
-	fi
-	$(IVERILOG) -g2012 -o $(BUILD)/game_top_tb tb/game_top_tb.v $(SRC) $(CELLS_SIM)
+	$(IVERILOG) -g2012 -o $(BUILD)/game_top_tb tb/game_top_tb.v $(SRC)
 	$(VVP) $(BUILD)/game_top_tb
-	$(IVERILOG) -g2012 -o $(BUILD)/game_tb tb/game_tb.v $(SRC) $(CELLS_SIM)
+	$(IVERILOG) -g2012 -o $(BUILD)/game_tb tb/game_tb.v $(SRC)
 	$(VVP) $(BUILD)/game_tb
 	$(IVERILOG) -g2012 -DMEMFILE=\"$(SIM_HEX_R4)\" -DRONDAS_N=$(SIM_RONDAS) \
-	            -o $(BUILD)/game_tb_r$(SIM_RONDAS) tb/game_tb.v $(SRC) $(CELLS_SIM)
+	            -o $(BUILD)/game_tb_r$(SIM_RONDAS) tb/game_tb.v $(SRC)
 	$(VVP) $(BUILD)/game_tb_r$(SIM_RONDAS)
 
 $(BUILD):

@@ -1,5 +1,6 @@
-# Corrida 0: RTL del Proyecto 2 sin cambios (commit 1227fa5).
-# Objetivo: que el flujo muestre qué construcciones dependen de la FPGA (sección 3.1).
+# Serie de corridas 0: RTL del Proyecto 2 (commit 1227fa5) con los reemplazos
+# de FPGA aplicados de a uno, para la evidencia de la sección 3.1.
+# El tag de cada corrida indica el estado del RTL (ver evidencia.md).
 DESIGN_NAME: game_top
 PDK: gf180mcuD
 VERILOG_FILES:

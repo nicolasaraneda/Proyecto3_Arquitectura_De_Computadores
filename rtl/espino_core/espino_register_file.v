@@ -4,69 +4,51 @@
 // SPDX-License-Identifier: SHL-0.51
 //
 // Course: Arquitectura de Computadores (2026)
-// 
+//
 // Authors:
 // - Nicolás Villegas <navillegas@miuandes.cl>
-
-module espino_regbank32 (
-  input  wire        clk_i,
-  input  wire [3:0]  raddr_i,
-  output wire [31:0] rdata_o,
-  input  wire [3:0]  waddr_i,
-  input  wire [31:0] wdata_i,
-  input  wire        we_i
-);
-  wire [10:0] ra = {7'b0, raddr_i};
-  wire [10:0] wa = {7'b0, waddr_i};
-
-  SB_RAM40_4K #(
-    .READ_MODE(0), .WRITE_MODE(0),
-    .INIT_0(256'h0)
-  ) u_lo (
-    .RDATA (rdata_o[15:0]),
-    .RADDR (ra), .RCLK (clk_i), .RCLKE (1'b1), .RE (1'b1),
-    .WDATA (wdata_i[15:0]),
-    .WADDR (wa), .WCLK (clk_i), .WCLKE (1'b1), .WE (we_i),
-    .MASK  (16'h0000)
-  );
-
-  SB_RAM40_4K #(
-    .READ_MODE(0), .WRITE_MODE(0),
-    .INIT_0(256'h0)
-  ) u_hi (
-    .RDATA (rdata_o[31:16]),
-    .RADDR (ra), .RCLK (clk_i), .RCLKE (1'b1), .RE (1'b1),
-    .WDATA (wdata_i[31:16]),
-    .WADDR (wa), .WCLK (clk_i), .WCLKE (1'b1), .WE (we_i),
-    .MASK  (16'h0000)
-  );
-endmodule
+//
+// Banco de registros de RV32E (x0 a x15) implementado con flip-flops.
+//
+// La versión del Proyecto 2 instanciaba dos SB_RAM40_4K por puerto de
+// lectura (BRAM del iCE40), que no existen en una biblioteca de celdas
+// estándar. Esta versión mantiene el mismo comportamiento visto desde el
+// core:
+//   - dos puertos de lectura con salida registrada: el dato aparece un
+//     ciclo después de presentar la dirección, igual que en la BRAM, así
+//     que espino_id_stage (rf_ready) y espino_controller no cambian;
+//   - un puerto de escritura que nunca escribe x0.
+// Con flip-flops ya no hace falta duplicar el banco para tener dos puertos
+// de lectura: cada puerto es un multiplexor sobre los mismos registros.
+//
+// En la BRAM, x0 valía 0 porque la memoria partía en cero (INIT_0) y nunca
+// se escribía. En silicio un flip-flop arranca en cualquier valor, así que
+// x0 no se almacena: leer la dirección 0 entrega 0 por hardware. x1 a x15
+// no tienen reset, igual que en la BRAM.
 
 module espino_register_file (
   input  wire        clk_i,
-  input  wire        rst_ni,     // unused
+  input  wire        rst_ni,     // sin uso
   input  wire [3:0]  raddr_a_i,
-  output wire [31:0] rdata_a_o,
+  output reg  [31:0] rdata_a_o,
   input  wire [3:0]  raddr_b_i,
-  output wire [31:0] rdata_b_o,
+  output reg  [31:0] rdata_b_o,
   input  wire [3:0]  waddr_i,
   input  wire [31:0] wdata_i,
   input  wire        we_i
 );
-  wire wr = we_i & (waddr_i != 4'd0);
 
-  espino_regbank32 u_bankA (   // serves read port A
-    .clk_i (clk_i),
-    .raddr_i (raddr_a_i), .rdata_o (rdata_a_o),
-    .waddr_i (waddr_i), .wdata_i (wdata_i), .we_i (wr)
-  );
+  reg [31:0] regs [1:15];
 
-  espino_regbank32 u_bankB (   // serves read port B
-    .clk_i (clk_i),
-    .raddr_i (raddr_b_i), .rdata_o (rdata_b_o),
-    .waddr_i (waddr_i), .wdata_i (wdata_i), .we_i (wr)
-  );
+  always @(posedge clk_i) begin
+    if (we_i && (waddr_i != 4'd0)) regs[waddr_i] <= wdata_i;
+  end
 
-  // rst_ni intentionally unused
+  always @(posedge clk_i) begin
+    rdata_a_o <= (raddr_a_i == 4'd0) ? 32'b0 : regs[raddr_a_i];
+    rdata_b_o <= (raddr_b_i == 4'd0) ? 32'b0 : regs[raddr_b_i];
+  end
+
+  // rst_ni queda sin uso a propósito
   wire _unused = &{1'b0, rst_ni};
 endmodule
