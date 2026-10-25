@@ -65,3 +65,12 @@ Cada decisión registra las opciones, la elegida, la razón y lo que se pierde c
 - Elegida: (b), con el mismo valor en las dos estrategias (DataWords = 4).
 - Razón: el juego usa 0 palabras de datos (0 lecturas y 0 escrituras en la simulación completa, y todos los lw y sw van a periféricos a través de x2). Cuatro palabras mantienen la RAM de datos que pide la estrategia 1 con un costo mínimo, y usar el mismo valor en la estrategia 2 hace que la comparación mida solo cómo se guarda el programa.
 - Qué se pierde: 128 flip-flops que el juego no usa. Con (a), la estrategia 1 quedaría sin la RAM de datos que nombra el enunciado; con (c), la RAM dominaría el área de ambas estrategias.
+
+## D10. Constantes del juego para el macro (25-10-2026)
+
+- Opciones: (a) regenerar el programa para T = 100 ns antes de comparar las estrategias de memoria; (b) hacerlo al final, en la sección 3.4.
+- Elegida: (a).
+- Razón: las corridas de la comparación, y todas las siguientes, usan el mismo programa que correría el macro.
+- Cálculo: f = 1/T = 1/100 ns = 10 MHz; una décima son 0,1 s × 10.000.000 ciclos/s = 1.000.000 ciclos. CLK_HZ = 10.000.000 y CYCLES_PER_TENTH = 1.000.000. ESPERA_TENTHS sigue en 30 (3 s) y el tiempo se sigue mostrando en décimas.
+- Nota: el debounce sigue con DebounceDivBits = 15; a 10 MHz muestrea cada 3,3 ms y acepta un cambio en unos 10 ms, muy por debajo de la décima que se muestra.
+- Qué se pierde: nada en las simulaciones, que ensamblan con CYCLES_PER_TENTH = 2500; en la imagen cambian 4 palabras.

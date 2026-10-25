@@ -69,7 +69,7 @@
 # 1. Hay una pantalla de inicio. La ronda 1 necesita un objetivo antes de que
 #    el jugador toque nada, así que la semilla tiene que venir de una acción
 #    humana o el LED de la primera ronda sería idéntico en cada encendido de
-#    la placa. La pulsación de inicio muestrea CYCLES a 25 MHz: ~16 bits de
+#    la placa. La pulsación de inicio muestrea CYCLES a 10 MHz: ~16 bits de
 #    entropía real.
 #
 # 2. Un error reinicia la ronda COMPLETA, incluidos los 3 segundos. Es la
@@ -102,7 +102,7 @@
 # BASE DE TIEMPO -- por qué se mide en ciclos
 # -------------------------------------------
 # El SoC expone un solo contador: CYCLES, libre, de 32 bits, +1 por ciclo de
-# reloj a 25 MHz. Toda la conversión a décimas se hace acá en software.
+# reloj a 10 MHz. Toda la conversión a décimas se hace acá en software.
 #
 # Antes había además un contador libre de décimas y se medía leyéndolo. Eso
 # tiene un error sistemático que no se puede corregir desde el software: un
@@ -113,7 +113,7 @@
 # décimas podía durar 2,9 s, lo que incumple el "al menos tres segundos" del
 # enunciado.
 #
-# Midiendo en ciclos el error de cuantización pasa a ser un ciclo, 40 ns, seis
+# Midiendo en ciclos el error de cuantización pasa a ser un ciclo, 100 ns, seis
 # órdenes de magnitud por debajo de la décima que se muestra. Las esperas se
 # convierten a ciclos ANTES de arrancar, así que una espera de 30 décimas dura
 # 3,0 s o un pelo más, nunca menos.
@@ -194,15 +194,17 @@
 # El assembler no evalúa expresiones, así que CYCLES_PER_TENTH va como
 # literal ya calculado. SI SE CAMBIA CLK_HZ HAY QUE CAMBIAR LOS DOS:
 # CYCLES_PER_TENTH tiene que quedar siempre igual a CLK_HZ / 10.
-.equ CLK_HZ,           25000000
-.equ CYCLES_PER_TENTH,  2500000
+# Macro ASIC con período T = 100 ns (Proyecto 3, sección 3.4):
+# f = 1 / 100 ns = 10 MHz y una décima son 0,1 s x 10.000.000 = 1.000.000 ciclos.
+.equ CLK_HZ,           10000000
+.equ CYCLES_PER_TENTH,  1000000
 
 # --- Periféricos (ver docs/memory_map.md) ---
 .equ PERIPH_HI,   0x80000    # para el lui: base = 0x80000000
 .equ OFF_DISP,    0          # W  [7:0] dos dígitos, decodificados a HEX
 .equ OFF_LEDS,    4          # W  [3:0]
 .equ OFF_BTN,     8          # R  [3:0] con debounce
-.equ OFF_CYCLES,  12         # R  [31:0] contador libre a 25 MHz
+.equ OFF_CYCLES,  12         # R  [31:0] contador libre a 10 MHz
 
 # --- Patrones de display ---
 .equ PAT_ERROR,   0xEE       # "EE"

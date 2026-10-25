@@ -90,8 +90,8 @@ function [31:0] game_word;
        79: game_word = 32'h00048513;  // 0x013c: addi x10, x9, 0
        80: game_word = 32'h00078067;  // 0x0140: jalr x0, 0(x15)
        81: game_word = 32'h00000493;  // 0x0144: addi x9, x0, 0
-       82: game_word = 32'h00262637;  // 0x0148: lui x12, 0x262
-       83: game_word = 32'h5a060613;  // 0x014c: addi x12, x12, 1440
+       82: game_word = 32'h000f4637;  // 0x0148: lui x12, 0xf4
+       83: game_word = 32'h24060613;  // 0x014c: addi x12, x12, 576
        84: game_word = 32'h06300693;  // 0x0150: addi x13, x0, 99
        85: game_word = 32'h00d48a63;  // 0x0154: beq x9, x13, L0168
        86: game_word = 32'h00c56863;  // 0x0158: bltu x10, x12, L0168
@@ -111,8 +111,8 @@ function [31:0] game_word;
       100: game_word = 32'h00912023;  // 0x0190: sw x9, 0(x2)
       101: game_word = 32'h00008067;  // 0x0194: jalr x0, 0(x1)
       102: game_word = 32'h00000593;  // 0x0198: addi x11, x0, 0
-      103: game_word = 32'h00262637;  // 0x019c: lui x12, 0x262
-      104: game_word = 32'h5a060613;  // 0x01a0: addi x12, x12, 1440
+      103: game_word = 32'h000f4637;  // 0x019c: lui x12, 0xf4
+      104: game_word = 32'h24060613;  // 0x01a0: addi x12, x12, 576
       105: game_word = 32'h00050693;  // 0x01a4: addi x13, x10, 0
       106: game_word = 32'h00068863;  // 0x01a8: beq x13, x0, L01b8
       107: game_word = 32'h00c585b3;  // 0x01ac: add x11, x11, x12
