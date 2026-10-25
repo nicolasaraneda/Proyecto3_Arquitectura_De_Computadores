@@ -25,3 +25,6 @@ sim/sim
 # sw/game.hex NO va aca: esta versionado y es parte de la entrega.
 build/
 sw/game_sim*.hex
+
+# Corridas de LibreLane (pesadas; los reportes que se usen en el informe se copian aparte)
+asic/**/runs/
