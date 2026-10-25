@@ -36,3 +36,25 @@ Cada decisión registra las opciones, la elegida, la razón y lo que se pierde c
 - Elegida: (a).
 - Razón: junto con D1, git diff 1227fa5 muestra cada cambio hecho para ASIC.
 - Qué se pierde: el diseño deja de caber en la Go Board; para volver a la placa hay que usar el commit 1227fa5.
+- Consecuencia: al crear asic_top se eliminaron rtl/game_top.v, goboard.pcf y los objetivos de síntesis y programación de la FPGA del Makefile.
+
+## D6. Reset del macro (25-10-2026)
+
+- Opciones: (a) rst_n externo activo en bajo con sincronizador de 2 flip-flops; (b) rst_n externo directo; (c) rst_n externo manteniendo el contador de 4096 ciclos.
+- Elegida: (a).
+- Razón: el contador del Proyecto 2 dependía del valor inicial que da la FPGA y existía por la BRAM, que ya no está. El sincronizador hace que todos los flip-flops salgan del reset en el mismo flanco.
+- Qué se pierde: la espera de 164 µs al encender, que ya no protege nada.
+
+## D7. SPI (25-10-2026)
+
+- Opciones: (a) puertos presentes sin lógica, con MISO fijo; (b) instanciar pochoco_spi_slave.
+- Elegida: (a).
+- Razón: el juego no usa SPI, y el módulo está marcado como trabajo en progreso, con registros de otro proyecto; instanciarlo agrega área y lógica sin verificar.
+- Qué se pierde: los puertos SPI quedan sin función y no se implementa el bootloader por SPI (opcional en el enunciado).
+
+## D8. Polaridad de los 7 segmentos (25-10-2026)
+
+- Opciones: (a) activos en alto en los puertos del macro; (b) activos en bajo, como en la Go Board.
+- Elegida: (a).
+- Razón: los puertos representan la función lógica (1 = segmento encendido); la inversión era propia del display de la Go Board.
+- Qué se pierde: la salida deja de coincidir con la del Proyecto 2; un display activo en bajo necesitaría invertirla afuera.

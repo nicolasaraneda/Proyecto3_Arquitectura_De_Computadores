@@ -8,14 +8,10 @@
 # Authors:
 # - Nicolás Villegas <navillegas@miuandes.cl>
 
-# Configuration
-TOP  := game_top
-PCF  := goboard.pcf
-
 # RTL Sources
 SRC  := $(wildcard ./rtl/*.v ./rtl/**/*.v)
 
-# Firmware: game_top's default MemFile parameter points here. $readmemh
+# Firmware: asic_top's default MemFile parameter points here. $readmemh
 # bakes sw/game.hex into the bitstream at synth time, so the .hex must be
 # a prerequisite of the synthesis step -- changing the program without
 # re-synthesizing would silently leave the board running stale code.
@@ -28,11 +24,6 @@ HEX    := sw/game.hex
 PYTHON ?= python3
 ASM    := assembler/asm.py
 ASMDEP := $(wildcard assembler/*.py)
-
-# Build Targets
-JSON := $(TOP).json
-ASC  := $(TOP).asc
-BIN  := $(TOP).bin
 
 # Simulación
 #
@@ -55,10 +46,11 @@ SIM_RONDAS := 4
 SIM_HEX    := sw/game_sim.hex
 SIM_HEX_R4 := sw/game_sim_r4.hex
 
-.PHONY: all prog asm asm-all test sim check clean stats
+.PHONY: all asm asm-all test sim check clean
 
-# Default target
-all: prog
+# Default target: todo lo verificable sin LibreLane (el flujo de la FPGA se
+# eliminó en el Proyecto 3; ver docs/decisiones.md, D5)
+all: check
 
 # Step 0: Assemble. Esta es la unión de los dos frentes: sw/*.s se escribe
 # a mano, assembler/ lo traduce, y el resto del flujo hornea el resultado
@@ -113,27 +105,11 @@ $(BUILD):
 # Todo lo verificable de una: los tests del assembler y los testbenches.
 check: test sim
 
-# Step 1: Synthesis using Yosys
-$(JSON): $(SRC) $(HEX)
-	yosys -p "read_verilog $(SRC); synth_ice40 -top $(TOP) -json ${TOP}.json; stat"
-
-# Step 2: Place and Route using NextPNR
-$(ASC): $(JSON) $(PCF)
-	nextpnr-ice40 --hx1k --package vq100 --freq 25 --json $(JSON) --pcf $(PCF) --asc $(ASC)
-
-# Step 3: Bitstream Generation
-$(BIN): $(ASC)
-	icepack $(ASC) $(BIN)
-
-# Step 4: Flash the Board
-prog: $(BIN)
-	iceprog $(BIN)
-
 # Clean up generated files.
 #
 # $(HEX) NO se borra: sw/game.hex está versionado y es parte de la entrega
 # (es lo que $readmemh hornea en el bitstream). Los .hex de simulación sí,
 # que son artefactos derivados y están en .gitignore.
 clean:
-	rm -f $(JSON) $(ASC) $(BIN) $(SIM_HEX) $(SIM_HEX_R4) *.vcd
+	rm -f $(SIM_HEX) $(SIM_HEX_R4) *.vcd
 	rm -rf $(BUILD)

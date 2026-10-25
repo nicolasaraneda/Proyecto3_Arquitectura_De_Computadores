@@ -15,6 +15,7 @@ module pochoco_soc #(
   parameter DebounceDivBits = 15
 ) (
   input  wire       i_Clk,
+  input  wire       rst_ni,    // reset activo en bajo, ya sincronizado (asic_top)
 
   output wire [3:0] o_LED,
   input  wire [3:0] i_Switch,
@@ -33,15 +34,10 @@ module pochoco_soc #(
   wire clk;
   assign clk = i_Clk;
 
-  // Power-on reset de 4096 ciclos (164 us). Las BRAM del iCE40 no entregan
-  // datos válidos hasta unos us después de configurar: con 16 ciclos el core
-  // arrancaba leyendo ceros y el programa empezaba por la mitad.
-  reg  [11:0] por_cnt = 12'b0;
-  wire       rst_ni;
-  always @(posedge clk) begin
-    if (~&por_cnt) por_cnt <= por_cnt + 12'd1;
-  end
-  assign rst_ni = &por_cnt;
+  // El power-on reset de 4096 ciclos del Proyecto 2 dependía de que la
+  // FPGA arrancara por_cnt en cero, y existía porque las BRAM del iCE40
+  // tardaban en estar listas. En silicio no hay ni una cosa ni la otra:
+  // el reset llega desde afuera por rst_ni, sincronizado en asic_top.
 
   // Core-memory wiring
   wire        instr_req;
@@ -124,19 +120,18 @@ module pochoco_soc #(
     .seg2_o    (seg2)
   );
 
-  // SPI Slave: no se usa en este proyecto (ver docs/memory_map.md, "Espacio
-  // de direcciones"). pochoco_spi_slave.v se deja sin instanciar -- cuesta
-  // ~86 LCs que no sobran en la HX1K -- pero el archivo queda intacto por
-  // si algún día hace falta. Los pines de la Go Board se dejan atados a un
-  // valor fijo para no romper las restricciones de goboard.pcf.
+  // SPI: el juego no lo usa, así que pochoco_spi_slave.v no se instancia
+  // (decisión D7). Los puertos existen porque el enunciado los pide como
+  // terminales del macro: MISO queda fijo y las entradas sin uso.
   assign spi_rdata  = 32'b0;
   assign o_SPI_MISO = 1'b1;
   wire _unused_spi = &{1'b0, i_SPI_SCLK, i_SPI_MOSI, i_SPI_CS_n};
 
-  // 7-seg is active-low on the board
+  // 7 segmentos activos en alto (1 = segmento encendido, decisión D8). La
+  // inversión del Proyecto 2 era propia del display de la Go Board.
   assign {o_Segment1_G, o_Segment1_F, o_Segment1_E, o_Segment1_D,
-          o_Segment1_C, o_Segment1_B, o_Segment1_A} = ~seg1;
+          o_Segment1_C, o_Segment1_B, o_Segment1_A} = seg1;
   assign {o_Segment2_G, o_Segment2_F, o_Segment2_E, o_Segment2_D,
-          o_Segment2_C, o_Segment2_B, o_Segment2_A} = ~seg2;
+          o_Segment2_C, o_Segment2_B, o_Segment2_A} = seg2;
 
 endmodule

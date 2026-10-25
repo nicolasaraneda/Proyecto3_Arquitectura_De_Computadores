@@ -127,29 +127,38 @@ module game_tb;
   reg        clk;
   reg  [3:0] switch;
   wire [3:0] led;
-  wire       seg1_a, seg1_b, seg1_c, seg1_d, seg1_e, seg1_f, seg1_g;
-  wire       seg2_a, seg2_b, seg2_c, seg2_d, seg2_e, seg2_f, seg2_g;
+  wire [6:0] seg1, seg2;
 
   integer errors;
   integer round_idx;
 
-  game_top #(
+  // Reset externo de asic_top (decisión D6). Se suelta tras RST_CYCLES
+  // flancos para que el reset interno, que pasa por un sincronizador de 2
+  // flip-flops, se libere en el mismo flanco que el power-on reset del
+  // Proyecto 2 (4095 flancos): así los instantes de los checks se pueden
+  // comparar directamente con los del commit 1227fa5.
+  localparam RST_CYCLES = 4093;
+  reg rst_n;
+  initial begin
+    rst_n = 1'b0;
+    repeat (RST_CYCLES) @(posedge clk);
+    #1 rst_n = 1'b1;
+  end
+
+  asic_top #(
     .MemFile         (`MEMFILE),
     .DebounceDivBits (DIV_BITS)
   ) dut (
-    .i_Clk        (clk),
-    .o_LED        (led),
-    .i_Switch     (switch),
-    .o_Segment1_A (seg1_a), .o_Segment1_B (seg1_b), .o_Segment1_C (seg1_c),
-    .o_Segment1_D (seg1_d), .o_Segment1_E (seg1_e), .o_Segment1_F (seg1_f),
-    .o_Segment1_G (seg1_g),
-    .o_Segment2_A (seg2_a), .o_Segment2_B (seg2_b), .o_Segment2_C (seg2_c),
-    .o_Segment2_D (seg2_d), .o_Segment2_E (seg2_e), .o_Segment2_F (seg2_f),
-    .o_Segment2_G (seg2_g),
-    .i_SPI_SCLK   (1'b0),
-    .i_SPI_MOSI   (1'b0),
-    .i_SPI_CS_n   (1'b1),
-    .o_SPI_MISO   ()
+    .clk      (clk),
+    .rst_n    (rst_n),
+    .led      (led),
+    .btn      (switch),
+    .seg1     (seg1),
+    .seg2     (seg2),
+    .spi_sclk (1'b0),
+    .spi_mosi (1'b0),
+    .spi_cs_n (1'b1),
+    .spi_miso ()
   );
 
   // Acceso jerárquico a lo que el programa escribió en DISP y LEDS. Es el
@@ -352,7 +361,7 @@ module game_tb;
     $display("== game_tb: MEMFILE=%0s, RONDAS=%0d, reaccion inyectada=%0d decimas ==",
              `MEMFILE, RONDAS, REACTION_TENTHS);
 
-    // Deja pasar el power-on reset interno de pochoco_soc más la
+    // Deja pasar el reset (rst_n más el sincronizador de asic_top) más la
     // inicialización de _start/start_screen. Se espera a rst_ni en vez de
     // contar ciclos para no depender de cuánto dura el reset.
     wait (dut.u_soc.rst_ni);
