@@ -58,3 +58,10 @@ Cada decisión registra las opciones, la elegida, la razón y lo que se pierde c
 - Elegida: (a).
 - Razón: los puertos representan la función lógica (1 = segmento encendido); la inversión era propia del display de la Go Board.
 - Qué se pierde: la salida deja de coincidir con la del Proyecto 2; un display activo en bajo necesitaría invertirla afuera.
+
+## D9. Palabras de la RAM de datos (25-10-2026)
+
+- Opciones: (a) 0 palabras, sin RAM de datos; (b) 4 palabras; (c) 64 palabras, el máximo recomendado.
+- Elegida: (b), con el mismo valor en las dos estrategias (DataWords = 4).
+- Razón: el juego usa 0 palabras de datos (0 lecturas y 0 escrituras en la simulación completa, y todos los lw y sw van a periféricos a través de x2). Cuatro palabras mantienen la RAM de datos que pide la estrategia 1 con un costo mínimo, y usar el mismo valor en la estrategia 2 hace que la comparación mida solo cómo se guarda el programa.
+- Qué se pierde: 128 flip-flops que el juego no usa. Con (a), la estrategia 1 quedaría sin la RAM de datos que nombra el enunciado; con (c), la RAM dominaría el área de ambas estrategias.

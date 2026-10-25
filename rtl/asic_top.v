@@ -17,8 +17,8 @@
 // el mismo flanco.
 
 module asic_top #(
-  parameter NumWords        = 512,
-  parameter MemFile         = "sw/game.hex",
+  parameter integer MemStrategy = 1,   // 1: ROM + RAM de datos; 2: unificada en flip-flops
+  parameter integer DataWords   = 4,   // palabras de datos (sección 3.2, decisión D9)
   parameter DebounceTicks   = 3,
   parameter DebounceDivBits = 15
 ) (
@@ -45,8 +45,8 @@ module asic_top #(
   end
 
   pochoco_soc #(
-    .NumWords        (NumWords),
-    .MemFile         (MemFile),
+    .MemStrategy     (MemStrategy),
+    .DataWords       (DataWords),
     .DebounceTicks   (DebounceTicks),
     .DebounceDivBits (DebounceDivBits)
   ) u_soc (

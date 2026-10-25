@@ -29,14 +29,18 @@
 //     una muestra cae dentro del rebote. Con 3 muestras necesarias, ni el
 //     rebote ni un tick posterior alcanzan a mover clean_o.
 //
-// Correr desde la raíz del proyecto (Icarus resuelve $readmemh relativo al
-// cwd del proceso, no al archivo fuente). Con `make sim`, o a mano:
-//   iverilog -g2012 -o build/game_top_tb tb/game_top_tb.v rtl/*.v \
-//            rtl/espino_core/*.v $(yosys-config --datdir)/ice40/cells_sim.v
+// Corre sw/buttons_leds.s: la imagen se elige con -I (ver Makefile,
+// objetivo sim). Correr desde la raíz del proyecto. Con `make sim`, o a mano:
+//   iverilog -g2012 -I build/buttons_leds -o build/game_top_tb \
+//            tb/game_top_tb.v rtl/*.v rtl/espino_core/*.v
 //   vvp build/game_top_tb
 //   gtkwave game_top_tb.vcd
 
 `timescale 1ns/1ps
+
+`ifndef MEM_STRATEGY
+  `define MEM_STRATEGY 1
+`endif
 
 module game_top_tb;
 
@@ -67,7 +71,7 @@ module game_top_tb;
   end
 
   asic_top #(
-    .MemFile         ("sw/buttons_leds.hex"),
+    .MemStrategy     (`MEM_STRATEGY),
     .DebounceDivBits (DIV_BITS)
   ) dut (
     .clk      (clk),

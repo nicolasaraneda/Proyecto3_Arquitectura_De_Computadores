@@ -11,12 +11,15 @@
 # RTL Sources
 SRC  := $(wildcard ./rtl/*.v ./rtl/**/*.v)
 
-# Firmware: asic_top's default MemFile parameter points here. $readmemh
-# bakes sw/game.hex into the bitstream at synth time, so the .hex must be
-# a prerequisite of the synthesis step -- changing the program without
-# re-synthesizing would silently leave the board running stale code.
+# Firmware. En el ASIC no hay $readmemh: el programa entra al RTL como la
+# imagen rtl/gen/game_image.vh, que el assembler genera desde sw/game.s
+# (opción --vh) y que usan las dos estrategias de memoria (sección 3.2).
+# La imagen está versionada para que LibreLane la encuentre sin correr make;
+# `make image` la regenera después de cambiar game.s. sw/game.hex se sigue
+# generando con `make asm`, pero el RTL ya no lo lee.
 ASMSRC := sw/game.s
 HEX    := sw/game.hex
+IMAGE  := rtl/gen/game_image.vh
 
 # Our own assembler (no external RISC-V toolchain is ever invoked -- see
 # docs/assembler.md section 1). Listing its sources as prerequisites means
@@ -27,30 +30,33 @@ ASMDEP := $(wildcard assembler/*.py)
 
 # Simulación
 #
-# Los .hex de simulación son el MISMO sw/game.s con constantes pisadas
-# desde la línea de comandos (opción -D del assembler), no una copia del
-# programa que se pueda desincronizar del original.
+# Cada programa simulado tiene su propia imagen en build/<programa>/, que el
+# testbench toma con -I. Las imágenes del juego salen del MISMO sw/game.s con
+# constantes pisadas desde la línea de comandos (opción -D del assembler), no
+# de una copia del programa que se pueda desincronizar del original.
 #
-#   sw/game_sim.hex     CYCLES_PER_TENTH=2500  -- décima 1000x más corta,
-#                       para que las diez rondas corran en segundos de
-#                       simulación en vez de minutos.
-#   sw/game_sim_r4.hex  además RONDAS=4        -- regresión del bug del
-#                       divisor: el promedio se calcula con una división
-#                       genérica por RONDAS, no con un /10 clavado.
+#   build/game_sim       CYCLES_PER_TENTH=2500  -- décima 1000x más corta,
+#                        para que las diez rondas corran en segundos de
+#                        simulación en vez de minutos.
+#   build/game_sim_r4    además RONDAS=4        -- regresión del bug del
+#                        divisor: el promedio se calcula con una división
+#                        genérica por RONDAS, no con un /10 clavado.
+#   build/buttons_leds   sw/buttons_leds.s, para tb/game_top_tb.v.
 IVERILOG ?= iverilog
 VVP      ?= vvp
 BUILD    := build
 
 SIM_CPT    := 2500
 SIM_RONDAS := 4
-SIM_HEX    := sw/game_sim.hex
-SIM_HEX_R4 := sw/game_sim_r4.hex
+IMG_SIM    := $(BUILD)/game_sim/game_image.vh
+IMG_SIM_R4 := $(BUILD)/game_sim_r4/game_image.vh
+IMG_BTN    := $(BUILD)/buttons_leds/game_image.vh
 
-.PHONY: all asm asm-all test sim check clean
+.PHONY: all image asm asm-all test sim sim1 sim2 check clean
 
 # Default target: todo lo verificable sin LibreLane (el flujo de la FPGA se
 # eliminó en el Proyecto 3; ver docs/decisiones.md, D5)
-all: check
+all: image check
 
 # Step 0: Assemble. Esta es la unión de los dos frentes: sw/*.s se escribe
 # a mano, assembler/ lo traduce, y el resto del flujo hornea el resultado
@@ -71,33 +77,58 @@ ASM_ALL := $(patsubst sw/%.s,sw/%.hex,$(wildcard sw/*.s))
 
 asm-all: $(ASM_ALL)
 
-# Los .hex de simulación salen de sw/game.s, no de un .s propio, así que
-# necesitan reglas explícitas (que le ganan a la regla genérica de arriba).
-$(SIM_HEX): $(ASMSRC) $(ASMDEP)
-	$(PYTHON) $(ASM) $< -o $@ -D CYCLES_PER_TENTH=$(SIM_CPT)
+# Imagen del programa para el RTL del ASIC (versionada).
+$(IMAGE): $(ASMSRC) $(ASMDEP)
+	@mkdir -p $(BUILD)
+	$(PYTHON) $(ASM) $< -o $(BUILD)/game.hex --vh $@
 
-$(SIM_HEX_R4): $(ASMSRC) $(ASMDEP)
-	$(PYTHON) $(ASM) $< -o $@ -D CYCLES_PER_TENTH=$(SIM_CPT) -D RONDAS=$(SIM_RONDAS)
+image: $(IMAGE)
 
-# Assembler test suite (70 tests, includes the golden .hex comparisons)
+# Imágenes de simulación.
+$(IMG_SIM): $(ASMSRC) $(ASMDEP)
+	@mkdir -p $(dir $@)
+	$(PYTHON) $(ASM) $< -o $(dir $@)game.hex --vh $@ -D CYCLES_PER_TENTH=$(SIM_CPT)
+
+$(IMG_SIM_R4): $(ASMSRC) $(ASMDEP)
+	@mkdir -p $(dir $@)
+	$(PYTHON) $(ASM) $< -o $(dir $@)game.hex --vh $@ -D CYCLES_PER_TENTH=$(SIM_CPT) -D RONDAS=$(SIM_RONDAS)
+
+$(IMG_BTN): sw/buttons_leds.s $(ASMDEP)
+	@mkdir -p $(dir $@)
+	$(PYTHON) $(ASM) $< -o $(dir $@)buttons_leds.hex --vh $@
+
+# Assembler test suite (77 tests: golden .hex comparisons and the Verilog image)
 test:
 	cd assembler && $(PYTHON) -m unittest discover -s tests -t .
 
 # Simulación: los dos testbenches más una tercera corrida del testbench del
-# juego con RONDAS=4. Esa tercera corrida es la regresión del divisor: el
-# tiempo de reacción inyectado es el mismo (12 décimas), así que el promedio
-# tiene que seguir dando 12. Con un div10 fijo daría 48/10 = 4.
+# juego con RONDAS=4, para cada estrategia de memoria (sim1: ROM + RAM de
+# datos, sim2: unificada en flip-flops). La tercera corrida es la regresión
+# del divisor: el tiempo de reacción inyectado es el mismo (12 décimas), así
+# que el promedio tiene que seguir dando 12. Con un div10 fijo daría 48/10 = 4.
 #
 # Los testbenches llaman a $fatal si algún check falla, así que vvp devuelve
 # un código de salida distinto de cero y make se detiene.
-sim: $(SIM_HEX) $(SIM_HEX_R4) | $(BUILD)
-	$(IVERILOG) -g2012 -o $(BUILD)/game_top_tb tb/game_top_tb.v $(SRC)
-	$(VVP) $(BUILD)/game_top_tb
-	$(IVERILOG) -g2012 -o $(BUILD)/game_tb tb/game_tb.v $(SRC)
-	$(VVP) $(BUILD)/game_tb
-	$(IVERILOG) -g2012 -DMEMFILE=\"$(SIM_HEX_R4)\" -DRONDAS_N=$(SIM_RONDAS) \
-	            -o $(BUILD)/game_tb_r$(SIM_RONDAS) tb/game_tb.v $(SRC)
-	$(VVP) $(BUILD)/game_tb_r$(SIM_RONDAS)
+define run_sims
+	$(IVERILOG) -g2012 -DMEM_STRATEGY=$(1) -I $(BUILD)/buttons_leds \
+	            -o $(BUILD)/game_top_tb_m$(1) tb/game_top_tb.v $(SRC)
+	$(VVP) $(BUILD)/game_top_tb_m$(1)
+	$(IVERILOG) -g2012 -DMEM_STRATEGY=$(1) -I $(BUILD)/game_sim \
+	            -o $(BUILD)/game_tb_m$(1) tb/game_tb.v $(SRC)
+	$(VVP) $(BUILD)/game_tb_m$(1)
+	$(IVERILOG) -g2012 -DMEM_STRATEGY=$(1) -I $(BUILD)/game_sim_r4 \
+	            -DPROGRAMA=\"game.s,CYCLES_PER_TENTH=$(SIM_CPT),RONDAS=$(SIM_RONDAS)\" -DRONDAS_N=$(SIM_RONDAS) \
+	            -o $(BUILD)/game_tb_r$(SIM_RONDAS)_m$(1) tb/game_tb.v $(SRC)
+	$(VVP) $(BUILD)/game_tb_r$(SIM_RONDAS)_m$(1)
+endef
+
+sim1: $(IMG_SIM) $(IMG_SIM_R4) $(IMG_BTN)
+	$(call run_sims,1)
+
+sim2: $(IMG_SIM) $(IMG_SIM_R4) $(IMG_BTN)
+	$(call run_sims,2)
+
+sim: sim1 sim2
 
 $(BUILD):
 	mkdir -p $(BUILD)
@@ -107,9 +138,8 @@ check: test sim
 
 # Clean up generated files.
 #
-# $(HEX) NO se borra: sw/game.hex está versionado y es parte de la entrega
-# (es lo que $readmemh hornea en el bitstream). Los .hex de simulación sí,
-# que son artefactos derivados y están en .gitignore.
+# $(IMAGE) y $(HEX) NO se borran: están versionados. Las imágenes de
+# simulación viven en build/.
 clean:
-	rm -f $(SIM_HEX) $(SIM_HEX_R4) *.vcd
+	rm -f *.vcd
 	rm -rf $(BUILD)

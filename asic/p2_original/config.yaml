@@ -2,11 +2,15 @@
 # de FPGA aplicados de a uno, para la evidencia de la sección 3.1.
 # El tag de cada corrida indica el estado del RTL (ver evidencia.md).
 # c0a y c0b se corrieron con DESIGN_NAME game_top y CLOCK_PORT i_Clk (game_top se eliminó después).
+# Desde la sección 3.2 este RTL ya no tiene $readmemh; las corridas de las dos
+# estrategias de memoria están en asic/rom y asic/ff.
 DESIGN_NAME: asic_top
 PDK: gf180mcuD
 VERILOG_FILES:
   - dir::../../rtl/*.v
   - dir::../../rtl/espino_core/*.v
+VERILOG_INCLUDE_DIRS:
+  - dir::../../rtl/gen
 CLOCK_PORT: clk
 CLOCK_PERIOD: 100
 FP_CORE_UTIL: 40

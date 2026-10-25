@@ -1,6 +1,6 @@
 # Assembler del Espino Core
 
-Este documento describe el assembler propio del proyecto (`assembler/`), que traduce programas en assembly RV32E, como `sw/game.s`, a archivos `.hex` que el RTL carga con `$readmemh`. Es el contrato entre el código del assembler, sus tests y los programas de `sw/`.
+Este documento describe el assembler propio del proyecto (`assembler/`), que traduce programas en assembly RV32E, como `sw/game.s`, a archivos `.hex` y, desde el Proyecto 3, a la imagen `rtl/gen/game_image.vh` que usan las memorias del ASIC (sección 2). Es el contrato entre el código del assembler, sus tests y los programas de `sw/`.
 
 ## 1. Restricción: no se invoca ningún assembler externo
 
@@ -27,6 +27,7 @@ python3 assembler/asm.py ENTRADA.s [-o SALIDA.hex] [-D NOMBRE=VALOR ...] [--allo
 | `ENTRADA.s`             | Archivo de entrada (obligatorio).                                                          |
 | `-o`, `--output`        | Archivo `.hex` de salida. Por defecto, la entrada con extensión `.hex`.                    |
 | `-D`, `--define`        | `NOMBRE=VALOR`: fija una constante y pisa el `.equ` del mismo nombre. Se puede repetir.    |
+| `--vh SALIDA.vh`        | Escribe además la imagen del programa como include de Verilog (ver abajo).                 |
 | `--allow-shifts`        | Acepta `sll`, `srl`, `sra`, `slli`, `srli` y `srai`.                                       |
 
 Ejemplos:
@@ -35,6 +36,12 @@ Ejemplos:
 python3 assembler/asm.py sw/game.s -o sw/game.hex
 python3 assembler/asm.py sw/game.s -o sw/game_sim.hex -D CYCLES_PER_TENTH=2500
 python3 assembler/asm.py sw/game.s -o sw/game_sim_r4.hex -D CYCLES_PER_TENTH=2500 -D RONDAS=4
+```
+
+**Imagen Verilog (`--vh`, Proyecto 3).** En silicio no hay un `.hex` que se cargue al encender, así que el programa entra al RTL como código Verilog. `--vh` escribe un include con `localparam integer GAME_WORDS` (palabras del programa) y la función `game_word(idx)`: un `case` con una palabra por dirección, comentada con su desensamblado. La estrategia 1 de memoria evalúa `game_word` con la dirección de fetch y queda una ROM combinacional (`rtl/pochoco_rom.v`); la estrategia 2 la evalúa en cada índice como valor de reset de la memoria en flip-flops (`rtl/pochoco_mem_ff.v`). `make image` regenera `rtl/gen/game_image.vh`, y `tests/test_image.py` comprueba que la imagen versionada corresponde al `sw/game.s` actual.
+
+```bash
+python3 assembler/asm.py sw/game.s -o build/game.hex --vh rtl/gen/game_image.vh
 ```
 
 El valor de `-D` acepta los mismos literales que el assembler: decimal, `0x` y `0b`. Si el nombre no existe como `.equ` en el archivo, `-D` igual lo define, de modo que se puede usar para pasar constantes que el programa solo lee. Un `-D` mal formado (sin `=`, o con valor no numérico) termina con error y código de salida 1. Al terminar, el assembler imprime cuántas palabras generó.
@@ -181,7 +188,7 @@ Más las pseudo-instrucciones de la sección 6.
 
 El assembler rechaza con un mensaje de error, indicando el número de línea, los casos siguientes: registro fuera de x0 a x15 o desconocido, shift sin `--allow-shifts`, mnemónico o directiva desconocidos, etiqueta o constante repetida o no definida, inmediato fuera de rango, número incorrecto de operandos, operando de memoria mal formado, salto a dirección impar o fuera de alcance, y programa de más de 512 palabras.
 
-La suite se corre con `make test` y tiene **73 tests**, repartidos así:
+La suite se corre con `make test` y tiene **77 tests**, repartidos así:
 
 | Archivo                          | Tests | Qué verifica                                                                                                  |
 |----------------------------------|-------|---------------------------------------------------------------------------------------------------------------|
@@ -192,7 +199,8 @@ La suite se corre con `make test` y tiene **73 tests**, repartidos así:
 | `tests/test_defines.py`          | 3     | `-D` pisa el `.equ`, `-D` sin `.equ` en el archivo, y valor no numérico es error.                              |
 | `tests/test_validation.py`       | 28    | Todas las validaciones del párrafo anterior, con casos límite en los rangos.                                   |
 | `tests/test_roundtrip.py`        | 5     | Ensamblar, desensamblar con `assembler/disasm.py` y volver a ensamblar da lo mismo, para todas las instrucciones y para los tres ejemplos. Detecta errores de codificación que la comparación con archivos de referencia no ve. |
-| **Total**                        | **73**|                                                                                                               |
+| `tests/test_image.py`            | 4     | Imagen Verilog (`--vh`): mismas palabras que el `.hex`, comentarios de desensamblado y que `rtl/gen/game_image.vh` corresponda al `sw/game.s` actual. |
+| **Total**                        | **77**|                                                                                                               |
 
 ## 9. Ejemplo completo de traducción: `sw x9, OFF_LEDS(x2)`
 

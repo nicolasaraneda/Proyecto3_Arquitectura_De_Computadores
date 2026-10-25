@@ -1,0 +1,15 @@
+# Estrategia 1 de memoria (sección 3.2): ROM combinacional generada por el assembler más una RAM de datos.
+# Mismo RTL para ambas estrategias; la elige MemStrategy (ver docs/memory_map.md).
+DESIGN_NAME: asic_top
+PDK: gf180mcuD
+VERILOG_FILES:
+  - dir::../../rtl/*.v
+  - dir::../../rtl/espino_core/*.v
+VERILOG_INCLUDE_DIRS:
+  - dir::../../rtl/gen
+SYNTH_PARAMETERS:
+  - MemStrategy=1
+  - DataWords=4
+CLOCK_PORT: clk
+CLOCK_PERIOD: 100
+FP_CORE_UTIL: 40

@@ -9,8 +9,8 @@
 // - Nicolás Villegas <navillegas@miuandes.cl>
 
 module pochoco_soc #(
-  parameter NumWords        = 512,
-  parameter MemFile         = "../sw/blink.hex",
+  parameter integer MemStrategy = 1,   // 1: ROM + RAM de datos; 2: unificada en flip-flops
+  parameter integer DataWords   = 4,   // palabras de datos (sección 3.2, decisión D9)
   parameter DebounceTicks   = 3,
   parameter DebounceDivBits = 15
 ) (
@@ -86,18 +86,39 @@ module pochoco_soc #(
   assign data_rdata = rd_is_per ? per_rdata :
                       rd_is_spi ? spi_rdata : ram_b_rdata;
 
-  pochoco_ram #(.NumWords(NumWords), .MemFile(MemFile)) u_ram (
-    .clk_i     (clk),
-    .a_req_i   (instr_req),
-    .a_addr_i  (instr_addr),
-    .a_rdata_o (instr_rdata),
-    .b_req_i   (ram_b_req),
-    .b_we_i    (data_we),
-    .b_be_i    (data_be),
-    .b_addr_i  (data_addr),
-    .b_wdata_i (data_wdata),
-    .b_rdata_o (ram_b_rdata)
-  );
+  // Memoria de instrucciones y datos (sección 3.2). Las dos estrategias
+  // tienen la misma interfaz y temporización que la pochoco_ram del
+  // Proyecto 2; MemStrategy elige cuál se sintetiza.
+  generate
+    if (MemStrategy == 2) begin : g_mem_ff
+      pochoco_mem_ff #(.DataWords(DataWords)) u_mem (
+        .clk_i     (clk),
+        .rst_ni    (rst_ni),
+        .a_req_i   (instr_req),
+        .a_addr_i  (instr_addr),
+        .a_rdata_o (instr_rdata),
+        .b_req_i   (ram_b_req),
+        .b_we_i    (data_we),
+        .b_be_i    (data_be),
+        .b_addr_i  (data_addr),
+        .b_wdata_i (data_wdata),
+        .b_rdata_o (ram_b_rdata)
+      );
+    end else begin : g_mem_rom
+      pochoco_mem_rom #(.DataWords(DataWords)) u_mem (
+        .clk_i     (clk),
+        .a_req_i   (instr_req),
+        .a_addr_i  (instr_addr),
+        .a_rdata_o (instr_rdata),
+        .b_req_i   (ram_b_req),
+        .b_we_i    (data_we),
+        .b_be_i    (data_be),
+        .b_addr_i  (data_addr),
+        .b_wdata_i (data_wdata),
+        .b_rdata_o (ram_b_rdata)
+      );
+    end
+  endgenerate
 
   // Peripherals
   wire [6:0] seg1, seg2;

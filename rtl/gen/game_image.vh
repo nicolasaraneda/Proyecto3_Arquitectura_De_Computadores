@@ -1,0 +1,129 @@
+// Generado por assembler/asm.py a partir de sw/game.s.
+// No editar a mano: se regenera desde el .s (ver Makefile, objetivo image).
+// 115 palabras de programa (460 bytes).
+
+localparam integer GAME_WORDS = 115;
+
+function [31:0] game_word;
+  input integer idx;
+  begin
+    case (idx)
+        0: game_word = 32'h80000137;  // 0x0000: lui x2, 0x80000
+        1: game_word = 32'h04c12237;  // 0x0004: lui x4, 0x4c12
+        2: game_word = 32'hdb720213;  // 0x0008: addi x4, x4, -585
+        3: game_word = 32'h00100193;  // 0x000c: addi x3, x0, 1
+        4: game_word = 32'h00000293;  // 0x0010: addi x5, x0, 0
+        5: game_word = 32'h00000313;  // 0x0014: addi x6, x0, 0
+        6: game_word = 32'h00000493;  // 0x0018: addi x9, x0, 0
+        7: game_word = 32'h00912023;  // 0x001c: sw x9, 0(x2)
+        8: game_word = 32'h00012223;  // 0x0020: sw x0, 4(x2)
+        9: game_word = 32'h00812483;  // 0x0024: lw x9, 8(x2)
+       10: game_word = 32'hfe048ee3;  // 0x0028: beq x9, x0, L0024
+       11: game_word = 32'h00c12183;  // 0x002c: lw x3, 12(x2)
+       12: game_word = 32'h00019463;  // 0x0030: bne x3, x0, L0038
+       13: game_word = 32'h00100193;  // 0x0034: addi x3, x0, 1
+       14: game_word = 32'h00812483;  // 0x0038: lw x9, 8(x2)
+       15: game_word = 32'hfe049ee3;  // 0x003c: bne x9, x0, L0038
+       16: game_word = 32'h00f00493;  // 0x0040: addi x9, x0, 15
+       17: game_word = 32'h00912223;  // 0x0044: sw x9, 4(x2)
+       18: game_word = 32'h00128513;  // 0x0048: addi x10, x5, 1
+       19: game_word = 32'h124000ef;  // 0x004c: jal x1, L0170
+       20: game_word = 32'h01e00513;  // 0x0050: addi x10, x0, 30
+       21: game_word = 32'h144000ef;  // 0x0054: jal x1, L0198
+       22: game_word = 32'h00812483;  // 0x0058: lw x9, 8(x2)
+       23: game_word = 32'hfe049ee3;  // 0x005c: bne x9, x0, L0058
+       24: game_word = 32'h0031f493;  // 0x0060: andi x9, x3, 3
+       25: game_word = 32'h00100393;  // 0x0064: addi x7, x0, 1
+       26: game_word = 32'h00048863;  // 0x0068: beq x9, x0, L0078
+       27: game_word = 32'h007383b3;  // 0x006c: add x7, x7, x7
+       28: game_word = 32'hfff48493;  // 0x0070: addi x9, x9, -1
+       29: game_word = 32'hff5ff06f;  // 0x0074: jal x0, L0068
+       30: game_word = 32'h00712223;  // 0x0078: sw x7, 4(x2)
+       31: game_word = 32'h00c12403;  // 0x007c: lw x8, 12(x2)
+       32: game_word = 32'h00812483;  // 0x0080: lw x9, 8(x2)
+       33: game_word = 32'h0001c663;  // 0x0084: blt x3, x0, L0090
+       34: game_word = 32'h003181b3;  // 0x0088: add x3, x3, x3
+       35: game_word = 32'h00c0006f;  // 0x008c: jal x0, L0098
+       36: game_word = 32'h003181b3;  // 0x0090: add x3, x3, x3
+       37: game_word = 32'h0041c1b3;  // 0x0094: xor x3, x3, x4
+       38: game_word = 32'hfe0484e3;  // 0x0098: beq x9, x0, L0080
+       39: game_word = 32'h00748e63;  // 0x009c: beq x9, x7, L00b8
+       40: game_word = 32'h0ee00493;  // 0x00a0: addi x9, x0, 238
+       41: game_word = 32'h00912023;  // 0x00a4: sw x9, 0(x2)
+       42: game_word = 32'h00012223;  // 0x00a8: sw x0, 4(x2)
+       43: game_word = 32'h00a00513;  // 0x00ac: addi x10, x0, 10
+       44: game_word = 32'h0e8000ef;  // 0x00b0: jal x1, L0198
+       45: game_word = 32'hf8dff06f;  // 0x00b4: jal x0, L0040
+       46: game_word = 32'h00c12483;  // 0x00b8: lw x9, 12(x2)
+       47: game_word = 32'h40848533;  // 0x00bc: sub x10, x9, x8
+       48: game_word = 32'h084007ef;  // 0x00c0: jal x15, L0144
+       49: game_word = 32'h00a30333;  // 0x00c4: add x6, x6, x10
+       50: game_word = 32'h00128293;  // 0x00c8: addi x5, x5, 1
+       51: game_word = 32'h0a4000ef;  // 0x00cc: jal x1, L0170
+       52: game_word = 32'h00c00513;  // 0x00d0: addi x10, x0, 12
+       53: game_word = 32'h0c4000ef;  // 0x00d4: jal x1, L0198
+       54: game_word = 32'h00a00493;  // 0x00d8: addi x9, x0, 10
+       55: game_word = 32'hf69292e3;  // 0x00dc: bne x5, x9, L0040
+       56: game_word = 32'h0aa00493;  // 0x00e0: addi x9, x0, 170
+       57: game_word = 32'h00912023;  // 0x00e4: sw x9, 0(x2)
+       58: game_word = 32'h00a00513;  // 0x00e8: addi x10, x0, 10
+       59: game_word = 32'h0ac000ef;  // 0x00ec: jal x1, L0198
+       60: game_word = 32'h00030513;  // 0x00f0: addi x10, x6, 0
+       61: game_word = 32'h00a00613;  // 0x00f4: addi x12, x0, 10
+       62: game_word = 32'h028007ef;  // 0x00f8: jal x15, L0120
+       63: game_word = 32'h074000ef;  // 0x00fc: jal x1, L0170
+       64: game_word = 32'h00000393;  // 0x0100: addi x7, x0, 0
+       65: game_word = 32'h00f3c393;  // 0x0104: xori x7, x7, 15
+       66: game_word = 32'h00712223;  // 0x0108: sw x7, 4(x2)
+       67: game_word = 32'h00500513;  // 0x010c: addi x10, x0, 5
+       68: game_word = 32'h088000ef;  // 0x0110: jal x1, L0198
+       69: game_word = 32'h00812483;  // 0x0114: lw x9, 8(x2)
+       70: game_word = 32'hfe0486e3;  // 0x0118: beq x9, x0, L0104
+       71: game_word = 32'hee5ff06f;  // 0x011c: jal x0, L0000
+       72: game_word = 32'h00000493;  // 0x0120: addi x9, x0, 0
+       73: game_word = 32'h00060a63;  // 0x0124: beq x12, x0, L0138
+       74: game_word = 32'h00c56863;  // 0x0128: bltu x10, x12, L0138
+       75: game_word = 32'h40c50533;  // 0x012c: sub x10, x10, x12
+       76: game_word = 32'h00148493;  // 0x0130: addi x9, x9, 1
+       77: game_word = 32'hff5ff06f;  // 0x0134: jal x0, L0128
+       78: game_word = 32'h00050593;  // 0x0138: addi x11, x10, 0
+       79: game_word = 32'h00048513;  // 0x013c: addi x10, x9, 0
+       80: game_word = 32'h00078067;  // 0x0140: jalr x0, 0(x15)
+       81: game_word = 32'h00000493;  // 0x0144: addi x9, x0, 0
+       82: game_word = 32'h00262637;  // 0x0148: lui x12, 0x262
+       83: game_word = 32'h5a060613;  // 0x014c: addi x12, x12, 1440
+       84: game_word = 32'h06300693;  // 0x0150: addi x13, x0, 99
+       85: game_word = 32'h00d48a63;  // 0x0154: beq x9, x13, L0168
+       86: game_word = 32'h00c56863;  // 0x0158: bltu x10, x12, L0168
+       87: game_word = 32'h40c50533;  // 0x015c: sub x10, x10, x12
+       88: game_word = 32'h00148493;  // 0x0160: addi x9, x9, 1
+       89: game_word = 32'hff1ff06f;  // 0x0164: jal x0, L0154
+       90: game_word = 32'h00048513;  // 0x0168: addi x10, x9, 0
+       91: game_word = 32'h00078067;  // 0x016c: jalr x0, 0(x15)
+       92: game_word = 32'h00a00613;  // 0x0170: addi x12, x0, 10
+       93: game_word = 32'hfadff7ef;  // 0x0174: jal x15, L0120
+       94: game_word = 32'h00050493;  // 0x0178: addi x9, x10, 0
+       95: game_word = 32'h009484b3;  // 0x017c: add x9, x9, x9
+       96: game_word = 32'h009484b3;  // 0x0180: add x9, x9, x9
+       97: game_word = 32'h009484b3;  // 0x0184: add x9, x9, x9
+       98: game_word = 32'h009484b3;  // 0x0188: add x9, x9, x9
+       99: game_word = 32'h00b484b3;  // 0x018c: add x9, x9, x11
+      100: game_word = 32'h00912023;  // 0x0190: sw x9, 0(x2)
+      101: game_word = 32'h00008067;  // 0x0194: jalr x0, 0(x1)
+      102: game_word = 32'h00000593;  // 0x0198: addi x11, x0, 0
+      103: game_word = 32'h00262637;  // 0x019c: lui x12, 0x262
+      104: game_word = 32'h5a060613;  // 0x01a0: addi x12, x12, 1440
+      105: game_word = 32'h00050693;  // 0x01a4: addi x13, x10, 0
+      106: game_word = 32'h00068863;  // 0x01a8: beq x13, x0, L01b8
+      107: game_word = 32'h00c585b3;  // 0x01ac: add x11, x11, x12
+      108: game_word = 32'hfff68693;  // 0x01b0: addi x13, x13, -1
+      109: game_word = 32'hff5ff06f;  // 0x01b4: jal x0, L01a8
+      110: game_word = 32'h00c12483;  // 0x01b8: lw x9, 12(x2)
+      111: game_word = 32'h00c12683;  // 0x01bc: lw x13, 12(x2)
+      112: game_word = 32'h40968733;  // 0x01c0: sub x14, x13, x9
+      113: game_word = 32'hfeb76ce3;  // 0x01c4: bltu x14, x11, L01bc
+      114: game_word = 32'h00008067;  // 0x01c8: jalr x0, 0(x1)
+      default: game_word = 32'h00000000;
+    endcase
+  end
+endfunction

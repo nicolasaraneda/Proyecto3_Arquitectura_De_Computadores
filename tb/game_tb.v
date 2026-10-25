@@ -52,17 +52,20 @@
 //
 // VARIANTES
 // ----------
-// MEMFILE y RONDAS_N se pueden pisar desde la línea de comandos para correr
-// la regresión del divisor (`make sim` la corre):
-//   iverilog -g2012 -DMEMFILE=\"sw/game_sim_r4.hex\" -DRONDAS_N=4 ...
+// El programa que corre lo decide la imagen game_image.vh que se le pasa a
+// iverilog con -I (ver Makefile, objetivo sim). RONDAS_N tiene que coincidir
+// con el RONDAS con que se ensambló esa imagen, y PROGRAMA es solo la
+// etiqueta que se imprime. MEM_STRATEGY elige la memoria (1: ROM + RAM de
+// datos, 2: unificada en flip-flops). La regresión del divisor (`make sim`
+// la corre) usa una imagen ensamblada con -D RONDAS=4:
+//   iverilog -g2012 -I build/game_sim_r4 -DPROGRAMA=\"game.s,RONDAS=4\" -DRONDAS_N=4 ...
 // Con RONDAS=4 el tiempo de reacción inyectado sigue siendo 12 décimas, así
 // que el promedio tiene que seguir dando 12. Con un div10 clavado en vez de
 // la división genérica por RONDAS daría 48/10 = 4.
 //
-// Correr desde la raíz del proyecto (Icarus resuelve $readmemh relativo al
-// cwd del proceso, no al archivo fuente). Con `make sim`, o a mano:
-//   iverilog -g2012 -o build/game_tb tb/game_tb.v rtl/*.v \
-//            rtl/espino_core/*.v $(yosys-config --datdir)/ice40/cells_sim.v
+// Correr desde la raíz del proyecto. Con `make sim`, o a mano:
+//   iverilog -g2012 -I build/game_sim -o build/game_tb tb/game_tb.v \
+//            rtl/*.v rtl/espino_core/*.v
 //   vvp build/game_tb
 // Agregar -DDUMP para generar game_tb.vcd (son ~1,6 millones de ciclos: el
 // volcado completo de la jerarquía pesa cientos de MB, por eso no es el
@@ -70,8 +73,12 @@
 
 `timescale 1ns/1ps
 
-`ifndef MEMFILE
-  `define MEMFILE "sw/game_sim.hex"
+`ifndef PROGRAMA
+  `define PROGRAMA "game.s,CYCLES_PER_TENTH=2500"
+`endif
+
+`ifndef MEM_STRATEGY
+  `define MEM_STRATEGY 1
 `endif
 
 `ifndef RONDAS_N
@@ -146,7 +153,7 @@ module game_tb;
   end
 
   asic_top #(
-    .MemFile         (`MEMFILE),
+    .MemStrategy     (`MEM_STRATEGY),
     .DebounceDivBits (DIV_BITS)
   ) dut (
     .clk      (clk),
@@ -170,6 +177,25 @@ module game_tb;
   wire [3:0]  led_q  = dut.u_soc.u_periph.led_q;
 
   always #(CLK_PERIOD/2) clk = ~clk;
+
+  // Uso real de memoria (sección 3.2). Cuenta los accesos del programa a la
+  // memoria de datos (todo acceso del puerto de datos fuera de los
+  // periféricos) y la dirección más alta de una instrucción ejecutada (no
+  // solo buscada: tras un salto el fetch alcanza a pedir la palabra
+  // siguiente, que se descarta). Se imprime al final, junto al PASS.
+  integer    n_data_rd = 0, n_data_wr = 0;
+  reg [31:0] max_exec = 32'b0;
+  always @(posedge clk) begin
+    if (dut.u_soc.rst_ni) begin
+      if (dut.u_soc.ram_b_req) begin
+        if (dut.u_soc.data_we) n_data_wr = n_data_wr + 1;
+        else                   n_data_rd = n_data_rd + 1;
+      end
+      if (dut.u_soc.u_core.instr_valid_id && !dut.u_soc.u_core.stall &&
+          dut.u_soc.u_core.pc_id > max_exec)
+        max_exec = dut.u_soc.u_core.pc_id;
+    end
+  end
 
   // ---------------------------------------------------------------------
   // Utilidades
@@ -358,8 +384,8 @@ module game_tb;
       $fatal(1, "RONDAS=%0d es muy chico para ejercer el error en la ronda %0d",
              RONDAS, MISS_ON_ROUND);
 
-    $display("== game_tb: MEMFILE=%0s, RONDAS=%0d, reaccion inyectada=%0d decimas ==",
-             `MEMFILE, RONDAS, REACTION_TENTHS);
+    $display("== game_tb: programa %0s, memoria estrategia %0d, RONDAS=%0d, reaccion inyectada=%0d decimas ==",
+             `PROGRAMA, `MEM_STRATEGY, RONDAS, REACTION_TENTHS);
 
     // Deja pasar el reset (rst_n más el sincronizador de asic_top) más la
     // inicialización de _start/start_screen. Se espera a rst_ni en vez de
@@ -414,6 +440,9 @@ module game_tb;
     check(disp_q === PAT_START && led_q === 4'b0000,
           "reinicio: el juego quedo en la pantalla de inicio, no parpadeando");
     switch = 4'b0000;
+
+    $display("uso de memoria: %0d lecturas y %0d escrituras de datos; instruccion mas alta ejecutada en 0x%0h (palabra %0d)",
+             n_data_rd, n_data_wr, max_exec, max_exec >> 2);
 
     if (errors == 0) begin
       $display("\n=== PASS: todos los checks OK ===");

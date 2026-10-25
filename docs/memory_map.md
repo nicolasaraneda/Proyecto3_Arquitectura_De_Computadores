@@ -4,19 +4,26 @@ Este documento es el contrato entre el hardware (`rtl/`) y el software (`sw/game
 
 ## Espacio de direcciones
 
-El decodificador de `rtl/pochoco_soc.v` mira solo dos bits de la dirección de datos: el bit 31 distingue RAM de periféricos y el bit 16 distingue, dentro de los periféricos, el bloque de la placa del SPI.
+El decodificador de `rtl/pochoco_soc.v` mira solo dos bits de la dirección de datos: el bit 31 distingue memoria de periféricos y el bit 16 distingue, dentro de los periféricos, el bloque de la placa del SPI.
 
-| Base          | Tamaño        | Contenido                                      |
-|---------------|---------------|------------------------------------------------|
-| `0x0000_0000` | 512 palabras  | RAM unificada de instrucciones y datos (2 KiB) |
-| `0x8000_0000` | 4 registros   | Periféricos de la placa (ver tabla siguiente)  |
-| `0x8001_0000` | (sin instanciar) | Esclavo SPI                                 |
+| Base          | Tamaño           | Contenido                                     |
+|---------------|------------------|-----------------------------------------------|
+| `0x0000_0000` | según estrategia | Memoria de instrucciones y datos (ver abajo)  |
+| `0x8000_0000` | 4 registros      | Periféricos (ver tabla siguiente)             |
+| `0x8001_0000` | (sin instanciar) | Esclavo SPI                                   |
 
-La RAM parte en la dirección 0, que es también la dirección de arranque del core (`BootAddr`). El programa completo, con sus constantes, tiene que caber en 512 palabras; el assembler lo verifica.
+El programa parte en la dirección 0, que es también la dirección de arranque del core (`BootAddr`). En el ASIC no hay `$readmemh`: el assembler genera `rtl/gen/game_image.vh` a partir de `sw/game.s` (`make image`), y las dos estrategias de memoria de la sección 3.2 del enunciado la usan. `MemStrategy` (parámetro de `asic_top`) elige cuál se sintetiza:
+
+| `MemStrategy` | Instrucciones                                                        | Datos                                                                  |
+|---------------|----------------------------------------------------------------------|------------------------------------------------------------------------|
+| 1             | ROM combinacional (`rtl/pochoco_rom.v`) de `GAME_WORDS` palabras     | RAM separada de `DataWords` palabras en flip-flops, dirección módulo `DataWords` |
+| 2             | Memoria unificada en flip-flops (`rtl/pochoco_mem_ff.v`): palabras 0 a `GAME_WORDS`-1, cargadas con el programa en el reset | Palabras `GAME_WORDS` en adelante (`DataWords` palabras), en 0 tras el reset |
+
+Con la estrategia 1 el puerto de datos ya no ve las instrucciones; el juego nunca las lee como datos. En ambas, una dirección de instrucción fuera del programa lee 0, y las dos mantienen la temporización de la RAM del Proyecto 2 (sección "Temporización de los accesos").
 
 ### Por qué el SPI no se instancia
 
-El módulo `rtl/pochoco_spi_slave.v` viene con el repositorio original pero este proyecto no lo usa. Instanciarlo cuesta unos 86 LCs y la FPGA de la Go Board (iCE40 HX1K) tiene solo 1280, con el diseño ya cerca del límite (ver README, sección de recursos). Por eso `pochoco_soc.v` deja `spi_rdata` en cero y ata `o_SPI_MISO` a 1. El archivo queda intacto por si algún día hace falta, y los pines siguen conectados para no romper `goboard.pcf`.
+El módulo `rtl/pochoco_spi_slave.v` viene con el repositorio original pero el juego no lo usa. En el Proyecto 2 no se instanció para ahorrar LCs de la FPGA; en el ASIC sigue sin instanciarse porque nada lo usa (`docs/decisiones.md`, D7). `pochoco_soc.v` deja `spi_rdata` en cero y fija `o_SPI_MISO` en 1, y los puertos SPI de `asic_top` existen porque el enunciado los pide como terminales del macro.
 
 ## Registros de periférico
 

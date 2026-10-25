@@ -482,6 +482,48 @@ def format_hex(words):
     return "\n".join(f"{w & 0xFFFFFFFF:08x}" for w in words) + "\n"
 
 
+def format_verilog_image(words, source_name="", allow_shifts=False):
+    """Imagen del programa como include de Verilog (Proyecto 3).
+
+    Define GAME_WORDS y la función game_word(idx), un case con una palabra
+    por dirección, comentada con su desensamblado. El RTL la usa de dos
+    formas: la estrategia 1 la evalúa con la dirección de fetch y queda una
+    ROM combinacional; la estrategia 2 la evalúa en índices constantes como
+    valor de reset de la memoria en flip-flops.
+    """
+    from disasm import decode_one  # import local: disasm importa de core
+
+    lines = [
+        f"// Generado por assembler/asm.py a partir de {source_name or 'el programa'}.",
+        "// No editar a mano: se regenera desde el .s (ver Makefile, objetivo image).",
+        f"// {len(words)} palabras de programa ({len(words) * 4} bytes).",
+        "",
+        f"localparam integer GAME_WORDS = {len(words)};",
+        "",
+        "function [31:0] game_word;",
+        "  input integer idx;",
+        "  begin",
+        "    case (idx)",
+    ]
+    width = len(str(max(len(words) - 1, 0)))
+    for i, w in enumerate(words):
+        w &= 0xFFFFFFFF
+        try:
+            text = decode_one(w, 4 * i, allow_shifts=allow_shifts)
+        except Exception:
+            text = None
+        comment = f"0x{4 * i:04x}: {text}" if text else f"0x{4 * i:04x}: .word 0x{w:08x}"
+        lines.append(f"      {i:>{width}}: game_word = 32'h{w:08x};  // {comment}")
+    lines += [
+        "      default: game_word = 32'h00000000;",
+        "    endcase",
+        "  end",
+        "endfunction",
+        "",
+    ]
+    return "\n".join(lines)
+
+
 def assemble_file(input_path, output_path, allow_shifts=False, defines=None):
     with open(input_path, "r", encoding="utf-8") as f:
         text = f.read()
