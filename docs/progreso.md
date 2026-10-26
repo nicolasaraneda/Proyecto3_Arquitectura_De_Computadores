@@ -25,9 +25,9 @@ corridas nuevas si `free -m` muestra más de 20000 MB usados.
 | A7 simulación post-síntesis (`make post-synth`) | hecha: PASS, 0 X; post-synth-final PASS (pulsación real, 320k ciclos); SDF: iverilog necesita -gspecify -ginterconnect, en prueba | `make post-synth`; estímulos: `python3 asic/sim/calibrar.py`; resultado en asic/sim/resultado.md |
 | A8 README final | hecha (versiones, corrida final, make final, estructura) | README.md |
 | A9 `docs/datos_informe.md` y `docs/defensa.md` | hechas; se completan con los resultados del bloque B a medida que llegan | |
-| B1 exp/signoff | variantes b1a (fanout 6), b1c (reparación post-GRT 30 %), b1d (sin buf_2), b1e (CTS_MAX_CAP 0,15) en el lote 6 | `build/exp_signoff` |
+| B1 exp/signoff | primera ronda lista (b1a: 272/1 pero +5,3 % de área; b1c: 489/19 con +0,5 %; b1d peor; b1e sin efecto); segunda ronda b1f (fanout 8), b1g (márgenes 30 %), b1h (fanout 8 + post-GRT) en el lote 8; falta la mejor a 26 ns | `build/exp_signoff`, asic/exploraciones.md |
 | B2 exp/lsu-offset | hecha: cierra a 24 ns (41,7 MHz; main 25), área -0,6 %; b2_t23 y b2_t22 en el lote 7; datos en la rama (asic/barrido_exp.md) | `build/exp_lsu_offset`, commit 84e5e10 |
 | B3 exp/branch-cmp | hecha: sola no mejora (26 cierra, 24 no), área +0,9 %; combinación B2+B3 (exp/lsu-branch): 100 y 24 (no cierra, -0,84) listas, 26 en curso | commits 6ef475f (b3) y 71f9170 (b23) |
-| B4 exp/cpi | RTL hecho y verificado (check PASS, equiv funcional); CPI 1,004 (isa_test) y 1,312 (juego) contra 2,953 y 2,665; corridas b4_t100/60/45 en el lote 6 | commit 91a6c3b + merge de main |
-| B5 exp/rf-latch (opcional) | RTL hecho y verificado (check PASS, equiv ciclo a ciclo); corridas b5_t100 y b5_t26 en el lote 7 | `build/exp_rf_latch`, commit 792d410 |
+| B4 exp/cpi | hecha: área -13,3 %, cierra a 60 ns (1,73 ns) y no a 45 (-1,75); b4_t55 y b4_t50 en el lote 8; MIPS 12,7 contra 15,0 (provisorio) | `build/exp_cpi`, datos en la rama |
+| B5 exp/rf-latch (opcional) | RTL hecho y verificado (check PASS, equiv ciclo a ciclo); el primer intento de corrida falló en el lint de Verilator (latches): corregido con always_latch y LINTER_ERROR_ON_LATCH=false; b5_t100 y b5_t26 en el lote 8 | `build/exp_rf_latch`, commit ef957ef |
 | C1 GIF del chip construyéndose (opcional) | hecha: docs/figuras/construccion.gif (12 etapas) | `make animacion RUN=asic/rom/runs/final` |
