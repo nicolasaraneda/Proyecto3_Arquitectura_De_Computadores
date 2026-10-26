@@ -146,8 +146,12 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
   con `RUN_HEURISTIC_DIODE_INSERTION=true`: 0 nets en violación
   (`asic/ff/resultados/s2_t100_diodos/antenna_summary.rpt`), figura `antena_despues.png`
   y `_zoom.png`; costo: 36.385 celdas de antena (contra 150), área de celdas 838.173 ->
-  992.171 µm² (+18 %), WNS de setup 39,65 -> 23,65 ns. Para la estrategia 1 no hizo
-  falta (0 violaciones en todas sus corridas).
+  992.171 µm² (+18 %), WNS de setup 39,65 -> 23,65 ns. Alternativa más barata, corrida
+  `s2_t100_antrep` (`GRT_ANTENNA_REPAIR_ITERS = 6`, `GRT_ANTENNA_REPAIR_MARGIN = 30`, sin
+  diodos heurísticos): también 0 violaciones, con 110 diodos (contra 73 originales) y
+  833.559 µm² de celdas (menos que la original), WNS 30,03 ns; figura
+  `asic/ff/resultados/s2_t100_antrep/layout/antena_antrep.png` (el net queda en 32 tramos
+  contra 76). Para la estrategia 1 no hizo falta (0 violaciones en todas sus corridas).
   Otra que apareció y se resolvió sola: con D21 el ruteo detallado parte con 1.546
   violaciones de DRC en la iteración 0 (contra 6 sin orden de pines, z3_t100) y
   termina en 0 en la iteración 3 (`route__drc_errors__iter:N` de `metrics.json`).

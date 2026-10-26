@@ -39,8 +39,9 @@ completo (`game_tb`); 546 violaciones de max slew y 36 de max capacitancia a 100
   idénticas ciclo a ciclo (1018 eventos, dos estrategias de memoria).
 - Corridas (`asic/barrido_exp.md` de la rama): b2_t100 cierra con WNS 67,04 ns en max_ss
   (main 65,22) y 181.170 µm² de celdas (main 182.265, -0,6 %); b2_t26 cierra con 4,54 ns
-  (main 2,00); b2_t24 cierra con 0,09 ns (main no cierra por 0,004). Período mínimo 24 ns
-  (41,7 MHz) contra 25 ns; b2_t23 y b2_t22 en el lote 7. La ruta crítica a 24 ns ya no
+  (main 2,00); b2_t24 cierra con 0,09 ns (main no cierra por 0,004); b2_t23 (-0,91) y
+  b2_t22 (-1,91) no cierran, con el mismo layout que b2_t24. Período mínimo 24 ns
+  (41,7 MHz) contra 25 ns. La ruta crítica a 24 ns ya no
   pasa por la ALU: va de `rf_ready` (ops_valid_q) por el control de stall y `rf_we` a los
   muxes de retención del banco (`build/exp_lsu_offset/asic/rom/resultados/b2_t24/layout/ruta_critica.txt`).
   Slew y capacitancia a 100 ns: 672 / 40 (main 546 / 36).
