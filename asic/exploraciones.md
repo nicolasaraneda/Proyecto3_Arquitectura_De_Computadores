@@ -160,4 +160,17 @@ violaciones de capacitancia del árbol de reloj (buffer raíz) no las mueve ning
   Un primer intento con el enable registrado (`we_q`, `waddr_q`) falló (X en las
   lecturas): el clock gate muestrea el enable en la fase baja anterior al flanco, así
   que un enable registrado llega un ciclo tarde respecto del dato.
-- Pendiente: STA (chequeos de clock gating y latches), DRC, LVS y área en las corridas.
+- Corridas (`asic/barrido_exp.md` de la rama): b5_t100 cierra con DRC, LVS y antenas
+  limpios y hold 0,16 ns; área de celdas 165.369 µm² (-9,3 % contra main; die 353.516 µm²,
+  -13,6 %), 8.073 celdas; la síntesis mapeó los 480 `latq_1` y los 15 `icgtp_1`
+  (`06-yosys-synthesis/reports/stat.rpt`) y las violaciones de slew y capacitancia bajan a
+  312 y 2 (main 546 y 36) porque desaparecen los 480 muxes de retención y sus buffers de
+  fanout. STA: OpenSTA trata los 480 latches como "positive level-sensitive latch" con
+  préstamo de tiempo (la ruta `wdata_q` -> latch toma prestados 3,38 ns de los 49,3
+  disponibles y reporta slack 0,000 por convención: un latch abierto "cumple" mientras le
+  quede préstamo), y agrega chequeos de clock gating en las 15 celdas `icgtp_1`
+  ("clock gating-check end-point" en `sta.log`), todos cumplidos. El CTS construye un
+  árbol de buffers por cada reloj gated. b5_t26: pendiente (ResizerTimingPostCTS largo).
+- Limitación del criterio: el WNS de setup que reporta la corrida es 0,000 porque los
+  endpoints de latch quedan en 0 con préstamo; el margen real de las rutas a flip-flops hay
+  que leerlo en `max.rpt` (las rutas que no terminan en latch).
