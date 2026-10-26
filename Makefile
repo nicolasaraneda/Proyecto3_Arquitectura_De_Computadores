@@ -57,7 +57,7 @@ IMG_SIM    := $(BUILD)/game_sim/game_image.vh
 IMG_SIM_R4 := $(BUILD)/game_sim_r4/game_image.vh
 IMG_BTN    := $(BUILD)/buttons_leds/game_image.vh
 
-.PHONY: all image asm asm-all test sim sim1 sim2 check equiv clean
+.PHONY: all image asm asm-all test sim sim1 sim2 check equiv clean post-synth sim-netlist post-synth-final final layout
 
 # Default target: todo lo verificable sin LibreLane (el flujo de la FPGA se
 # eliminó en el Proyecto 3; ver docs/decisiones.md, D5)
@@ -171,8 +171,97 @@ equiv: $(IMG_ISA)
 $(BUILD):
 	mkdir -p $(BUILD)
 
+# Simulación post-síntesis (Proyecto 3, sección 3.7).
+#
+# El mismo testbench (tb/post_synth_tb.v, solo puertos de asic_top) y el mismo
+# archivo de estímulos (asic/sim/estimulos.txt, generado por
+# asic/sim/calibrar.py corriendo el RTL por etapas) se aplican al RTL y al
+# netlist de celdas estándar, y las dos trazas tienen que ser idénticas.
+#
+# Configuración común a las dos simulaciones (documentada en asic/sim/README.md):
+#   - game.s ensamblado con -D CYCLES_PER_TENTH=1: una "décima" es un ciclo,
+#     así que el display muestra directamente los ciclos medidos (saturados
+#     en 99) y las esperas de 30, 12 y 10 décimas duran decenas de ciclos;
+#   - DebounceDivBits=2 (tick cada 4 ciclos; un botón se acepta en ~12 ciclos),
+#     por SYNTH_PARAMETERS en el netlist y por parámetro en el RTL.
+# El netlist sale de LibreLane hasta Yosys.Synthesis con asic/sim/config.yaml,
+# que se genera desde la configuración final (asic/sim/generar_config.py) y
+# solo cambia la ROM y ese parámetro.
+PDK_ROOT ?= $(HOME)/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee
+PDK      ?= gf180mcuD
+SCL      := gf180mcu_fd_sc_mcu7t5v0
+CELDAS_V := $(PDK_ROOT)/$(PDK)/libs.ref/$(SCL)/verilog/primitives.v \
+            $(PDK_ROOT)/$(PDK)/libs.ref/$(SCL)/verilog/$(SCL).v
+LIBRELANE ?= $(HOME)/herramientas/librelane/bin/librelane --dockerized --pdk $(PDK)
+SIM_DIVBITS := 2
+PS          := $(BUILD)/post_synth
+ROM_SIM     := asic/sim/gen/pochoco_rom.v
+NETLIST_SIM := asic/sim/runs/sim_rom/06-yosys-synthesis/asic_top.nl.v
+EST         := asic/sim/estimulos.txt
+PS_CICLOS   := 4500
+
+$(ROM_SIM): $(ASMSRC) $(ASMDEP)
+	@mkdir -p asic/sim/gen $(PS)
+	$(PYTHON) $(ASM) $< -o $(PS)/game_sim1.hex --vh asic/sim/gen/game_image.vh --rom $@ -D CYCLES_PER_TENTH=1
+
+asic/sim/config.yaml: asic/rom/config.yaml asic/sim/generar_config.py
+	$(PYTHON) asic/sim/generar_config.py --div-bits $(SIM_DIVBITS)
+
+# Síntesis del netlist de simulación (necesita Docker; ~1 minuto).
+$(NETLIST_SIM): asic/sim/config.yaml $(ROM_SIM) $(SRC)
+	$(LIBRELANE) asic/sim/config.yaml --run-tag sim_rom --overwrite --to Yosys.Synthesis
+
+sim-netlist: $(NETLIST_SIM)
+
+# Regenera los estímulos corriendo el RTL por etapas (solo si cambia el
+# programa o el escenario; el archivo está versionado).
+$(EST): asic/sim/calibrar.py tb/post_synth_tb.v $(ROM_SIM)
+	$(PYTHON) asic/sim/calibrar.py --salida $@
+
+post-synth: $(ROM_SIM) $(NETLIST_SIM) $(EST)
+	@mkdir -p $(PS)
+	$(IVERILOG) -g2012 -I asic/sim/gen -DESTIMULOS=\"$(EST)\" -DTRAZA=\"$(PS)/traza_rtl.txt\" \
+	            -DCICLOS=$(PS_CICLOS) -DDIV_BITS=$(SIM_DIVBITS) \
+	            -o $(PS)/tb_rtl tb/post_synth_tb.v $(SRC) $(ROM_SIM)
+	$(VVP) $(PS)/tb_rtl
+	$(IVERILOG) -g2012 -DNETLIST -DFUNCTIONAL -DESTIMULOS=\"$(EST)\" -DTRAZA=\"$(PS)/traza_netlist.txt\" \
+	            -DCICLOS=$(PS_CICLOS) \
+	            -o $(PS)/tb_netlist tb/post_synth_tb.v $(NETLIST_SIM) $(CELDAS_V)
+	$(VVP) $(PS)/tb_netlist
+	$(PYTHON) asic/sim/comparar.py $(PS)/traza_rtl.txt $(PS)/traza_netlist.txt --md asic/sim/resultado.md
+
+# Extra: el netlist de la corrida final (constantes reales del juego) debe
+# llegar a la pantalla de inicio igual que el RTL con la ROM real. Sin
+# estímulos, 5000 ciclos: la pantalla de inicio aparece en los primeros
+# ciclos y después el programa espera una pulsación. El RTL usa
+# DebounceDivBits=15 (el valor real) para que las dos simulaciones sean
+# el mismo circuito.
+NETLIST_FINAL ?= asic/rom/runs/final/final/nl/asic_top.nl.v
+post-synth-final: $(NETLIST_FINAL)
+	@mkdir -p $(PS)
+	printf '# sin estimulos: solo reset y pantalla de inicio\n' > $(PS)/sin_estimulos.txt
+	$(IVERILOG) -g2012 -I rtl/gen -DESTIMULOS=\"$(PS)/sin_estimulos.txt\" -DTRAZA=\"$(PS)/traza_rtl_final.txt\" \
+	            -DCICLOS=5000 -DDIV_BITS=15 -o $(PS)/tb_rtl_final tb/post_synth_tb.v $(SRC) rtl/gen/pochoco_rom.v
+	$(VVP) $(PS)/tb_rtl_final
+	$(IVERILOG) -g2012 -DNETLIST -DFUNCTIONAL -DESTIMULOS=\"$(PS)/sin_estimulos.txt\" -DTRAZA=\"$(PS)/traza_netlist_final.txt\" \
+	            -DCICLOS=5000 -o $(PS)/tb_netlist_final tb/post_synth_tb.v $(NETLIST_FINAL) $(CELDAS_V)
+	$(VVP) $(PS)/tb_netlist_final
+	$(PYTHON) asic/sim/comparar.py $(PS)/traza_rtl_final.txt $(PS)/traza_netlist_final.txt --md asic/sim/resultado_final.md
+
 # Todo lo verificable de una: los tests del assembler y los testbenches.
 check: test sim
+
+# Corrida final del ASIC (sección 2) y todo lo que depende de ella: criterios
+# de cierre, tablas, síntesis jerárquica, figuras del layout, segundo DRC,
+# simulación post-síntesis y versiones. Ver asic/final.sh. Necesita Docker.
+final:
+	bash asic/final.sh
+
+# Figuras anotadas del layout de una corrida (KLayout en la imagen de Docker):
+#   make layout RUN=asic/rom/runs/final
+RUN ?= asic/rom/runs/final
+layout:
+	bash asic/layout/anotar.sh $(RUN)
 
 # Clean up generated files.
 #

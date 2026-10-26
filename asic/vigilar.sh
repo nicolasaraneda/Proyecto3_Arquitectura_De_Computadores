@@ -21,9 +21,12 @@ while true; do
   ahora=$(date +%s)
   lista=""
   mas_vieja=""; mas_vieja_t=0
-  while read -r id creado resto; do
+  while read -r id resto; do
     tag=$(echo "$resto" | grep -o -- '--run-tag [^ ]*' | awk '{print $2}')
     [ -z "$tag" ] && continue
+    # docker inspect da el inicio en ISO 8601 (UTC); el CreatedAt de docker ps
+    # trae dos zonas horarias y date lo interpreta mal.
+    creado=$(docker inspect -f '{{.State.StartedAt}}' "$id" 2>/dev/null)
     inicio=$(date -d "$creado" +%s 2>/dev/null || echo "$ahora")
     min=$(( (ahora - inicio) / 60 ))
     lista="$lista $tag(${min}min)"
@@ -32,7 +35,7 @@ while true; do
       echo "$(date '+%F %T') $tag detenida por tiempo (${min} min >= ${MAX_MIN})" >> asic/logs/detenidas.txt
     fi
     if [ "$min" -ge "$mas_vieja_t" ]; then mas_vieja="$id $tag"; mas_vieja_t=$min; fi
-  done < <(docker ps --no-trunc --format '{{.ID}} {{.CreatedAt}} {{.Command}}' | grep -- '--run-tag' | sed 's/"//g')
+  done < <(docker ps --no-trunc --format '{{.ID}} {{.Command}}' | grep -- '--run-tag' | sed 's/"//g')
   if [ "$usados" -gt "$MAX_MB" ] && [ -n "$mas_vieja" ]; then
     docker kill "${mas_vieja%% *}" > /dev/null 2>&1
     echo "$(date '+%F %T') ${mas_vieja#* } detenida por memoria (${usados} MB > ${MAX_MB})" >> asic/logs/detenidas.txt

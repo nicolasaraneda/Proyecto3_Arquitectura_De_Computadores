@@ -39,3 +39,6 @@ asic/logs/
 
 # Programa de prueba del core (make asm-all lo ensambla, pero no es parte de la entrega)
 sw/isa_test.hex
+
+# ROM del programa de simulacion post-sintesis (make la regenera)
+asic/sim/gen/

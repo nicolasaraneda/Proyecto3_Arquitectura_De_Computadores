@@ -1,0 +1,19 @@
+# Estimulos de la simulacion post-sintesis (seccion 3.7): <ciclo> <mascara btn[3:0]>.
+# Ciclos absolutos desde que se suelta rst_n. Generado por asic/sim/calibrar.py
+# corriendo el RTL por etapas (inicio en 300, pulsacion 20 ciclos despues de cada LED, 60 ciclos apretado).
+# pulsacion de inicio: siembra el LFSR con CYCLES
+300 0001
+# se suelta
+360 0000
+# ronda 1: LED objetivo 0010 encendido en el ciclo 781; boton correcto 20 ciclos despues
+801 0010
+# se suelta
+861 0000
+# ronda 2: LED objetivo 0001 encendido en el ciclo 2121; boton INCORRECTO 0010
+2141 0010
+# se suelta
+2201 0000
+# reintento de la ronda 2: LED objetivo 0001 encendido en el ciclo 2699; boton correcto
+2719 0001
+# se suelta
+2779 0000
