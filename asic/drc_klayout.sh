@@ -16,14 +16,15 @@ RUN="${1%/}"
 TAG=$(basename "$RUN")
 CFG=$(dirname "$(dirname "$RUN")")
 GDS="${2:-$RUN/final/gds/asic_top.gds}"
-OUT="$CFG/resultados/$TAG/drc_klayout"
+GDS="${GDS#$(pwd)/}"
+OUT="$(pwd)/$CFG/resultados/$TAG/drc_klayout"   # ruta absoluta: KLayout resuelve el reporte relativo al GDS
 IMAGEN="${IMAGEN:-ghcr.io/librelane/librelane:3.0.16}"
 HILOS="${HILOS:-8}"
 mkdir -p "$OUT"
 echo "DRC de KLayout sobre $GDS ($HILOS hilos)"
 docker run --rm --user "$(id -u):$(id -g)" -v "$HOME:$HOME" -w "$(pwd)" -e HOME="$HOME" "$IMAGEN" \
   klayout -b -zz -r asic/drc/gf180mcu.drc \
-    -rd "input=$GDS" -rd topcell=asic_top -rd "report=$OUT/drc.lyrdb" \
+    -rd "input=$(pwd)/$GDS" -rd topcell=asic_top -rd "report=$OUT/drc.lyrdb" \
     -rd feol=true -rd beol=true -rd offgrid=true -rd conn_drc=false \
     -rd metal_top=11K -rd mim_option=B -rd metal_level=5LM \
     -rd run_mode=flat -rd "thr=$HILOS" > "$OUT/drc.log" 2>&1 || { echo "klayout terminó con error; ver $OUT/drc.log"; tail -5 "$OUT/drc.log"; exit 1; }
