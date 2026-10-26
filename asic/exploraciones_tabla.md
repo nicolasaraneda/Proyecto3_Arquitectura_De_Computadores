@@ -1,0 +1,10 @@
+| rama | commit | cambio | verificación | corridas (T: WNS max_ss) | T mínimo que cierra (ns) | f máx (MHz) | CPI isa_test | CPI juego | MIPS (f/CPI juego) | área stdcell a 100 ns (µm²) | slew / cap a 100 ns |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| main (referencia) | 2dd4e45 | configuración final D20 y D21 | check PASS, equiv ciclo a ciclo | 100: 65.22, 32: 4.39, 30: 5.10, 26: 2.00, 25: 1.00, 24: -0.00 (no cierra) | 25 | 40.0 | 2.953 | 2.665 | 15.0 | 182265 | 546 / 36 |
+| exp/lsu-offset (B2) | eb29650 | offset de byte de la carga registrado en la LSU | check PASS, equiv ciclo a ciclo | 100: 67.04, 26: 4.54, 24: 0.09, 23: -0.91 (no cierra), 22: -1.91 (no cierra) | 24 | 41.7 | 2.953 | 2.665 | 15.6 | 181170 | 672 / 40 |
+| exp/branch-cmp (B3) | 6ef475f | comparador de saltos desde el banco de registros | check PASS, equiv ciclo a ciclo | 100: 67.00, 26: 1.92, 24: -0.08 (no cierra) | 26 | 38.5 | 2.953 | 2.665 | 14.4 | 183962 | 554 / 29 |
+| exp/lsu-branch (B2+B3) | 35b2d5d | B2 y B3 juntos | check PASS, equiv ciclo a ciclo | 100: 69.13, 24: -0.84 (no cierra) | 100 | 10.0 | 2.953 | 2.665 | 3.8 | 183890 | 689 / 39 |
+| exp/cpi (B4) | dbc8018 | ROM y banco combinacionales, decode en el fetch, 1 instrucción por ciclo | check PASS, equiv funcional | 100: 41.73, 60: 1.73, 55: -3.27 (no cierra), 50: -4.19 (no cierra), 45: -1.75 (no cierra) | 60 | 16.7 | 1.004 | 1.312 | 12.7 | 158024 | 358 / 23 |
+| exp/rf-latch (B5) | ba26813 | banco de registros con latches y clock gating | check PASS, equiv ciclo a ciclo | 100: 0.00, 26: 0.00 | 26 | 38.5 | 2.953 | 2.665 | 14.4 | 165369 | 312 / 2 |
+| exp/signoff (B1), variante b1c | a8fd926 | reparación post-GRT con márgenes de 30 % (mejor variante dentro del 1 % de área) | mismo RTL que main | 100: 65.74, 26: 1.47 | 26 | 38.5 | 2.953 | 2.665 | 14.4 | 183091 | 489 / 19 |
+| exp/signoff (B1), variante b1g | a8fd926 | márgenes del repair de placement en 30 % | mismo RTL que main | 100: 65.96, 26: 1.13 | 26 | 38.5 | 2.953 | 2.665 | 14.4 | 184368 | 260 / 22 |

@@ -15,17 +15,27 @@ completo (`game_tb`); 546 violaciones de max slew y 36 de max capacitancia a 100
 
 ## Tabla resumen
 
-(se completa con las corridas de cada rama; `asic/recolectar.py` en cada worktree)
+Generada por `asic/exploraciones_tabla.py` a partir de los `metrics.json` de cada rama
+(período mínimo: menor CLOCK_PERIOD que cumple D14 más DRC, LVS y antenas; f máx = 1/T;
+MIPS = f máx / CPI del juego; área y violaciones de la corrida a 100 ns). La columna
+"corridas" da el WNS de setup en max_ss_125C_4v50 de cada período corrido.
 
-| rama | commit | cambio | verificación | T mínimo (ns) | f máx (MHz) | CPI isa_test | CPI juego | MIPS = f/CPI (juego) | área stdcell a 100 ns (µm²) | slew / cap (100 ns) |
-|---|---|---|---|---|---|---|---|---|---|---|
-| main (referencia) | ver `git log` | | check PASS, equiv ciclo a ciclo | 26 | 38,5 | 2,953 | 2,665 | 14,4 | 182.265 | 546 / 36 |
-| exp/lsu-offset (B2) | 7ff1d06 | offset de byte de la carga registrado en la LSU | check PASS, equiv ciclo a ciclo (1018 eventos) | pendiente | | 2,953 | 2,665 | | | |
-| exp/branch-cmp (B3) | e7d3de6 | comparador de saltos alimentado por el banco de registros | check PASS, equiv ciclo a ciclo | pendiente | | 2,953 | 2,665 | | | |
-| exp/lsu-branch (B2+B3) | 71f9170 | los dos anteriores | check PASS, equiv ciclo a ciclo | pendiente | | 2,953 | 2,665 | | | |
-| exp/cpi (B4) | 91a6c3b | ROM y banco combinacionales, decode en el fetch, 1 instrucción por ciclo | check PASS, equiv funcional (46 escrituras, 22 accesos, 2 salidas iguales) | pendiente | | 1,004 | 1,312 | | | |
-| exp/signoff (B1) | pendiente | solo configuración del flujo | | | | | | | | |
-| exp/rf-latch (B5) | ver rama | banco de registros con latches y clock gating | check PASS, equiv ciclo a ciclo | pendiente | | 2,953 | 2,665 | | | |
+| rama | commit | cambio | verificación | corridas (T: WNS max_ss) | T mínimo que cierra (ns) | f máx (MHz) | CPI isa_test | CPI juego | MIPS (f/CPI juego) | área stdcell a 100 ns (µm²) | slew / cap a 100 ns |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| main (referencia) | 2dd4e45 | configuración final D20 y D21 | check PASS, equiv ciclo a ciclo | 100: 65.22, 32: 4.39, 30: 5.10, 26: 2.00, 25: 1.00, 24: -0.00 (no cierra) | 25 | 40.0 | 2.953 | 2.665 | 15.0 | 182265 | 546 / 36 |
+| exp/lsu-offset (B2) | eb29650 | offset de byte de la carga registrado en la LSU | check PASS, equiv ciclo a ciclo | 100: 67.04, 26: 4.54, 24: 0.09, 23: -0.91 (no cierra), 22: -1.91 (no cierra) | 24 | 41.7 | 2.953 | 2.665 | 15.6 | 181170 | 672 / 40 |
+| exp/branch-cmp (B3) | 6ef475f | comparador de saltos desde el banco de registros | check PASS, equiv ciclo a ciclo | 100: 67.00, 26: 1.92, 24: -0.08 (no cierra) | 26 | 38.5 | 2.953 | 2.665 | 14.4 | 183962 | 554 / 29 |
+| exp/lsu-branch (B2+B3) | 35b2d5d | B2 y B3 juntos | check PASS, equiv ciclo a ciclo | 100: 69.13, 24: -0.84 (no cierra) | 100 | 10.0 | 2.953 | 2.665 | 3.8 | 183890 | 689 / 39 |
+| exp/cpi (B4) | dbc8018 | ROM y banco combinacionales, decode en el fetch, 1 instrucción por ciclo | check PASS, equiv funcional | 100: 41.73, 60: 1.73, 55: -3.27 (no cierra), 50: -4.19 (no cierra), 45: -1.75 (no cierra) | 60 | 16.7 | 1.004 | 1.312 | 12.7 | 158024 | 358 / 23 |
+| exp/rf-latch (B5) | ba26813 | banco de registros con latches y clock gating | check PASS, equiv ciclo a ciclo | 100: 0.00, 26: 0.00 | 26 | 38.5 | 2.953 | 2.665 | 14.4 | 165369 | 312 / 2 |
+| exp/signoff (B1), variante b1c | a8fd926 | reparación post-GRT con márgenes de 30 % (mejor variante dentro del 1 % de área) | mismo RTL que main | 100: 65.74, 26: 1.47 | 26 | 38.5 | 2.953 | 2.665 | 14.4 | 183091 | 489 / 19 |
+| exp/signoff (B1), variante b1g | a8fd926 | márgenes del repair de placement en 30 % | mismo RTL que main | 100: 65.96, 26: 1.13 | 26 | 38.5 | 2.953 | 2.665 | 14.4 | 184368 | 260 / 22 |
+
+Lectura: B2 es el único cambio que mejora el período mínimo (24 contra 25 ns) y además
+baja el área; B4 reduce el área 13 % y el CPI a la mitad, pero el período sube a 60 ns y
+rinde menos en MIPS; B5 reduce el área 9 % a 100 ns (3,6 % a 26 ns) y las violaciones de
+slew y capacitancia sin tocar el período; B1 no llega a cero violaciones dentro del 1 %
+de área (b1c a 26 ns: WNS 1,47 ns, 439/20; b1g a 26 ns: WNS 1,13 ns, 259/21).
 
 ## B2: exp/lsu-offset
 
@@ -142,8 +152,9 @@ Tercera ronda, a 100 ns:
 | b1i | márgenes del repair de placement en 25 % | 510 | 38 | 182.674 (+0,2 %) | 66,35 | casi no cambia: el salto está entre 25 y 30 % |
 | b1j | márgenes 30 % más repair post-GRT 30 % | 277 | 15 | 184.535 (+1,2 %) | 65,82 | parecido a b1g en slew, mejor en capacitancia |
 
-Período (b1c_t26 y b1g_t26): ver la tabla de `asic/barrido_exp.md` de la rama y el resumen
-de arriba.
+Período: b1c_t26 cierra con WNS 1,47 ns (f1_t26: 2,00) y 190.712 µm² (+0,5 %), slew/cap
+439/20; b1g_t26 cierra con 1,13 ns y 190.102 µm² (+0,15 %), 259/21. Ninguna de las dos
+empeora el período mínimo medido (26 ns cierra; 25 ns no se corrió en la rama).
 
 Conclusión de B1: con configuración del flujo no se llega a cero. Cada variante cambia
 buffers por área: las que más limpian (fanout 6: 272/1; márgenes 30 % más post-GRT: 277/15)
