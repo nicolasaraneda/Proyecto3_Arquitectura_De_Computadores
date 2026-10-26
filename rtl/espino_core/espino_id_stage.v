@@ -161,6 +161,33 @@ module espino_id_stage (
     .cmp_result_o (alu_cmp_result)
   );
 
+  // Comparador dedicado de los saltos (Proyecto 3, experimento B3, rama
+  // exp/branch-cmp): toma los operandos directo del banco de registros, sin
+  // pasar por los muxes de operandos de la ALU. Un salto condicional siempre
+  // compara rs1 con rs2 (el decodificador fija OP_A_REG y OP_B_REG), así que
+  // el resultado es el mismo que cmp_result_o de la ALU; la ALU conserva sus
+  // comparadores para SLT y SLTU. Los códigos son los de espino_alu.
+  localparam [3:0] ALU_EQ = 4'd10, ALU_NE = 4'd11, ALU_LT = 4'd12,
+                   ALU_GE = 4'd13, ALU_LTU = 4'd14, ALU_GEU = 4'd15;
+  wire signed [31:0] br_a_s = rf_rdata_a_i;
+  wire signed [31:0] br_b_s = rf_rdata_b_i;
+  wire br_eq  = (rf_rdata_a_i == rf_rdata_b_i);
+  wire br_lt  = (br_a_s < br_b_s);
+  wire br_ltu = (rf_rdata_a_i < rf_rdata_b_i);
+  reg  br_cmp;
+  always @* begin
+    case (alu_operator)
+      ALU_EQ:  br_cmp =  br_eq;
+      ALU_NE:  br_cmp = ~br_eq;
+      ALU_LT:  br_cmp =  br_lt;
+      ALU_GE:  br_cmp = ~br_lt;
+      ALU_LTU: br_cmp =  br_ltu;
+      ALU_GEU: br_cmp = ~br_ltu;
+      default: br_cmp = 1'b0;
+    endcase
+  end
+  wire _unused_alu_cmp = &{1'b0, alu_cmp_result};
+
   // LSU control
   assign lsu_req_o   = lsu_req_dec & instr_valid_i & ops_valid_q;
   assign lsu_we_o    = lsu_we_dec;
@@ -170,7 +197,7 @@ module espino_id_stage (
   assign lsu_wdata_o = rf_rdata_b_i;
 
   // Control transfer
-  assign branch_taken_o = is_branch & alu_cmp_result;
+  assign branch_taken_o = is_branch & br_cmp;
   assign jump_o         = is_jal | is_jalr;
   assign pc_target_o    = is_jalr ? (alu_result & ~32'h1)
                                   : (pc_id_i + imm_target);
