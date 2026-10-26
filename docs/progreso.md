@@ -29,5 +29,5 @@ corridas nuevas si `free -m` muestra más de 20000 MB usados.
 | B2 exp/lsu-offset | RTL hecho y verificado (check PASS, equiv ciclo a ciclo); corridas b2_t100/26/24 en el lote 5 | `build/exp_lsu_offset`, commit 7ff1d06 |
 | B3 exp/branch-cmp | RTL hecho y verificado; corridas b3_* en el lote 5; combinación exp/lsu-branch (b23_*) también | commits e7d3de6 y 71f9170 |
 | B4 exp/cpi | RTL hecho y verificado (check PASS, equiv funcional); CPI 1,004 (isa_test) y 1,312 (juego) contra 2,953 y 2,665; corridas b4_t100/60/45 en el lote 6 | commit 91a6c3b + merge de main |
-| B5 exp/rf-latch (opcional) | pendiente | |
-| C1 GIF del chip construyéndose (opcional) | pendiente | |
+| B5 exp/rf-latch (opcional) | RTL hecho y verificado (check PASS, equiv ciclo a ciclo); corridas b5_t100 y b5_t26 en el lote 7 | `build/exp_rf_latch`, commit 792d410 |
+| C1 GIF del chip construyéndose (opcional) | hecha: docs/figuras/construccion.gif (12 etapas) | `make animacion RUN=asic/rom/runs/final` |
