@@ -268,7 +268,7 @@ final:
 SDF_FINAL ?= asic/rom/runs/final/final/sdf/nom_tt_025C_5v00/asic_top__nom_tt_025C_5v00.sdf
 post-pnr-sdf: $(NETLIST_FINAL)
 	@mkdir -p $(PS)
-	$(IVERILOG) -g2012 -gspecify -DNETLIST -DSDF=\"$(SDF_FINAL)\" -DESTIMULOS=\"$(EST_FINAL)\" \
+	$(IVERILOG) -g2012 -gspecify -ginterconnect -DNETLIST -DSDF=\"$(SDF_FINAL)\" -DESTIMULOS=\"$(EST_FINAL)\" \
 	            -DTRAZA=\"$(PS)/traza_sdf_final.txt\" -DCICLOS=$(PSF_CICLOS) \
 	            -o $(PS)/tb_sdf_final tb/post_synth_tb.v $(NETLIST_FINAL) $(CELDAS_V) 2>&1 | tail -5
 	$(VVP) $(PS)/tb_sdf_final 2>&1 | grep -v "^SDF\|timing check\|Timing violation" | tail -5
