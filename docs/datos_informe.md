@@ -75,14 +75,18 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
   a los 40 minutos en ResizerTimingPostCTS (regla de tiempo) y no cuenta.
 - WNS y TNS de setup y hold en nom_tt_025C_5v00 y max_ss_125C_4v50: columnas de la
   tabla de `asic/final.md` (de `metrics.json` de cada corrida).
-- Ruta crítica del período mínimo (`asic/rom/resultados/f1_t26/layout/ruta_critica.txt`
-  y `.png`, esquina max_ss): empieza en `_4189_` (dffq_1, registro de pre-decodificación
-  `alu_operator[1]`, etapa ID), pasa por la ALU (comparador, `u_soc.u_core.u_id.u_alu`,
-  9 celdas) hasta `lsu_addr[1]`, la alineación de la carga en la LSU (lógica aplanada),
-  el mux de write-back (`rf_wdata[11]`) y termina en `u_soc.u_core.u_rf/_2933_` (dffq_1,
-  bit de un registro del banco). Función: ejecución (ALU) -> acceso a memoria (alineación
-  del dato) -> write-back. Es la misma ruta que D18 describe, ahora sin el decode.
-  Pendiente: la de f1_t25 (misma estructura; regenerar con `make layout RUN=asic/rom/runs/f1_t25`).
+- Ruta crítica del período mínimo (`asic/rom/resultados/f1_t25/layout/ruta_critica.txt`
+  y `.png`, esquina max_ss, T = 25 ns): empieza en `_4189_` (dffq_1, registro de
+  pre-decodificación `alu_operator[1]`, etapa ID, 1 celda), pasa por la ALU (comparador,
+  `u_soc.u_core.u_id.u_alu`, 9 celdas) hasta `lsu_addr[1]`, la alineación de la carga en
+  la LSU (lógica aplanada sin nombre jerárquico, 11 celdas), el mux de write-back
+  (`rf_wdata[11]`) y el banco de registros (4 celdas), y termina en
+  `u_soc.u_core.u_rf/_2933_` (dffq_1, bit de un registro del banco): 25 celdas numeradas
+  desde el startpoint, más 3 buffers del camino de reloj (en gris, sin número). Llegada
+  del dato 25,784 ns, tiempo requerido 26,780 ns, slack 0,996 ns
+  (`asic/rom/resultados/f1_t25/max_ss_125C_4v50_ruta_critica.rpt`). Función: ejecución
+  (ALU) -> acceso a memoria (alineación del dato) -> write-back. Es la misma ruta que D18
+  describe, ahora sin el decode, y la misma de f1_t26 (mismo layout).
 - Cambio de RTL (D18, pre-decodificación): antes s1_t55 (55 ns, WNS 1,764) y p1_t42
   (42 ns); con la configuración final, el RTL anterior (116fa20) corre como r0_t100 y
   r0_t26: a 100 ns WNS 54,552 contra 65,223 ns (10,7 ns menos de ruta), área 174.529
