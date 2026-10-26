@@ -25,6 +25,7 @@ completo (`game_tb`); 546 violaciones de max slew y 36 de max capacitancia a 100
 | exp/lsu-branch (B2+B3) | 71f9170 | los dos anteriores | check PASS, equiv ciclo a ciclo | pendiente | | 2,953 | 2,665 | | | |
 | exp/cpi (B4) | 91a6c3b | ROM y banco combinacionales, decode en el fetch, 1 instrucción por ciclo | check PASS, equiv funcional (46 escrituras, 22 accesos, 2 salidas iguales) | pendiente | | 1,004 | 1,312 | | | |
 | exp/signoff (B1) | pendiente | solo configuración del flujo | | | | | | | | |
+| exp/rf-latch (B5) | ver rama | banco de registros con latches y clock gating | check PASS, equiv ciclo a ciclo | pendiente | | 2,953 | 2,665 | | | |
 
 ## B2: exp/lsu-offset
 
@@ -73,3 +74,24 @@ completo (`game_tb`); 546 violaciones de max slew y 36 de max capacitancia a 100
   (1.599.759 ciclos, 600.218 instrucciones). El juego pasa la mitad de los ciclos en
   lazos de espera con `lw`, de ahí que el CPI no llegue a 1.
 - Pendiente: frecuencia máxima y área (corridas b4_*), y MIPS = f/CPI.
+
+## B5: exp/rf-latch (opcional)
+
+- Qué cambia: `rtl/espino_core/espino_register_file.v` guarda los 480 bits en latches
+  `latq_1` (43,9 µm²) en vez de flip-flops `dffq_1` (63,7 µm²) con mux de retención
+  `mux2_2` (32,9 µm²), y cada uno de los 15 registros tiene una celda de clock gating
+  integrado `icgtp_1` (61,5 µm²) que deja pasar un solo pulso de reloj cuando ese
+  registro se escribe. El enable del clock gate es combinacional (`we_i` y la
+  comparación de `waddr_i`), lo muestrea la celda en la fase baja previa al flanco en
+  que el core comete la escritura; el dato se registra en ese flanco (`wdata_q`, 32
+  flip-flops) y entra a los latches durante la fase alta siguiente. Las celdas se
+  instancian directamente a través de dos envoltorios (`rtl/gf180_cells.v`) con un
+  modelo de comportamiento para simulación y lint (`ifdef SYNTHESIS`). Los puertos de
+  lectura siguen registrados y el resto del core no cambia.
+- Ahorro esperado: 480 x (63,7 + 32,9 - 43,9) - 15 x 61,5 - 32 x 63,7 = unos 22.000 µm²
+  (12 % del área de celdas de síntesis). La medida real sale de las corridas b5_*.
+- Verificación: `make check` PASS; `make equiv` idéntica ciclo a ciclo (1018 eventos).
+  Un primer intento con el enable registrado (`we_q`, `waddr_q`) falló (X en las
+  lecturas): el clock gate muestrea el enable en la fase baja anterior al flanco, así
+  que un enable registrado llega un ciclo tarde respecto del dato.
+- Pendiente: STA (chequeos de clock gating y latches), DRC, LVS y área en las corridas.
