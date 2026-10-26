@@ -62,6 +62,14 @@ completo (`game_tb`); 546 violaciones de max slew y 36 de max capacitancia a 100
 ## B2 + B3: exp/lsu-branch
 
 - Los dos cambios anteriores (cherry-pick de ambas ramas). Verificación igual: PASS e idéntica ciclo a ciclo.
+- Corridas: b23_t100 WNS 69,13 ns (la mejor a 100 ns), 183.890 µm² (+0,9 %), slew/cap 689/39;
+  b23_t24 no cierra (-0,84 ns): la ruta crítica pasa a ser la del salto, del registro de
+  lectura del banco (`lsu_wdata[30]`, o sea rs2) por el comparador nuevo y `pc_set` hasta un
+  bit del PC (`build/exp_lsu_branch/asic/rom/resultados/b23_t24/layout/ruta_critica.txt`);
+  b23_t26 se detuvo a los 40 minutos en ResizerTimingPostCTS (regla de tiempo) y no tiene
+  resultado. Juntos no superan a B2 solo en período mínimo: una vez sacada la ALU de la ruta
+  de la carga, el límite siguiente es el salto, y el comparador dedicado lo acorta pero no
+  lo saca de la ruta (sigue leyendo el banco y escribiendo el PC en el mismo ciclo).
 
 ## B4: exp/cpi
 
