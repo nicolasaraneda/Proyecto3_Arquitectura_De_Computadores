@@ -37,6 +37,13 @@ completo (`game_tb`); 546 violaciones de max slew y 36 de max capacitancia a 100
   -> alineación -> `rf_wdata[11]` -> banco).
 - Verificación: `make check` PASS (6 testbenches, 80 tests); `make equiv` trazas
   idénticas ciclo a ciclo (1018 eventos, dos estrategias de memoria).
+- Corridas (`asic/barrido_exp.md` de la rama): b2_t100 cierra con WNS 67,04 ns en max_ss
+  (main 65,22) y 181.170 µm² de celdas (main 182.265, -0,6 %); b2_t26 cierra con 4,54 ns
+  (main 2,00); b2_t24 cierra con 0,09 ns (main no cierra por 0,004). Período mínimo 24 ns
+  (41,7 MHz) contra 25 ns; b2_t23 y b2_t22 en el lote 7. La ruta crítica a 24 ns ya no
+  pasa por la ALU: va de `rf_ready` (ops_valid_q) por el control de stall y `rf_we` a los
+  muxes de retención del banco (`build/exp_lsu_offset/asic/rom/resultados/b2_t24/layout/ruta_critica.txt`).
+  Slew y capacitancia a 100 ns: 672 / 40 (main 546 / 36).
 
 ## B3: exp/branch-cmp
 
@@ -47,6 +54,10 @@ completo (`game_tb`); 546 violaciones de max slew y 36 de max capacitancia a 100
   rs2, así que el resultado es el mismo. La ALU conserva sus comparadores para SLT y
   SLTU; su `cmp_result_o` queda sin uso y la síntesis lo elimina.
 - Verificación: `make check` PASS; `make equiv` idéntica ciclo a ciclo.
+- Corridas: b3_t100 WNS 67,00 ns, 183.962 µm² (+0,9 % por los comparadores nuevos);
+  b3_t26 cierra con 1,92 ns (main 2,00); b3_t24 no cierra (-0,085 ns). Solo no mejora el
+  período mínimo: el salto no estaba en la ruta crítica (la ruta de la carga lo tapa).
+  Slew y capacitancia a 100 ns: 554 / 29.
 
 ## B2 + B3: exp/lsu-branch
 

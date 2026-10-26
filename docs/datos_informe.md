@@ -114,8 +114,16 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
   rectángulos de metal en el borde del macro (Metal3 en oeste y este, Metal2 en norte y
   sur), no pads: un chip completo los conectaría a pads de I/O con protección ESD y
   buffers de salida. Figura: `asic/rom/resultados/final/layout/bloques.png`.
-  Efecto contra la ubicación automática: corrida `u1_auto` (`asic/rom/config_pines_auto.yaml`),
-  pendiente: comparar largo de cables, DRC de ruteo por iteración y WNS con `final`.
+  Efecto contra la ubicación automática (corrida `u1_auto`, `asic/rom/config_pines_auto.yaml`,
+  tabla en `asic/final.md`, figura `asic/rom/resultados/u1_auto/layout/bloques.png`): el flujo
+  pone clk en la esquina noroeste, los cuatro pines SPI amontonados en la esquina suroeste,
+  rst_n y btn[3:0] juntos en el sur, y los 14 segmentos y los 4 LEDs intercalados en el este
+  (seg1[5] junto a seg1[1], led[2] junto a led[0]). Contra D21 ahorra 0,4 % de largo de cables
+  (350.998 contra 352.253 µm; ruteo global 492.382 contra 494.524 µm), el cable más largo
+  pasa de 1.409 a 1.193 µm, el ruteo detallado parte con 6 violaciones en vez de 1.546
+  (las dos terminan en 0), el timing es el mismo (WNS 65,21 contra 65,22 ns en max_ss) y
+  las violaciones de slew y capacitancia cambian poco (569/31 contra 546/36). Es decir, D21
+  cuesta casi nada en el macro y ordena los terminales para los pads.
 - Costo a US$23.000/mm²: final 0,409 mm² -> US$9.406; mínima (u1_u70) 0,239 mm² ->
   US$5.496 (42 % menos); estrategia 2 (s2_t100) 1,794 mm² -> US$41.266.
   Limitaciones del modelo lineal: el costo real de un prototipo se paga por lote
