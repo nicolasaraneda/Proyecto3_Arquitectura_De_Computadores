@@ -55,6 +55,19 @@ del debounce y el resto del lazo de polling y de la lectura de CYCLES del progra
 valores X en las salidas del netlist, mismo 57 en las dos rondas correctas, EE y
 ronda que no avanza después de la pulsación incorrecta.
 
+## Control negativo
+
+`make post-synth-control` demuestra que la comparación distingue trazas distintas: corre
+el netlist con una copia de los estímulos donde la pulsación de la primera ronda llega
+`ATRASO` ciclos tarde (`asic/sim/atrasar.py` -> `build/post_synth/estimulos_control.txt`)
+y la compara con la traza del RTL con los estímulos originales. El objetivo termina bien
+solo si `comparar.py` da FAIL. El resultado se agrega como sección "Control negativo" a
+`asic/sim/resultado.md` (`make post-synth` reescribe ese archivo; correr el control
+después). `ATRASO = 6` es el atraso más chico que cambia la traza: el programa lee
+CYCLES en un lazo de polling de 13 ciclos (57, 70, 83, 96 ciclos medidos para atrasos
+de 0, 6 a 20, 30 y 40), así que un atraso de 5 cae en la misma vuelta del lazo y la
+traza queda idéntica (`make post-synth-control ATRASO=5` da PASS y el objetivo falla).
+
 ## Extras
 
 - `make post-synth-final`: el netlist de la corrida final (constantes reales, ROM
