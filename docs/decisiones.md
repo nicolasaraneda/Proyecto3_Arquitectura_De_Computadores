@@ -95,3 +95,24 @@ Cada decisión registra las opciones, la elegida, la razón y lo que se pierde c
 - Elegida: (a).
 - Razón: el enunciado define la frecuencia máxima como el menor período que cierra timing en todas las esquinas, y advierte que cada período reoptimiza el circuito. Una estimación desde el slack no es un dato obtenido de las corridas.
 - Qué se pierde: tiempo de máquina (unas tres corridas de unos 14 minutos para la estrategia 2).
+
+## D14. Esquinas exigidas para cerrar timing (26-10-2026)
+
+- Opciones: (a) la típica y la más lenta, que en la práctica significa las 9 esquinas que analiza LibreLane; (b) solo la típica, que es lo único que LibreLane trata como error por defecto en GF180 (TIMING_VIOLATION_CORNERS = *tt*).
+- Elegida: (a). Pendiente de confirmar con el ayudante.
+- Razón: el chip tiene que funcionar en el peor caso de proceso, voltaje y temperatura, y el enunciado pide la tabla de timing con la esquina típica y la más lenta. Una corrida cierra timing cuando el WNS de setup y de hold es mayor o igual a 0 y el TNS es 0 en la peor de las 9 esquinas (métricas timing__setup__ws, timing__setup__tns, timing__hold__ws y timing__hold__tns).
+- Qué se pierde: la frecuencia máxima queda limitada por la esquina lenta. Como LibreLane solo marca como error la esquina típica, el cierre en las demás se verifica con las métricas de cada corrida y no con el mensaje final del flujo.
+
+## D15. Celdas de retardo en el buffering (26-10-2026)
+
+- Opciones: (a) excluirlas de la síntesis y del place and route (EXTRA_EXCLUDED_CELLS: gf180mcu_fd_sc_mcu7t5v0__dly*); (b) dejar la configuración del PDK, que no las excluye.
+- Elegida: (a).
+- Razón: con la configuración del PDK, el flujo usó 539 celdas de retardo como buffers de fanout y de puertos, y 12 quedaron en la ruta crítica. A 60 ns la estrategia 1 no cerraba en la esquina lenta (b1_t60: setup WS -7.686 ns); al excluirlas cierra (x1_t60_sindly: setup WS 6.764 ns), con DRC, LVS y antenas limpios.
+- Qué se pierde: el barrido anterior (b1_* y b2_*) deja de representar el diseño y se repite; el arreglo de hold usa buffers comunes en vez de celdas de retardo.
+
+## D16. Esquinas del resizer (26-10-2026)
+
+- Opciones: (a) dejar el valor por defecto; (b) fijar RSZ_CORNERS a las esquinas lenta, típica y rápida.
+- Elegida: (a).
+- Razón: por sí solo, (b) no cambió el resultado (x2_t60_rszss sigue sin cerrar en la esquina lenta: setup WS -7.686 ns), y junto con D15 (x3_t60_ambos: setup WS 6.764 ns) no se diferencia de D15 sola (x1). Un cambio que no aporta no se agrega a la configuración.
+- Qué se pierde: nada medible en el experimento.

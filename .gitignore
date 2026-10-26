@@ -28,3 +28,6 @@ sw/game_sim*.hex
 
 # Corridas de LibreLane (pesadas; los reportes que se usen en el informe se copian aparte)
 asic/**/runs/
+
+# Logs del barrido de LibreLane (asic/barrido.sh)
+asic/logs/
