@@ -34,7 +34,7 @@ LIB = "gf180mcu_fd_sc_mcu7t5v0__"
 # Nombre de instancia de cada módulo del RTL (para que las tablas hablen de
 # instancias y no de nombres de Yosys). Los $paramod se reducen a su módulo.
 INSTANCIAS = {
-    "asic_top": "(top)",
+    "asic_top": "top",
     "pochoco_soc": "u_soc",
     "espino_core": "u_soc.u_core",
     "espino_if_stage": "u_soc.u_core.u_if",

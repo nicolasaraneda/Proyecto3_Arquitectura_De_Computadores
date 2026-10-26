@@ -63,6 +63,15 @@ ronda que no avanza después de la pulsación incorrecta.
   ciclos después (el debounce real), los cuatro LEDs y el 01 de la primera ronda;
   comparado con el RTL en `asic/sim/resultado_final.md`.
 - `make post-pnr-sdf`: lo mismo con el SDF de la esquina típica de la corrida final
-  (`$sdf_annotate`, modelos con `specify`); resultado en `asic/sim/resultado_sdf.md`.
+  (`$sdf_annotate`, modelos compilados con `-gspecify -ginterconnect` para que tengan
+  sus bloques `specify` y los retardos de interconexión del SDF). Resultado en
+  `asic/sim/resultado_sdf.md`: la simulación anotada completó una vez los 320.000
+  ciclos (4 min 19 s de CPU) con la misma traza que el RTL (PASS), pero los intentos
+  siguientes de correr el mismo binario abortaron al leer el SDF con una aserción
+  interna de vvp (`vpi_scan(vpiHandle): Assertion 0 failed`, Icarus 14.0-devel).
+  El objetivo borra la traza anterior antes de correr para que un aborto no dé un
+  PASS falso; si aborta, hay que relanzarlo. Sin `-ginterconnect` iverilog omite la
+  anotación (`Omitting $sdf_annotate()`), y sin `-gspecify` ni siquiera compila los
+  bloques `specify`.
 - Para rehacer los estímulos tras cambiar el programa: `make asic/sim/estimulos.txt`
   (o `python3 asic/sim/calibrar.py`).

@@ -271,7 +271,9 @@ post-pnr-sdf: $(NETLIST_FINAL)
 	$(IVERILOG) -g2012 -gspecify -ginterconnect -DNETLIST -DSDF=\"$(SDF_FINAL)\" -DESTIMULOS=\"$(EST_FINAL)\" \
 	            -DTRAZA=\"$(PS)/traza_sdf_final.txt\" -DCICLOS=$(PSF_CICLOS) \
 	            -o $(PS)/tb_sdf_final tb/post_synth_tb.v $(NETLIST_FINAL) $(CELDAS_V) 2>&1 | tail -5
-	$(VVP) $(PS)/tb_sdf_final 2>&1 | grep -v "^SDF\|timing check\|Timing violation" | tail -5
+	rm -f $(PS)/traza_sdf_final.txt
+	$(VVP) $(PS)/tb_sdf_final > $(PS)/sdf_vvp.log 2>&1 || { echo "vvp termino con error (ver $(PS)/sdf_vvp.log); Icarus 14.0-devel aborta a veces al anotar el SDF con -ginterconnect"; tail -3 $(PS)/sdf_vvp.log; exit 1; }
+	grep -v "^SDF\|timing check\|Timing violation" $(PS)/sdf_vvp.log | tail -3
 	$(PYTHON) asic/sim/comparar.py $(PS)/traza_rtl_final.txt $(PS)/traza_sdf_final.txt --md asic/sim/resultado_sdf.md
 
 # Figuras anotadas del layout de una corrida (KLayout en la imagen de Docker):

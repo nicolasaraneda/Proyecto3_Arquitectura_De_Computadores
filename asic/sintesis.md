@@ -12,7 +12,7 @@ La corrida final sintetiza aplanando el diseño salvo tres módulos cuya jerarqu
 
 | módulo (instancia) | función | celdas locales | flip-flops locales | área local (µm²) | área total (µm²) | % del total |
 |---|---|---|---|---|---|---|
-| `asic_top` ((top)) | sincronizador de reset | 3 | 2 | 158 | 157.980 | 100.0 |
+| `asic_top` (top) | sincronizador de reset | 3 | 2 | 158 | 157.980 | 100.0 |
 | &nbsp;&nbsp;`pochoco_soc` (u_soc) | decodificador de direcciones y mux de lectura del bus | 78 | 2 | 1.242 | 157.822 | 99.9 |
 | &nbsp;&nbsp;&nbsp;&nbsp;`pochoco_periph` (u_soc.u_periph) | registros DISP, LEDS, BTN y lectura registrada | 236 | 52 | 6.667 | 14.409 | 9.1 |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`debounce4` (u_soc.u_periph.u_debounce) | solo instancias | 0 | 0 | 0 | 3.800 | 2.4 |

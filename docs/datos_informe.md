@@ -106,7 +106,7 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
   2.149 violaciones de DRC y las resuelve), 80 % falla en CTS (`[DPL-0036] Detailed
   placement failed`, log `asic/logs/u1_u80.log`), 90 % falla en el placement global
   (`[GPL-0301] Utilization 100.531 % exceeds 100%`, `asic/logs/u1_u90.log`). Área
-  mínima que cumple los criterios: u1_u70, 0,239 mm² (die 490,4 x 487,3 µm), con DRC,
+  mínima que cumple los criterios: u1_u70, 0,239 mm² (die 480,0 x 497,9 µm), con DRC,
   LVS y antenas limpios y WNS de setup 64,1 ns en max_ss. Las violaciones de slew bajan
   con la utilización (546, 438, 378, 392) porque los cables se acortan.
 - Terminales (D21, `asic/rom/pines.cfg`): oeste entradas (btn[3:0], clk al centro,
@@ -168,5 +168,8 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
   etapas (`asic/sim/calibrar.py`).
 - Extra: `make post-synth-final` (netlist de la corrida final, constantes reales,
   320.000 ciclos con una pulsación de inicio real): `asic/sim/resultado_final.md`.
-  Post-PnR con SDF: `make post-pnr-sdf`, resultado en `asic/sim/resultado_sdf.md`
-  (pendiente de confirmar).
+  Resultado: PASS (LEDs 1111 en el ciclo 262.156 y display 01 en el 262.194, iguales en RTL y netlist).
+  Post-PnR con SDF (opcional): `make post-pnr-sdf`, `asic/sim/resultado_sdf.md`: completó
+  una vez con la misma traza (PASS, 4 min 19 s); las corridas siguientes abortan en vvp
+  al anotar el SDF (aserción interna de Icarus 14.0-devel con `-ginterconnect`); está
+  documentado en `asic/sim/README.md`.
