@@ -524,6 +524,60 @@ def format_verilog_image(words, source_name="", allow_shifts=False):
     return "\n".join(lines)
 
 
+def format_verilog_rom(words, source_name="", allow_shifts=False):
+    """Módulo pochoco_rom completo: la ROM combinacional de la estrategia 1
+    (sección 3.2 del Proyecto 3).
+
+    Es un case con una palabra por dirección, igual al de format_verilog_image,
+    pero dentro de un módulo propio: no tiene reloj ni flip-flops, y la
+    síntesis lo convierte en lógica combinacional. Una dirección fuera del
+    programa entrega 0.
+    """
+    from disasm import decode_one  # import local: disasm importa de core
+
+    n = len(words)
+    aw = max(1, (n - 1).bit_length())
+    width = len(str(max(n - 1, 0)))
+    lines = [
+        f"// Generado por assembler/asm.py a partir de {source_name or 'el programa'}.",
+        "// No editar a mano: se regenera desde el .s (ver Makefile, objetivo image).",
+        "//",
+        "// ROM combinacional del programa (estrategia 1 de la sección 3.2): un case",
+        "// con una palabra por dirección. No tiene reloj ni flip-flops; la síntesis",
+        "// la convierte en lógica combinacional. Una dirección fuera del programa",
+        "// entrega 0.",
+        f"// {n} palabras de programa ({n * 4} bytes), {aw} bits de dirección de palabra.",
+        "",
+        "module pochoco_rom (",
+        "  input  wire [31:0] addr_i,   // dirección de byte",
+        "  output reg  [31:0] data_o",
+        ");",
+        "",
+        f"  wire [{aw - 1}:0] word = addr_i[{aw + 1}:2];",
+        "",
+        "  always @* begin",
+        "    case (word)",
+    ]
+    for i, w in enumerate(words):
+        w &= 0xFFFFFFFF
+        try:
+            text = decode_one(w, 4 * i, allow_shifts=allow_shifts)
+        except Exception:
+            text = None
+        comment = f"0x{4 * i:04x}: {text}" if text else f"0x{4 * i:04x}: .word 0x{w:08x}"
+        lines.append(f"      {aw}'d{i:<{width}}: data_o = 32'h{w:08x};  // {comment}")
+    lines += [
+        "      default: data_o = 32'h00000000;",
+        "    endcase",
+        "  end",
+        "",
+        f"  wire _unused = &{{1'b0, addr_i[31:{aw + 2}], addr_i[1:0]}};",
+        "endmodule",
+        "",
+    ]
+    return "\n".join(lines)
+
+
 def assemble_file(input_path, output_path, allow_shifts=False, defines=None):
     with open(input_path, "r", encoding="utf-8") as f:
         text = f.read()

@@ -12,11 +12,11 @@ El decodificador de `rtl/pochoco_soc.v` mira solo dos bits de la dirección de d
 | `0x8000_0000` | 4 registros      | Periféricos (ver tabla siguiente)             |
 | `0x8001_0000` | (sin instanciar) | Esclavo SPI                                   |
 
-El programa parte en la dirección 0, que es también la dirección de arranque del core (`BootAddr`). En el ASIC no hay `$readmemh`: el assembler genera `rtl/gen/game_image.vh` a partir de `sw/game.s` (`make image`), y las dos estrategias de memoria de la sección 3.2 del enunciado la usan. `MemStrategy` (parámetro de `asic_top`) elige cuál se sintetiza:
+El programa parte en la dirección 0, que es también la dirección de arranque del core (`BootAddr`). En el ASIC no hay `$readmemh`: el assembler genera, a partir de `sw/game.s`, la ROM `rtl/gen/pochoco_rom.v` y la imagen `rtl/gen/game_image.vh` (`make image`), que usan las dos estrategias de memoria de la sección 3.2 del enunciado. `MemStrategy` (parámetro de `asic_top`) elige cuál se sintetiza:
 
 | `MemStrategy` | Instrucciones                                                        | Datos                                                                  |
 |---------------|----------------------------------------------------------------------|------------------------------------------------------------------------|
-| 1             | ROM combinacional (`rtl/pochoco_rom.v`) de `GAME_WORDS` palabras     | RAM separada de `DataWords` palabras en flip-flops, dirección módulo `DataWords` |
+| 1             | ROM combinacional generada (`rtl/gen/pochoco_rom.v`) de `GAME_WORDS` palabras | RAM separada de `DataWords` palabras en flip-flops, dirección módulo `DataWords` |
 | 2             | Memoria unificada en flip-flops (`rtl/pochoco_mem_ff.v`): palabras 0 a `GAME_WORDS`-1, cargadas con el programa en el reset | Palabras `GAME_WORDS` en adelante (`DataWords` palabras), en 0 tras el reset |
 
 Con la estrategia 1 el puerto de datos ya no ve las instrucciones; el juego nunca las lee como datos. En ambas, una dirección de instrucción fuera del programa lee 0, y las dos mantienen la temporización de la RAM del Proyecto 2 (sección "Temporización de los accesos").

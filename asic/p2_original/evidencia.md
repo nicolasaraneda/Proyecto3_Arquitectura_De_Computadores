@@ -30,8 +30,14 @@ Corridas de LibreLane 3.0.16 sobre el RTL del Proyecto 2, aplicando los reemplaz
   - Linter: `%Warning-UNUSEDSIGNAL ... 'spi_req'` (`rtl/pochoco_soc.v:73`), línea 18 de `evidencia/c0b/verilator-lint.txt`.
   - En el Proyecto 2 se dejó sin instanciar para ahorrar LCs; en el ASIC sigue así porque el juego no lo usa (D7).
 
+## c0c: asic_top con reset externo (RTL de f319b70)
+
+- El linter reporta 13 avisos (`evidencia/c0c-verilator-lint.txt`) y ya no aparece `PROCASSINIT`: el contador `por_cnt` desapareció con el reset externo (D6). La síntesis termina sin errores.
+- La RAM de 512 palabras con `$readmemh` sigue presente en esta corrida; se reemplaza en la sección 3.2 (D9 a D11).
+
 ## Sin mensaje propio del flujo
 
 - `x0` valía 0 solo porque la BRAM partía en cero (`INIT_0(256'h0)`) y nunca se escribía. En silicio un flip-flop arranca en cualquier valor, así que el nuevo banco no almacena x0 y entrega 0 por hardware al leer la dirección 0. El flujo no lo reclama porque es una propiedad del valor inicial, no de la sintaxis.
 - La inversión de los 7 segmentos (`~seg1` y `~seg2` en `pochoco_soc.v`) era la convención del display activo en bajo de la Go Board. Para el flujo no es un error. En el macro los puertos quedan activos en alto (D8).
 - `CYCLES_PER_TENTH = 2500000` en `sw/game.s` supone el oscilador de 25 MHz de la Go Board. Es una constante del programa, así que el flujo no la ve. Se corrige en la sección 3.4 para el período del macro.
+- `DebounceDivBits = 15` se eligió para el reloj de 25 MHz de la Go Board: una muestra cada 2^15 ciclos, 1,31 ms. Es un valor de parámetro, así que el flujo no lo ve. A 10 MHz son 3,3 ms por muestra y unos 10 ms para aceptar un cambio, todavía muy por debajo de la décima que se muestra, así que se mantuvo (D10).

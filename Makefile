@@ -9,17 +9,22 @@
 # - Nicolás Villegas <navillegas@miuandes.cl>
 
 # RTL Sources
-SRC  := $(wildcard ./rtl/*.v ./rtl/**/*.v)
+# rtl/gen/ no entra en SRC: la ROM generada depende del programa, y cada
+# simulación usa la de su propio programa (build/<programa>/pochoco_rom.v).
+SRC  := $(wildcard ./rtl/*.v ./rtl/espino_core/*.v)
 
-# Firmware. En el ASIC no hay $readmemh: el programa entra al RTL como la
-# imagen rtl/gen/game_image.vh, que el assembler genera desde sw/game.s
-# (opción --vh) y que usan las dos estrategias de memoria (sección 3.2).
-# La imagen está versionada para que LibreLane la encuentre sin correr make;
-# `make image` la regenera después de cambiar game.s. sw/game.hex se sigue
+# Firmware. En el ASIC no hay $readmemh: el programa entra al RTL como
+# código Verilog que el assembler genera desde sw/game.s (sección 3.2):
+#   rtl/gen/pochoco_rom.v   la ROM combinacional de la estrategia 1 (--rom)
+#   rtl/gen/game_image.vh   la imagen que usa la estrategia 2 como valor de
+#                           reset de la memoria en flip-flops (--vh)
+# Están versionados para que LibreLane los encuentre sin correr make;
+# `make image` los regenera después de cambiar game.s. sw/game.hex se sigue
 # generando con `make asm`, pero el RTL ya no lo lee.
 ASMSRC := sw/game.s
 HEX    := sw/game.hex
 IMAGE  := rtl/gen/game_image.vh
+ROM    := rtl/gen/pochoco_rom.v
 
 # Our own assembler (no external RISC-V toolchain is ever invoked -- see
 # docs/assembler.md section 1). Listing its sources as prerequisites means
@@ -30,8 +35,8 @@ ASMDEP := $(wildcard assembler/*.py)
 
 # Simulación
 #
-# Cada programa simulado tiene su propia imagen en build/<programa>/, que el
-# testbench toma con -I. Las imágenes del juego salen del MISMO sw/game.s con
+# Cada programa simulado tiene su propia ROM e imagen en build/<programa>/:
+# la ROM se compila junto al RTL y la imagen se toma con -I. Las imágenes del juego salen del MISMO sw/game.s con
 # constantes pisadas desde la línea de comandos (opción -D del assembler), no
 # de una copia del programa que se pueda desincronizar del original.
 #
@@ -77,25 +82,25 @@ ASM_ALL := $(patsubst sw/%.s,sw/%.hex,$(wildcard sw/*.s))
 
 asm-all: $(ASM_ALL)
 
-# Imagen del programa para el RTL del ASIC (versionada).
-$(IMAGE): $(ASMSRC) $(ASMDEP)
+# ROM e imagen del programa para el RTL del ASIC (versionadas). Se
+# regeneran siempre: el assembler tarda milisegundos, y así las dos salidas
+# nunca quedan de programas distintos.
+image:
 	@mkdir -p $(BUILD)
-	$(PYTHON) $(ASM) $< -o $(BUILD)/game.hex --vh $@
-
-image: $(IMAGE)
+	$(PYTHON) $(ASM) $(ASMSRC) -o $(BUILD)/game.hex --vh $(IMAGE) --rom $(ROM)
 
 # Imágenes de simulación.
 $(IMG_SIM): $(ASMSRC) $(ASMDEP)
 	@mkdir -p $(dir $@)
-	$(PYTHON) $(ASM) $< -o $(dir $@)game.hex --vh $@ -D CYCLES_PER_TENTH=$(SIM_CPT)
+	$(PYTHON) $(ASM) $< -o $(dir $@)game.hex --vh $@ --rom $(dir $@)pochoco_rom.v -D CYCLES_PER_TENTH=$(SIM_CPT)
 
 $(IMG_SIM_R4): $(ASMSRC) $(ASMDEP)
 	@mkdir -p $(dir $@)
-	$(PYTHON) $(ASM) $< -o $(dir $@)game.hex --vh $@ -D CYCLES_PER_TENTH=$(SIM_CPT) -D RONDAS=$(SIM_RONDAS)
+	$(PYTHON) $(ASM) $< -o $(dir $@)game.hex --vh $@ --rom $(dir $@)pochoco_rom.v -D CYCLES_PER_TENTH=$(SIM_CPT) -D RONDAS=$(SIM_RONDAS)
 
 $(IMG_BTN): sw/buttons_leds.s $(ASMDEP)
 	@mkdir -p $(dir $@)
-	$(PYTHON) $(ASM) $< -o $(dir $@)buttons_leds.hex --vh $@
+	$(PYTHON) $(ASM) $< -o $(dir $@)buttons_leds.hex --vh $@ --rom $(dir $@)pochoco_rom.v
 
 # Assembler test suite (77 tests: golden .hex comparisons and the Verilog image)
 test:
@@ -111,14 +116,14 @@ test:
 # un código de salida distinto de cero y make se detiene.
 define run_sims
 	$(IVERILOG) -g2012 -DMEM_STRATEGY=$(1) -I $(BUILD)/buttons_leds \
-	            -o $(BUILD)/game_top_tb_m$(1) tb/game_top_tb.v $(SRC)
+	            -o $(BUILD)/game_top_tb_m$(1) tb/game_top_tb.v $(SRC) $(BUILD)/buttons_leds/pochoco_rom.v
 	$(VVP) $(BUILD)/game_top_tb_m$(1)
 	$(IVERILOG) -g2012 -DMEM_STRATEGY=$(1) -I $(BUILD)/game_sim \
-	            -o $(BUILD)/game_tb_m$(1) tb/game_tb.v $(SRC)
+	            -o $(BUILD)/game_tb_m$(1) tb/game_tb.v $(SRC) $(BUILD)/game_sim/pochoco_rom.v
 	$(VVP) $(BUILD)/game_tb_m$(1)
 	$(IVERILOG) -g2012 -DMEM_STRATEGY=$(1) -I $(BUILD)/game_sim_r4 \
 	            -DPROGRAMA=\"game.s,CYCLES_PER_TENTH=$(SIM_CPT),RONDAS=$(SIM_RONDAS)\" -DRONDAS_N=$(SIM_RONDAS) \
-	            -o $(BUILD)/game_tb_r$(SIM_RONDAS)_m$(1) tb/game_tb.v $(SRC)
+	            -o $(BUILD)/game_tb_r$(SIM_RONDAS)_m$(1) tb/game_tb.v $(SRC) $(BUILD)/game_sim_r4/pochoco_rom.v
 	$(VVP) $(BUILD)/game_tb_r$(SIM_RONDAS)_m$(1)
 endef
 
@@ -138,7 +143,7 @@ check: test sim
 
 # Clean up generated files.
 #
-# $(IMAGE) y $(HEX) NO se borran: están versionados. Las imágenes de
+# $(IMAGE), $(ROM) y $(HEX) NO se borran: están versionados. Las imágenes de
 # simulación viven en build/.
 clean:
 	rm -f *.vcd

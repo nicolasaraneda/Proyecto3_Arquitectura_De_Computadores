@@ -53,19 +53,26 @@ librelane --dockerized --pdk gf180mcuD asic/rom/config.yaml --run-tag <tag>
 | `asic/ff/config.yaml` | Estrategia 2 de memoria: memoria unificada de instrucciones y datos en flip-flops |
 | `asic/p2_original/config.yaml` | Serie de corridas 0 (sección 3.1), con su evidencia en `asic/p2_original/evidencia.md` |
 
-Parámetros comunes: T = 100 ns (`CLOCK_PERIOD`) y U = 40 % (`FP_CORE_UTIL`). Cada corrida queda en `asic/<configuración>/runs/<tag>/`, que no se versiona; los reportes que usa el informe se copian aparte.
+Parámetros comunes: T = 100 ns (`CLOCK_PERIOD`) y U = 40 % (`FP_CORE_UTIL`). Las configuraciones de las dos estrategias conservan la jerarquía del register file, la ALU y el contador de ciclos (`SYNTH_KEEP_HIERARCHY_MODULES`) para poder ubicarlos en los reportes y en el layout. Cada corrida queda en `asic/<configuración>/runs/<tag>/`, que no se versiona; los reportes que usa el informe se copian a `asic/<configuración>/resultados/<tag>/`.
+
+Un parámetro se puede cambiar solo para una corrida con `-c`, sin editar la configuración. Así se hacen los barridos y la síntesis jerárquica de la sección 3.3:
+
+```bash
+librelane --dockerized --pdk gf180mcuD asic/rom/config.yaml -c CLOCK_PERIOD=70 --run-tag b1_t70
+librelane --dockerized --pdk gf180mcuD asic/rom/config.yaml -c SYNTH_HIERARCHY_MODE=keep --run-tag e1_jerarquia --to Yosys.Synthesis
+```
 
 **Corrida final:** por definir.
 
 ## Programa del juego
 
-El juego está en `sw/game.s` y se traduce con el assembler propio (`assembler/`); no se usa ningún assembler externo. En silicio no hay un `.hex` que se cargue al encender, así que el assembler genera la imagen `rtl/gen/game_image.vh`, que usan las dos estrategias de memoria. Después de cambiar `game.s`:
+El juego está en `sw/game.s` y se traduce con el assembler propio (`assembler/`); no se usa ningún assembler externo. En silicio no hay un `.hex` que se cargue al encender, así que el assembler genera el programa como código Verilog: la ROM `rtl/gen/pochoco_rom.v` (estrategia 1) y la imagen `rtl/gen/game_image.vh` (estrategia 2). Después de cambiar `game.s`:
 
 ```bash
 make image
 ```
 
-Es equivalente a `python3 assembler/asm.py sw/game.s -o build/game.hex --vh rtl/gen/game_image.vh`. La imagen está versionada para que LibreLane la encuentre sin correr `make`, y un test del assembler falla si quedó desactualizada.
+Es equivalente a `python3 assembler/asm.py sw/game.s -o build/game.hex --vh rtl/gen/game_image.vh --rom rtl/gen/pochoco_rom.v`. Los dos archivos están versionados para que LibreLane los encuentre sin correr `make`, y un test del assembler falla si quedaron desactualizados.
 
 Las constantes de tiempo están ajustadas al período del macro: con T = 100 ns el reloj es de 10 MHz, así que `CLK_HZ = 10000000` y `CYCLES_PER_TENTH = 1000000`. El resto de las constantes (`RONDAS`, `ESPERA_TENTHS` y otras) están al inicio de `game.s`, y también se pueden fijar al ensamblar con `-D NOMBRE=VALOR`.
 
@@ -75,7 +82,7 @@ Las constantes de tiempo están ajustadas al período del macro: con T = 100 ns 
 make check
 ```
 
-Corre los 77 tests del assembler y los tres testbenches para cada estrategia de memoria (`make sim1` y `make sim2`). Las simulaciones ensamblan el juego con `CYCLES_PER_TENTH = 2500`, para que una partida dure segundos de simulación. Necesita `iverilog` y `vvp` (oss-cad-suite).
+Corre los 80 tests del assembler y los tres testbenches para cada estrategia de memoria (`make sim1` y `make sim2`). Las simulaciones ensamblan el juego con `CYCLES_PER_TENTH = 2500`, para que una partida dure segundos de simulación. Necesita `iverilog` y `vvp` (oss-cad-suite).
 
 ## El juego
 
@@ -90,16 +97,16 @@ Al encender, el display muestra `00` y una pulsación empieza la partida. En cad
 │   ├── p2_original/      serie de corridas 0 (sección 3.1) y su evidencia
 │   ├── rom/              estrategia 1 de memoria
 │   └── ff/               estrategia 2 de memoria
-├── assembler/            assembler propio (Python 3), con la opción --vh
+├── assembler/            assembler propio (Python 3), con las opciones --rom y --vh
 ├── docs/                 decisiones, mapa de memoria y assembler
 ├── informe/              informe del Proyecto 2
 ├── rtl/
 │   ├── asic_top.v        top del macro
 │   ├── pochoco_soc.v     core, memoria y periféricos
-│   ├── pochoco_rom.v     ROM combinacional (estrategia 1)
-│   ├── pochoco_mem_rom.v memoria de la estrategia 1
+│   ├── pochoco_mem_rom.v memoria de la estrategia 1 (ROM generada + RAM de datos)
 │   ├── pochoco_mem_ff.v  memoria de la estrategia 2
-│   ├── gen/              imagen del programa generada por el assembler
+│   ├── pochoco_cycle_counter.v  contador de ciclos (CYCLES)
+│   ├── gen/              ROM e imagen del programa, generadas por el assembler
 │   └── espino_core/      Espino Core (RV32E)
 ├── sw/                   programas en assembly (game.s es el juego)
 └── tb/                   testbenches de Icarus Verilog
@@ -109,5 +116,5 @@ Al encender, el display muestra `00` y una pulsación empieza la partida. En cad
 
 - `docs/decisiones.md`: cada decisión del proyecto, con sus opciones y la razón.
 - `docs/memory_map.md`: mapa de memoria, periféricos y estrategias de memoria.
-- `docs/assembler.md`: uso del assembler, incluida la imagen Verilog.
+- `docs/assembler.md`: uso del assembler, incluidas la ROM y la imagen Verilog.
 - `asic/p2_original/evidencia.md`: construcciones dependientes de la FPGA y lo que dijo el flujo de cada una (sección 3.1).

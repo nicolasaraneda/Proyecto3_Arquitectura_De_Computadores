@@ -58,17 +58,16 @@ module pochoco_periph #(
     .clean_o (btn_clean)
   );
 
-  // CYCLES: contador libre de ciclos a 25 MHz, de solo lectura, sin
-  // start/stop/clear por software.
-  reg [31:0] cycles_q;
+  // CYCLES: contador libre de ciclos, de solo lectura, sin start/stop/clear
+  // por software. Vive en su propio módulo para que la síntesis conserve su
+  // jerarquía (docs/decisiones.md, D12).
+  wire [31:0] cycles_q;
 
-  always @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      cycles_q <= 32'b0;
-    end else begin
-      cycles_q <= cycles_q + 32'd1;
-    end
-  end
+  pochoco_cycle_counter u_cycles (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+    .count_o (cycles_q)
+  );
 
   // LEDs and raw digit registers
   reg [3:0]  led_q;

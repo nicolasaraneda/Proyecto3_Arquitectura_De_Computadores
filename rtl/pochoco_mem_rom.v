@@ -6,7 +6,9 @@
 // Course: Arquitectura de Computadores (2026)
 //
 // Estrategia 1 de memoria (sección 3.2): ROM combinacional para las
-// instrucciones y una RAM de datos reducida, separadas.
+// instrucciones y una RAM de datos reducida, separadas. La ROM es el módulo
+// pochoco_rom que genera el assembler a partir de sw/game.s
+// (rtl/gen/pochoco_rom.v, `make image`).
 //
 // Mantiene la interfaz y la temporización de la pochoco_ram del Proyecto 2,
 // así que el core no cambia:

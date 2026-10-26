@@ -74,3 +74,24 @@ Cada decisión registra las opciones, la elegida, la razón y lo que se pierde c
 - Cálculo: f = 1/T = 1/100 ns = 10 MHz; una décima son 0,1 s × 10.000.000 ciclos/s = 1.000.000 ciclos. CLK_HZ = 10.000.000 y CYCLES_PER_TENTH = 1.000.000. ESPERA_TENTHS sigue en 30 (3 s) y el tiempo se sigue mostrando en décimas.
 - Nota: el debounce sigue con DebounceDivBits = 15; a 10 MHz muestrea cada 3,3 ms y acepta un cambio en unos 10 ms, muy por debajo de la décima que se muestra.
 - Qué se pierde: nada en las simulaciones, que ensamblan con CYCLES_PER_TENTH = 2500; en la imagen cambian 4 palabras.
+
+## D11. Generación de la ROM (25-10-2026)
+
+- Opciones: (a) el assembler genera solo la tabla (`game_image.vh`) y `pochoco_rom.v` es un envoltorio escrito a mano; (b) el assembler genera también el módulo `pochoco_rom.v` completo.
+- Elegida: (b).
+- Razón: el enunciado pide una ROM generada automáticamente por el assembler. Con (b) el módulo completo sale del assembler (opción `--rom`, en `rtl/gen/pochoco_rom.v`) y no queda ninguna parte de la ROM escrita a mano.
+- Qué se pierde: un archivo generado más que mantener al día; lo cubre el mismo test que revisa la imagen.
+
+## D12. Trazabilidad del register file, la ALU y el contador de ciclos (25-10-2026)
+
+- Opciones: (a) conservar la jerarquía solo de esos tres módulos en la síntesis (`SYNTH_KEEP_HIERARCHY_MODULES`) y sacar el área de todos los módulos con una síntesis aparte sin aplanar; (b) no aplanar nada (`SYNTH_HIERARCHY_MODE: keep`); (c) seguir aplanando y rastrear las celdas por nombres de nets.
+- Elegida: (a). Además, el contador de ciclos pasa a ser un módulo propio (`pochoco_cycle_counter`, instancia `u_soc.u_periph.u_cycles`), con el mismo comportamiento.
+- Razón: con la síntesis aplanada las celdas quedan con nombres como `_9766_`, y así no se puede medir el área de cada bloque (3.3), nombrar el módulo de la ruta crítica (3.4) ni marcar los bloques en el layout (3.6). Conservar solo esos tres bordes mantiene la optimización del resto del diseño.
+- Qué se pierde: la optimización a través de esos tres bordes, con un efecto chico en área y timing. Se decidió antes del barrido de timing para que el barrido y la corrida final sean el mismo circuito.
+
+## D13. Frecuencia máxima de cada estrategia (25-10-2026)
+
+- Opciones: (a) barrido de `CLOCK_PERIOD` para las dos estrategias; (b) estimar la estrategia 2 a partir del slack y barrer solo la estrategia final.
+- Elegida: (a).
+- Razón: el enunciado define la frecuencia máxima como el menor período que cierra timing en todas las esquinas, y advierte que cada período reoptimiza el circuito. Una estimación desde el slack no es un dato obtenido de las corridas.
+- Qué se pierde: tiempo de máquina (unas tres corridas de unos 14 minutos para la estrategia 2).

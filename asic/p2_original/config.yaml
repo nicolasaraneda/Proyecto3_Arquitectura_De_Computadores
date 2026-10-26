@@ -9,6 +9,7 @@ PDK: gf180mcuD
 VERILOG_FILES:
   - dir::../../rtl/*.v
   - dir::../../rtl/espino_core/*.v
+  - dir::../../rtl/gen/*.v
 VERILOG_INCLUDE_DIRS:
   - dir::../../rtl/gen
 CLOCK_PORT: clk

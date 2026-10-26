@@ -3,7 +3,7 @@
 and, optionally, into a Verilog include with the program image (Proyecto 3).
 
     python asm.py sw/game.s -o sw/game.hex
-    python asm.py sw/game.s -o sw/game.hex --vh rtl/gen/game_image.vh
+    python asm.py sw/game.s -o sw/game.hex --vh rtl/gen/game_image.vh --rom rtl/gen/pochoco_rom.v
 
 No external RISC-V assembler is invoked anywhere in this tool -- see
 docs/assembler.md section 1 for why that matters.
@@ -15,7 +15,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from core import IDENT_RE, assemble_file, format_verilog_image, parse_number  # noqa: E402
+from core import IDENT_RE, assemble_file, format_verilog_image, format_verilog_rom, parse_number  # noqa: E402
 from errors import AssemblerError  # noqa: E402
 
 
@@ -33,6 +33,11 @@ def main(argv=None):
         "--vh",
         metavar="SALIDA.vh",
         help="escribe además la imagen del programa como include de Verilog (GAME_WORDS y game_word), que usan las memorias del ASIC",
+    )
+    parser.add_argument(
+        "--rom",
+        metavar="SALIDA.v",
+        help="escribe además el módulo pochoco_rom: la ROM combinacional del programa (estrategia 1 de memoria del ASIC)",
     )
     parser.add_argument(
         "--allow-shifts",
@@ -85,6 +90,17 @@ def main(argv=None):
             print(f"error: {e}", file=sys.stderr)
             return 1
         print(f"{input_path} -> {vh_path} (imagen Verilog, {len(words)} palabras)")
+
+    if args.rom:
+        rom_path = Path(args.rom)
+        try:
+            rom_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(rom_path, "w", encoding="utf-8", newline="\n") as f:
+                f.write(format_verilog_rom(words, input_path.as_posix(), allow_shifts=args.allow_shifts))
+        except OSError as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 1
+        print(f"{input_path} -> {rom_path} (ROM combinacional, {len(words)} palabras)")
     return 0
 
 
