@@ -126,9 +126,19 @@ Primera ronda, a 100 ns (comparar con final: slew 546, cap 36, área 182.265 µm
 | b1d | excluir también `buf_2` | 1.979 | 3 | 193.700 (+6,3 %) | 51,23 | mucho peor: los buffers grandes alargan los nets y el slew se dispara |
 | b1e | `CTS_MAX_CAP = 0,15 pF` | 546 | 36 | 182.265 (0 %) | 65,22 | sin efecto: la caracterización del CTS cambia pero el árbol queda igual |
 
-Segunda ronda (lote 8): b1f `MAX_FANOUT_CONSTRAINT = 8`, b1g márgenes del repair de
-placement en 30 % (de a uno, por la memoria), b1h fanout 8 más repair post-GRT 30 %. La mejor
-dentro del 1 % de área se corre después a 26 ns para confirmar que no empeora el período.
+Segunda ronda, a 100 ns:
+
+| variante | cambio | slew | cap | área (µm²) | WNS max_ss (ns) | comentario |
+|---|---|---|---|---|---|---|
+| b1f | `MAX_FANOUT_CONSTRAINT = 8` | 307 | 2 | 185.431 (+1,7 %) | 63,36 | casi sin capacitancia, pero pasa el 1 % de área |
+| b1g | `DESIGN_REPAIR_MAX_SLEW_PCT` y `DESIGN_REPAIR_MAX_CAP_PCT` en 30 (repair de placement) | 260 | 22 | 184.368 (+1,2 %) | 65,96 | el mejor slew; la memoria se mantuvo en 3,5 GB (los 40 % de y3/y4 la llenaban) |
+| b1h | fanout 8 más repair post-GRT 30 % | 277 | 3 | 185.536 (+1,8 %) | 63,43 | parecido a b1f |
+
+Tercera ronda (lote 9): b1c y b1g a 26 ns (período), b1i márgenes 25 % y b1j márgenes 30 %
+más repair post-GRT 30 %. Conclusión provisoria: con configuración del flujo no se llega a
+cero; cada variante cambia buffers por área. Dentro del 1 % de área la mejor es b1c (489
+pines de slew y 19 de capacitancia, +0,5 %); b1g baja el slew a 260 con +1,2 %. Las dos
+violaciones de capacitancia del árbol de reloj (buffer raíz) no las mueve ninguna variante.
 
 ## B5: exp/rf-latch (opcional)
 
