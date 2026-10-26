@@ -92,7 +92,42 @@ completo (`game_tb`); 546 violaciones de max slew y 36 de max capacitancia a 100
   reintento): 1,312 (1.595.008 ciclos, 1.216.019 instrucciones) contra 2,665
   (1.599.759 ciclos, 600.218 instrucciones). El juego pasa la mitad de los ciclos en
   lazos de espera con `lw`, de ahí que el CPI no llegue a 1.
-- Pendiente: frecuencia máxima y área (corridas b4_*), y MIPS = f/CPI.
+- Corridas (`asic/barrido_exp.md` de la rama): b4_t100 cierra con WNS 41,73 ns en max_ss y
+  158.024 µm² de celdas estándar (-13,3 % contra main: 791 flip-flops en vez de 990, sin los
+  64 de salida del banco, los 82 de pre-decodificación, los 32 del registro de instrucción y
+  los 33 de PC y validez de la etapa IF); b4_t60 cierra con 1,73 ns; b4_t45 y los puntos
+  intermedios (b4_t55, b4_t50) en los lotes 6 y 8. La ruta crítica es la de un ciclo
+  completo: PC -> ROM -> decodificador -> muxes de lectura del banco -> ALU -> write-back.
+- Ley de Hierro con los datos de arriba (período mínimo provisorio 60 ns, 16,7 MHz):
+  MIPS = 16,7 / 1,312 = 12,7, contra 40,0 / 2,665 = 15,0 del diseño actual. El CPI baja a la
+  mitad pero el período sube 2,4 veces: con esta ROM y este banco de registros, ejecutar en
+  un ciclo rinde menos que el pipeline de dos ciclos, aunque ahorra 13 % de área.
+
+## B1: exp/signoff
+
+Objetivo: llevar a cero las violaciones de max slew (546 pines) y max capacitancia (36
+pines) de la corrida final solo con configuración del flujo, sin empeorar el período mínimo
+ni el área en más de 1 %. Causa de las violaciones de capacitancia que aparecieron al excluir
+buf_1 (D20): 34 de los 36 pines son salidas de buffers `buf_2` que el resizer inserta para
+repartir nets de fanout 10 (`fanout*` del banco de registros, 10 entradas de `mux2_2` de
+unos 0,025 pF cada una, 0,24 a 0,26 pF contra el límite de 0,2 pF de
+`MAX_CAPACITANCE_CONSTRAINT`); con buf_1 el resizer partía esos nets en más trozos. Los otros
+2 son el buffer raíz del árbol de reloj (`clkbuf_0_clk`, 0,35 pF: ocho `clkbuf_16` colgando)
+y uno de segundo nivel. Las violaciones de slew son entradas de `mux2_2` (147) y de buffers
+(68) manejadas por celdas chicas (`aoi21_1`, `buf_2`, `nor2_1`) en la esquina ss.
+
+Primera ronda, a 100 ns (comparar con final: slew 546, cap 36, área 182.265 µm², WNS 65,22):
+
+| variante | cambio | slew | cap | área (µm²) | WNS max_ss (ns) | comentario |
+|---|---|---|---|---|---|---|
+| b1a | `MAX_FANOUT_CONSTRAINT = 6` | 272 | 1 | 191.885 (+5,3 %) | 64,33 | la que más limpia, pero 1.176 buffers y 5 % de área: fuera del límite |
+| b1c | `RUN_POST_GRT_DESIGN_REPAIR = true`, márgenes de slew y cap del repair post-GRT 30 % | 489 | 19 | 183.091 (+0,5 %) | 65,74 | mejora moderada dentro del límite |
+| b1d | excluir también `buf_2` | 1.979 | 3 | 193.700 (+6,3 %) | 51,23 | mucho peor: los buffers grandes alargan los nets y el slew se dispara |
+| b1e | `CTS_MAX_CAP = 0,15 pF` | 546 | 36 | 182.265 (0 %) | 65,22 | sin efecto: la caracterización del CTS cambia pero el árbol queda igual |
+
+Segunda ronda (lote 8): b1f `MAX_FANOUT_CONSTRAINT = 8`, b1g márgenes del repair de
+placement en 30 % (de a uno, por la memoria), b1h fanout 8 más repair post-GRT 30 %. La mejor
+dentro del 1 % de área se corre después a 26 ns para confirmar que no empeora el período.
 
 ## B5: exp/rf-latch (opcional)
 
