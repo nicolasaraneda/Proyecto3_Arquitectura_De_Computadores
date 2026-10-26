@@ -23,7 +23,9 @@ asic/<config>/resultados/<tag>/layout/):
                     para repetir las marcas en la interfaz (docs/layout.md).
   ruta_critica.png  celdas de la ruta crítica de setup de la esquina `corner`
                     (primera ruta de <run>/*-openroad-stapostpnr/<corner>/max.rpt),
-                    numeradas en orden y unidas con flechas, coloreadas por
+                    numeradas en orden desde el startpoint del STA (el flip-flop
+                    que lanza el dato; los buffers del camino de reloj van en
+                    gris, sin número) y unidas con flechas, coloreadas por
                     módulo según el nombre jerárquico de su net de salida.
   ruta_critica.txt  la lista de celdas de la ruta con su módulo.
   slew.png          pines con violación de max slew en la esquina `corner`
@@ -365,28 +367,33 @@ def figura_bloques(layout, deff):
 
 
 def leer_ruta(run, corner):
-    """Celdas de la primera ruta de max.rpt: [(instancia, celda, pin_salida, net)]."""
+    """Celdas de la primera ruta de max.rpt: [(instancia, celda, pin_salida, net)], la
+    ruta del reporte, y el startpoint y el endpoint del STA (líneas "Startpoint:" y
+    "Endpoint:"). La lista incluye el camino de reloj (los buffers del árbol que
+    llegan al startpoint), que el reporte lista antes del flip-flop de inicio."""
     sta = sorted(d for d in os.listdir(run) if d.endswith("openroad-stapostpnr"))
     if not sta:
         raise SystemExit("no hay paso openroad-stapostpnr en la corrida")
     path = os.path.join(run, sta[-1], corner, "max.rpt")
     celdas = []
     en_ruta = False
-    ultimo = None
+    inicio = fin = None
     with open(path) as f:
         for linea in f:
             if linea.startswith("Startpoint:"):
                 if celdas:
                     break
                 en_ruta = True
+                inicio = linea.split()[1]
             if not en_ruta:
                 continue
+            if linea.startswith("Endpoint:"):
+                fin = linea.split()[1]
             if "data arrival time" in linea:
                 break
             m = re.search(r"[\^v] (\S+)/(\S+) \((\S+)\)", linea)
             if m:
                 inst, pin, celda = m.group(1), m.group(2), m.group(3)
-                ultimo = (inst, celda, pin)
                 if not celdas or celdas[-1][0] != inst:
                     celdas.append([inst, celda, pin, None])
                 else:
@@ -395,7 +402,7 @@ def leer_ruta(run, corner):
             m = re.search(r"^\s+(\S+) \(net\)", linea)
             if m and celdas:
                 celdas[-1][3] = m.group(1)
-    return celdas, path
+    return celdas, path, inicio, fin
 
 
 def modulo_de(inst, net):
@@ -428,25 +435,45 @@ MODULOS_RUTA = {
     "lsu": ("LSU / bus de datos (u_soc.u_core.lsu_*, data_*)", 0x9467bd),
     "if": ("etapa IF (u_soc.u_core.u_if.*)", 0x8c564b),
     "soc": ("perifericos y memoria (u_soc.*)", 0x17becf),
-    "clk": ("arbol de reloj", 0x7f7f7f),
+    "clk": ("camino de reloj", 0x7f7f7f),
     "otro": ("logica aplanada sin nombre jerarquico (net _nnnn_)", 0xbcbd22),
 }
 
 
 def figura_ruta(layout, deff):
+    """Ruta crítica de setup sobre el layout. La numeración y el subtítulo empiezan en
+    el startpoint del STA (el flip-flop que lanza el dato); las celdas del camino de
+    reloj que el reporte lista antes se dibujan en gris, con la etiqueta "camino de
+    reloj" y sin número."""
     die, pines = leer_def_texto(deff)
     insts = instancias(layout)
     pos = {n: b for n, c, b in insts}
-    ruta, path = leer_ruta(RUN, CORNER)
+    ruta, path, inicio, fin = leer_ruta(RUN, CORNER)
+    idx = next((i for i, r in enumerate(ruta) if r[0] == inicio), None)
+    if idx is None:
+        print(f"aviso: el startpoint {inicio} no está entre las celdas de la ruta; se numera desde la primera")
+        idx = 0
+    reloj, datos = ruta[:idx], ruta[idx:]
     lz = Lienzo(layout.dbu)
     base_con_celdas(lz, insts, die)
     c_txt = lz.capa(GRIS_TEXTO)
     capas_mod = {k: lz.capa(v[1]) for k, v in MODULOS_RUTA.items()}
     c_flecha = lz.capa(0x000000)
+    c_reloj = capas_mod["clk"]
     usados = {}
+    puntos_reloj = []
     puntos = []
     lineas_txt = []
-    for i, (inst, celda, pin, net) in enumerate(ruta, 1):
+    for inst, celda, pin, net in reloj:
+        box = pos.get(inst)
+        if box is None:
+            print(f"aviso: {inst} no está en el DEF")
+            continue
+        lz.caja(c_reloj, box.enlarged(1.0, 1.0))
+        puntos_reloj.append((box.center().x, box.center().y))
+        lz.texto(c_reloj, "camino de reloj", box.center().x + 3, box.center().y + 3, 5.0)
+        lineas_txt.append(f"-- {inst} ({celda.replace(SCL + '__', '')}) -> {net}  [camino de reloj]")
+    for i, (inst, celda, pin, net) in enumerate(datos, 1):
         box = pos.get(inst)
         if box is None:
             print(f"aviso: {inst} no está en el DEF")
@@ -456,6 +483,8 @@ def figura_ruta(layout, deff):
         lz.caja(capas_mod[mod], box.enlarged(1.0, 1.0))
         puntos.append((box.center().x, box.center().y))
         lineas_txt.append(f"{i:2d} {inst} ({celda.replace(SCL + '__', '')}) -> {net}  [{MODULOS_RUTA[mod][0]}]")
+    for a, b in zip(puntos_reloj, puntos_reloj[1:] + puntos[:1]):
+        lz.flecha(c_reloj, a, b, 0.8)
     for a, b in zip(puntos, puntos[1:]):
         lz.flecha(c_flecha, a, b, 0.8)
     for i, (x, y) in enumerate(puntos, 1):
@@ -465,7 +494,8 @@ def figura_ruta(layout, deff):
     y = die.top - 20
     lz.texto(c_txt, f"{TAG}: ruta critica de setup, esquina {CORNER}", x_leg, y, alto + 1)
     y -= 1.6 * alto
-    lz.texto(c_txt, f"{ruta[0][0]} ({ruta[0][1].replace(SCL + '__', '')}) -> {ruta[-1][0]} ({ruta[-1][1].replace(SCL + '__', '')}), {len(ruta)} celdas", x_leg, y, alto * 0.85)
+    subtitulo = f"{datos[0][0]} ({datos[0][1].replace(SCL + '__', '')}) -> {datos[-1][0]} ({datos[-1][1].replace(SCL + '__', '')}), {len(datos)} celdas"
+    lz.texto(c_txt, subtitulo, x_leg, y, alto * 0.85)
     y -= 2.2 * alto
     for k, (etiqueta, color) in MODULOS_RUTA.items():
         if k not in usados:
@@ -473,7 +503,13 @@ def figura_ruta(layout, deff):
         lz.caja(capas_mod[k], pya.DBox(x_leg, y, x_leg + 14, y + alto))
         lz.texto(c_txt, f"{etiqueta}: {usados[k]} celdas", x_leg + 20, y, alto)
         y -= 1.7 * alto
+    if reloj:
+        lz.caja(c_reloj, pya.DBox(x_leg, y, x_leg + 14, y + alto))
+        lz.texto(c_txt, f"camino de reloj (gris, sin numero): {len(reloj)} celdas", x_leg + 20, y, alto)
+        y -= 1.7 * alto
     y -= alto
+    lz.texto(c_txt, "la numeracion empieza en el startpoint del STA (el flip-flop que lanza el dato);", x_leg, y, alto * 0.85)
+    y -= 1.3 * alto
     lz.texto(c_txt, "las flechas siguen el orden de la ruta; el numero es la posicion de la celda", x_leg, y, alto * 0.85)
     y -= 3 * alto
     barra_escala(lz, c_txt, die, x_leg, y)
@@ -482,7 +518,10 @@ def figura_ruta(layout, deff):
     lz.guardar(os.path.join(OUT, "ruta_critica.png"), caja, ANCHO_PX)
     with open(os.path.join(OUT, "ruta_critica.txt"), "w") as f:
         f.write(f"ruta critica de {path}\n")
+        f.write(f"startpoint {inicio}, endpoint {fin}: {len(datos)} celdas numeradas; "
+                f"{len(reloj)} celdas del camino de reloj (--, sin numero)\n")
         f.write("\n".join(lineas_txt) + "\n")
+    print(subtitulo)
     print("\n".join(lineas_txt))
 
 
