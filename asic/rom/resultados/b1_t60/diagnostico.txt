@@ -1,0 +1,122 @@
+========================================================================
+DIAGNOSTICO DEL RESIZER EN EL BARRIDO - corrida asic/rom/runs/b1_t60
+Generado: 2026-10-25 (solo lectura: no se ejecuto LibreLane ni Docker)
+========================================================================
+
+SECCION 1. CONFIGURACION RESUELTA (asic/rom/runs/b1_t60/resolved.json)
+------------------------------------------------------------------------
+STA_CORNERS                    ["nom_tt_025C_5v00", "nom_ss_125C_4v50", "nom_ff_n40C_5v50", "min_tt_025C_5v00", "min_ss_125C_4v50", "min_ff_n40C_5v50", "max_tt_025C_5v00", "max_ss_125C_4v50", "max_ff_n40C_5v50"]
+PNR_CORNERS                    null (presente en el archivo, sin valor)
+RSZ_CORNERS                    null (presente en el archivo, sin valor)
+CTS_CORNERS                    null (presente en el archivo, sin valor)
+DEFAULT_CORNER                 "nom_tt_025C_5v00"
+TIMING_VIOLATION_CORNERS       ["*tt*"]
+EXTRA_EXCLUDED_CELLS           null (presente en el archivo, sin valor)
+PNR_EXCLUDED_CELL_FILE         "/home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.tech/openlane/gf180mcu_fd_sc_mcu7t5v0/drc_exclude.cells"
+SYNTH_EXCLUDED_CELL_FILE       "/home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.tech/openlane/gf180mcu_fd_sc_mcu7t5v0/no_synth.cells"
+MAX_TRANSITION_CONSTRAINT      3
+MAX_FANOUT_CONSTRAINT          10
+DESIGN_REPAIR_MAX_SLEW_PCT     20
+DESIGN_REPAIR_MAX_CAP_PCT      20
+PL_RESIZER_SETUP_SLACK_MARGIN  0.05
+RUN_POST_CTS_RESIZER_TIMING    true
+RUN_POST_GRT_RESIZER_TIMING    false
+
+SECCION 2. ARCHIVOS DE CELDAS EXCLUIDAS
+------------------------------------------------------------------------
+>>> PNR_EXCLUDED_CELL_FILE
+    ruta: /home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.tech/openlane/gf180mcu_fd_sc_mcu7t5v0/drc_exclude.cells
+    estado: EXISTE
+    --- contenido completo ---
+    gf180mcu_fd_sc_mcu7t5v0__mux2_1
+    gf180mcu_fd_sc_mcu7t5v0__oai33_2
+    --- lineas que calzan con celdas de retardo (patron "dly") ---
+    NINGUNA linea calza con "dly"
+
+>>> SYNTH_EXCLUDED_CELL_FILE
+    ruta: /home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.tech/openlane/gf180mcu_fd_sc_mcu7t5v0/no_synth.cells
+    estado: EXISTE
+    --- contenido completo ---
+    gf180mcu_fd_sc_mcu7t5v0__sdffq_1
+    gf180mcu_fd_sc_mcu7t5v0__sdffq_2
+    gf180mcu_fd_sc_mcu7t5v0__sdffq_4
+    gf180mcu_fd_sc_mcu7t5v0__sdffrnq_1
+    gf180mcu_fd_sc_mcu7t5v0__sdffrnq_2
+    gf180mcu_fd_sc_mcu7t5v0__sdffrnq_4
+    gf180mcu_fd_sc_mcu7t5v0__sdffrsnq_1
+    gf180mcu_fd_sc_mcu7t5v0__sdffrsnq_2
+    gf180mcu_fd_sc_mcu7t5v0__sdffrsnq_4
+    gf180mcu_fd_sc_mcu7t5v0__sdffsnq_1
+    gf180mcu_fd_sc_mcu7t5v0__sdffsnq_2
+    gf180mcu_fd_sc_mcu7t5v0__sdffsnq_4
+
+    --- lineas que calzan con celdas de retardo (patron "dly") ---
+    NINGUNA linea calza con "dly"
+
+Observacion: ninguno de los dos archivos excluye celdas de retardo (dly*),
+por lo que el resizer tiene permitido usarlas libremente.
+
+SECCION 3. LOG DE 37-openroad-resizertimingpostcts
+------------------------------------------------------------------------
+Archivo: 37-openroad-resizertimingpostcts/openroad-resizertimingpostcts.log (79 lineas en total)
+Filtro (sin distinguir mayusculas): corner|setup|repair_timing|violat|inserted|resized|wns|tns|slack   (max 80)
+
+  1:Reading timing models for corner max_ff_n40C_5v50…
+  2:Reading timing library for the 'max_ff_n40C_5v50' corner at '/home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/lib/gf180mcu_fd_sc_mcu7t5v0__ff_n40C_5v50.lib'…
+  3:Reading timing models for corner max_tt_025C_5v00…
+  4:Reading timing library for the 'max_tt_025C_5v00' corner at '/home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/lib/gf180mcu_fd_sc_mcu7t5v0__tt_025C_5v00.lib'…
+  5:Reading timing models for corner nom_ff_n40C_5v50…
+  6:Reading timing library for the 'nom_ff_n40C_5v50' corner at '/home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/lib/gf180mcu_fd_sc_mcu7t5v0__ff_n40C_5v50.lib'…
+  8:Reading timing models for corner nom_tt_025C_5v00…
+  9:Reading timing library for the 'nom_tt_025C_5v00' corner at '/home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/lib/gf180mcu_fd_sc_mcu7t5v0__tt_025C_5v00.lib'…
+  11:Reading timing models for corner min_ss_125C_4v50…
+  12:Reading timing library for the 'min_ss_125C_4v50' corner at '/home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/lib/gf180mcu_fd_sc_mcu7t5v0__ss_125C_4v50.lib'…
+  13:Reading timing models for corner min_ff_n40C_5v50…
+  14:Reading timing library for the 'min_ff_n40C_5v50' corner at '/home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/lib/gf180mcu_fd_sc_mcu7t5v0__ff_n40C_5v50.lib'…
+  16:Reading timing models for corner min_tt_025C_5v00…
+  17:Reading timing library for the 'min_tt_025C_5v00' corner at '/home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/lib/gf180mcu_fd_sc_mcu7t5v0__tt_025C_5v00.lib'…
+  19:Reading timing models for corner max_ss_125C_4v50…
+  20:Reading timing library for the 'max_ss_125C_4v50' corner at '/home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/lib/gf180mcu_fd_sc_mcu7t5v0__ss_125C_4v50.lib'…
+  22:Reading timing models for corner nom_ss_125C_4v50…
+  23:Reading timing library for the 'nom_ss_125C_4v50' corner at '/home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/lib/gf180mcu_fd_sc_mcu7t5v0__ss_125C_4v50.lib'…
+  34:+ repair_timing -verbose -setup -setup_margin 0.05000000000000000277555756156289135105907917022705078125 -max_buffer_percent 50.0
+  36:[INFO RSZ-0098] No setup violations found
+  37:+ repair_timing -verbose -hold -setup_margin 0.05000000000000000277555756156289135105907917022705078125 -hold_margin 0.1000000000000000055511151231257827021181583404541015625 -max_buffer_percent 50.0
+  38:[INFO RSZ-0046] Found 5 endpoints with hold violations.
+  39:Iteration | Resized | Buffers | Cloned Gates |   Area   |   WNS   |   TNS   | Endpoint
+  44:[INFO RSZ-0032] Inserted 5 hold buffers.
+
+SECCION 4. LOG DE 32-openroad-repairdesignpostgpl
+------------------------------------------------------------------------
+Archivo: 32-openroad-repairdesignpostgpl/openroad-repairdesignpostgpl.log (580 lineas en total)
+Filtro: inserted|buffer|dly|fanout|slew|cap   (max 40)
+
+  34:[INFO RSZ-0027] Inserted 5 gf180mcu_fd_sc_mcu7t5v0__dlyb_1 input buffers.
+  35:[INFO RSZ-0028] Inserted 18 gf180mcu_fd_sc_mcu7t5v0__dlyb_1 output buffers.
+  36:+ repair_design -verbose -max_wire_length 0.0 -slew_margin 20.0 -cap_margin 20.0
+  37:Iteration |   Area    | Resized | Buffers | Nets repaired | Remaining
+  539:[INFO RSZ-0034] Found 167 slew violations.
+  540:[INFO RSZ-0035] Found 149 fanout violations.
+  541:[INFO RSZ-0036] Found 6 capacitance violations.
+  543:[INFO RSZ-0038] Inserted 634 buffers in 201 nets.
+  544:[INFO RSZ-0042] Inserted 2 tie gf180mcu_fd_sc_mcu7t5v0__tieh instances.
+  567:  Endcap cell                             308    1352.24
+  570:  Buffer                                   14     184.40
+  571:  Timing Repair Buffer                    657   21556.86
+
+SECCION 5. CELDAS DE RETARDO EN EL NETLIST FINAL
+------------------------------------------------------------------------
+Archivo: asic/rom/runs/b1_t60/final/nl/asic_top.nl.v
+
+TIPO DE CELDA                            INSTANCIAS inst. "fanout*"
+--------------------------------------------------------------
+gf180mcu_fd_sc_mcu7t5v0__dlyb_1                 534        236
+gf180mcu_fd_sc_mcu7t5v0__dlyc_1                   5          0
+--------------------------------------------------------------
+TOTAL                                           539        236
+
+Total de instancias con nombre que empieza con "fanout": 236 de 539 (43.8%)
+
+========================================================================
+FIN DEL DIAGNOSTICO
+========================================================================
