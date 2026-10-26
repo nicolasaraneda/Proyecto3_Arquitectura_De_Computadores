@@ -96,13 +96,14 @@ completo (`game_tb`); 546 violaciones de max slew y 36 de max capacitancia a 100
 - Corridas (`asic/barrido_exp.md` de la rama): b4_t100 cierra con WNS 41,73 ns en max_ss y
   158.024 µm² de celdas estándar (-13,3 % contra main: 791 flip-flops en vez de 990, sin los
   64 de salida del banco, los 82 de pre-decodificación, los 32 del registro de instrucción y
-  los 33 de PC y validez de la etapa IF); b4_t60 cierra con 1,73 ns; b4_t45 y los puntos
-  intermedios (b4_t55, b4_t50) en los lotes 6 y 8. La ruta crítica es la de un ciclo
-  completo: PC -> ROM -> decodificador -> muxes de lectura del banco -> ALU -> write-back.
-- Ley de Hierro con los datos de arriba (período mínimo provisorio 60 ns, 16,7 MHz):
-  MIPS = 16,7 / 1,312 = 12,7, contra 40,0 / 2,665 = 15,0 del diseño actual. El CPI baja a la
-  mitad pero el período sube 2,4 veces: con esta ROM y este banco de registros, ejecutar en
-  un ciclo rinde menos que el pipeline de dos ciclos, aunque ahorra 13 % de área.
+  los 33 de PC y validez de la etapa IF); b4_t60 cierra con 1,73 ns; b4_t55 (-3,27),
+  b4_t50 (-4,19) y b4_t45 (-1,75) no cierran. Período mínimo 60 ns (16,7 MHz; la brecha
+  queda en 5 ns porque es una exploración). La ruta crítica es la de un ciclo completo:
+  PC -> ROM -> decodificador -> muxes de lectura del banco -> ALU -> write-back.
+- Ley de Hierro: MIPS = 16,7 / 1,312 = 12,7, contra 40,0 / 2,665 = 15,0 del diseño actual.
+  El CPI baja a la mitad pero el período sube 2,4 veces: con esta ROM y este banco de
+  registros, ejecutar en un ciclo rinde 15 % menos que el pipeline de dos ciclos, aunque
+  ahorra 13 % de área. Para el juego da lo mismo (espera botones y mide con CYCLES).
 
 ## B1: exp/signoff
 
