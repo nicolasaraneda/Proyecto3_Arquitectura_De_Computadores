@@ -102,3 +102,81 @@ cierra y el mayor que no cierra en 2 ns para las dos estrategias.
 |---|---|---|---|---|---|---|---|---|
 | MemStrategy 1 (ROM) | 146400.083 | 921 | 173568.000 | 0.475 | 393525.000 | 55.000 | 18.182 | 0.000 |
 | MemStrategy 2 (FF) | 693900.525 | 4602 | 838173.000 | 0.485 | 1794180.000 | 62.000 | 16.129 | 1.000 |
+
+## Diseño final: estrategia 1 con pre-decodificación (D18)
+
+Configuración de asic/rom/config.yaml (D15, D16), con el RTL de la pre-decodificación.
+
+Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
+
+| corrida | T (ns) | setup WS tt | setup TNS tt | setup WS ss | setup TNS ss | hold WS tt | hold TNS tt | hold WS ss | hold TNS ss | setup WS peor | setup TNS peor | hold WS peor | hold TNS peor | cierra timing | área stdcell (µm²) | utilización | área die (µm²) | antena (nets) | DRC | LVS | cierra todo | slew (peor) | cap (peor) | celdas dly |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| p1_t100 | 100 | 74.431 | 0 | 59.754 | 0 | 0.420 | 0 | 1.023 | 0 | 59.754 | 0 | 0.159 | 0 | sí | 181137 | 0.477 | 408957 | 0 | 0 | 0 | sí | 2201 | 3 | 0 |
+| p1_t50 | 50 | 28.504 | 0 | 9.754 | 0 | 0.420 | 0 | 1.023 | 0 | 9.754 | 0 | 0.159 | 0 | sí | 181137 | 0.477 | 408957 | 0 | 0 | 0 | sí | 2201 | 3 | 0 |
+| p1_t45 | 45 | 23.504 | 0 | 4.754 | 0 | 0.420 | 0 | 1.023 | 0 | 4.754 | 0 | 0.159 | 0 | sí | 181137 | 0.477 | 408957 | 0 | 0 | 0 | sí | 2201 | 3 | 0 |
+| p1_t42 | 42 | 20.504 | 0 | 1.754 | 0 | 0.420 | 0 | 1.023 | 0 | 1.754 | 0 | 0.159 | 0 | sí | 181137 | 0.477 | 408957 | 0 | 0 | 0 | sí | 2201 | 3 | 0 |
+| p1_t40 | 40 | 18.504 | 0 | -0.246 | -0.458 | 0.420 | 0 | 1.023 | 0 | -0.246 | -0.458 | 0.159 | 0 | no | 181137 | 0.477 | 408957 | 0 | 0 | 0 | no | 2201 | 3 | 0 |
+| p1_t38 | 38 | 16.504 | 0 | -2.246 | -39.978 | 0.420 | 0 | 1.023 | 0 | -2.246 | -39.978 | 0.159 | 0 | no | 181137 | 0.477 | 408957 | 0 | 0 | 0 | no | 2201 | 3 | 0 |
+| p1_t36 | 36 | 14.504 | 0 | -4.246 | -592.924 | 0.420 | 0 | 1.023 | 0 | -4.246 | -592.924 | 0.159 | 0 | no | 181137 | 0.477 | 408957 | 0 | 0 | 0 | no | 2201 | 3 | 0 |
+| p1_t34 | 34 | 12.504 | 0 | -6.246 | -1805.563 | 0.420 | 0 | 1.023 | 0 | -6.246 | -1805.563 | 0.159 | 0 | no | 181137 | 0.477 | 408957 | 0 | 0 | 0 | no | 2201 | 3 | 0 |
+
+| corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
+|---|---|---|---|---|---|---|
+| p1_t100 | 152353.466 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| p1_t50 | 152353.466 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| p1_t45 | 152353.466 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| p1_t42 | 152353.466 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| p1_t40 | 152353.466 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| p1_t38 | 152353.466 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| p1_t36 | 152353.466 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| p1_t34 | 152353.466 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+
+## Experimento de slew: reparación después del ruteo global
+
+y1: RUN_POST_GRT_DESIGN_REPAIR. y2: y1 + RUN_POST_GRT_RESIZER_TIMING. y3: DESIGN_REPAIR_MAX_SLEW_PCT y DESIGN_REPAIR_MAX_CAP_PCT en 40. y4: y2 + y3. p1_t100, p1_t40 y p1_t36 son la referencia sin cambios. y3 y y4 (márgenes de reparación de slew y capacitancia en 40 %) no terminaron: las dos veces que se lanzaron, junto con otras corridas, WSL llegó a su límite de 32 GB de memoria y hubo que reiniciarlo; las demás corridas terminan en 4 a 8 minutos.
+
+Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
+
+| corrida | T (ns) | setup WS tt | setup TNS tt | setup WS ss | setup TNS ss | hold WS tt | hold TNS tt | hold WS ss | hold TNS ss | setup WS peor | setup TNS peor | hold WS peor | hold TNS peor | cierra timing | área stdcell (µm²) | utilización | área die (µm²) | antena (nets) | DRC | LVS | cierra todo | slew (peor) | cap (peor) | celdas dly |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| p1_t100 | 100 | 74.431 | 0 | 59.754 | 0 | 0.420 | 0 | 1.023 | 0 | 59.754 | 0 | 0.159 | 0 | sí | 181137 | 0.477 | 408957 | 0 | 0 | 0 | sí | 2201 | 3 | 0 |
+| y1_t100 | 100 | 74.431 | 0 | 59.754 | 0 | 0.420 | 0 | 1.023 | 0 | 59.754 | 0 | 0.159 | 0 | sí | 181137 | 0.477 | 408957 | 0 | 0 | 0 | sí | 2201 | 3 | 0 |
+| y2_t100 | 100 | 74.442 | 0 | 59.931 | 0 | 0.419 | 0 | 1.021 | 0 | 59.931 | 0 | 0.159 | 0 | sí | 181154 | 0.477 | 408957 | 0 | 0 | 0 | sí | 2217 | 4 | 0 |
+| p1_t40 | 40 | 18.504 | 0 | -0.246 | -0.458 | 0.420 | 0 | 1.023 | 0 | -0.246 | -0.458 | 0.159 | 0 | no | 181137 | 0.477 | 408957 | 0 | 0 | 0 | no | 2201 | 3 | 0 |
+| y2_t40 | 40 | 18.574 | 0 | -0.069 | -0.102 | 0.419 | 0 | 1.021 | 0 | -0.069 | -0.102 | 0.159 | 0 | no | 181154 | 0.477 | 408957 | 0 | 0 | 0 | no | 2217 | 4 | 0 |
+| p1_t36 | 36 | 14.504 | 0 | -4.246 | -592.924 | 0.420 | 0 | 1.023 | 0 | -4.246 | -592.924 | 0.159 | 0 | no | 181137 | 0.477 | 408957 | 0 | 0 | 0 | no | 2201 | 3 | 0 |
+| y2_t36 | 36 | 14.574 | 0 | -4.069 | -558.424 | 0.419 | 0 | 1.021 | 0 | -4.069 | -558.424 | 0.159 | 0 | no | 181154 | 0.477 | 408957 | 0 | 0 | 0 | no | 2217 | 4 | 0 |
+
+| corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
+|---|---|---|---|---|---|---|
+| p1_t100 | 152353.466 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| y1_t100 | 152353.466 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| y2_t100 | 152353.466 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| p1_t40 | 152353.466 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| y2_t40 | 152353.466 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| p1_t36 | 152353.466 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| y2_t36 | 152353.466 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+
+## Resizer después del CTS
+
+Líneas del log del paso `*-openroad-resizertimingpostcts` que contienen "setup violations", "hold violations", "Inserted" o "Resized" (corrida, número de línea y texto). En ambas corridas el resizer no encuentra violaciones de setup y solo inserta los mismos 5 buffers de hold, por eso el layout no cambia con el período.
+
+### p1_t100 (`37-openroad-resizertimingpostcts/openroad-resizertimingpostcts.log`)
+
+```
+p1_t100 línea 36: [INFO RSZ-0098] No setup violations found
+p1_t100 línea 38: [INFO RSZ-0046] Found 5 endpoints with hold violations.
+p1_t100 línea 39: Iteration | Resized | Buffers | Cloned Gates |   Area   |   WNS   |   TNS   | Endpoint
+p1_t100 línea 44: [INFO RSZ-0032] Inserted 5 hold buffers.
+```
+
+### p1_t34 (`37-openroad-resizertimingpostcts/openroad-resizertimingpostcts.log`)
+
+```
+p1_t34 línea 36: [INFO RSZ-0098] No setup violations found
+p1_t34 línea 38: [INFO RSZ-0046] Found 5 endpoints with hold violations.
+p1_t34 línea 39: Iteration | Resized | Buffers | Cloned Gates |   Area   |   WNS   |   TNS   | Endpoint
+p1_t34 línea 44: [INFO RSZ-0032] Inserted 5 hold buffers.
+```
+
+Referencia: el STA intermedio previo al resizer (`36-openroad-stamidpnr-1/or_metrics_out.json`) de p1_t34 solo reporta la esquina `nom_tt_025C_5v00`, con `timing__setup__ws` = 17.43 ns; la violación de setup de la esquina `max_ss_125C_4v50` aparece solo en el STA final de 9 esquinas.
