@@ -1,0 +1,204 @@
+Diagnóstico de slew: corrida p1_t100 (asic/rom/runs/p1_t100), esquina lenta max_ss_125C_4v50
+Fecha: 2026-10-26. Fuentes: liberty de la esquina lenta, resolved.json, checks.rpt del paso
+55-openroad-stapostpnr y el netlist final/nl/asic_top.nl.v (plano: un solo módulo asic_top con
+nombres de instancia jerárquicos escapados). Las direcciones de pin se tomaron del liberty.
+
+1. Biblioteca de celdas, esquina lenta
+
+Archivo: ~/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/
+        libs.ref/gf180mcu_fd_sc_mcu7t5v0/lib/gf180mcu_fd_sc_mcu7t5v0__ss_125C_4v50.lib
+Unidades: time_unit 1 ns; capacitive_load_unit (1, pf). slew_derate_from_library 0,5; umbrales de
+slew 30 % / 70 %; condiciones ss, 125 °C, 4,5 V.
+
+- default_max_transition: NO está definido en la biblioteca. El único atributo default_* de la
+  cabecera es default_fanout_load : 1.0. No hay límite de transición por defecto a nivel de biblioteca.
+- max_transition por pin: aparece 836 veces en el archivo y siempre vale 7 (ns).
+  - gf180mcu_fd_sc_mcu7t5v0__buf_1: pin I (entrada) max_transition 7; pin Z (salida)
+    max_transition 7, max_capacitance 0,2464 pF, min_capacitance 0,001 pF.
+  - gf180mcu_fd_sc_mcu7t5v0__nand2_1: pines A1 y A2 (entrada) max_transition 7; pin ZN (salida)
+    max_transition 7, max_capacitance 0,219 pF.
+- Primera tabla cell_rise de buf_1 (pin Z, related_pin I, timing_type combinational,
+  timing_sense positive_unate; en el grupo timing() aparece primero cell_fall y luego cell_rise,
+  ambas con los mismos índices). Plantilla: lu_table_template(tmg_ntin_oload_10x10), que define
+    variable_1 : input_net_transition          -> index_1 es la transición de entrada (ns)
+    variable_2 : total_output_net_capacitance  -> index_2 es la capacitancia de carga (pF)
+  index_1 ("0.02, 0.06818, 0.2373, 0.5602, 1.063, 1.769, 2.698, 3.869, 5.297, 7")
+  index_2 ("0.001, 0.002694, 0.00864, 0.01999, 0.03768, 0.0625, 0.09516, 0.1363, 0.1865, 0.2464")
+  La caracterización llega hasta 7 ns de transición de entrada y 0,2464 pF de carga, que coinciden
+  con max_transition y max_capacitance del pin Z.
+- resolved.json de p1_t100:
+    MAX_TRANSITION_CONSTRAINT = 3 (ns)
+    DEFAULT_MAX_TRAN = null (la clave existe, sin valor)
+  Relacionadas: MAX_FANOUT_CONSTRAINT = 10, MAX_CAPACITANCE_CONSTRAINT = 0,2 pF,
+  CLOCK_TRANSITION_CONSTRAINT = 0,15, DESIGN_REPAIR_MAX_SLEW_PCT = 20,
+  GRT_DESIGN_REPAIR_MAX_SLEW_PCT = 10, PL_RESIZER_SETUP_SLACK_MARGIN = 0,05, CTS_MAX_SLEW = null.
+  Origen del 3: lo fija el PDK (gf180mcuD/libs.tech/openlane/gf180mcu_fd_sc_mcu7t5v0/config.tcl:
+  set ::env(MAX_TRANSITION_CONSTRAINT) 3). LibreLane lo aplica en scripts/base.sdc con
+  set_max_transition $::env(MAX_TRANSITION_CONSTRAINT) [current_design], así que el límite de
+  3,000 que muestra checks.rpt es la restricción SDC de LibreLane y no la biblioteca: la biblioteca
+  permite 7 ns en todos sus pines. Según la documentación de la variable, DEFAULT_MAX_TRAN solo se
+  usaría si MAX_TRANSITION_CONSTRAINT no estuviera definida (10 % del periodo, acotado por
+  DEFAULT_MAX_TRAN); aquí no interviene.
+
+2. Violaciones de max slew de p1_t100 en max_ss_125C_4v50 (checks.rpt, sección "max slew")
+
+- Total: 2201 pines en violación (coincide con "max slew violation count 2201" del reporte).
+  Todas contra el límite de 3,000 ns. Slew máximo 5,993 ns; mínimo entre violaciones 3,001 ns.
+  Ninguna supera los 7 ns de max_transition del liberty.
+- Por dirección del pin: 1927 pines de entrada y 274 pines de salida (los 274 de salida son los
+  drivers de los 274 nets con violación: cada net en violación tiene su driver en violación).
+- Por tipo de celda del pin (total / entrada / salida):
+    buf_1 385 (200 / 185), mux2_2 313 (313 / 0), aoi221_1 200 (197 / 3), mux4_1 160 (160 / 0),
+    nand2_1 159 (152 / 7), oai21_1 145 (140 / 5), aoi211_1 144 (137 / 7), aoi22_1 139 (133 / 6),
+    nand3_1 82 (80 / 2), nor2_1 78 (62 / 16), oai211_1 72 (66 / 6), aoi21_1 55 (45 / 10),
+    dffrnq_1 50 (46 / 4), oai221_1 30, and4_1 22, buf_4 18, clkinv_1 16 (14 / 2), or2_1 14,
+    and2_1 14, nor3_1 13 (12 / 1), dffq_1 12 (5 / 7), oai31_1 12 (8 / 4), oai22_1 12, and3_1 9 (8 / 1),
+    nand4_1 8, nor4_1 7 (3 / 4), xor2_1 7, buf_2 5, aoi222_1 4 (3 / 1), clkbuf_1 4, oai222_1 3 (0 / 3),
+    oai32_1 3, antenna 2, xnor2_1 2, or3_1 1, xor3_1 1. (La tabla completa está en el anexo.)
+- Nets distintos con pines en violación: 274. Según la celda que los maneja: buf_1 185 (68 %),
+  nor2_1 16, aoi21_1 10, aoi211_1 7, dffq_1 7, nand2_1 7, oai211_1 6, aoi22_1 6, oai21_1 5, resto 25.
+  Según su fanout: 120 nets tienen fanout 10 (el MAX_FANOUT_CONSTRAINT) y 117 de ellos los maneja
+  un buf_1; 11 pines en violación por net (10 sumideros + la salida del buffer) en 120 nets.
+- 15 nets con más pines en violación (todos con 11 pines; hay 120 nets con 11, la lista es los 15
+  primeros en el orden del Counter). Driver y fanout:
+    u_soc.u_core.u_rf/net414  11  u_soc.u_core.u_rf/fanout414/Z  buf_1  fanout 10
+    u_soc.u_core.u_rf/net404  11  u_soc.u_core.u_rf/fanout404/Z  buf_1  fanout 10
+    u_soc.u_core.u_rf/net532  11  u_soc.u_core.u_rf/fanout532/Z  buf_1  fanout 10
+    u_soc.u_core.u_rf/net355  11  u_soc.u_core.u_rf/fanout355/Z  buf_1  fanout 10
+    u_soc.u_core.u_rf/net413  11  u_soc.u_core.u_rf/fanout413/Z  buf_1  fanout 10
+    u_soc.u_core.u_rf/net405  11  u_soc.u_core.u_rf/fanout405/Z  buf_1  fanout 10
+    net438                    11  fanout438/Z                    buf_1  fanout 10
+    net477                    11  fanout477/Z                    buf_1  fanout 10
+    u_soc.u_core.u_rf/net399  11  u_soc.u_core.u_rf/fanout399/Z  buf_1  fanout 10
+    u_soc.u_core.u_rf/net343  11  u_soc.u_core.u_rf/fanout343/Z  buf_1  fanout 10
+    u_soc.u_core.u_rf/net479  11  u_soc.u_core.u_rf/fanout479/Z  buf_1  fanout 10
+    u_soc.u_core.u_rf/net471  11  u_soc.u_core.u_rf/fanout471/Z  buf_1  fanout 10
+    u_soc.u_core.u_rf/net397  11  u_soc.u_core.u_rf/fanout397/Z  buf_1  fanout 10
+    net666                    11  fanout666/Z                    buf_1  fanout 10
+    u_soc.u_core.u_rf/net359  11  u_soc.u_core.u_rf/fanout359/Z  buf_1  fanout 10
+  Las instancias fanout* son los buffers que inserta el resizer (repair_design) para cumplir
+  MAX_FANOUT_CONSTRAINT = 10; el netlist tiene 554 buf_1, de los cuales 513 son fanout*, 18 output*,
+  5 input*, 3 max_cap* y 15 vienen de síntesis (_46xx_, hacia los puertos de los displays).
+- Nets de reloj (nombre con "clk"): 0 violaciones.
+- Red de reset: a partir de rst_sync_q[0] y rst_sync_q[1] se derivan, siguiendo buffers e
+  inversores, 28 nets (rst_sync_q[0..1], net590..net614, net675). Tienen 61 violaciones, en 6 nets
+  del árbol de buffers de rst_sync_q[1]: net593, net611, net612, net613 (11 pines c/u, fanout 10),
+  net592 (10 pines, fanout 9) y net614 (7 pines, fanout 6), todos manejados por buf_1 (fanout*).
+  Pines: 45 entradas RN de dffrnq_1, 10 entradas I de buf_1, 6 salidas Z de buf_1.
+
+Lectura: la biblioteca no limita el slew a 3 ns (permite 7); el límite de 3 ns es la SDC del PDK/
+LibreLane. En la esquina ss el buffer más pequeño (buf_1) manejando 10 cargas excede ese límite, y
+como el resizer usa buf_1 para dividir los nets de alto fanout (D15 excluye solo las celdas dly*),
+2 de cada 3 nets en violación son nets fanout* manejados por buf_1. Esto motiva el experimento z
+(excluir buf_1 del buffering y subir el margen del resizer).
+
+ANEXO: salida completa del script de análisis (analisis_slew.py, guardado junto a este archivo, sobre checks.rpt y el netlist)
+-------------------------------------------------------------------------------------------------
+Violaciones de max slew en checks.rpt: 2201
+Límite reportado por pin: {3.0: 2201}
+Slew máximo: 5.993 ns; mínimo entre violaciones: 3.001 ns
+Pines sin mapear en el netlist: 0 []
+
+Por dirección del pin: entrada 1927, salida 274, otra 0
+
+Por tipo de celda (total / pines de entrada / pines de salida):
+  gf180mcu_fd_sc_mcu7t5v0__buf_1                  385  ent   200  sal   185
+  gf180mcu_fd_sc_mcu7t5v0__mux2_2                 313  ent   313  sal     0
+  gf180mcu_fd_sc_mcu7t5v0__aoi221_1               200  ent   197  sal     3
+  gf180mcu_fd_sc_mcu7t5v0__mux4_1                 160  ent   160  sal     0
+  gf180mcu_fd_sc_mcu7t5v0__nand2_1                159  ent   152  sal     7
+  gf180mcu_fd_sc_mcu7t5v0__oai21_1                145  ent   140  sal     5
+  gf180mcu_fd_sc_mcu7t5v0__aoi211_1               144  ent   137  sal     7
+  gf180mcu_fd_sc_mcu7t5v0__aoi22_1                139  ent   133  sal     6
+  gf180mcu_fd_sc_mcu7t5v0__nand3_1                 82  ent    80  sal     2
+  gf180mcu_fd_sc_mcu7t5v0__nor2_1                  78  ent    62  sal    16
+  gf180mcu_fd_sc_mcu7t5v0__oai211_1                72  ent    66  sal     6
+  gf180mcu_fd_sc_mcu7t5v0__aoi21_1                 55  ent    45  sal    10
+  gf180mcu_fd_sc_mcu7t5v0__dffrnq_1                50  ent    46  sal     4
+  gf180mcu_fd_sc_mcu7t5v0__oai221_1                30  ent    30  sal     0
+  gf180mcu_fd_sc_mcu7t5v0__and4_1                  22  ent    22  sal     0
+  gf180mcu_fd_sc_mcu7t5v0__buf_4                   18  ent    18  sal     0
+  gf180mcu_fd_sc_mcu7t5v0__clkinv_1                16  ent    14  sal     2
+  gf180mcu_fd_sc_mcu7t5v0__or2_1                   14  ent    14  sal     0
+  gf180mcu_fd_sc_mcu7t5v0__and2_1                  14  ent    14  sal     0
+  gf180mcu_fd_sc_mcu7t5v0__nor3_1                  13  ent    12  sal     1
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1                  12  ent     5  sal     7
+  gf180mcu_fd_sc_mcu7t5v0__oai31_1                 12  ent     8  sal     4
+  gf180mcu_fd_sc_mcu7t5v0__oai22_1                 12  ent    12  sal     0
+  gf180mcu_fd_sc_mcu7t5v0__and3_1                   9  ent     8  sal     1
+  gf180mcu_fd_sc_mcu7t5v0__nand4_1                  8  ent     8  sal     0
+  gf180mcu_fd_sc_mcu7t5v0__nor4_1                   7  ent     3  sal     4
+  gf180mcu_fd_sc_mcu7t5v0__xor2_1                   7  ent     7  sal     0
+  gf180mcu_fd_sc_mcu7t5v0__buf_2                    5  ent     5  sal     0
+  gf180mcu_fd_sc_mcu7t5v0__aoi222_1                 4  ent     3  sal     1
+  gf180mcu_fd_sc_mcu7t5v0__clkbuf_1                 4  ent     4  sal     0
+  gf180mcu_fd_sc_mcu7t5v0__oai222_1                 3  ent     0  sal     3
+  gf180mcu_fd_sc_mcu7t5v0__oai32_1                  3  ent     3  sal     0
+  gf180mcu_fd_sc_mcu7t5v0__antenna                  2  ent     2  sal     0
+  gf180mcu_fd_sc_mcu7t5v0__xnor2_1                  2  ent     2  sal     0
+  gf180mcu_fd_sc_mcu7t5v0__or3_1                    1  ent     1  sal     0
+  gf180mcu_fd_sc_mcu7t5v0__xor3_1                   1  ent     1  sal     0
+
+Nets distintos con pines en violación: 274
+
+15 nets con más pines en violación (pines en violación / driver: instancia, celda, pin / fanout del net):
+  u_soc.u_core.u_rf/net414                   11  u_soc.u_core.u_rf/fanout414/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  u_soc.u_core.u_rf/net404                   11  u_soc.u_core.u_rf/fanout404/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  u_soc.u_core.u_rf/net532                   11  u_soc.u_core.u_rf/fanout532/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  u_soc.u_core.u_rf/net355                   11  u_soc.u_core.u_rf/fanout355/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  u_soc.u_core.u_rf/net413                   11  u_soc.u_core.u_rf/fanout413/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  u_soc.u_core.u_rf/net405                   11  u_soc.u_core.u_rf/fanout405/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  net438                                     11  fanout438/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  net477                                     11  fanout477/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  u_soc.u_core.u_rf/net399                   11  u_soc.u_core.u_rf/fanout399/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  u_soc.u_core.u_rf/net343                   11  u_soc.u_core.u_rf/fanout343/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  u_soc.u_core.u_rf/net479                   11  u_soc.u_core.u_rf/fanout479/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  u_soc.u_core.u_rf/net471                   11  u_soc.u_core.u_rf/fanout471/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  u_soc.u_core.u_rf/net397                   11  u_soc.u_core.u_rf/fanout397/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  net666                                     11  fanout666/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  u_soc.u_core.u_rf/net359                   11  u_soc.u_core.u_rf/fanout359/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+
+Violaciones en nets de reloj (nombre con 'clk'): 0
+Nets derivados de rst_sync_q (buffers/inversores): 28 -> ['net590', 'net591', 'net592', 'net593', 'net594', 'net595', 'net596', 'net597', 'net598', 'net599', 'net600', 'net601', 'net602', 'net603', 'net604', 'net605', 'net606', 'net607', 'net608', 'net609', 'net610', 'net611', 'net612', 'net613', 'net614', 'net675', 'rst_sync_q[0]', 'rst_sync_q[1]']
+Violaciones en la red de reset: 61
+
+Nets en violación según la celda que los maneja:
+  gf180mcu_fd_sc_mcu7t5v0__buf_1                 185
+  gf180mcu_fd_sc_mcu7t5v0__nor2_1                 16
+  gf180mcu_fd_sc_mcu7t5v0__aoi21_1                10
+  gf180mcu_fd_sc_mcu7t5v0__aoi211_1                7
+  gf180mcu_fd_sc_mcu7t5v0__dffq_1                  7
+  gf180mcu_fd_sc_mcu7t5v0__nand2_1                 7
+  gf180mcu_fd_sc_mcu7t5v0__oai211_1                6
+  gf180mcu_fd_sc_mcu7t5v0__aoi22_1                 6
+  gf180mcu_fd_sc_mcu7t5v0__oai21_1                 5
+  gf180mcu_fd_sc_mcu7t5v0__nor4_1                  4
+  gf180mcu_fd_sc_mcu7t5v0__oai31_1                 4
+  gf180mcu_fd_sc_mcu7t5v0__dffrnq_1                4
+  gf180mcu_fd_sc_mcu7t5v0__aoi221_1                3
+  gf180mcu_fd_sc_mcu7t5v0__oai222_1                3
+  gf180mcu_fd_sc_mcu7t5v0__nand3_1                 2
+  gf180mcu_fd_sc_mcu7t5v0__clkinv_1                2
+  gf180mcu_fd_sc_mcu7t5v0__nor3_1                  1
+  gf180mcu_fd_sc_mcu7t5v0__and3_1                  1
+  gf180mcu_fd_sc_mcu7t5v0__aoi222_1                1
+
+Nets en violación según su fanout (fanout: cantidad de nets):
+  1: 19, 2: 20, 3: 8, 4: 22, 5: 15, 6: 36, 7: 17, 8: 7, 9: 10, 10: 120
+Solo los manejados por buf_1 (fanout: cantidad de nets):
+  5: 12, 6: 32, 7: 16, 8: 3, 9: 5, 10: 117
+
+Instancias buf_1 en el netlist: 554; por prefijo de nombre: {'fanout': 513, 'output': 18, 'input': 5, 'max_cap': 3, '_4602_': 1, '_4603_': 1, '_4604_': 1, '_4605_': 1, '_4606_': 1, '_4607_': 1, '_4608_': 1, '_4609_': 1, '_4610_': 1, '_4611_': 1, '_4612_': 1, '_4613_': 1, '_4614_': 1, '_4615_': 1, 'wire': 1}
+
+Nets según cantidad de pines en violación (pines: nets):
+  11: 120, 10: 10, 9: 7, 8: 17, 7: 36, 6: 15, 5: 22, 4: 8, 3: 20, 2: 19
+
+Red de reset: nets derivados de rst_sync_q con pines en violación (net / pines en violación / driver / fanout):
+  net592            10  fanout592/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 9
+  net593            11  fanout593/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  net611            11  fanout611/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  net612            11  fanout612/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  net613            11  fanout613/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 10
+  net614             7  fanout614/Z (gf180mcu_fd_sc_mcu7t5v0__buf_1)  fanout 6
+Red de reset: nets derivados de rst_sync_q sin violaciones: net590, net591, net594, net595, net596, net597, net598, net599, net600, net601, net602, net603, net604, net605, net606, net607, net608, net609, net610, net675, rst_sync_q[0], rst_sync_q[1]
+Red de reset: pines en violación por celda y dirección: gf180mcu_fd_sc_mcu7t5v0__dffrnq_1 input: 45, gf180mcu_fd_sc_mcu7t5v0__buf_1 input: 10, gf180mcu_fd_sc_mcu7t5v0__buf_1 output: 6
