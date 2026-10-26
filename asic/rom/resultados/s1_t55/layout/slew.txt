@@ -1,0 +1,36 @@
+violaciones de max slew de asic/rom/runs/s1_t55/55-openroad-stapostpnr/max_ss_125C_4v50/checks.rpt: 2184 pines en 1730 celdas
+  3.0 a 3.5 ns: 768 celdas
+  3.5 a 4.0 ns: 558 celdas
+  4.0 a 4.5 ns: 226 celdas
+  4.5 a 5.0 ns: 125 celdas
+  5.0 a 99.0 ns: 53 celdas
+  u_soc.u_core.u_rf/_1443_ 5.877 ns
+  u_soc.u_core.u_rf/fanout280 5.877 ns
+  u_soc.u_core.u_rf/wire285 5.877 ns
+  u_soc.u_core.u_rf/_2245_ 5.803 ns
+  u_soc.u_core.u_rf/_2312_ 5.803 ns
+  u_soc.u_core.u_rf/_2280_ 5.803 ns
+  u_soc.u_core.u_rf/_2290_ 5.803 ns
+  u_soc.u_core.u_rf/_2356_ 5.803 ns
+  u_soc.u_core.u_rf/_2334_ 5.803 ns
+  u_soc.u_core.u_rf/_2410_ 5.803 ns
+  u_soc.u_core.u_rf/_2582_ 5.803 ns
+  u_soc.u_core.u_rf/_2524_ 5.803 ns
+  u_soc.u_core.u_rf/fanout450 5.803 ns
+  u_soc.u_core.u_rf/fanout451 5.803 ns
+  u_soc.u_core.u_rf/_3093_ 5.548 ns
+  u_soc.u_core.u_rf/_2015_ 5.548 ns
+  _3470_ 5.427 ns
+  wire104 5.427 ns
+  _2341_ 5.386 ns
+  u_soc.u_core.u_rf/wire95 5.386 ns
+  u_soc.u_core.u_rf/_1909_ 5.199 ns
+  u_soc.u_core.u_rf/_1942_ 5.199 ns
+  u_soc.u_core.u_rf/_2068_ 5.199 ns
+  ANTENNA_3 5.199 ns
+  u_soc.u_core.u_rf/fanout452 5.199 ns
+  u_soc.u_core.u_rf/_2158_ 5.199 ns
+  u_soc.u_core.u_rf/_2236_ 5.199 ns
+  u_soc.u_core.u_rf/_2122_ 5.199 ns
+  u_soc.u_core.u_rf/fanout453 5.199 ns
+  u_soc.u_core.u_rf/fanout454 5.199 ns
