@@ -139,3 +139,17 @@ Cada decisión registra las opciones, la elegida, la razón y lo que se pierde c
 - Elegida: (a).
 - Razón: la corrida final es el mejor diseño verificado, y la frecuencia máxima que se reporta es la del diseño que se entrega.
 - Qué se pierde: se repite el barrido de la estrategia 1 cerca del nuevo límite, y las secciones 3.3, 3.6 y 3.7 se hacen sobre el diseño con pre-decodificación.
+
+## D20. Configuración del flujo de la corrida final (26-10-2026)
+
+- Opciones: (a) la configuración de D15 y D16 (p1: excluye solo las celdas de retardo, margen del resizer por defecto); (b) opción z1, excluir además `gf180mcu_fd_sc_mcu7t5v0__buf_1`; (c) opción z2, `PL_RESIZER_SETUP_SLACK_MARGIN = 10`; (d) opción z3, las dos juntas.
+- Elegida: (d). `EXTRA_EXCLUDED_CELLS = gf180mcu_fd_sc_mcu7t5v0__dly*` y `gf180mcu_fd_sc_mcu7t5v0__buf_1`, `PL_RESIZER_SETUP_SLACK_MARGIN = 10`.
+- Razón: buf_1 explicaba el 68 % de los nets con violación de slew y las cadenas de buffers de la ruta crítica; sin él y con margen, el diseño cierra a 32 ns (p1: 42 ns) y las violaciones de slew bajan de 2201 a 541.
+- Qué se pierde: +0,6 % de área y las violaciones de capacitancia suben de 3 a 31, pendientes de B1.
+
+## D21. Ubicación de los terminales por función (26-10-2026)
+
+- Opciones: (a) dejar que el flujo ubique los terminales donde acorte los cables (`OpenROAD.IOPlacement`); (b) fijar la ubicación por función con `IO_PIN_ORDER_CFG` (`asic/rom/pines.cfg`).
+- Elegida: (b). Oeste, entradas (clk al centro del lado, rst_n y btn[3:0]); este, displays (seg1[6:0] y seg2[6:0], cada bus contiguo y en orden de bits); norte, led[3:0]; sur, spi_sclk, spi_mosi, spi_cs_n y spi_miso.
+- Razón: cada grupo iría a pads vecinos de un chip completo sin cruces, y el flujo de señales queda entrada, lógica, salida.
+- Qué se pierde: la libertad del flujo para acortar cables (se mide en A4).

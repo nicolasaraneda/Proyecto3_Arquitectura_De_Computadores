@@ -3,13 +3,13 @@
 # entrada estándar: <config.yaml> <tag> <CLOCK_PERIOD> [VARIABLE=VALOR ...].
 # Cada VARIABLE=VALOR extra se pasa con -c y cambia esa variable solo para
 # esa corrida.
-# Uso: bash asic/barrido.sh < lista.txt   (PAR=4 corridas a la vez por defecto)
+# Uso: bash asic/barrido.sh < lista.txt   (PAR=3 corridas a la vez por defecto: máximo acordado por la memoria de WSL)
 # Cada corrida deja su salida en asic/logs/<tag>.log y, al terminar, una
 # línea en asic/logs/estado.txt con su código de salida.
 set -u
 cd "$(dirname "$0")/.."
 source ~/herramientas/librelane/bin/activate
-PAR="${PAR:-4}"
+PAR="${PAR:-3}"
 mkdir -p asic/logs
 corrida() {
   cfg="$1"; tag="$2"; t="$3"; shift 3

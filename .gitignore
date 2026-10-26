@@ -29,6 +29,11 @@ sw/game_sim*.hex
 # Corridas de LibreLane (pesadas; los reportes que se usen en el informe se copian aparte)
 asic/**/runs/
 
+# Las metricas de cada corrida copiada a resultados/ si se versionan, aunque *.json
+# este excluido mas arriba (son la fuente de las tablas de asic/barrido.md).
+!asic/**/resultados/**/metrics.json
+!asic/p2_original/evidencia/**/metrics.json
+
 # Logs del barrido de LibreLane (asic/barrido.sh)
 asic/logs/
 
