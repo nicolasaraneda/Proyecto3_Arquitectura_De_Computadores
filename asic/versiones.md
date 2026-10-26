@@ -17,6 +17,6 @@ Generado por `asic/versiones.sh` el 2026-10-26. Las herramientas del flujo corre
 | Python (imagen) | Python 3.13.9 | `python3 --version` en la imagen |
 | Icarus Verilog (anfitrión, `make check`, `make post-synth`) | Icarus Verilog version 14.0 (devel) (s20260301-403-g5ab23063f-dirty) | oss-cad-suite en ~/herramientas/oss-cad-suite |
 | Verilator (anfitrión) | Verilator 5.053 devel rev v5.052-22-g7cf8c5cca (mod) | oss-cad-suite |
-| Python (anfitrión) | Python 3.14.4 | `python3 --version` |
+| Python (anfitrión) | Python 3.11.6 | `python3 --version` |
 | Docker | Docker version 29.8.0 | `docker --version` |
 | Sistema | Linux 6.18.33.2-microsoft-standard-WSL2 (WSL2) | `uname -sr` |

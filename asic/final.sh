@@ -8,8 +8,8 @@
 #   1. librelane ... asic/rom/config.yaml --run-tag final   (T = 100 ns, FP_CORE_UTIL = 40)
 #   2. asic/verificar_cierre.py: DRC, LVS, antenas, setup y hold en las 9 esquinas
 #      (se detiene si no cierra)
-#   3. asic/recolectar.py: copia los reportes a asic/rom/resultados/final/ y escribe
-#      la tabla en asic/final.md
+#   3. asic/tablas.sh: copia los reportes a asic/rom/resultados/ y escribe asic/final.md
+#      (corrida final y los barridos f1_*, r0_*, u1_* que existan) y los gráficos
 #   4. síntesis jerárquica (h2_t100, solo hasta Yosys.Synthesis) y
 #      asic/analisis_sintesis.py -> asic/sintesis.md          (sección 3.3)
 #   5. asic/layout/anotar.py (KLayout en la imagen de Docker) ->
@@ -33,11 +33,8 @@ echo "== 2. criterios de cierre =="
 mkdir -p asic/rom/resultados/final
 python3 asic/verificar_cierre.py asic/rom/runs/final --md asic/rom/resultados/final/cierre.md
 
-echo "== 3. reportes y tabla =="
-rm -f asic/final.md
-python3 asic/recolectar.py --md asic/final.md --titulo "Corrida final (tag final): T = 100 ns, FP_CORE_UTIL = 40 %" \
-  --nota "Configuración: asic/rom/config.yaml (D15, D20, D21). Criterios de cierre en asic/rom/resultados/final/cierre.md." \
-  asic/rom/runs/final > /dev/null
+echo "== 3. reportes y tablas (final y barridos que existan) =="
+bash asic/tablas.sh
 cp asic/rom/runs/final/resolved.json asic/rom/resultados/final/resolved.json
 cp asic/rom/runs/final/warning.log asic/rom/resultados/final/warning.log
 for e in nom_tt_025C_5v00 max_ss_125C_4v50; do

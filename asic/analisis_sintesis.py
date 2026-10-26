@@ -208,7 +208,7 @@ def main():
         sang = "&nbsp;&nbsp;" * nivel
         inst = INSTANCIAS.get(n, "")
         multtxt = f" x{mult}" if mult > 1 else ""
-        L.append(f"| {sang}`{n}`{multtxt} ({inst}) | {FUNCION.get(n, '')} | {m["num_cells"]} | {q + r} | {f0(m['area_local'])} | {f0(m['area_incl'])} | {100 * m['area_incl'] / total_j:.1f} |")
+        L.append(f"| {sang}`{n}`{multtxt} ({inst}) | {FUNCION.get(n, '')} | {m['num_cells']} | {q + r} | {f0(m['area_local'])} | {f0(m['area_incl'])} | {100 * m['area_incl'] / total_j:.1f} |")
     L.append(f"\nÁrea total de celdas en la síntesis jerárquica: {f0(total_j)} µm²; en la corrida final (aplanada): {f0(total_f)} µm² ({100 * (total_f - total_j) / total_j:+.1f} %, la optimización a través de los bordes de módulo).\n")
 
     # módulo con más área (hojas, por área local; y por área total excluyendo contenedores)
