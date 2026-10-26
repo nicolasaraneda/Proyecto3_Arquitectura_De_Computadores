@@ -1,7 +1,7 @@
 
-## exp/signoff (B1), primera ronda a 100 ns
+## exp/signoff (B1): variantes de configuración del flujo
 
-b1a: MAX_FANOUT_CONSTRAINT=6. b1c: RUN_POST_GRT_DESIGN_REPAIR=true con GRT_DESIGN_REPAIR_MAX_SLEW_PCT y GRT_DESIGN_REPAIR_MAX_CAP_PCT en 30. b1d: EXTRA_EXCLUDED_CELLS agrega buf_2. b1e: CTS_MAX_CAP=0.15. Referencia: final en main (slew 546, cap 36, área 182.265 µm²).
+Referencia: final en main (100 ns: slew 546, cap 36, área 182.265 µm², WNS 65,22) y f1_t26 (WNS 2,00, área 189.817). b1a: MAX_FANOUT_CONSTRAINT=6. b1c: RUN_POST_GRT_DESIGN_REPAIR=true con GRT_DESIGN_REPAIR_MAX_SLEW_PCT y GRT_DESIGN_REPAIR_MAX_CAP_PCT en 30. b1d: EXTRA_EXCLUDED_CELLS agrega buf_2. b1e: CTS_MAX_CAP=0.15. b1f: MAX_FANOUT_CONSTRAINT=8. b1g: DESIGN_REPAIR_MAX_SLEW_PCT y DESIGN_REPAIR_MAX_CAP_PCT en 30. b1h: b1f más b1c. b1i: márgenes de placement en 25. b1j: b1g más b1c. b1c_t26 y b1g_t26: las dos mejores a 26 ns.
 
 Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
 
@@ -11,6 +11,13 @@ Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "pe
 | b1c_t100 | 100 | 74.692 | 0 | 65.742 | 0 | 0.450 | 0 | 1.081 | 0 | 65.742 | 0 | 0.178 | 0 | sí | 183091 | 0.482 | 408957 | 0 | 0 | 0 | sí | 489 | 19 | 0 |
 | b1d_t100 | 100 | 72.894 | 0 | 51.227 | 0 | 0.547 | 0 | 1.246 | 0 | 51.227 | 0 | 0.239 | 0 | sí | 193700 | 0.510 | 408957 | 0 | 0 | 0 | sí | 1979 | 3 | 551 |
 | b1e_t100 | 100 | 74.694 | 0 | 65.223 | 0 | 0.450 | 0 | 1.081 | 0 | 65.223 | 0 | 0.178 | 0 | sí | 182265 | 0.480 | 408957 | 0 | 0 | 0 | sí | 546 | 36 | 0 |
+| b1f_t100 | 100 | 74.636 | 0 | 63.360 | 0 | 0.447 | 0 | 1.073 | 0 | 63.360 | 0 | 0.176 | 0 | sí | 185431 | 0.488 | 408957 | 0 | 0 | 0 | sí | 307 | 2 | 0 |
+| b1g_t100 | 100 | 74.699 | 0 | 65.964 | 0 | 0.450 | 0 | 1.081 | 0 | 65.964 | 0 | 0.178 | 0 | sí | 184368 | 0.485 | 408957 | 0 | 0 | 0 | sí | 260 | 22 | 0 |
+| b1h_t100 | 100 | 74.632 | 0 | 63.426 | 0 | 0.447 | 0 | 1.073 | 0 | 63.426 | 0 | 0.176 | 0 | sí | 185536 | 0.489 | 408957 | 0 | 0 | 0 | sí | 277 | 3 | 0 |
+| b1i_t100 | 100 | 74.697 | 0 | 66.351 | 0 | 0.450 | 0 | 1.081 | 0 | 66.351 | 0 | 0.178 | 0 | sí | 182674 | 0.481 | 408957 | 0 | 0 | 0 | sí | 510 | 38 | 0 |
+| b1j_t100 | 100 | 74.674 | 0 | 65.823 | 0 | 0.450 | 0 | 1.081 | 0 | 65.823 | 0 | 0.178 | 0 | sí | 184535 | 0.486 | 408957 | 0 | 0 | 0 | sí | 277 | 15 | 0 |
+| b1c_t26 | 26 | 12.751 | 0 | 1.472 | 0 | 0.450 | 0 | 1.081 | 0 | 1.472 | 0 | 0.178 | 0 | sí | 190712 | 0.502 | 408957 | 0 | 0 | 0 | sí | 439 | 20 | 0 |
+| b1g_t26 | 26 | 12.727 | 0 | 1.132 | 0 | 0.450 | 0 | 1.081 | 0 | 1.132 | 0 | 0.178 | 0 | sí | 190102 | 0.501 | 408957 | 0 | 0 | 0 | sí | 259 | 21 | 0 |
 
 | corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
 |---|---|---|---|---|---|---|
@@ -18,3 +25,10 @@ Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "pe
 | b1c_t100 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
 | b1d_t100 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
 | b1e_t100 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| b1f_t100 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| b1g_t100 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| b1h_t100 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| b1i_t100 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| b1j_t100 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| b1c_t26 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| b1g_t26 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
