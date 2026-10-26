@@ -164,7 +164,7 @@ Al encender, el display muestra `00` y una pulsación empieza la partida. En cad
 │   └── exploraciones.md  resumen de las ramas exp/* (bloque B)
 ├── assembler/            assembler propio (Python 3), con las opciones --rom y --vh
 ├── docs/                 decisiones, mapa de memoria, assembler, datos del informe, defensa, layout, progreso
-├── informe/              informe del Proyecto 2
+├── informe/              informe del Proyecto 3 (main.tex); el del Proyecto 2 en informe/proyecto2/
 ├── rtl/
 │   ├── asic_top.v        top del macro
 │   ├── pochoco_soc.v     core, memoria y periféricos

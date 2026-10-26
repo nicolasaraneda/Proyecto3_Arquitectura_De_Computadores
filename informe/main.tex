@@ -7,14 +7,16 @@
 \usepackage[margin=2.2cm]{geometry}
 \usepackage{booktabs}
 \usepackage{array}
+\usepackage{multirow}
 \usepackage{amsmath,amssymb}
 \usepackage{caption}
 \usepackage{float}
+\usepackage{graphicx}
 \usepackage{xcolor}
-\usepackage{listings}
 \usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{needspace}
+\usepackage{xspace}
 
 \hypersetup{colorlinks=true,linkcolor=blue!60!black,urlcolor=blue!60!black}
 \captionsetup{font=small,labelfont=bf}
@@ -22,316 +24,418 @@
 \setlength{\parindent}{0pt}
 \setlength{\emergencystretch}{3em}
 \usepackage{xurl}
-\lstset{basicstyle=\ttfamily\small,columns=fullflexible,keepspaces=true,frame=single,framerule=0.3pt,backgroundcolor=\color{gray!5},breaklines=true}
 
-\newcommand{\sig}[1]{\texttt{#1}}
-\newcommand{\bit}[1]{\texttt{#1}}
+\DeclareRobustCommand{\sig}[1]{{\ttfamily\def\_{\textunderscore\allowbreak}#1}}
+\newcommand{\um}{\,\textmu m\xspace}
+\newcommand{\umd}{\,\textmu m$^2$\xspace}
+\newcommand{\mmd}{\,mm$^2$\xspace}
 
-\title{\textbf{Proyecto 2: Juego en Assembly sobre Pochoco SoC}\\[4pt]\Large Juego de reflejos en RV32E con assembler propio}
+\title{\textbf{Proyecto 3: Pochoco SoC de RTL a GDSII}\\[4pt]\Large Macro digital en GF180MCU con LibreLane}
 \author{Arquitectura de Computadores \\ Universidad de los Andes \\ Semestre 2026-2 \\[6pt] \textit{Integrantes:} Nicolás Araneda \quad Vicente Calderón \quad Santiago Muñoz}
-\date{Octubre de 2026}
+\date{Noviembre de 2026}
 
 \begin{document}
 \maketitle
 
-Todo el código está en \url{https://github.com/Vcalderone/Proyecto2_Arquitectura_De_Computadores}. Este documento usa los mismos nombres de módulo, etiqueta y constante que el repositorio.
+Todo el código, las configuraciones y los reportes están en \url{https://github.com/nicolasaraneda/Proyecto3_Arquitectura_De_Computadores}. Los nombres de archivo, módulo y corrida son los del repositorio, y las decisiones se citan con su número en \sig{docs/decisiones.md} (D1 a D22). Las corridas usan LibreLane 3.0.16 en Docker, el PDK gf180mcuD (revisión \sig{54435919}) y la biblioteca \sig{gf180mcu\_fd\_sc\_mcu7t5v0}; el README tiene las versiones exactas, la instalación y los comandos.
+
+La corrida final (\sig{final}, \sig{asic/rom/config.yaml}) usa $T = 100$\,ns, \sig{FP\_CORE\_UTIL} = 40\,\%, la estrategia de memoria 1 (Sección~\ref{sec:mem}) y la pre-decodificación (Sección~\ref{sec:timing}). Se exige cerrar timing en las nueve esquinas que analiza LibreLane: tres de parásitos (min, nom, max) por tres de proceso, voltaje y temperatura (ss a 125\,°C y 4,5\,V, tt a 25\,°C y 5\,V, ff a $-40$\,°C y 5,5\,V). Entre ellas están la típica, \sig{nom\_tt\_025C\_5v00}, y la más lenta, \sig{max\_ss\_125C\_4v50}. LibreLane solo trata como error la típica, así que el cierre en las demás se verifica con las métricas de cada esquina (\sig{asic/verificar\_cierre.py}, D14). La Tabla~\ref{tab:cierre} resume el resultado.
+
+\begin{table}[!htb]
+\centering\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Criterio} & \textbf{Resultado} & \textbf{Peor esquina} \\
+\midrule
+DRC (Magic) & 0 violaciones & \\
+DRC (KLayout, deck de GlobalFoundries) & 0 marcadores en 684 reglas & \\
+LVS (Netgen) & 0 diferencias & \\
+Antenas & 0 nets & \\
+Setup: WNS y TNS & 65,22\,ns y 0\,ns & \sig{max\_ss\_125C\_4v50} \\
+Hold: WNS y TNS & 0,18\,ns y 0\,ns & \sig{min\_ff\_n40C\_5v50} \\
+\bottomrule
+\end{tabular}
+\caption{Criterios de cierre de la corrida final. Fuente: \sig{asic/rom/resultados/final/cierre.md} y \sig{drc\_klayout/resumen.md}.}
+\label{tab:cierre}
+\end{table}
 
 %=====================================================================
-\section{Arquitectura del juego, contador de ciclos y temporización}
+\section{Del RTL de FPGA al RTL de ASIC}
+\label{sec:asic}
 %=====================================================================
 
-\subsection{Arquitectura}
+\sig{rtl/asic\_top.v} instancia \sig{pochoco\_soc} sin nada propio de la Go Board. Sus puertos son \sig{clk}, \sig{rst\_n} (activo en bajo), \sig{btn[3:0]}, \sig{led[3:0]}, \sig{seg1[6:0]} y \sig{seg2[6:0]} (un display cada uno, en orden \{G,F,E,D,C,B,A\} y activos en alto) y \sig{spi\_sclk}, \sig{spi\_mosi}, \sig{spi\_cs\_n} y \sig{spi\_miso}. El reset pasa por un sincronizador de dos flip-flops que lo activa en forma asíncrona y lo libera en un flanco de reloj, así que todos los flip-flops salen del reset en el mismo ciclo (D6). Los parámetros \sig{MemStrategy} y \sig{DataWords} eligen la memoria de la Sección~\ref{sec:mem}.
 
-El diseño parte de \sig{nic0villegasc/pochoco\_soc}, que aporta el Espino Core (RV32E), una RAM de 512 palabras compartida entre instrucciones y datos, y el bloque de periféricos. El top propio, \sig{rtl/game\_top.v}, instancia \sig{pochoco\_soc} con \sig{MemFile = "sw/game.hex"} y expone los pines de la Go Board definidos en \sig{goboard.pcf}. El programa ocupa 115 de las 512 palabras y queda dentro del bitstream, porque la RAM se inicializa con \sig{\$readmemh} al sintetizar.
+Para encontrar lo que dependía de la FPGA se corrió LibreLane sobre el RTL del Proyecto 2 (commit \sig{1227fa5}) aplicando los reemplazos de a uno: c0a con el RTL sin cambios, c0b con el banco de registros en flip-flops y c0c con \sig{asic\_top}. La Tabla~\ref{tab:fpga} lista cada construcción con el mensaje del flujo que la evidenció.
 
-La RAM parte en \sig{0x0000\_0000}, que es también la dirección de arranque del core, y los periféricos en \sig{0x8000\_0000} (bit 31 de la dirección en uno). La Tabla~\ref{tab:periph} muestra los registros que usa el programa.
+\begin{table}[!htb]
+\centering\small
+\begin{tabular}{@{}p{3.6cm}p{6.4cm}p{5.6cm}@{}}
+\toprule
+\textbf{Construcción} & \textbf{Mensaje del flujo (archivo:línea)} & \textbf{Reemplazo} \\
+\midrule
+BRAM \sig{SB\_RAM40\_4K} en \sig{espino\_register\_file.v} & \sig{\%Error-MODMISSING ... SB\_RAM40\_4K}, el linter detiene el flujo (\sig{c0a-verilator-lint.txt:1} y \sig{:13}) & Banco de registros en flip-flops con lectura sincrónica, igual que la BRAM (D3, D4) \\
+\addlinespace
+Contador de reset de encendido \sig{por\_cnt} con valor inicial & \sig{\%Warning-PROCASSINIT ... 'por\_cnt'} (\sig{c0b/verilator-lint.txt:7}) y \sig{Set init value: \textbackslash por\_cnt} (\sig{c0b/yosys-synthesis.txt:324}) & Puerto \sig{rst\_n} con sincronizador en \sig{asic\_top} (D6) \\
+\addlinespace
+\sig{\$readmemh} dentro de un \sig{initial} (\sig{pochoco\_ram.v:36}) & \sig{Removed top 23 address bits ... from memory init port} (\sig{c0b/yosys-synthesis.txt:992}): Yosys lo convierte en valor inicial de la memoria & ROM y memoria generadas por el assembler (Sección~\ref{sec:mem}) \\
+\addlinespace
+Inferencia de BRAM para la RAM de 512 palabras & \sig{Adding EN signal on \$memory\textbackslash u\_soc.u\_ram.mem[93]} (\sig{c0b/yosys-synthesis.txt:1469}): la memoria pasa a flip-flops; \sig{c0b/stat.rpt}: 17\,188 flip-flops y 2\,327\,825\umd & Memoria dimensionada según el uso del juego (Sección~\ref{sec:mem}) \\
+\addlinespace
+SPI sin instanciar & \sig{\%Warning-UNUSEDSIGNAL ... 'spi\_req'} (\sig{c0b/verilator-lint.txt:18}) & Puertos presentes, \sig{spi\_miso} fijo en 1: el juego no usa SPI (D7) \\
+\bottomrule
+\end{tabular}
+\caption{Construcciones del Proyecto 2 que dependían de la FPGA. Los archivos son copias de los logs de LibreLane en \sig{asic/p2\_original/evidencia/}.}
+\label{tab:fpga}
+\end{table}
 
-\begin{table}[H]
+Los dos valores iniciales son el problema de fondo. La biblioteca no tiene flip-flops con valor de encendido, así que la síntesis los descarta sin otro aviso que esas líneas. En silicio \sig{por\_cnt} partiría en un valor cualquiera, con un reset interno de entre 0 y 4095 ciclos, y la RAM partiría con instrucciones arbitrarias. Cuatro construcciones no produjeron ningún mensaje porque son valores o convenciones, no sintaxis:
+
+\begin{itemize}[nosep,leftmargin=1.2em]
+\item \sig{x0} valía 0 solo porque la BRAM se inicializaba en cero y nunca se escribía. En el banco nuevo \sig{x0} no se almacena y la lectura de la dirección 0 entrega 0 por hardware.
+\item Los segmentos salían invertidos (\sig{\textasciitilde seg1}) porque el display de la Go Board es activo en bajo. En el macro los puertos quedan activos en alto, que es la función lógica (D8).
+\item \sig{CYCLES\_PER\_TENTH = 2500000} en \sig{game.s} supone el oscilador de 25\,MHz de la placa. Se corrige para el macro en la Sección~\ref{sec:constantes}.
+\item \sig{DebounceDivBits = 15} se eligió para 25\,MHz. A 10\,MHz da una muestra cada 3,3\,ms y acepta un cambio en unos 10\,ms, muy por debajo de la décima que muestra el juego, así que se mantuvo (D10).
+\end{itemize}
+
+%=====================================================================
+\section{Memoria y programa del juego}
+\label{sec:mem}
+%=====================================================================
+
+El juego usa 115 palabras de instrucciones (460 bytes) y 0 de datos. Las 115 las cuenta el assembler al ensamblar \sig{sw/game.s}: lo informa al terminar y queda como \sig{GAME\_WORDS} en la imagen generada. Las 0 de datos salen del programa y de la simulación: todos los \sig{lw} y \sig{sw} usan como base \sig{x2}, que apunta a los periféricos en \sig{0x8000\_0000}, y la simulación de la partida completa (\sig{tb/game\_tb.v}) no hace ninguna lectura ni escritura en la memoria. Las dos cantidades quedan bajo el máximo recomendado de 256 y 64. Se dejó una RAM de datos de 4 palabras en ambas estrategias (D9): conserva la RAM que nombra la estrategia 1 por 128 flip-flops, y con el mismo valor en las dos la comparación mide solo cómo se guarda el programa.
+
+\textbf{Extensión del assembler.} Se agregaron dos salidas Verilog. \sig{--rom} escribe el módulo \sig{rtl/gen/pochoco\_rom.v} completo: un \sig{case} con una palabra por dirección, comentada con su desensamblado, sin reloj ni flip-flops, que entrega 0 fuera del programa. \sig{--vh} escribe \sig{rtl/gen/game\_image.vh} con \sig{GAME\_WORDS} y la función \sig{game\_word(i)}. \sig{make image} regenera ambos desde \sig{game.s}, y siete pruebas nuevas (\sig{assembler/tests/test\_image.py}, 80 en total) comprueban que coinciden con el \sig{.hex} y con el \sig{game.s} actual.
+
+\textbf{Estrategias.} En la estrategia 1 (\sig{rtl/pochoco\_mem\_rom.v}) la ROM entrega la instrucción a través de un registro que conserva la lectura registrada de la RAM del Proyecto 2, y el puerto de datos ve la RAM de 4 palabras en flip-flops. En la estrategia 2 (\sig{rtl/pochoco\_mem\_ff.v}) instrucciones y datos comparten una memoria de $115 + 4 = 119$ palabras en flip-flops, y el programa entra como valor de reset: cada bit queda como un flip-flop con reset o con set según la imagen, y cualquier palabra se puede escribir desde el puerto de datos, como en el Proyecto 2. La Tabla~\ref{tab:estrategias} compara las dos con el mismo RTL (sin la pre-decodificación de la Sección~\ref{sec:timing}) y la misma configuración del flujo.
+
+\begin{table}[!htb]
+\centering\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+ & \textbf{Estrategia 1 (ROM)} & \textbf{Estrategia 2 (flip-flops)} \\
+\midrule
+Área de celdas de síntesis & 146\,400\umd & 693\,901\umd \\
+Área de celdas tras place and route & 173\,568\umd & 838\,173\umd \\
+Flip-flops & 921 & 4\,602 \\
+Utilización real (pedida: 40\,\%) & 47,5\,\% & 48,5\,\% \\
+Área del die & 0,394\mmd & 1,794\mmd \\
+Período mínimo que cierra timing & 55\,ns & 62\,ns \\
+Frecuencia máxima & 18,2\,MHz & 16,1\,MHz \\
+Nets con violación de antena & 0 & 1 \\
+\bottomrule
+\end{tabular}
+\caption{Estrategias de memoria a $T = 100$\,ns, corridas \sig{s1\_*} y \sig{s2\_*}. El período mínimo sale de barrer \sig{CLOCK\_PERIOD} hasta dejar 2\,ns entre el último que cierra y el primero que no. Fuente: \sig{asic/barrido.md}.}
+\label{tab:estrategias}
+\end{table}
+
+La estrategia 2 tiene 3\,681 flip-flops más, que son los $119 \times 32 = 3\,808$ bits de la memoria unificada menos los 128 de la RAM de datos de la estrategia 1. La ROM guarda los mismos $115 \times 32$ bits como lógica combinacional y ocupa 7\,448\umd, el 4,7\,\% del diseño (Sección~\ref{sec:sintesis}). La ruta crítica de la estrategia 2 es igual a la de la 1 hasta la dirección que calcula la ALU, pero sigue por la decodificación de esa dirección sobre las 119 palabras hasta un flip-flop de la memoria, en un die 4,6 veces más grande. Por área, frecuencia y antenas se eligió la estrategia 1 para la corrida final (D17). Con la configuración final del flujo (Sección~\ref{sec:timing}) ocupa 182\,265\umd de celdas y 0,409\mmd de die.
+
+%=====================================================================
+\section{Síntesis}
+\label{sec:sintesis}
+%=====================================================================
+
+La corrida final aplana el diseño salvo el register file, la ALU y el contador de ciclos, cuya jerarquía conserva con \sig{SYNTH\_KEEP\_HIERARCHY\_MODULES} (D12). El contador se separó en su propio módulo, \sig{pochoco\_cycle\_counter}, con el mismo comportamiento. Para repartir el área entre todos los módulos se sintetizó además la misma configuración sin aplanar (\sig{SYNTH\_HIERARCHY\_MODE=keep}, corrida \sig{h2\_t100}, solo hasta Yosys), cuyo reporte separa cada módulo. Las dos síntesis difieren solo en que la aplanada optimiza a través de los bordes de módulo, y por eso su área es 3,7\,\% menor (152\,169 contra 157\,980\umd).
+
+\begin{table}[!htb]
+\centering\small
+\begin{tabular}{@{}lrrp{9.6cm}@{}}
+\toprule
+\textbf{Celda} & \textbf{Cant.} & \textbf{\%} & \textbf{Qué parte del diseño la explica} \\
+\midrule
+\sig{dffq\_1} & 804 & 15,7 & Flip-flop sin reset. 544 son del banco de registros ($15 \times 32 = 480$ bits más los dos puertos de lectura registrados, 64), 192 de la memoria (registro de instrucción, RAM de 4 palabras y salida de datos) y 82 de la pre-decodificación. La síntesis aplanada elimina 14 que valen siempre lo mismo. \\
+\addlinespace
+\sig{mux2\_2} & 759 & 14,8 & Multiplexor 2:1. La biblioteca no tiene flip-flops con habilitación, así que cada bit que se escribe bajo condición lleva un mux de retención delante (480 del banco, 160 de la memoria, 82 de la pre-decodificación). El resto forma los árboles de lectura del banco y los muxes de operandos. \\
+\addlinespace
+\sig{nand2\_1} & 758 & 14,8 & Compuerta más chica de la biblioteca. Yosys, con la estrategia de área, mapea sobre ella la lógica aleatoria: ALU, alineación de la LSU, decodificadores y ROM. \\
+\addlinespace
+\sig{oai21\_1} & 309 & 6,0 & Lógica aleatoria de la ROM, la ALU y la etapa ID. \\
+\addlinespace
+\sig{clkinv\_1} & 284 & 5,5 & Inversor chico usado como inversor común, no solo en el reloj: banco de registros, ALU y etapa ID. \\
+\bottomrule
+\end{tabular}
+\caption{Las cinco celdas más usadas de la corrida final (5\,118 celdas de 34 tipos). El reparto por módulo sale de \sig{h2\_t100}. Fuente: \sig{asic/sintesis.md}.}
+\label{tab:celdas}
+\end{table}
+
+\begin{table}[!htb]
+\centering\small
+\begin{tabular}{@{}llrr@{}}
+\toprule
+\textbf{Módulo} & \textbf{Instancia} & \textbf{Área (\textmu m$^2$)} & \textbf{\%} \\
+\midrule
+\sig{espino\_register\_file} & \sig{u\_soc.u\_core.u\_rf} & 73\,656 & 46,6 \\
+\sig{espino\_id\_stage} (con ALU y decodificador) & \sig{u\_soc.u\_core.u\_id} & 29\,765 & 18,8 \\
+\quad \sig{espino\_alu} & \sig{u\_soc.u\_core.u\_id.u\_alu} & 10\,153 & 6,4 \\
+\sig{pochoco\_mem\_rom} (con la ROM) & \sig{u\_soc.g\_mem\_rom.u\_mem} & 27\,458 & 17,4 \\
+\quad \sig{pochoco\_rom} & \sig{u\_soc.g\_mem\_rom.u\_mem.u\_rom} & 7\,448 & 4,7 \\
+\sig{pochoco\_periph} (con debounce y contador) & \sig{u\_soc.u\_periph} & 14\,409 & 9,1 \\
+\quad \sig{pochoco\_cycle\_counter} & \sig{u\_soc.u\_periph.u\_cycles} & 3\,943 & 2,5 \\
+\sig{espino\_if\_stage} & \sig{u\_soc.u\_core.u\_if} & 8\,511 & 5,4 \\
+\sig{espino\_load\_store\_unit} & \sig{u\_soc.u\_core.u\_lsu} & 2\,711 & 1,7 \\
+Bus, sincronizador de reset y control & & 1\,470 & 0,9 \\
+\midrule
+\textbf{Total} & & \textbf{157\,980} & \textbf{100} \\
+\bottomrule
+\end{tabular}
+\caption{Área de celdas por módulo en la síntesis jerárquica \sig{h2\_t100}. Las filas con sangría están incluidas en la de arriba. Fuente: \sig{asic/sintesis.md}.}
+\label{tab:modulos}
+\end{table}
+
+El módulo con más área es el register file (Tabla~\ref{tab:modulos}), con 73\,656\umd: 46,6\,\% de la síntesis jerárquica y 48,4\,\% de la final, donde conserva su jerarquía y mide lo mismo. El contador de ciclos ocupa 3\,943\umd, el 2,5\,\% de la síntesis jerárquica y el 2,6\,\% de la final; el 61\,\% de su área son sus 32 flip-flops con reset y el resto el incrementador.
+
+Antes de sintetizar se esperaba que el banco de registros dominara el área (480 bits sin celdas de memoria en la biblioteca y dos árboles de lectura de 15 a 1) y que los flip-flops fueran la celda más numerosa. Las dos cosas se cumplen (Tabla~\ref{tab:celdas}), y el conteo de flip-flops coincide con el RTL: 818 sin reset y 186 con reset en la síntesis jerárquica, 990 en la final. Lo que no se esperaba es el peso de los multiplexores: casi un \sig{mux2\_2} por flip-flop escrito bajo condición, porque la biblioteca no tiene flip-flops con habilitación. Tampoco se esperaba que \sig{nand2\_1} quedara a la par de \sig{mux2\_2}: la ROM, la ALU y los decodificadores, con la estrategia de área, se mapean casi enteros sobre la compuerta más chica.
+
+%=====================================================================
+\section{Timing}
+\label{sec:timing}
+%=====================================================================
+
+\subsection{Barrido de período}
+
+La Tabla~\ref{tab:barrido} barre \sig{CLOCK\_PERIOD} con el RTL y la configuración de la corrida final. El diseño cierra hasta 25\,ns y no a 24\,ns, donde falla por 0,004\,ns en la esquina lenta. La frecuencia máxima es 40\,MHz. La corrida de 28\,ns se detuvo a los 40 minutos y no tiene resultado, lo que no cambia el límite porque 26 y 25\,ns cierran.
+
+\begin{table}[!htb]
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}r rrrr rrrr r c@{}}
+\toprule
+ & \multicolumn{4}{c}{\textbf{Setup (ns)}} & \multicolumn{4}{c}{\textbf{Hold (ns)}} & & \\
+\cmidrule(lr){2-5}\cmidrule(lr){6-9}
+ & \multicolumn{2}{c}{\sig{nom\_tt}} & \multicolumn{2}{c}{\sig{max\_ss}} & \multicolumn{2}{c}{\sig{nom\_tt}} & \multicolumn{2}{c}{\sig{max\_ss}} & \textbf{Área} & \textbf{Cierra} \\
+\textbf{T (ns)} & WNS & TNS & WNS & TNS & WNS & TNS & WNS & TNS & \textbf{(\textmu m$^2$)} & \textbf{(9 esq.)} \\
+\midrule
+100 & 74,694 & 0 & 65,223 & 0 & 0,450 & 0 & 1,081 & 0 & 182\,265 & sí \\
+32 & 17,409 & 0 & 4,395 & 0 & 0,450 & 0 & 1,081 & 0 & 183\,725 & sí \\
+30 & 16,758 & 0 & 5,103 & 0 & 0,450 & 0 & 1,081 & 0 & 186\,320 & sí \\
+26 & 13,160 & 0 & 1,996 & 0 & 0,450 & 0 & 1,081 & 0 & 189\,817 & sí \\
+25 & 12,160 & 0 & 0,996 & 0 & 0,450 & 0 & 1,081 & 0 & 189\,817 & sí \\
+24 & 11,160 & 0 & $-0{,}004$ & $-0{,}004$ & 0,450 & 0 & 1,081 & 0 & 189\,817 & no \\
+\bottomrule
+\end{tabular}
+\caption{Barrido de \sig{CLOCK\_PERIOD} (corridas \sig{final} y \sig{f1\_*}) en la esquina típica \sig{nom\_tt\_025C\_5v00} y la más lenta \sig{max\_ss\_125C\_4v50}. El área es la de celdas estándar tras place and route. Fuente: \sig{asic/final.md}.}
+\label{tab:barrido}
+\end{table}
+
+Cada \sig{CLOCK\_PERIOD} puede provocar una nueva optimización del circuito: el resizer cambia el tamaño de las celdas y agrega buffers según el período, y eso cambia el área, el buffering y el placement. Aquí el área de celdas sube de 182\,265\umd a 100\,ns a 189\,817\umd a 26\,ns. De 26\,ns para abajo el layout es idéntico (mismas celdas, área y largo de cables) y solo cambia el slack: el resizer ya no encuentra nada más que mejorar.
+
+El límite también depende de la configuración del flujo. Con la del PDK, el resizer usaba celdas de retardo (\sig{dly*}) como buffers, 12 de ellas en la ruta crítica a 60\,ns, y se excluyeron (D15). Aun así entregaba el mismo circuito en todos los períodos (173\,568\umd de 100 a 40\,ns en el barrido \sig{s1\_*}): su estimación de parásitos en el placement no veía violaciones, y solo el STA final, con los parásitos del ruteo, las mostraba. Se excluyó además \sig{buf\_1} y se le pidió al resizer un margen de setup de 10\,ns (\sig{PL\_RESIZER\_SETUP\_SLACK\_MARGIN}, D20). Con el mismo RTL, el período mínimo bajó de 42 a 25\,ns y las violaciones de max slew de 2\,201 a 546 pines. Esas violaciones no son criterio de cierre: el límite de 3\,ns es la restricción del flujo, y el peor valor (5,41\,ns) está dentro de los 7\,ns que admite la biblioteca.
+
+\subsection{Ruta crítica}
+
+La ruta crítica a 25\,ns en la esquina lenta (Tabla~\ref{tab:ruta}) empieza en el flip-flop \sig{\_4189\_}, que guarda \sig{alu\_operator[1]} en la etapa ID, y termina en \sig{u\_soc.u\_core.u\_rf/\_2933\_}, un bit de un registro del register file. Entre medio cruza la ALU hasta \sig{lsu\_addr[1]}, la alineación del dato leído en la LSU y el mux de write-back (\sig{rf\_wdata[11]}). Es el camino de una carga: ejecución (la ALU calcula la dirección), acceso a memoria (los dos bits bajos de la dirección eligen el byte o la media palabra) y write-back.
+
+\begin{table}[!htb]
+\centering\small
+\begin{tabular}{@{}p{9.6cm}rrr@{}}
+\toprule
+\textbf{Tramo} & \textbf{Celdas} & \textbf{Retardo (ns)} & \textbf{Llegada (ns)} \\
+\midrule
+Árbol de reloj hasta el flip-flop de inicio & 3 & 2,66 & 2,66 \\
+Reloj a salida de \sig{\_4189\_} (\sig{dffq\_1}, etapa ID aplanada) & 1 & 2,34 & 5,00 \\
+ALU (\sig{u\_soc.u\_core.u\_id.u\_alu}) hasta \sig{lsu\_addr[1]} & 9 & 9,50 & 14,49 \\
+Alineación de la carga y mux de write-back (lógica aplanada) & 12 & 9,74 & 24,23 \\
+Entrada al banco: buffer y mux de retención (\sig{u\_soc.u\_core.u\_rf}) & 2 & 1,55 & 25,78 \\
+\bottomrule
+\end{tabular}
+\caption{Ruta crítica de \sig{f1\_t25} en \sig{max\_ss\_125C\_4v50}. El dato debe llegar antes de 26,78\,ns (25\,ns más la latencia del reloj de captura y la corrección por reconvergencia, menos la incertidumbre y el setup): slack de 1,00\,ns. Fuente: \sig{asic/rom/resultados/f1\_t25/max\_ss\_125C\_4v50\_ruta\_critica.rpt}.}
+\label{tab:ruta}
+\end{table}
+
+El análisis estático cuenta esta ruta como de un ciclo, pero en una carga el dato de la memoria llega un ciclo después de emitirla, con el pipeline detenido y la dirección estable. Por eso registrar los dos bits bajos de la dirección al emitir la carga la saca de la ruta sin cambiar el comportamiento (cambio B2 de la Tabla~\ref{tab:otros}).
+
+\subsection{Cambio al RTL: pre-decodificación}
+
+La ruta crítica de partida (\sig{s1\_t55}, antes de este cambio) iba del registro de instrucción al banco de registros pasando por el decodificador, que era su tramo más largo: 19,1 de 55,1\,ns. El decode está en todas las rutas de ejecución, así que se sacó de todas a la vez (D18). En este Espino toda instrucción pasa un ciclo esperando la lectura sincrónica del banco de registros con la instrucción ya estable. La pre-decodificación usa ese ciclo: registra las salidas del decodificador (82 bits: operación y operandos de la ALU, inmediatos, señales de salto, de la LSU y de write-back) en \sig{rtl/espino\_core/espino\_id\_stage.v}, y en el ciclo de ejecución el decode ya no está en la ruta. Ninguna instrucción cambia su número de ciclos.
+
+\begin{table}[!htb]
+\centering\small
+\begin{tabular}{@{}llrrrr@{}}
+\toprule
+\textbf{RTL} & \textbf{Flujo} & \textbf{WNS (ns)} & \textbf{Área (\textmu m$^2$)} & \textbf{Flip-flops} & \textbf{T mínimo (ns)} \\
+\midrule
+Sin pre-decodificación & D15 & 46,76 & 173\,568 & 921 & 55 \\
+Con pre-decodificación & D15 & 59,75 & 181\,137 & 990 & 42 \\
+\addlinespace
+Sin pre-decodificación & final & 54,55 & 174\,529 & 921 & $>26$ \\
+Con pre-decodificación & final & 65,22 & 182\,265 & 990 & 25 \\
+\bottomrule
+\end{tabular}
+\caption{Efecto de la pre-decodificación con dos configuraciones del flujo (corridas \sig{s1\_*}, \sig{p1\_*}, \sig{r0\_*} y \sig{f1\_*}). WNS de setup en \sig{max\_ss\_125C\_4v50} y área de celdas, a 100\,ns. Sin pre-decodificación y con el flujo final, el diseño no cierra a 26\,ns (WNS $-3{,}18$\,ns). Fuente: \sig{asic/barrido.md} y \sig{asic/final.md}.}
+\label{tab:predeco}
+\end{table}
+
+Con la misma configuración del flujo (Tabla~\ref{tab:predeco}), la pre-decodificación acorta la ruta en 13,0\,ns (D15) y 10,7\,ns (final), y baja el período mínimo de 55 a 42\,ns. Cuesta 4,4\,\% de área en las dos configuraciones, por los flip-flops de la pre-decodificación (69 más tras la síntesis) y sus muxes de retención. Se verificó con \sig{make equiv}: \sig{sw/isa\_test.s}, que usa todas las instrucciones del assembler, da trazas idénticas ciclo a ciclo con el RTL anterior (\sig{116fa20}) en escrituras al banco, accesos al bus y salidas, con las dos estrategias de memoria.
+
+Se midieron otros tres cambios, en ramas separadas y con la configuración final (Tabla~\ref{tab:otros}). El rendimiento se compara con la Ley de Hierro: tiempo $=$ instrucciones $\times$ CPI $\times T$, o sea MIPS $= f/\text{CPI}$.
+
+\begin{table}[!htb]
+\centering\small
+\begin{tabular}{@{}p{8.6cm}rrrr@{}}
+\toprule
+\textbf{Cambio (rama)} & \textbf{T mín. (ns)} & \textbf{Área (\textmu m$^2$)} & \textbf{CPI} & \textbf{MIPS} \\
+\midrule
+Corrida final (\sig{main}) & 25 & 182\,265 & 2,665 & 15,0 \\
+B2: offset de byte de la carga registrado en la LSU (\sig{exp/lsu-offset}) & 24 & 181\,170 & 2,665 & 15,6 \\
+B3: comparador de saltos que lee directo del banco (\sig{exp/branch-cmp}) & 26 & 183\,962 & 2,665 & 14,4 \\
+B4: una instrucción por ciclo (\sig{exp/cpi}) & 60 & 158\,024 & 1,312 & 12,7 \\
+\bottomrule
+\end{tabular}
+\caption{Otros cambios de RTL. Área de celdas a 100\,ns; CPI de la simulación de la partida completa; MIPS a la frecuencia máxima. B3 no se corrió a 25\,ns y B4 no cierra a 55\,ns. Fuente: \sig{asic/exploraciones.md}.}
+\label{tab:otros}
+\end{table}
+
+B2 es el único que mejora el período (24\,ns): saca la ALU de la ruta de la carga y la ruta crítica pasa a ser el control de la detención del pipeline. B3 no lo mueve porque la ruta del salto no era la crítica: la de la carga es más larga. B4 elimina el ciclo de espera (ROM y banco de lectura combinacional, sin registro de instrucción ni pre-decodificación) y baja el CPI a la mitad, pero toda la ruta queda en un ciclo: PC, ROM, decodificador, lectura del banco, ALU y write-back. El período sube 2,4 veces y rinde 15\,\% menos MIPS, aunque ahorra 13\,\% de área. Ninguno se incorporó a la corrida final (D22): esta ya cumple todos los criterios con margen, y cada cambio agrega lógica que verificar sin cambiar el cumplimiento de ningún criterio.
+
+\subsection{\texorpdfstring{Constantes del juego para $T = 100$\,ns}{Constantes del juego para T = 100 ns}}
+\label{sec:constantes}
+
+Con $T = 100$\,ns el reloj es de $f = 1/T = 10$\,MHz, y una décima de segundo dura
+\[
+\text{CYCLES\_PER\_TENTH} = 0{,}1\,\text{s} \times 10\,000\,000\,\text{ciclos/s} = 1\,000\,000\ \text{ciclos}.
+\]
+Cambian dos constantes de \sig{game.s}: \sig{CLK\_HZ} de 25\,000\,000 a 10\,000\,000 y \sig{CYCLES\_PER\_TENTH} de 2\,500\,000 a 1\,000\,000 (D10). \sig{CLK\_HZ} documenta la frecuencia y ninguna instrucción la usa. Las esperas están en décimas (\sig{ESPERA\_TENTHS = 30} son tres segundos) y no cambian, y el tiempo se sigue mostrando en décimas. \sig{CYCLES\_PER\_TENTH} se carga con \sig{li x12} en \sig{cyc2tenths} y en \sig{wait\_tenths}, y cada \sig{li} se expande en \sig{lui} más \sig{addi}: $1\,000\,000 = \text{0x000F4240}$, así que \sig{lui x12, 0xF4} y \sig{addi x12, x12, 576} (el bit 11 de \sig{0x240} es cero y no hace falta corregir la parte alta). Al regenerar el programa con \sig{make image} cambian cuatro palabras de la ROM (Tabla~\ref{tab:palabras}).
+
+\begin{table}[!htb]
 \centering\small
 \begin{tabular}{@{}lllll@{}}
 \toprule
-\textbf{Offset} & \textbf{Nombre} & \textbf{Acceso} & \textbf{Bits} & \textbf{Función} \\
+\textbf{Dirección} & \textbf{25\,MHz} & \textbf{10\,MHz} & \textbf{Instrucción a 10\,MHz} & \textbf{Subrutina} \\
 \midrule
-\sig{0x00} & DISP   & Escritura & \sig{[7:0]}  & Dos dígitos del display, un nibble por dígito \\
-\sig{0x04} & LEDS   & Escritura & \sig{[3:0]}  & Los cuatro LEDs \\
-\sig{0x08} & BTN    & Lectura   & \sig{[3:0]}  & Los cuatro botones, sincronizados y con debounce \\
-\sig{0x0C} & CYCLES & Lectura   & \sig{[31:0]} & Contador libre de ciclos de reloj \\
+\sig{0x0148} & \sig{00262637} & \sig{000f4637} & \sig{lui x12, 0xf4} & \sig{cyc2tenths} \\
+\sig{0x014c} & \sig{5a060613} & \sig{24060613} & \sig{addi x12, x12, 576} & \sig{cyc2tenths} \\
+\sig{0x019c} & \sig{00262637} & \sig{000f4637} & \sig{lui x12, 0xf4} & \sig{wait\_tenths} \\
+\sig{0x01a0} & \sig{5a060613} & \sig{24060613} & \sig{addi x12, x12, 576} & \sig{wait\_tenths} \\
 \bottomrule
 \end{tabular}
-\caption{Registros de periférico, con offsets desde \sig{0x8000\_0000}. Fuente: \sig{docs/memory\_map.md}.}
-\label{tab:periph}
+\caption{Palabras de la ROM que cambian al pasar de 25 a 10\,MHz. Fuente: \sig{rtl/gen/pochoco\_rom.v}, commit \sig{5d57856}.}
+\label{tab:palabras}
 \end{table}
-
-El display decodifica cada nibble en hexadecimal, así que para mostrar el número 37 hay que escribir \sig{0x37} y no el decimal 37 (\sig{0x25}). Por eso el programa convierte a BCD antes de escribir, en la subrutina \sig{show\_bcd}.
-
-\subsection{Modificaciones al RTL}
-
-La Tabla~\ref{tab:rtl} resume los cambios respecto del repositorio base. El core y la RAM no se modificaron.
-
-\begin{table}[H]
-\centering\small
-\begin{tabular}{@{}p{3.3cm}p{5.2cm}p{6.5cm}@{}}
-\toprule
-\textbf{Archivo} & \textbf{Cambio} & \textbf{Motivo} \\
-\midrule
-\sig{pochoco\_periph.v} & Contador CYCLES de 32 bits en el offset \sig{0x0C} & Contador de ciclos accesible por el programa, que pide el enunciado \\
-\sig{pochoco\_periph.v} & Sincronizador de dos flip-flops y debounce entre \sig{i\_Switch} y BTN & Los botones son asíncronos y rebotan \\
-\sig{debounce.v} & Archivo nuevo con el debounce de los cuatro botones & Mismo esquema del Proyecto 1: un cambio se acepta tras tres muestras iguales, una cada $2^{15}$ ciclos (1,31\,ms) \\
-\sig{pochoco\_soc.v} & Reset de encendido de 16 a 4096 ciclos (164\,\textmu s) & En la placa, con 16 ciclos el core partía antes de que la RAM entregara datos válidos \\
-\sig{pochoco\_soc.v} & El esclavo SPI deja de instanciarse & El juego no lo usa y ocupa unas 86 celdas lógicas; sus pines quedan con valor fijo \\
-\sig{game\_top.v} & Archivo nuevo & Top de síntesis pedido por el enunciado \\
-\bottomrule
-\end{tabular}
-\caption{Modificaciones al RTL respecto del repositorio base.}
-\label{tab:rtl}
-\end{table}
-
-Con estos cambios el diseño usa 1137 de 1280 celdas lógicas (88\,\%) y 12 de 16 bloques de RAM de la iCE40 HX1K, con una frecuencia máxima de 44,5\,MHz según \sig{nextpnr-ice40}, sobre los 25\,MHz del reloj de la placa.
-
-\subsection{Unidad de tiempo y conversión desde ciclos}
-
-El reloj es el oscilador de 25\,MHz de la Go Board, sin PLL. CYCLES suma 1 en cada ciclo desde el reset y el software no lo puede detener ni reiniciar, así que toda duración se mide como la diferencia entre dos lecturas. La resta es de 32 bits y sale correcta aunque el contador haya dado la vuelta entre ambas lecturas (lo hace cada $2^{32}/25\,\text{MHz} \approx 172$\,s), y por eso las comparaciones de duración usan \sig{bltu}, sin signo.
-
-La unidad de tiempo del juego es la décima de segundo. Una décima equivale a
-\[
-\text{CYCLES\_PER\_TENTH} = \frac{f_{clk}}{10} = \frac{25\,000\,000}{10} = 2\,500\,000 \ \text{ciclos},
-\]
-y una duración medida en décimas es
-\[
-t = \left\lfloor \frac{\text{CYCLES}_1 - \text{CYCLES}_0}{2\,500\,000} \right\rfloor .
-\]
-El core no tiene multiplicación ni división, así que \sig{cyc2tenths} divide por restas repetidas y \sig{wait\_tenths} pasa de décimas a ciclos por sumas repetidas. \sig{CLK\_HZ} y \sig{CYCLES\_PER\_TENTH} son dos literales separados en \sig{game.s} porque el assembler no evalúa expresiones: si cambia la frecuencia, hay que cambiar ambos.
-
-Se dejó un solo contador de ciclos, sin un contador de décimas en hardware. Un contador de décimas libre está en una fase cualquiera cuando el programa lo lee, así que la misma duración real se lee a veces como $N$ y a veces como $N+1$ décimas. Midiendo en ciclos el error de cuantización baja a un ciclo (40\,ns).
-
-\subsection{Temporización de los tres segundos}
-
-La espera al inicio de cada ronda es \sig{ESPERA\_TENTHS = 30}. \sig{wait\_tenths} la convierte primero a $30 \times 2\,500\,000 = 75\,000\,000$ ciclos, toma una lectura de CYCLES y repite lecturas hasta que la diferencia llega a ese total:
-
-\needspace{6\baselineskip}
-\begin{lstlisting}
-    lw   x9, OFF_CYCLES(x2)    # marca inicial
-wt_wait_loop:
-    lw   x13, OFF_CYCLES(x2)   # marca actual
-    sub  x14, x13, x9
-    bltu x14, x11, wt_wait_loop  # x11 = total en ciclos
-\end{lstlisting}
-
-La salida del lazo ocurre en la primera lectura con una diferencia mayor o igual al total, así que la espera dura 3,0\,s o unos pocos ciclos más, nunca menos, como pide el \textit{al menos tres segundos} del enunciado.
-
-\subsection{Máquina de estados}
-
-La Tabla~\ref{tab:fsm} resume el programa. Los nombres son las etiquetas de \sig{sw/game.s}.
-
-\begin{table}[H]
-\centering\small
-\begin{tabular}{@{}lp{3.6cm}p{8.4cm}@{}}
-\toprule
-\textbf{Estado} & \textbf{Salida} & \textbf{Qué hace} \\
-\midrule
-\sig{\_start}       & --                         & Fija la base de periféricos, el polinomio del LFSR, aciertos y suma en cero \\
-\sig{start\_screen} & \sig{00}, LEDs apagados    & Espera una pulsación, siembra el LFSR con CYCLES y espera a que se suelte \\
-\sig{round\_begin}  & Cuatro LEDs, número de ronda & Espera \sig{ESPERA\_TENTHS} décimas \\
-\sig{arm}           & Solo el LED objetivo       & Espera que no haya botones apretados, sortea el objetivo y toma $t_0$ \\
-\sig{wait\_press}   & --                         & Lee BTN en un lazo y avanza el LFSR en cada vuelta \\
-\sig{miss}          & \sig{EE}, LEDs apagados    & Botón distinto del objetivo: espera \sig{ERROR\_TENTHS} y vuelve a \sig{round\_begin} \\
-\sig{hit}           & Tiempo en décimas          & Mide, suma, incrementa aciertos y muestra el tiempo \sig{MOSTRAR\_TENTHS} décimas \\
-\sig{finish}        & \sig{AA}, luego el promedio & Calcula el promedio, hace parpadear los LEDs y una pulsación vuelve a \sig{\_start} \\
-\bottomrule
-\end{tabular}
-\caption{Estados del programa del juego.}
-\label{tab:fsm}
-\end{table}
-
-Hay una pantalla de inicio porque el LFSR se siembra con el instante de una pulsación del jugador; sin ella el LED de la primera ronda sería el mismo en cada encendido. Un error reinicia la ronda completa, incluidos los tres segundos, y no modifica los aciertos ni la suma. La comparación del botón es sobre la máscara completa de cuatro bits, así que cualquier valor distinto del LED objetivo cuenta como error.
 
 %=====================================================================
-\section{Assembly documentado, medición de tiempo y promedio}
+\section{Floorplan, red de alimentación y placement}
+\label{sec:floorplan}
 %=====================================================================
 
-\subsection{Organización del programa}
+\subsection{Utilización y área mínima}
 
-RV32E tiene 16 registros. El programa no usa stack: las subrutinas no son recursivas, así que cada nivel de llamada tiene su propio registro de retorno, \sig{x1} para \sig{show\_bcd} y \sig{wait\_tenths} y \sig{x15} para \sig{div} y \sig{cyc2tenths}. Ninguna subrutina escribe \sig{x2} a \sig{x8}, por lo que el estado del juego se conserva entre llamadas sin guardarlo en memoria (Tabla~\ref{tab:regs}).
+Se barrió \sig{FP\_CORE\_UTIL} de 40 a 90\,\% con $T = 100$\,ns (Tabla~\ref{tab:util} y Figura~\ref{fig:util}). Entre las probadas, el área mínima con la que el diseño completa el flujo y cumple todos los criterios es la de 70\,\%: un die de $480{,}0 \times 497{,}9$\um, 0,239\mmd. A 80\,\% el placement detallado falla durante el CTS, y a 90\,\% las celdas ya no caben en el core. La utilización real queda 8 a 11 puntos sobre la pedida porque el core se dimensiona con el área de síntesis y después se agregan celdas de tap, buffers y el árbol de reloj.
 
-\begin{table}[H]
+\begin{table}[!htb]
 \centering\small
-\begin{tabular}{@{}llll@{}}
+\begin{tabular}{@{}rlrrrp{4.6cm}@{}}
 \toprule
-\textbf{Registro} & \textbf{Contenido} & \textbf{Registro} & \textbf{Contenido} \\
+\textbf{Pedida} & \textbf{Die (\textmu m)} & \textbf{Die (mm$^2$)} & \textbf{Real} & \textbf{WNS (ns)} & \textbf{Resultado} \\
 \midrule
-\sig{x1}  & Retorno de nivel 1 & \sig{x6}     & Suma de tiempos en décimas \\
-\sig{x2}  & Base de periféricos \sig{0x80000000} & \sig{x7} & Máscara del LED objetivo \\
-\sig{x3}  & Estado del LFSR & \sig{x8}        & $t_0$ de la ronda, en ciclos \\
-\sig{x4}  & Polinomio del LFSR & \sig{x9}--\sig{x14} & Temporales \\
-\sig{x5}  & Aciertos & \sig{x15}              & Retorno de nivel 2 \\
+40\,\% & $630{,}6 \times 648{,}5$ & 0,409 & 48,0\,\% & 65,22 & cierra \\
+50\,\% & $565{,}4 \times 583{,}4$ & 0,330 & 59,2\,\% & 67,72 & cierra \\
+60\,\% & $517{,}3 \times 535{,}3$ & 0,277 & 70,1\,\% & 63,68 & cierra \\
+70\,\% & $480{,}0 \times 497{,}9$ & 0,239 & 80,9\,\% & 64,08 & cierra \\
+80\,\% & & & & & falla en CTS (\sig{DPL-0036}) \\
+90\,\% & & & & & falla en placement global (\sig{GPL-0301}) \\
 \bottomrule
 \end{tabular}
-\caption{Asignación de registros en \sig{game.s}.}
-\label{tab:regs}
+\caption{Barrido de utilización a 100\,ns (corridas \sig{final} y \sig{u1\_*}), con el WNS de setup en \sig{max\_ss\_125C\_4v50}. Fallas: \sig{[DPL-0036] Detailed placement failed} y \sig{[GPL-0301] Utilization 100.531 \% exceeds 100\%}. Fuente: \sig{asic/final.md} y \sig{falla.txt} en \sig{asic/rom/resultados/u1\_u80/} y \sig{u1\_u90/}.}
+\label{tab:util}
 \end{table}
 
-Las subrutinas son \sig{div} (división entera sin signo por restas, con el divisor en \sig{x12}), \sig{cyc2tenths} (ciclos a décimas), \sig{show\_bcd} (escribe un valor de 0 a 99 en el display como dos dígitos decimales) y \sig{wait\_tenths} (espera un número de décimas).
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.92\textwidth]{../docs/figuras/utilizacion.png}
+\caption{Utilización pedida contra violaciones de DRC del ruteo detallado, largo de cables, violaciones de slew, capacitancia y antena, área del die y WNS. Las líneas punteadas marcan las corridas que no terminan. Fuente: \sig{asic/graficos.py}.}
+\label{fig:util}
+\end{figure}
 
-\subsection{Generación pseudoaleatoria}
+Las violaciones de max slew bajan de 546 pines a 40\,\% a 378 y 392 a 60 y 70\,\%, porque los cables se acortan (de 352 a 317 y 318\,mm en el ruteo detallado). Las violaciones de DRC al inicio del ruteo detallado no siguen una tendencia (1\,546, 2, 5 y 2\,149), pero el router las lleva a cero en todas las corridas que terminan; la señal de congestión que decide el límite es que a 80\,\% el placement detallado ya no encuentra lugar para las celdas.
 
-La ALU del Espino Core ejecuta los desplazamientos como sumas, así que se usa un LFSR de Galois que desplaza hacia la izquierda: el bit que sale es el bit 31, que es el signo del registro, y desplazar un lugar es sumar el registro consigo mismo.
+\subsection{Terminales del macro}
 
-\begin{lstlisting}
-wait_press:
-    lw   x9, OFF_BTN(x2)
-    blt  x3, x0, wp_feedback   # bit 31 de x3 en uno
-    add  x3, x3, x3            # x3 <- x3 << 1
-    j    wp_lfsr_done
-wp_feedback:
-    add  x3, x3, x3
-    xor  x3, x3, x4            # x3 <- x3 ^ POLY
-\end{lstlisting}
+Los terminales se ubicaron por función con \sig{IO\_PIN\_ORDER\_CFG} (\sig{asic/rom/pines.cfg}, D21), como se ve en el borde de la Figura~\ref{fig:bloques}. Al oeste van las entradas: \sig{btn[3:0]}, \sig{clk} al centro del lado y \sig{rst\_n}. Al este van los dos displays, cada bus contiguo y en orden de bits; al norte los LEDs y al sur el SPI. Cada grupo llegaría así a pads vecinos de un chip completo sin cruzarse, y las señales entran por un lado y salen por el opuesto. Si se deja que el flujo los ubique (corrida \sig{u1\_auto}), pone \sig{clk} en una esquina, junta los cuatro de SPI en otra e intercala segmentos y LEDs en el lado este; ahorra solo 0,4\,\% de cable y el WNS es el mismo.
 
-El polinomio \sig{POLY = 0x04C11DB7} es primitivo de grado 32, con período $2^{32}-1$. La semilla es el valor de CYCLES en el instante de la pulsación de inicio (si es cero se fuerza a uno, porque cero es un punto fijo del LFSR), y después el estado solo avanza. El paso del LFSR está dentro del lazo que espera la pulsación, que da una vuelta cada pocos ciclos, así que el estado avanza cientos de miles de pasos por ronda y depende de cada tiempo de reacción del jugador. El LED objetivo son los dos bits bajos del estado al armar la ronda, y su máscara se arma duplicando un uno esa cantidad de veces.
+Estos terminales son rectángulos de Metal3 (oeste y este) y Metal2 (norte y sur) en el borde del macro, y solo conectan lógica. Un chip completo rodearía el macro con un anillo de pads de I/O: celdas grandes con protección contra descargas electrostáticas, buffers de salida capaces de entregar la corriente de un LED o un display, y entradas con histéresis.
 
-\subsection{Medición del tiempo de respuesta}
+\subsection{Costo}
 
-La medición parte en \sig{arm}, inmediatamente después de encender el LED objetivo, y termina en \sig{hit}, apenas se lee el botón correcto:
+Con US\$23\,000 por mm$^2$ y un costo proporcional al área del die, la corrida final (0,409\mmd) costaría US\$9\,406, la de 70\,\% de utilización (0,239\mmd) US\$5\,496 y la estrategia 2 (1,794\mmd) US\$41\,266. La aproximación ignora que un prototipo se paga por cupo en una oblea multiproyecto con un área mínima, que el macro no incluye pads, anillo de sello ni encapsulado, que el precio por mm$^2$ baja con el volumen y que las máscaras son un costo fijo. Tampoco considera el rendimiento de fabricación, que baja con el área, así que el costo real por chip crece más rápido que el área.
 
-\begin{lstlisting}
-arm_shift_done:
-    sw   x7, OFF_LEDS(x2)     # enciende solo el LED objetivo
-    lw   x8, OFF_CYCLES(x2)   # t0 en ciclos
-...
-hit:
-    lw   x9, OFF_CYCLES(x2)
-    sub  x10, x9, x8          # duracion en ciclos
-    jal  x15, cyc2tenths      # x10 = decimas
-\end{lstlisting}
-
-Se interpretó que el \textit{mismo instante lógico en que comienza la ronda} es el encendido del LED objetivo, porque es desde ahí que el jugador puede reaccionar. Entre la escritura a LEDS y la lectura de $t_0$ pasan unos tres ciclos (120\,ns), despreciables frente a una décima. \sig{cyc2tenths} trunca hacia abajo y satura en \sig{MAX\_TENTHS = 99}, el máximo de dos dígitos, y el mismo corte limita su lazo a 99 vueltas. Al tiempo medido se suma el retardo del debounce, de 4 a 5\,ms.
-
-\subsection{Promedio de las diez rondas}
-
-Al completar \sig{RONDAS} aciertos, \sig{finish} muestra \sig{AA} durante \sig{PROMEDIO\_TENTHS} décimas, para distinguir el promedio del tiempo de la última ronda, y después el promedio con los LEDs parpadeando:
-
-\begin{lstlisting}
-    mv   x10, x6              # suma en decimas
-    li   x12, RONDAS          # divisor
-    jal  x15, div             # x10 = suma / RONDAS
-    jal  x1, show_bcd
-\end{lstlisting}
-
-El promedio queda en décimas, truncado. El divisor es \sig{RONDAS} y no un 10 fijo, porque en la evaluación se pide cambiar una constante del juego: con un 10 fijo, cambiar \sig{RONDAS} terminaría el juego en otra ronda pero seguiría dividiendo por 10. \sig{show\_bcd} usa la misma \sig{div} con divisor 10.
-
-\subsection{Verificación en simulación}
-
-\sig{tb/game\_tb.v} recorre una partida completa con un error deliberado. Inyecta un tiempo de reacción conocido de 12 décimas y exige que el display muestre \sig{12} en cada ronda y como promedio. La misma prueba se corre con \sig{RONDAS = 4}, donde el promedio también debe dar 12 (con un divisor fijo en 10 daría $48/10 = 4$). Para que la simulación dure segundos, el programa se ensambla con \sig{-D CYCLES\_PER\_TENTH=2500}. \sig{tb/game\_top\_tb.v} prueba los botones con rebotes inyectados y el avance de CYCLES. Todo se corre con \sig{make check}.
+La decisión con más impacto en área y costo fue la estrategia de memoria: con el mismo RTL y la misma configuración, la estrategia 2 necesita un die 4,6 veces mayor (Tabla~\ref{tab:estrategias}). La siguiente es la utilización, que de 40 a 70\,\% reduce el die en 42\,\%. La pre-decodificación y la configuración del flujo suman 5\,\% de área.
 
 %=====================================================================
-\section{Assembler: codificación, etiquetas, validación y pruebas}
+\section{Signoff y layout}
+\label{sec:signoff}
 %=====================================================================
 
-El assembler está en \sig{assembler/}, en Python 3 sin dependencias externas, y no invoca ningún assembler RISC-V. Genera un archivo con una palabra de 32 bits en hexadecimal por línea:
+\subsection{DRC, LVS y antenas}
 
-\begin{lstlisting}
-python3 assembler/asm.py sw/game.s -o sw/game.hex [-D NOMBRE=VALOR ...]
-\end{lstlisting}
+La corrida final no tiene violaciones de DRC (Magic), diferencias de LVS ni nets con violación de antena (Tabla~\ref{tab:cierre}). Además se corrió sobre el GDS final el deck de DRC de KLayout de GlobalFoundries (684 reglas, \sig{asic/drc/}), que LibreLane salta con este PDK, y no marcó nada. Para comprobar que el deck detecta errores, se agregaron a una copia del GDS dos violaciones de Metal1: un trazo de 0,20\um de ancho y dos trazos separados por 0,15\um, contra mínimos de 0,23\um. El deck marcó exactamente esas dos, en las reglas M1.1 y M1.2a y en sus coordenadas (\sig{drc\_klayout/control\_positivo.md}).
 
-\sig{make asm} hace lo mismo. La opción \sig{-D} reemplaza el valor de un \sig{.equ} sin editar el archivo.
+Durante la comparación de estrategias apareció una violación de antena en la estrategia 2, en todas sus corridas. En \sig{s2\_t100}, el net \sig{net3342} reparte una señal de alto fanout entre cinco buffers y ocupa una envolvente de $666 \times 364$\um (Figura~\ref{fig:antena}). En el pin \sig{fanout3341/I}, la razón entre el área de Metal2 conectada y el área de la compuerta es 449,1, 1,12 veces el máximo de 400 (\sig{asic/ff/resultados/s2\_t100/antenna\_summary.rpt}). Durante la fabricación, un tramo largo de metal conectado solo a compuertas acumula carga del grabado por plasma, y puede romper el óxido de la compuerta antes de que las capas superiores lo conecten a una difusión que la descargue.
 
-\subsection{Sintaxis aceptada}
+\begin{figure}[!htb]
+\centering
+\begin{minipage}{0.37\textwidth}\centering\includegraphics[width=\textwidth,trim=0 0 620 0,clip]{../asic/ff/resultados/s2_t100/layout/antena_antes.png}\end{minipage}\hfill
+\begin{minipage}{0.52\textwidth}\centering\includegraphics[width=\textwidth]{../asic/ff/resultados/s2_t100/layout/antena_antes_zoom.png}\end{minipage}
+\caption{Net \sig{net3342} de \sig{s2\_t100} (rojo) sobre el layout de la estrategia 2, completo y en acercamiento, con los buffers que conecta en azul. Fuente: \sig{asic/layout/anotar.py}.}
+\label{fig:antena}
+\end{figure}
 
-Una instrucción por línea, operandos separados por comas y comentarios desde \sig{\#} hasta el fin de línea. Las etiquetas son \sig{nombre:} y pueden ir solas en una línea o antes de una instrucción. Los accesos a memoria usan \sig{desplazamiento(registro)}. Los literales pueden ser decimales, hexadecimales (\sig{0x}) o binarios (\sig{0b}), con signo opcional. Mnemónicos, registros y directivas no distinguen mayúsculas; etiquetas y constantes sí.
+Se probaron dos soluciones (Tabla~\ref{tab:antena}). La inserción heurística de diodos (\sig{RUN\_HEURISTIC\_DIODE\_INSERTION}) elimina la violación pero pone diodos en casi todos los nets, con 18\,\% más área de celdas y 16\,ns menos de slack. Darle más iteraciones y margen a la reparación de antenas del ruteo global (\sig{GRT\_ANTENNA\_REPAIR\_ITERS = 6}, \sig{GRT\_ANTENNA\_REPAIR\_MARGIN = 30}) también la elimina, con 108 diodos más y sin aumentar el área. La estrategia 1 no tuvo violaciones de antena en ninguna corrida.
 
-Las directivas son \sig{.equ NOMBRE, valor}, que define una constante, y \sig{.word}, que emite palabras y acepta etiquetas. \sig{.section}, \sig{.text} y \sig{.global} se aceptan y se ignoran. Los registros van de \sig{x0} a \sig{x15}, también con sus nombres ABI (\sig{zero}, \sig{ra}, \sig{sp}, \sig{a0}, etc.). Un registro \sig{x16} o mayor es error, aunque cabría en los cinco bits del campo, porque RV32E no lo tiene.
-
-\subsection{Instrucciones que usa el juego}
-
-El assembler codifica las instrucciones de RV32I en los formatos R, I, S, B, U y J, sin \sig{ecall}, \sig{ebreak}, \sig{fence} ni CSR. La Tabla~\ref{tab:instr} muestra las que usa \sig{game.s}.
-
-\begin{table}[H]
+\begin{table}[!htb]
 \centering\small
-\begin{tabular}{@{}ll@{}}
+\begin{tabular}{@{}lrrrr@{}}
 \toprule
-\textbf{Formato} & \textbf{Instrucciones} \\
+\textbf{Corrida} & \textbf{Violaciones} & \textbf{Diodos} & \textbf{Área de celdas (\textmu m$^2$)} & \textbf{WNS (ns)} \\
 \midrule
-R & \sig{add}, \sig{sub}, \sig{xor} \\
-I & \sig{addi}, \sig{andi}, \sig{xori}, \sig{lw}, \sig{jalr} \\
-S & \sig{sw} \\
-B & \sig{beq}, \sig{bne}, \sig{blt}, \sig{bltu} \\
-U & \sig{lui} \\
-J & \sig{jal} \\
-Pseudo & \sig{li}, \sig{mv}, \sig{j} \\
+\sig{s2\_t100} (original) & 1 & 150 & 838\,173 & 39,65 \\
+\sig{s2\_t100\_diodos} & 0 & 36\,385 & 992\,171 & 23,65 \\
+\sig{s2\_t100\_antrep} & 0 & 258 & 833\,559 & 30,03 \\
 \bottomrule
 \end{tabular}
-\caption{Instrucciones usadas por \sig{sw/game.s}.}
-\label{tab:instr}
+\caption{Violación de antena de la estrategia 2 y sus dos soluciones: nets con violación, celdas de antena, área de celdas y WNS de setup en \sig{max\_ss\_125C\_4v50}. Fuente: \sig{metrics.json} y \sig{antenna\_summary.rpt} de cada corrida en \sig{asic/ff/resultados/}.}
+\label{tab:antena}
 \end{table}
 
-Los desplazamientos (\sig{sll}, \sig{srl}, \sig{sra} y sus versiones con inmediato) se rechazan salvo con la opción \sig{--allow-shifts}, porque el core los ejecuta como suma y el programa correría mal sin ningún aviso.
+\subsection{Layout anotado}
 
-\subsection{Tratamiento de etiquetas e inmediatos}
+El register file, la ALU y el contador de ciclos conservan su jerarquía en la síntesis (Sección~\ref{sec:sintesis}), así que sus celdas llegan al DEF final con el nombre de su instancia como prefijo: \sig{u\_soc.u\_core.u\_rf/}, \sig{u\_soc.u\_core.u\_id.u\_alu/} y \sig{u\_soc.u\_periph.u\_cycles/}. Un script de KLayout (\sig{asic/layout/anotar.py}) lee el DEF con los LEF del PDK, colorea las celdas de cada prefijo y genera la Figura~\ref{fig:bloques} y una base de marcadores (\sig{bloques.lyrdb}) para repetir las marcas en la interfaz de KLayout (\sig{docs/layout.md}).
 
-El assembler recorre el archivo dos veces. En la primera pasada lleva la dirección actual desde cero y guarda cada etiqueta con su dirección y cada \sig{.equ} con su valor; como \sig{li} puede ocupar una o dos palabras, se calcula su tamaño en esta pasada. En la segunda pasada codifica cada línea con la tabla de símbolos completa, lo que permite saltar a una etiqueta definida más abajo. En saltos y bifurcaciones el inmediato codificado es la dirección de la etiqueta menos la dirección de la instrucción.
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=\textwidth]{../asic/rom/resultados/final/layout/bloques.png}
+\caption{Layout de la corrida final con el register file (azul), la ALU (rojo) y el contador de ciclos (verde), cada uno con su rectángulo envolvente, y los terminales en el borde. Fuente: \sig{asic/rom/resultados/final/layout/}.}
+\label{fig:bloques}
+\end{figure}
 
-Los rangos son de $-2048$ a $2047$ para los formatos I y S, desplazamientos pares de $-4096$ a $4094$ bytes para las bifurcaciones, pares de $\pm 2^{20}$ bytes para \sig{jal}, y 20 bits sin signo para \sig{lui}. Un valor fuera de rango es error.
+El register file ocupa casi la mitad oeste del core, la ALU queda en el centro, junto a él, y el contador de ciclos en una franja angosta cerca del borde este. Las áreas de la figura son mayores que las de síntesis (78\,186 contra 73\,656\umd en el register file) porque el resizer agrega buffers dentro de cada módulo, y sus porcentajes son sobre 170\,060\umd de celdas lógicas, sin las de tap ni las de borde.
 
-\textbf{Expansión de \sig{li}.} Si el valor cabe en 12 bits con signo se emite un \sig{addi}; si sus 12 bits bajos son cero, un \sig{lui}; si no, \sig{lui} seguido de \sig{addi}. En este último caso, si el bit 11 del valor es uno, \sig{addi} lo interpreta como un inmediato negativo y resta 4096. Por eso la parte alta se redondea:
-\[
-hi = \left\lfloor \frac{valor + \text{0x800}}{4096} \right\rfloor, \qquad lo = valor - 4096\,hi .
-\]
-Para \sig{li x4, 0x04C11DB7} (el polinomio del LFSR) los 12 bits bajos son \sig{0xDB7}, con el bit 11 en uno, así que $hi = \text{0x04C12}$ y $lo = -585$. Se emiten \sig{lui x4, 0x04C12} y \sig{addi x4, x4, -585}, que en \sig{sw/game.hex} son \sig{04c12237} y \sig{db720213}.
+%=====================================================================
+\section{Simulación funcional post-síntesis}
+\label{sec:sim}
+%=====================================================================
 
-\subsection{Ejemplo de traducción a código máquina}
+\sig{make post-synth} simula el RTL y el netlist de celdas estándar con el mismo testbench y los mismos estímulos, y compara las trazas. El netlist sale de Yosys con la configuración final (\sig{asic/sim/config.yaml}, que solo cambia la ROM y el debounce), y las celdas se simulan con los modelos Verilog del PDK compilados sin bloques \sig{specify} (\sig{-DFUNCTIONAL}), o sea sin retardos. El testbench (\sig{tb/post\_synth\_tb.v}) usa solo los puertos de \sig{asic\_top}, aprieta los botones en ciclos absolutos leídos de \sig{asic/sim/estimulos.txt} y escribe una línea por cada cambio de los LEDs o del display.
 
-Con \sig{.equ OFF\_LEDS, 4}, la instrucción \sig{sw x9, OFF\_LEDS(x2)} de \sig{round\_begin} escribe \sig{x9} en la dirección \sig{x2 + 4 = 0x8000\_0004}, el registro LEDS. \sig{sw} es de formato S, con el inmediato de 12 bits dividido en dos campos (Tabla~\ref{tab:sw}).
+Para que la simulación dure miles de ciclos y no millones, las dos usan el mismo \sig{game.s} ensamblado con \sig{-D CYCLES\_PER\_TENTH=1}, con lo que el display muestra directamente los ciclos medidos, y el debounce con \sig{DebounceDivBits = 2}, que acepta un botón en unos 12 ciclos (\sig{asic/sim/README.md}). El LED objetivo de cada ronda lo elige el LFSR del programa, así que los estímulos se calibraron corriendo el RTL por etapas y leyendo en su traza qué LED se encendió y cuándo (\sig{asic/sim/calibrar.py}). Cada pulsación llega 20 ciclos después de encenderse el LED y dura 60.
 
-\begin{table}[H]
+\begin{table}[!htb]
 \centering\small
-\begin{tabular}{@{}lllc@{}}
+\begin{tabular}{@{}rlp{9.0cm}r@{}}
 \toprule
-\textbf{Campo} & \textbf{Bits} & \textbf{Valor} & \textbf{Binario} \\
+\textbf{Ciclos} & \textbf{Botón} & \textbf{Qué pasa} & \textbf{Ciclo} \\
 \midrule
-\sig{imm[11:5]} & 31--25 & 4, bits 11 a 5        & \bit{0000000} \\
-\sig{rs2}       & 24--20 & \sig{x9}, dato        & \bit{01001} \\
-\sig{rs1}       & 19--15 & \sig{x2}, base        & \bit{00010} \\
-\sig{funct3}    & 14--12 & \sig{sw}              & \bit{010} \\
-\sig{imm[4:0]}  & 11--7  & 4, bits 4 a 0         & \bit{00100} \\
-\sig{opcode}    & 6--0   & store                 & \bit{0100011} \\
+300 a 360 & \sig{0001} & Pulsación de inicio; empieza la ronda 01 & 426 \\
+801 a 861 & \sig{0010} & Ronda 01, LED \sig{0010}: acierto, el display muestra 57 & 1\,574 \\
+2\,141 a 2\,201 & \sig{0010} & Ronda 02, LED \sig{0001}: botón incorrecto, el display muestra EE & 2\,181 \\
+ & & La ronda vuelve a 02, no avanza & 2\,353 \\
+2\,719 a 2\,779 & \sig{0001} & Reintento de la ronda 02: acierto, el display muestra 57 & 3\,492 \\
 \bottomrule
 \end{tabular}
-\caption{Codificación de \sig{sw x9, OFF\_LEDS(x2)}.}
-\label{tab:sw}
+\caption{Escenario simulado. La última columna es el ciclo en que aparece cada resultado, igual en el RTL y en el netlist. Fuente: \sig{asic/sim/resultado.md}.}
+\label{tab:sim}
 \end{table}
 
-\begin{lstlisting}
-0000000 01001 00010 010 00100 0100011
-0000 0000 1001 0001 0010 0010 0010 0011  =  0x00912223
-\end{lstlisting}
-
-La palabra \sig{00912223} está en la línea 18 de \sig{sw/game.hex}.
-
-\subsection{Validación y pruebas}
-
-El assembler se detiene con un mensaje que indica el número de línea ante: registro desconocido o mayor que \sig{x15}, desplazamiento sin \sig{--allow-shifts}, mnemónico o directiva desconocidos, etiqueta o constante repetida o no definida, inmediato fuera de rango, número incorrecto de operandos, operando de memoria mal escrito, salto a dirección impar o fuera de alcance, y programa de más de 512 palabras.
-
-\begin{table}[H]
-\centering\small
-\begin{tabular}{@{}lcp{9.2cm}@{}}
-\toprule
-\textbf{Archivo} & \textbf{Tests} & \textbf{Qué verifica} \\
-\midrule
-\sig{test\_golden.py}     & 3  & \sig{blink.s}, \sig{7seg.s} y \sig{buttons\_leds.s} dan los mismos \sig{.hex} del repositorio base \\
-\sig{test\_formats.py}    & 8  & Codificaciones calculadas a mano que los ejemplos no cubren \\
-\sig{test\_pseudo.py}     & 16 & Pseudo-instrucciones y casos de \sig{li}, incluida la corrección de signo \\
-\sig{test\_directives.py} & 10 & \sig{.equ}, \sig{.word} y directivas ignoradas \\
-\sig{test\_defines.py}    & 3  & Opción \sig{-D} \\
-\sig{test\_validation.py} & 28 & Los errores del párrafo anterior, con casos en los límites de rango \\
-\sig{test\_roundtrip.py}  & 5  & Ensamblar, desensamblar con \sig{disasm.py} y volver a ensamblar da lo mismo \\
-\midrule
-\textbf{Total}            & \textbf{73} & Se corren con \sig{make test} \\
-\bottomrule
-\end{tabular}
-\caption{Pruebas del assembler, en \sig{assembler/tests/}.}
-\label{tab:tests}
-\end{table}
-
-Las pruebas contra los \sig{.hex} del repositorio base comparan con archivos generados por otra herramienta, sin depender de nuestra lectura del manual. La prueba de ida y vuelta cubre las instrucciones que esos tres ejemplos no usan.
+Las dos trazas son idénticas, con 17 cambios de salida en 4\,500 ciclos y ningún valor desconocido (X) en las salidas del netlist. La ronda correcta mide 57 ciclos en las dos simulaciones, y la pulsación incorrecta muestra EE y repite la ronda 02 en vez de pasar a la 03 (Tabla~\ref{tab:sim}). Como control negativo, \sig{make post-synth-control} atrasa 6 ciclos la pulsación de la ronda 01 solo en el netlist: el display muestra 70 en vez de 57 y la comparación da FAIL. Con 5 ciclos de atraso la traza no cambia, porque el programa lee los botones en un lazo de 13 ciclos y la medición no distingue pulsaciones dentro de la misma vuelta. Con las constantes reales, el netlist de la corrida final también coincide con el RTL durante 320\,000 ciclos, hasta los cuatro LEDs y el 01 de la primera ronda (\sig{make post-synth-final}). La simulación opcional con SDF de la esquina típica completó una vez con la misma traza, pero Icarus 14.0 aborta al anotar el SDF en las corridas siguientes, así que no se considera un resultado reproducible.
 
 \end{document}
