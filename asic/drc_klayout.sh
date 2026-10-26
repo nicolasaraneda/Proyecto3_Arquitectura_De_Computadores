@@ -9,7 +9,9 @@
 # Uso: bash asic/drc_klayout.sh <corrida> [gds]
 #   bash asic/drc_klayout.sh asic/rom/runs/final
 # Deja en asic/<config>/resultados/<tag>/drc_klayout/: el lyrdb (base de
-# marcadores de KLayout), el log y un resumen por regla (resumen.md).
+# marcadores de KLayout), el log y un resumen por regla (resumen.md). La
+# variable OUT cambia esa carpeta (la usa asic/drc/control_positivo.sh para no
+# pisar el resultado de la corrida).
 set -eu
 cd "$(dirname "$0")/.."
 RUN="${1%/}"
@@ -17,7 +19,7 @@ TAG=$(basename "$RUN")
 CFG=$(dirname "$(dirname "$RUN")")
 GDS="${2:-$RUN/final/gds/asic_top.gds}"
 GDS="${GDS#$(pwd)/}"
-OUT="$(pwd)/$CFG/resultados/$TAG/drc_klayout"   # ruta absoluta: KLayout resuelve el reporte relativo al GDS
+OUT="${OUT:-$(pwd)/$CFG/resultados/$TAG/drc_klayout}"   # ruta absoluta: KLayout resuelve el reporte relativo al GDS
 IMAGEN="${IMAGEN:-ghcr.io/librelane/librelane:3.0.16}"
 HILOS="${HILOS:-8}"
 mkdir -p "$OUT"
