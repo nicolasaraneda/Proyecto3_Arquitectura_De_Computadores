@@ -101,11 +101,14 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
   `u1_u70`, `u1_u80`, `u1_u90`): tabla en `asic/final.md`, gráfico
   `docs/figuras/utilizacion.png` (DRC de ruteo por iteración, largo de cables global y
   detallado, slew, capacitancia, antena, área del die, WNS).
-  Resultados: 50 % cierra (die 329.861 µm²), 60 % cierra (276.917 µm²), 70 % pendiente
-  (relanzada), 80 % falla en CTS (`[DPL-0036] Detailed placement failed`, log
-  `asic/logs/u1_u80.log`), 90 % falla en el placement global (`[GPL-0301] Utilization
-  100.531 % exceeds 100%`). Área mínima que cumple los criterios: la de la mayor
-  utilización que cierra (60 o 70 %, pendiente u1_u70).
+  Resultados: 50 % cierra (die 329.861 µm², utilización real 59 %), 60 % cierra
+  (276.917 µm², 70 %), 70 % cierra (238.967 µm², 81 %; el ruteo detallado parte con
+  2.149 violaciones de DRC y las resuelve), 80 % falla en CTS (`[DPL-0036] Detailed
+  placement failed`, log `asic/logs/u1_u80.log`), 90 % falla en el placement global
+  (`[GPL-0301] Utilization 100.531 % exceeds 100%`, `asic/logs/u1_u90.log`). Área
+  mínima que cumple los criterios: u1_u70, 0,239 mm² (die 490,4 x 487,3 µm), con DRC,
+  LVS y antenas limpios y WNS de setup 64,1 ns en max_ss. Las violaciones de slew bajan
+  con la utilización (546, 438, 378, 392) porque los cables se acortan.
 - Terminales (D21, `asic/rom/pines.cfg`): oeste entradas (btn[3:0], clk al centro,
   rst_n), este displays (seg1[6:0], seg2[6:0]), norte led[3:0], sur SPI. Son
   rectángulos de metal en el borde del macro (Metal3 en oeste y este, Metal2 en norte y
@@ -113,14 +116,14 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
   buffers de salida. Figura: `asic/rom/resultados/final/layout/bloques.png`.
   Efecto contra la ubicación automática: corrida `u1_auto` (`asic/rom/config_pines_auto.yaml`),
   pendiente: comparar largo de cables, DRC de ruteo por iteración y WNS con `final`.
-- Costo a US$23.000/mm²: final 0,409 mm² -> US$9.406; mínima (pendiente u1_u70;
-  u1_u60: 0,277 mm² -> US$6.369); estrategia 2 1,794 mm² -> US$41.266.
+- Costo a US$23.000/mm²: final 0,409 mm² -> US$9.406; mínima (u1_u70) 0,239 mm² ->
+  US$5.496 (42 % menos); estrategia 2 (s2_t100) 1,794 mm² -> US$41.266.
   Limitaciones del modelo lineal: el costo real de un prototipo se paga por lote
   (multi-project wafer) con un mínimo de área, el macro no incluye pads, anillo de
   sello ni empaque, el precio por mm² baja con el volumen, y una utilización alta
   ahorra área pero cuesta cierre (80 % ya no coloca). Decisión de mayor impacto en
   área y costo: la estrategia de memoria (D17): 4,4 veces en área y costo; después
-  la utilización (40 a 60 %: 0,409 a 0,277 mm², 32 %).
+  la utilización (40 a 70 %: 0,409 a 0,239 mm², 42 %).
 
 ## 3.6. Signoff y layout
 

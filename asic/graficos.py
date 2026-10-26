@@ -87,14 +87,16 @@ def grafico_util(runs, salida):
     for d in ok:
         if not d["cierra"]:
             a.annotate("no cierra", (d["util_cfg"], d["die"] / 1e6), textcoords="offset points", xytext=(0, 8), ha="center", fontsize=8, color="tab:red")
-    for d in datos:
-        if not d["completa"]:
-            a.annotate("flujo falla", (d["util_cfg"], min(dd["die"] for dd in ok) / 1e6), textcoords="offset points", xytext=(0, -14), ha="center", fontsize=8, color="tab:red")
-            ejes[0][0].axvline(d["util_cfg"], color="tab:red", ls=":", lw=1)
     h1, l1 = a.get_legend_handles_labels()
     h2, l2 = a2.get_legend_handles_labels()
-    a.legend(h1 + h2, l1 + l2, loc="upper center", fontsize=8)
+    a.legend(h1 + h2, l1 + l2, loc="center right", fontsize=8)
     a.grid(alpha=0.3)
+    for d in datos:
+        if not d["completa"]:
+            for eje in (ejes[0][1], ejes[1][0], ejes[1][1]):
+                eje.axvline(d["util_cfg"], color="tab:red", ls=":", lw=1)
+            ejes[0][0].annotate("el flujo falla", (d["util_cfg"], 1), textcoords="offset points", xytext=(0, 10),
+                                ha="center", fontsize=8, color="tab:red", rotation=90)
     fig.tight_layout()
     os.makedirs(os.path.dirname(salida) or ".", exist_ok=True)
     fig.savefig(salida, dpi=150)
