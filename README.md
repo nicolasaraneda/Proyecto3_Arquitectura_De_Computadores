@@ -1,7 +1,5 @@
 # Proyecto 3: Pochoco SoC de FPGA a ASIC
 
-> README provisorio: se completa a medida que avanzan las corridas. La corrida final y las versiones de las herramientas internas se agregan cuando estén cerradas.
-
 Este repositorio lleva el juego de reflejos del Proyecto 2 (Pochoco SoC con el Espino Core, RV32E) desde la FPGA de la Go Board hasta un macro digital en GF180MCU, usando el flujo abierto LibreLane. El resultado es un macro implementado con celdas estándar, no un chip completo: los puertos de `asic_top` son conexiones lógicas que en un chip completo irían a pads de I/O.
 
 El punto de partida es el commit `1227fa5` del repositorio del Proyecto 2 ([Vcalderone/Proyecto2_Arquitectura_De_Computadores](https://github.com/Vcalderone/Proyecto2_Arquitectura_De_Computadores)), importado con su historial: `git diff 1227fa5` muestra todo lo que se cambió para el ASIC. El SoC base es [nic0villegasc/pochoco_soc](https://github.com/nic0villegasc/pochoco_soc).
@@ -10,15 +8,24 @@ Grupo: Nicolás Araneda, Vicente Calderón y Santiago Muñoz.
 
 ## Versiones
 
+Las de la corrida final (`asic/versiones.md`, generado por `asic/versiones.sh`):
+
 | Componente | Versión |
 |---|---|
 | LibreLane | 3.0.16 (`pip install librelane==3.0.16`) |
-| Imagen de Docker | `ghcr.io/librelane/librelane:3.0.16` |
-| PDK | GF180MCU, variante `gf180mcuD`, revisión `54435919abffb937387ec956209f9cf5fd2dfbee` (la que fija LibreLane 3.0.16; la descarga ciel) |
-| Biblioteca de celdas estándar | `gf180mcu_fd_sc_mcu7t5v0` |
-| Simulación | Icarus Verilog, de oss-cad-suite |
+| Imagen de Docker | `ghcr.io/librelane/librelane:3.0.16` (id `02d50f259d48`) |
+| PDK | GF180MCU, variante `gf180mcuD`, revisión `54435919abffb937387ec956209f9cf5fd2dfbee` (la que fija LibreLane 3.0.16; la descarga ciel a `~/.ciel`) |
+| Biblioteca de celdas estándar | `gf180mcu_fd_sc_mcu7t5v0` (7 tracks, 5 V) |
+| Yosys (en la imagen) | 0.62 (git 7326bb7d) |
+| OpenROAD (en la imagen) | dcf36133a369abc8f3c5e5738cd4d82e4903c0e0 |
+| Magic (en la imagen) | 8.3.623 |
+| KLayout (en la imagen) | 0.30.7 |
+| Netgen (en la imagen) | 1.5.316 |
+| Icarus Verilog (en la imagen) | 13.0 (devel) |
+| Icarus Verilog (anfitrión, `make check` y `make post-synth`) | 14.0 (devel, oss-cad-suite s20260301) |
+| Python | 3.14 (anfitrión), 3.13.9 (imagen) |
 
-Las versiones de Yosys, OpenROAD, Magic, KLayout y Netgen vienen dentro de la imagen de Docker y se registran desde la corrida final.
+`asic/versiones.sh` las vuelve a consultar (`librelane --version`, `yosys -V`, `openroad -version`, `magic --version`, `klayout -v`, `netgen -batch` e `iverilog -V` dentro de la imagen).
 
 ## Instalación de LibreLane
 
@@ -71,7 +78,35 @@ python3 asic/recolectar.py --md asic/barrido.md --titulo "Título" asic/rom/runs
 
 **Estrategia final:** la 1 (`asic/rom/config.yaml`), por área, frecuencia y antenas (`docs/decisiones.md`, D17).
 
-**Corrida final:** por definir.
+## Corrida final
+
+La corrida final es el tag `final` de `asic/rom/config.yaml`: estrategia 1 con pre-decodificación (D18), celdas de retardo y `buf_1` excluidas con margen de 10 ns en el resizer (D20), terminales ubicados por función (D21, `asic/rom/pines.cfg`), T = 100 ns y FP_CORE_UTIL = 40 %. Se lanza con:
+
+```bash
+source ~/herramientas/librelane/bin/activate
+librelane --dockerized --pdk gf180mcuD asic/rom/config.yaml --run-tag final
+```
+
+o con `make final`, que además verifica los criterios de cierre y regenera todo lo que depende de la corrida (`asic/final.sh`):
+
+1. la corrida (se puede saltar con `bash asic/final.sh --sin-corrida` si `asic/rom/runs/final` ya existe);
+2. `asic/verificar_cierre.py`: DRC de Magic, LVS, antenas y setup y hold en las 9 esquinas (`asic/rom/resultados/final/cierre.md`);
+3. `asic/recolectar.py`: reportes a `asic/rom/resultados/final/` y tabla en `asic/final.md`;
+4. síntesis jerárquica (`h2_t100`) y `asic/analisis_sintesis.py` -> `asic/sintesis.md` (sección 3.3);
+5. `asic/layout/anotar.py` con KLayout en la imagen de Docker -> `asic/rom/resultados/final/layout/` (sección 3.6);
+6. `asic/drc_klayout.sh`: segundo DRC con el deck de KLayout de GF180MCU (`asic/drc/`);
+7. `make post-synth` y `make post-synth-final` (sección 3.7, `asic/sim/`);
+8. `asic/versiones.sh` -> `asic/versiones.md`.
+
+Resultado de la corrida final (`asic/rom/resultados/final/`): cierra en las 9 esquinas (setup WNS 65,2 ns, hold WNS 0,18 ns), DRC de Magic y de KLayout limpios, LVS limpio, 0 antenas; die de 630,6 x 648,5 µm (0,409 mm²), 182.265 µm² de celdas estándar, 990 flip-flops. Quedan 546 violaciones de max slew y 36 de max capacitancia en la esquina lenta, que no son criterio de cierre del enunciado (`asic/exploraciones.md`, B1). Los barridos de período y utilización están en `asic/final.md` y los datos de cada sección del enunciado en `docs/datos_informe.md`.
+
+Los barridos se lanzan aparte, de a tres corridas (`PAR=3 bash asic/barrido.sh < lista.txt`, con `bash asic/vigilar.sh &` vigilando memoria y tiempo), por ejemplo:
+
+```
+asic/rom/config.yaml f1_t26 26
+asic/rom/config.yaml u1_u60 100 FP_CORE_UTIL=60
+asic/rom/config.yaml h2_t100 100 SYNTH_HIERARCHY_MODE=keep --to Yosys.Synthesis
+```
 
 ## Programa del juego
 
@@ -97,7 +132,13 @@ Corre los 80 tests del assembler y los tres testbenches para cada estrategia de 
 make equiv
 ```
 
-Compara el core actual con el de otro commit (por defecto `116fa20`, antes de la pre-decodificación): corre `sw/isa_test.s`, que usa todas las instrucciones que soporta el assembler, con los dos RTL y las dos estrategias de memoria, y exige que las trazas de escrituras al banco de registros, accesos al bus de datos y salidas sean idénticas ciclo a ciclo. Se elige otra referencia con `make equiv REF=<commit>`.
+Compara el core actual con el de otro commit (por defecto `116fa20`, antes de la pre-decodificación): corre `sw/isa_test.s`, que usa todas las instrucciones que soporta el assembler, con los dos RTL y las dos estrategias de memoria, y exige que las trazas de escrituras al banco de registros, accesos al bus de datos y salidas sean idénticas ciclo a ciclo. Se elige otra referencia con `make equiv REF=<commit>`; con `MODO=funcional` se comparan las secuencias de eventos sin el número de ciclo (para variantes que cambian los ciclos por instrucción). Las dos simulaciones imprimen el CPI.
+
+```bash
+make post-synth
+```
+
+Simulación post-síntesis (sección 3.7): sintetiza el diseño con la configuración final y la ROM del programa de simulación (`asic/sim/config.yaml`, hasta `Yosys.Synthesis`), corre el RTL y el netlist de celdas estándar con el mismo testbench de puertos (`tb/post_synth_tb.v`) y los mismos estímulos (`asic/sim/estimulos.txt`), y compara las trazas: PASS si son idénticas. `make post-synth-final` hace lo mismo con el netlist de la corrida final y las constantes reales; `make post-pnr-sdf` intenta la simulación post-PnR con retardos. Todo está explicado en `asic/sim/README.md`.
 
 ## El juego
 
@@ -108,12 +149,21 @@ Al encender, el display muestra `00` y una pulsación empieza la partida. En cad
 ```
 .
 ├── Makefile              tests del assembler, imagen del programa y simulación
-├── asic/                 configuraciones de LibreLane, barrido.sh, recolectar.py y barrido.md
+├── asic/                 configuraciones de LibreLane y scripts del flujo
 │   ├── p2_original/      serie de corridas 0 (sección 3.1) y su evidencia
-│   ├── rom/              estrategia 1 de memoria
-│   └── ff/               estrategia 2 de memoria
+│   ├── rom/              estrategia 1 de memoria (configuración final, pines.cfg, resultados/)
+│   ├── ff/               estrategia 2 de memoria
+│   ├── sim/              síntesis y estímulos de la simulación post-síntesis
+│   ├── layout/           anotar.py: figuras del layout con KLayout en modo batch
+│   ├── drc/              deck de DRC de KLayout de GF180MCU (segundo signoff)
+│   ├── final.sh          corrida final y todo lo que depende de ella (make final)
+│   ├── barrido.sh, vigilar.sh, recolectar.py, graficos.py, verificar_cierre.py, analisis_sintesis.py, drc_klayout.sh, versiones.sh
+│   ├── barrido.md        barridos de las secciones 3.2 y 3.4 (corridas anteriores a D20)
+│   ├── final.md          corrida final y barridos con la configuración final
+│   ├── sintesis.md       sección 3.3
+│   └── exploraciones.md  resumen de las ramas exp/* (bloque B)
 ├── assembler/            assembler propio (Python 3), con las opciones --rom y --vh
-├── docs/                 decisiones, mapa de memoria y assembler
+├── docs/                 decisiones, mapa de memoria, assembler, datos del informe, defensa, layout, progreso
 ├── informe/              informe del Proyecto 2
 ├── rtl/
 │   ├── asic_top.v        top del macro
@@ -124,12 +174,17 @@ Al encender, el display muestra `00` y una pulsación empieza la partida. En cad
 │   ├── gen/              ROM e imagen del programa, generadas por el assembler
 │   └── espino_core/      Espino Core (RV32E)
 ├── sw/                   programas en assembly (game.s es el juego; isa_test.s prueba el core)
-└── tb/                   testbenches de Icarus Verilog (core_trace_tb.v: traza para make equiv)
+└── tb/                   testbenches de Icarus Verilog (core_trace_tb.v: traza para make equiv; post_synth_tb.v: sección 3.7)
 ```
 
 ## Documentación
 
-- `docs/decisiones.md`: cada decisión del proyecto, con sus opciones y la razón.
+- `docs/decisiones.md`: cada decisión del proyecto, con sus opciones y la razón (D1 a D21).
 - `docs/memory_map.md`: mapa de memoria, periféricos y estrategias de memoria.
 - `docs/assembler.md`: uso del assembler, incluidas la ROM y la imagen Verilog.
+- `docs/datos_informe.md`: por cada sección del enunciado, los números, tablas y figuras que la responden y la corrida de origen.
+- `docs/defensa.md`: preguntas probables de la defensa con su respuesta y el archivo que la respalda.
+- `docs/layout.md`: cómo abrir el layout final en KLayout u OpenROAD y repetir las marcas de los bloques.
+- `docs/progreso.md`: estado de cada tarea del cierre y cómo retomarla.
 - `asic/p2_original/evidencia.md`: construcciones dependientes de la FPGA y lo que dijo el flujo de cada una (sección 3.1).
+- `asic/exploraciones.md`: ramas `exp/*` con cambios de RTL o de configuración no fusionados, con su verificación y sus medidas.
