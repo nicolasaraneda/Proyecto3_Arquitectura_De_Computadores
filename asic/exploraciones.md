@@ -170,7 +170,10 @@ violaciones de capacitancia del árbol de reloj (buffer raíz) no las mueve ning
   disponibles y reporta slack 0,000 por convención: un latch abierto "cumple" mientras le
   quede préstamo), y agrega chequeos de clock gating en las 15 celdas `icgtp_1`
   ("clock gating-check end-point" en `sta.log`), todos cumplidos. El CTS construye un
-  árbol de buffers por cada reloj gated. b5_t26: pendiente (ResizerTimingPostCTS largo).
+  árbol de buffers por cada reloj gated. b5_t26 también cierra (DRC, LVS y antenas limpios,
+  hold 0,16 ns): área 182.941 µm² contra 189.817 de main a 26 ns (-3,6 %), slew/cap 347/7;
+  préstamo de 3,42 ns en los latches y 4,36 ns de slack en la peor ruta a flip-flop, así
+  que el período mínimo no empeora (queda por barrer bajo 26 ns).
 - Limitación del criterio: el WNS de setup que reporta la corrida es 0,000 porque los
   endpoints de latch quedan en 0 con préstamo; el margen real de las rutas a flip-flops hay
   que leerlo en `max.rpt` (las rutas que no terminan en latch).

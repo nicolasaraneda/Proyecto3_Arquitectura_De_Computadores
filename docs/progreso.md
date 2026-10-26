@@ -29,5 +29,5 @@ corridas nuevas si `free -m` muestra más de 20000 MB usados.
 | B2 exp/lsu-offset | hecha: cierra a 24 ns (41,7 MHz; main 25), área -0,6 %; b2_t23 y b2_t22 en el lote 7; datos en la rama (asic/barrido_exp.md) | `build/exp_lsu_offset`, commit 84e5e10 |
 | B3 exp/branch-cmp | hecha: sola no mejora (26 cierra, 24 no), área +0,9 %; combinación B2+B3 (exp/lsu-branch): 100 y 24 (no cierra, -0,84) listas, 26 en curso | commits 6ef475f (b3) y 71f9170 (b23) |
 | B4 exp/cpi | hecha: área -13,3 %, cierra a 60 ns (1,73 ns) y no a 45 (-1,75); b4_t55 y b4_t50 en el lote 8; MIPS 12,7 contra 15,0 (provisorio) | `build/exp_cpi`, datos en la rama |
-| B5 exp/rf-latch (opcional) | b5_t100 cierra (DRC, LVS, antenas limpios; latches con préstamo de tiempo y chequeos de clock gating en el STA), área -9,3 %, slew/cap 312/2; b5_t26 en curso | `build/exp_rf_latch`, commit ef957ef |
+| B5 exp/rf-latch (opcional) | b5_t100 cierra (DRC, LVS, antenas limpios; latches con préstamo de tiempo y chequeos de clock gating en el STA), área -9,3 %, slew/cap 312/2; b5_t26 también cierra (área -3,6 %, slack 4,36 ns en rutas a flip-flop); falta barrer bajo 26 ns | `build/exp_rf_latch`, commit ef957ef |
 | C1 GIF del chip construyéndose (opcional) | hecha: docs/figuras/construccion.gif (12 etapas) | `make animacion RUN=asic/rom/runs/final` |
