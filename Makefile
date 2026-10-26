@@ -57,7 +57,7 @@ IMG_SIM    := $(BUILD)/game_sim/game_image.vh
 IMG_SIM_R4 := $(BUILD)/game_sim_r4/game_image.vh
 IMG_BTN    := $(BUILD)/buttons_leds/game_image.vh
 
-.PHONY: all image asm asm-all test sim sim1 sim2 check equiv clean post-synth sim-netlist post-synth-final post-pnr-sdf final layout
+.PHONY: all image asm asm-all test sim sim1 sim2 check equiv clean post-synth sim-netlist post-synth-final post-pnr-sdf final layout animacion
 
 # Default target: todo lo verificable sin LibreLane (el flujo de la FPGA se
 # eliminó en el Proyecto 3; ver docs/decisiones.md, D5)
@@ -279,6 +279,14 @@ post-pnr-sdf: $(NETLIST_FINAL)
 RUN ?= asic/rom/runs/final
 layout:
 	bash asic/layout/anotar.sh $(RUN)
+
+# GIF del chip construyéndose (bloque C): un cuadro por etapa de la corrida
+# (KLayout en la imagen de Docker) y el GIF con Pillow (entorno de LibreLane).
+animacion:
+	docker run --rm --user "$$(id -u):$$(id -g)" -v "$(HOME):$(HOME)" -w "$(CURDIR)" -e HOME="$(HOME)" \
+	  -e PDK_ROOT="$(PDK_ROOT)" ghcr.io/librelane/librelane:3.0.16 \
+	  klayout -b -r asic/layout/animacion.py -rd run=$(RUN) 2>&1 | grep -v "^Warning"
+	$(HOME)/herramientas/librelane/bin/python3 asic/layout/gif.py $(dir $(RUN))../resultados/$(notdir $(RUN))/animacion docs/figuras/construccion.gif
 
 # Clean up generated files.
 #
