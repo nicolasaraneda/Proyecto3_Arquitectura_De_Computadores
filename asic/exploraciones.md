@@ -135,11 +135,26 @@ Segunda ronda, a 100 ns:
 | b1g | `DESIGN_REPAIR_MAX_SLEW_PCT` y `DESIGN_REPAIR_MAX_CAP_PCT` en 30 (repair de placement) | 260 | 22 | 184.368 (+1,2 %) | 65,96 | el mejor slew; la memoria se mantuvo en 3,5 GB (los 40 % de y3/y4 la llenaban) |
 | b1h | fanout 8 más repair post-GRT 30 % | 277 | 3 | 185.536 (+1,8 %) | 63,43 | parecido a b1f |
 
-Tercera ronda (lote 9): b1c y b1g a 26 ns (período), b1i márgenes 25 % y b1j márgenes 30 %
-más repair post-GRT 30 %. Conclusión provisoria: con configuración del flujo no se llega a
-cero; cada variante cambia buffers por área. Dentro del 1 % de área la mejor es b1c (489
-pines de slew y 19 de capacitancia, +0,5 %); b1g baja el slew a 260 con +1,2 %. Las dos
-violaciones de capacitancia del árbol de reloj (buffer raíz) no las mueve ninguna variante.
+Tercera ronda, a 100 ns:
+
+| variante | cambio | slew | cap | área (µm²) | WNS max_ss (ns) | comentario |
+|---|---|---|---|---|---|---|
+| b1i | márgenes del repair de placement en 25 % | 510 | 38 | 182.674 (+0,2 %) | 66,35 | casi no cambia: el salto está entre 25 y 30 % |
+| b1j | márgenes 30 % más repair post-GRT 30 % | 277 | 15 | 184.535 (+1,2 %) | 65,82 | parecido a b1g en slew, mejor en capacitancia |
+
+Período (b1c_t26 y b1g_t26): ver la tabla de `asic/barrido_exp.md` de la rama y el resumen
+de arriba.
+
+Conclusión de B1: con configuración del flujo no se llega a cero. Cada variante cambia
+buffers por área: las que más limpian (fanout 6: 272/1; márgenes 30 % más post-GRT: 277/15)
+cuestan 5,3 % y 1,2 % de área. Dentro del límite de 1 % la mejor es b1c (repair post-GRT con
+márgenes de 30 %: 489 pines de slew y 19 de capacitancia, +0,5 % de área, mismo WNS). Las
+dos violaciones de capacitancia del árbol de reloj (buffer raíz con ocho `clkbuf_16`) no las
+mueve ninguna variante del resizer ni `CTS_MAX_CAP`; habría que cambiar la topología del
+árbol (`CTS_SINK_CLUSTERING_*`) o aceptar el buffer raíz grande. Por qué no desaparecen con
+el resizer: el límite de 3 ns de `MAX_TRANSITION_CONSTRAINT` es la SDC del PDK (la biblioteca
+permite 7 ns) y la reparación trabaja con parásitos estimados en placement y ruteo global,
+mientras que el STA final usa los extraídos del ruteo detallado en la esquina lenta.
 
 ## B5: exp/rf-latch (opcional)
 
