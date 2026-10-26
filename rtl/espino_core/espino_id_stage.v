@@ -67,36 +67,77 @@ module espino_id_stage (
   end
   assign rf_ready_o = ops_valid_q;
 
-  // Decode
-  wire [3:0]  alu_operator;
-  wire [1:0]  alu_op_a_sel;
-  wire        alu_op_b_sel;
-  wire [31:0] imm_operand, imm_target;
-  wire        rf_we_dec;
-  wire [1:0]  rf_wd_sel;
-  wire        is_branch, is_jal, is_jalr;
-  wire        lsu_req_dec, lsu_we_dec;
-  wire [1:0]  lsu_type_dec;
-  wire        lsu_sign_dec;
+  // Decode, registrado (pre-decodificación; Proyecto 3, docs/decisiones.md,
+  // D18). Toda instrucción pasa un ciclo esperando la lectura sincrónica del
+  // banco de registros (ops_valid_q = 0) y recién ejecuta en el ciclo
+  // siguiente. Durante ese ciclo de espera la instrucción ya está estable en
+  // instr_rdata_i, así que el decodificador trabaja ahí y sus salidas se
+  // registran al final del ciclo. En el ciclo de ejecución la ALU, la LSU,
+  // el salto y el write-back usan las salidas registradas, y el decode sale
+  // de la ruta crítica. Cada instrucción sigue tomando los mismos ciclos.
+  //
+  // Los registros no necesitan reset: todo lo que los usa está condicionado
+  // a ops_valid_q (rf_ready_o, lsu_req_o) o a commit, que valen 0 en el ciclo
+  // de espera, y para entonces ya se cargaron con la instrucción actual.
+  wire [3:0]  alu_operator_d;
+  wire [1:0]  alu_op_a_sel_d;
+  wire        alu_op_b_sel_d;
+  wire [31:0] imm_operand_d, imm_target_d;
+  wire        rf_we_d;
+  wire [1:0]  rf_wd_sel_d;
+  wire        is_branch_d, is_jal_d, is_jalr_d;
+  wire        lsu_req_d, lsu_we_d;
+  wire [1:0]  lsu_type_d;
+  wire        lsu_sign_d;
 
   espino_decoder u_decoder (
     .instr_i        (instr_rdata_i),
     .illegal_insn_o (illegal_insn_o),
-    .alu_operator_o (alu_operator),
-    .alu_op_a_sel_o (alu_op_a_sel),
-    .alu_op_b_sel_o (alu_op_b_sel),
-    .imm_operand_o  (imm_operand),
-    .imm_target_o   (imm_target),
-    .rf_we_o        (rf_we_dec),
-    .rf_wd_sel_o    (rf_wd_sel),
-    .is_branch_o    (is_branch),
-    .is_jal_o       (is_jal),
-    .is_jalr_o      (is_jalr),
-    .lsu_req_o      (lsu_req_dec),
-    .lsu_we_o       (lsu_we_dec),
-    .lsu_type_o     (lsu_type_dec),
-    .lsu_sign_o     (lsu_sign_dec)
+    .alu_operator_o (alu_operator_d),
+    .alu_op_a_sel_o (alu_op_a_sel_d),
+    .alu_op_b_sel_o (alu_op_b_sel_d),
+    .imm_operand_o  (imm_operand_d),
+    .imm_target_o   (imm_target_d),
+    .rf_we_o        (rf_we_d),
+    .rf_wd_sel_o    (rf_wd_sel_d),
+    .is_branch_o    (is_branch_d),
+    .is_jal_o       (is_jal_d),
+    .is_jalr_o      (is_jalr_d),
+    .lsu_req_o      (lsu_req_d),
+    .lsu_we_o       (lsu_we_d),
+    .lsu_type_o     (lsu_type_d),
+    .lsu_sign_o     (lsu_sign_d)
   );
+
+  reg  [3:0]  alu_operator;
+  reg  [1:0]  alu_op_a_sel;
+  reg         alu_op_b_sel;
+  reg  [31:0] imm_operand, imm_target;
+  reg         rf_we_dec;
+  reg  [1:0]  rf_wd_sel;
+  reg         is_branch, is_jal, is_jalr;
+  reg         lsu_req_dec, lsu_we_dec;
+  reg  [1:0]  lsu_type_dec;
+  reg         lsu_sign_dec;
+
+  always @(posedge clk_i) begin
+    if (!ops_valid_q) begin
+      alu_operator <= alu_operator_d;
+      alu_op_a_sel <= alu_op_a_sel_d;
+      alu_op_b_sel <= alu_op_b_sel_d;
+      imm_operand  <= imm_operand_d;
+      imm_target   <= imm_target_d;
+      rf_we_dec    <= rf_we_d;
+      rf_wd_sel    <= rf_wd_sel_d;
+      is_branch    <= is_branch_d;
+      is_jal       <= is_jal_d;
+      is_jalr      <= is_jalr_d;
+      lsu_req_dec  <= lsu_req_d;
+      lsu_we_dec   <= lsu_we_d;
+      lsu_type_dec <= lsu_type_d;
+      lsu_sign_dec <= lsu_sign_d;
+    end
+  end
 
   // Operand muxes
   reg  [31:0] operand_a;

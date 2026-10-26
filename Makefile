@@ -57,7 +57,7 @@ IMG_SIM    := $(BUILD)/game_sim/game_image.vh
 IMG_SIM_R4 := $(BUILD)/game_sim_r4/game_image.vh
 IMG_BTN    := $(BUILD)/buttons_leds/game_image.vh
 
-.PHONY: all image asm asm-all test sim sim1 sim2 check clean
+.PHONY: all image asm asm-all test sim sim1 sim2 check equiv clean
 
 # Default target: todo lo verificable sin LibreLane (el flujo de la FPGA se
 # eliminó en el Proyecto 3; ver docs/decisiones.md, D5)
@@ -134,6 +134,39 @@ sim2: $(IMG_SIM) $(IMG_SIM_R4) $(IMG_BTN)
 	$(call run_sims,2)
 
 sim: sim1 sim2
+
+# Equivalencia del core con una versión anterior del RTL (Proyecto 3, D18).
+# Corre sw/isa_test.s, que ejecuta todas las instrucciones que soporta el
+# assembler, con el RTL actual y con el del commit REF, para las dos
+# estrategias de memoria, y compara las trazas de tb/core_trace_tb.v
+# (escrituras al banco de registros, accesos al bus de datos y salidas, con
+# su ciclo). Si son idénticas, el cambio no alteró el comportamiento.
+REF ?= 116fa20
+IMG_ISA := $(BUILD)/isa_test/game_image.vh
+
+$(IMG_ISA): sw/isa_test.s $(ASMDEP)
+	@mkdir -p $(dir $@)
+	$(PYTHON) $(ASM) $< -o $(dir $@)isa_test.hex --vh $@ --rom $(dir $@)pochoco_rom.v
+
+equiv: $(IMG_ISA)
+	rm -rf $(BUILD)/ref && git worktree prune
+	git worktree add --detach $(BUILD)/ref $(REF)
+	@for m in 1 2; do \
+	  for v in ref act; do \
+	    if [ $$v = ref ]; then d=$(BUILD)/ref; else d=.; fi; \
+	    $(IVERILOG) -g2012 -DMEM_STRATEGY=$$m -DTRAZA=\"$(BUILD)/traza_$${v}_m$$m.txt\" \
+	      -I $(BUILD)/isa_test -o $(BUILD)/core_trace_$${v}_m$$m tb/core_trace_tb.v \
+	      $$d/rtl/*.v $$d/rtl/espino_core/*.v $(BUILD)/isa_test/pochoco_rom.v || exit 1; \
+	    $(VVP) $(BUILD)/core_trace_$${v}_m$$m > /dev/null || exit 1; \
+	  done; \
+	  if cmp -s $(BUILD)/traza_ref_m$$m.txt $(BUILD)/traza_act_m$$m.txt; then \
+	    echo "equiv: estrategia $$m, trazas identicas ($$(wc -l < $(BUILD)/traza_act_m$$m.txt) eventos) entre $(REF) y el RTL actual"; \
+	  else \
+	    echo "equiv: estrategia $$m, las trazas DIFIEREN:"; \
+	    diff $(BUILD)/traza_ref_m$$m.txt $(BUILD)/traza_act_m$$m.txt | head -20; exit 1; \
+	  fi; \
+	done
+	git worktree remove --force $(BUILD)/ref
 
 $(BUILD):
 	mkdir -p $(BUILD)

@@ -116,3 +116,26 @@ Cada decisión registra las opciones, la elegida, la razón y lo que se pierde c
 - Elegida: (a).
 - Razón: por sí solo, (b) no cambió el resultado (x2_t60_rszss sigue sin cerrar en la esquina lenta: setup WS -7.686 ns), y junto con D15 (x3_t60_ambos: setup WS 6.764 ns) no se diferencia de D15 sola (x1). Un cambio que no aporta no se agrega a la configuración.
 - Qué se pierde: nada medible en el experimento.
+
+## D17. Estrategia de memoria de la corrida final (26-10-2026)
+
+- Opciones: (a) estrategia 1, ROM combinacional generada más RAM de datos de 4 palabras; (b) estrategia 2, memoria unificada en flip-flops.
+- Elegida: (a).
+- Razón: con la configuración corregida (barrido s1_* y s2_*, `asic/barrido.md`), a T = 100 ns la estrategia 1 ocupa 146.400 µm² de celdas en síntesis contra 693.901 µm² (4,7 veces menos), tiene 921 flip-flops contra 4.602, un die de 0,394 mm² contra 1,794 mm², cierra timing hasta 55 ns contra 62 ns (18,2 MHz contra 16,1 MHz) y no tiene violaciones de antena, mientras la estrategia 2 tiene 1 net con violación en todas sus corridas.
+- Qué se pierde: la memoria unificada, donde datos e instrucciones comparten espacio y el programa se puede sobrescribir desde el puerto de datos. El juego no usa ninguna de las dos cosas.
+
+## D18. Cambio de RTL para acortar la ruta crítica: pre-decodificación (26-10-2026)
+
+- Ruta crítica de partida (s1_t55, esquina max_ss): del registro de instrucción (`u_soc.g_mem_rom.u_mem.a_rdata_o[4]`) al register file (`u_soc.u_core.u_rf/_2913_`), 55,1 ns: 4,1 ns hasta la salida del registro, 19,1 ns de decode (el opcode elige el operando B), 14,5 ns en la ALU (la comparación de SLT/SLTU llega al bit 0 del resultado, que es también la dirección de la LSU), 13,7 ns de alineación de la carga y write-back, y 3,7 ns de entrada al register file. Es el write-back de una carga. Funcionalmente es un camino falso (el resultado de un SLT nunca es la dirección de una carga), pero el análisis estático de timing lo cuenta.
+- Opciones: (a) registrar en la LSU el offset de byte al emitir la carga, lo que saca el tramo de alineación de esta ruta; (b) pre-decodificar: registrar las salidas del decodificador en el ciclo en que cada instrucción espera la lectura del banco de registros, lo que saca el decode de todas las rutas de ejecución.
+- Elegida: (b).
+- Razón: el decode es el tramo más largo de la ruta (35 %) y está en todas las rutas de ejecución (cargas, saltos, SLT), así que la mejora no queda limitada por la ruta siguiente. Toda instrucción ya pasa un ciclo esperando el banco de registros con la instrucción estable, y el decodificador puede trabajar ahí sin cambiar los ciclos de ninguna instrucción.
+- Verificación: los tres testbenches dan los mismos 101 checks en los mismos instantes, con las dos estrategias de memoria; `make equiv` corre `sw/isa_test.s` (todas las instrucciones que soporta el assembler) con el RTL de 116fa20 y con el nuevo, y las trazas de escrituras al banco de registros, accesos al bus y salidas son idénticas ciclo a ciclo (1.018 eventos por estrategia); el monitor de valores desconocidos no encontró ninguno usado en 388.411 escrituras al banco.
+- Qué se pierde: unos 77 flip-flops más (síntesis genérica; el área real sale de las corridas), y la etapa de decode queda repartida en dos ciclos.
+
+## D19. La corrida final incluye la pre-decodificación (26-10-2026)
+
+- Opciones: (a) sí, si pasa la verificación; (b) no, la corrida final es s1_t100 y el cambio queda como experimento de la sección 3.4.
+- Elegida: (a).
+- Razón: la corrida final es el mejor diseño verificado, y la frecuencia máxima que se reporta es la del diseño que se entrega.
+- Qué se pierde: se repite el barrido de la estrategia 1 cerca del nuevo límite, y las secciones 3.3, 3.6 y 3.7 se hacen sobre el diseño con pre-decodificación.

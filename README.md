@@ -62,6 +62,15 @@ librelane --dockerized --pdk gf180mcuD asic/rom/config.yaml -c CLOCK_PERIOD=70 -
 librelane --dockerized --pdk gf180mcuD asic/rom/config.yaml -c SYNTH_HIERARCHY_MODE=keep --run-tag e1_jerarquia --to Yosys.Synthesis
 ```
 
+Para varias corridas en paralelo, `asic/barrido.sh` lee una lista con una corrida por línea (`<config.yaml> <tag> <CLOCK_PERIOD> [VARIABLE=VALOR ...]`) y deja la salida de cada una en `asic/logs/`. Después, `asic/recolectar.py` copia los reportes de cada corrida a `resultados/` y agrega sus tablas a `asic/barrido.md`:
+
+```bash
+bash asic/barrido.sh < lista.txt
+python3 asic/recolectar.py --md asic/barrido.md --titulo "Título" asic/rom/runs/<tag> ...
+```
+
+**Estrategia final:** la 1 (`asic/rom/config.yaml`), por área, frecuencia y antenas (`docs/decisiones.md`, D17).
+
 **Corrida final:** por definir.
 
 ## Programa del juego
@@ -84,6 +93,12 @@ make check
 
 Corre los 80 tests del assembler y los tres testbenches para cada estrategia de memoria (`make sim1` y `make sim2`). Las simulaciones ensamblan el juego con `CYCLES_PER_TENTH = 2500`, para que una partida dure segundos de simulación. Necesita `iverilog` y `vvp` (oss-cad-suite).
 
+```bash
+make equiv
+```
+
+Compara el core actual con el de otro commit (por defecto `116fa20`, antes de la pre-decodificación): corre `sw/isa_test.s`, que usa todas las instrucciones que soporta el assembler, con los dos RTL y las dos estrategias de memoria, y exige que las trazas de escrituras al banco de registros, accesos al bus de datos y salidas sean idénticas ciclo a ciclo. Se elige otra referencia con `make equiv REF=<commit>`.
+
 ## El juego
 
 Al encender, el display muestra `00` y una pulsación empieza la partida. En cada ronda se encienden los cuatro LEDs por 3 segundos y después uno solo, elegido al azar: hay que apretar su botón lo antes posible. Un acierto muestra el tiempo de reacción en décimas de segundo; un botón incorrecto muestra `EE` y reinicia la ronda. Tras 10 aciertos se muestra `AA` y después el promedio.
@@ -93,7 +108,7 @@ Al encender, el display muestra `00` y una pulsación empieza la partida. En cad
 ```
 .
 ├── Makefile              tests del assembler, imagen del programa y simulación
-├── asic/                 configuraciones de LibreLane
+├── asic/                 configuraciones de LibreLane, barrido.sh, recolectar.py y barrido.md
 │   ├── p2_original/      serie de corridas 0 (sección 3.1) y su evidencia
 │   ├── rom/              estrategia 1 de memoria
 │   └── ff/               estrategia 2 de memoria
@@ -108,8 +123,8 @@ Al encender, el display muestra `00` y una pulsación empieza la partida. En cad
 │   ├── pochoco_cycle_counter.v  contador de ciclos (CYCLES)
 │   ├── gen/              ROM e imagen del programa, generadas por el assembler
 │   └── espino_core/      Espino Core (RV32E)
-├── sw/                   programas en assembly (game.s es el juego)
-└── tb/                   testbenches de Icarus Verilog
+├── sw/                   programas en assembly (game.s es el juego; isa_test.s prueba el core)
+└── tb/                   testbenches de Icarus Verilog (core_trace_tb.v: traza para make equiv)
 ```
 
 ## Documentación

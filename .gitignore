@@ -31,3 +31,6 @@ asic/**/runs/
 
 # Logs del barrido de LibreLane (asic/barrido.sh)
 asic/logs/
+
+# Programa de prueba del core (make asm-all lo ensambla, pero no es parte de la entrega)
+sw/isa_test.hex
