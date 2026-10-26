@@ -9,7 +9,7 @@
 // banco de registros con latches instancia directamente (Proyecto 3,
 // experimento B5, rama exp/rf-latch). En síntesis (Yosys define SYNTHESIS) se
 // instancia la celda; en simulación y lint, un modelo de comportamiento
-// equivalente.
+// equivalente (always_latch, para que el linter sepa que el latch es a propósito).
 
 // Clock gating integrado, flanco positivo (icgtp_1): un latch transparente
 // con el reloj en bajo guarda el enable, y la salida es CLK & enable. El
@@ -24,7 +24,7 @@ module gf180_clock_gate (
   gf180mcu_fd_sc_mcu7t5v0__icgtp_1 u_icg (.CLK(clk_i), .E(en_i), .TE(1'b0), .Q(gclk_o));
 `else
   reg en_l;
-  always @* if (!clk_i) en_l = en_i;
+  always_latch if (!clk_i) en_l = en_i;
   assign gclk_o = clk_i & en_l;
 `endif
 endmodule
@@ -39,7 +39,7 @@ module gf180_latch (
   gf180mcu_fd_sc_mcu7t5v0__latq_1 u_lat (.E(e_i), .D(d_i), .Q(q_o));
 `else
   reg q;
-  always @* if (e_i) q = d_i;
+  always_latch if (e_i) q = d_i;
   assign q_o = q;
 `endif
 endmodule
