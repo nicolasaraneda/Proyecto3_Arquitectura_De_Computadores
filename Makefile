@@ -143,6 +143,12 @@ sim: sim1 sim2
 # su ciclo). Si son idénticas, el cambio no alteró el comportamiento.
 REF ?= 116fa20
 IMG_ISA := $(BUILD)/isa_test/game_image.vh
+# MODO=ciclo (por defecto): las trazas deben ser idénticas ciclo a ciclo.
+# MODO=funcional: se comparan las secuencias de eventos sin el número de ciclo
+# (misma secuencia de escrituras al banco, accesos al bus y salidas), para
+# variantes que cambian los ciclos por instrucción (experimento B4). En ambos
+# modos se imprime el CPI de cada versión.
+MODO ?= ciclo
 
 $(IMG_ISA): sw/isa_test.s $(ASMDEP)
 	@mkdir -p $(dir $@)
@@ -157,13 +163,20 @@ equiv: $(IMG_ISA)
 	    $(IVERILOG) -g2012 -DMEM_STRATEGY=$$m -DTRAZA=\"$(BUILD)/traza_$${v}_m$$m.txt\" \
 	      -I $(BUILD)/isa_test -o $(BUILD)/core_trace_$${v}_m$$m tb/core_trace_tb.v \
 	      $$d/rtl/*.v $$d/rtl/espino_core/*.v $(BUILD)/isa_test/pochoco_rom.v || exit 1; \
-	    $(VVP) $(BUILD)/core_trace_$${v}_m$$m > /dev/null || exit 1; \
+	    $(VVP) $(BUILD)/core_trace_$${v}_m$$m | grep "CPI" | sed "s/^/equiv ($$v, estrategia $$m): /" || exit 1; \
 	  done; \
-	  if cmp -s $(BUILD)/traza_ref_m$$m.txt $(BUILD)/traza_act_m$$m.txt; then \
-	    echo "equiv: estrategia $$m, trazas identicas ($$(wc -l < $(BUILD)/traza_act_m$$m.txt) eventos) entre $(REF) y el RTL actual"; \
+	  if [ "$(MODO)" = funcional ]; then \
+	    cut -d" " -f2- $(BUILD)/traza_ref_m$$m.txt > $(BUILD)/traza_ref_m$${m}_f.txt; \
+	    cut -d" " -f2- $(BUILD)/traza_act_m$$m.txt > $(BUILD)/traza_act_m$${m}_f.txt; \
+	    a=$(BUILD)/traza_ref_m$${m}_f.txt; b=$(BUILD)/traza_act_m$${m}_f.txt; que="secuencias de eventos identicas (sin ciclos)"; \
 	  else \
-	    echo "equiv: estrategia $$m, las trazas DIFIEREN:"; \
-	    diff $(BUILD)/traza_ref_m$$m.txt $(BUILD)/traza_act_m$$m.txt | head -20; exit 1; \
+	    a=$(BUILD)/traza_ref_m$$m.txt; b=$(BUILD)/traza_act_m$$m.txt; que="trazas identicas ciclo a ciclo"; \
+	  fi; \
+	  if cmp -s $$a $$b; then \
+	    echo "equiv: estrategia $$m, $$que ($$(wc -l < $$b) eventos) entre $(REF) y el RTL actual"; \
+	  else \
+	    echo "equiv: estrategia $$m, las trazas DIFIEREN ($(MODO)):"; \
+	    diff $$a $$b | head -20; exit 1; \
 	  fi; \
 	done
 	git worktree remove --force $(BUILD)/ref

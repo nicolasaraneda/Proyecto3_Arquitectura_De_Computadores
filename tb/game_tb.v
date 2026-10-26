@@ -185,8 +185,15 @@ module game_tb;
   // siguiente, que se descarta). Se imprime al final, junto al PASS.
   integer    n_data_rd = 0, n_data_wr = 0;
   reg [31:0] max_exec = 32'b0;
+  // Ciclos e instrucciones retiradas desde el reset, para el CPI del juego
+  // (Proyecto 3, experimento B4): una instrucción se retira en cada ciclo en
+  // que la etapa ID tiene instrucción válida y el pipeline no está detenido.
+  integer    n_ciclos = 0, n_retiradas = 0;
   always @(posedge clk) begin
     if (dut.u_soc.rst_ni) begin
+      n_ciclos = n_ciclos + 1;
+      if (dut.u_soc.u_core.instr_valid_id && !dut.u_soc.u_core.stall)
+        n_retiradas = n_retiradas + 1;
       if (dut.u_soc.ram_b_req) begin
         if (dut.u_soc.data_we) n_data_wr = n_data_wr + 1;
         else                   n_data_rd = n_data_rd + 1;
@@ -443,6 +450,8 @@ module game_tb;
 
     $display("uso de memoria: %0d lecturas y %0d escrituras de datos; instruccion mas alta ejecutada en 0x%0h (palabra %0d)",
              n_data_rd, n_data_wr, max_exec, max_exec >> 2);
+    $display("CPI del juego: %0d ciclos / %0d instrucciones retiradas = %.3f",
+             n_ciclos, n_retiradas, n_retiradas > 0 ? $itor(n_ciclos) / $itor(n_retiradas) : 0.0);
 
     if (errors == 0) begin
       $display("\n=== PASS: todos los checks OK ===");
