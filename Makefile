@@ -57,7 +57,7 @@ IMG_SIM    := $(BUILD)/game_sim/game_image.vh
 IMG_SIM_R4 := $(BUILD)/game_sim_r4/game_image.vh
 IMG_BTN    := $(BUILD)/buttons_leds/game_image.vh
 
-.PHONY: all image asm asm-all test sim sim1 sim2 check equiv clean post-synth sim-netlist post-synth-final final layout
+.PHONY: all image asm asm-all test sim sim1 sim2 check equiv clean post-synth sim-netlist post-synth-final post-pnr-sdf final layout
 
 # Default target: todo lo verificable sin LibreLane (el flujo de la FPGA se
 # eliminó en el Proyecto 3; ver docs/decisiones.md, D5)
@@ -233,20 +233,21 @@ post-synth: $(ROM_SIM) $(NETLIST_SIM) $(EST)
 	$(PYTHON) asic/sim/comparar.py $(PS)/traza_rtl.txt $(PS)/traza_netlist.txt --md asic/sim/resultado.md
 
 # Extra: el netlist de la corrida final (constantes reales del juego) debe
-# llegar a la pantalla de inicio igual que el RTL con la ROM real. Sin
-# estímulos, 5000 ciclos: la pantalla de inicio aparece en los primeros
-# ciclos y después el programa espera una pulsación. El RTL usa
-# DebounceDivBits=15 (el valor real) para que las dos simulaciones sean
-# el mismo circuito.
+# comportarse igual que el RTL con la ROM real: pantalla de inicio tras el
+# reset y, con una pulsación de inicio real (asic/sim/estimulos_final.txt),
+# los cuatro LEDs y el 01 de la primera ronda. Con DebounceDivBits=15 (el
+# valor real) eso toma unos 280.000 ciclos, de ahí PSF_CICLOS. El RTL usa el
+# mismo DebounceDivBits para que las dos simulaciones sean el mismo circuito.
 NETLIST_FINAL ?= asic/rom/runs/final/final/nl/asic_top.nl.v
+EST_FINAL  := asic/sim/estimulos_final.txt
+PSF_CICLOS := 320000
 post-synth-final: $(NETLIST_FINAL)
 	@mkdir -p $(PS)
-	printf '# sin estimulos: solo reset y pantalla de inicio\n' > $(PS)/sin_estimulos.txt
-	$(IVERILOG) -g2012 -I rtl/gen -DESTIMULOS=\"$(PS)/sin_estimulos.txt\" -DTRAZA=\"$(PS)/traza_rtl_final.txt\" \
-	            -DCICLOS=5000 -DDIV_BITS=15 -o $(PS)/tb_rtl_final tb/post_synth_tb.v $(SRC) rtl/gen/pochoco_rom.v
+	$(IVERILOG) -g2012 -I rtl/gen -DESTIMULOS=\"$(EST_FINAL)\" -DTRAZA=\"$(PS)/traza_rtl_final.txt\" \
+	            -DCICLOS=$(PSF_CICLOS) -DDIV_BITS=15 -o $(PS)/tb_rtl_final tb/post_synth_tb.v $(SRC) rtl/gen/pochoco_rom.v
 	$(VVP) $(PS)/tb_rtl_final
-	$(IVERILOG) -g2012 -DNETLIST -DFUNCTIONAL -DESTIMULOS=\"$(PS)/sin_estimulos.txt\" -DTRAZA=\"$(PS)/traza_netlist_final.txt\" \
-	            -DCICLOS=5000 -o $(PS)/tb_netlist_final tb/post_synth_tb.v $(NETLIST_FINAL) $(CELDAS_V)
+	$(IVERILOG) -g2012 -DNETLIST -DFUNCTIONAL -DESTIMULOS=\"$(EST_FINAL)\" -DTRAZA=\"$(PS)/traza_netlist_final.txt\" \
+	            -DCICLOS=$(PSF_CICLOS) -o $(PS)/tb_netlist_final tb/post_synth_tb.v $(NETLIST_FINAL) $(CELDAS_V)
 	$(VVP) $(PS)/tb_netlist_final
 	$(PYTHON) asic/sim/comparar.py $(PS)/traza_rtl_final.txt $(PS)/traza_netlist_final.txt --md asic/sim/resultado_final.md
 
@@ -258,6 +259,20 @@ check: test sim
 # simulación post-síntesis y versiones. Ver asic/final.sh. Necesita Docker.
 final:
 	bash asic/final.sh
+
+# Opcional (3.7): post-PnR con retardos (SDF de la esquina típica de la
+# corrida final) y el mismo testbench. Con -DSDF el testbench llama a
+# $sdf_annotate; los modelos de celdas se compilan con sus bloques specify.
+# El netlist de simulación (sim_rom) no sirve acá porque el SDF es de la
+# corrida final: se corre el mismo escenario que post-synth-final.
+SDF_FINAL ?= asic/rom/runs/final/final/sdf/nom_tt_025C_5v00/asic_top__nom_tt_025C_5v00.sdf
+post-pnr-sdf: $(NETLIST_FINAL)
+	@mkdir -p $(PS)
+	$(IVERILOG) -g2012 -DNETLIST -DSDF=\"$(SDF_FINAL)\" -DESTIMULOS=\"$(EST_FINAL)\" \
+	            -DTRAZA=\"$(PS)/traza_sdf_final.txt\" -DCICLOS=$(PSF_CICLOS) \
+	            -o $(PS)/tb_sdf_final tb/post_synth_tb.v $(NETLIST_FINAL) $(CELDAS_V) 2>&1 | tail -5
+	$(VVP) $(PS)/tb_sdf_final 2>&1 | grep -v "^SDF\|timing check\|Timing violation" | tail -5
+	$(PYTHON) asic/sim/comparar.py $(PS)/traza_rtl_final.txt $(PS)/traza_sdf_final.txt --md asic/sim/resultado_sdf.md
 
 # Figuras anotadas del layout de una corrida (KLayout en la imagen de Docker):
 #   make layout RUN=asic/rom/runs/final

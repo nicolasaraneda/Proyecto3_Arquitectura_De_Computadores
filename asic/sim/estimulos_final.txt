@@ -1,0 +1,7 @@
+# Estimulos para el netlist de la corrida final (constantes reales del juego):
+# una pulsacion de inicio sostenida y su liberacion. Con DebounceDivBits=15 el
+# debounce muestrea cada 32768 ciclos y acepta un cambio tras 3 muestras, asi
+# que la pulsacion se ve ~100.000 ciclos despues y la liberacion otros ~100.000
+# mas tarde; recien entonces el programa enciende los 4 LEDs y muestra 01.
+1000 0001
+150000 0000

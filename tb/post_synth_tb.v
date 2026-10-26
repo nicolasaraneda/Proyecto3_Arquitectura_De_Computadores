@@ -68,8 +68,16 @@ module post_synth_tb;
   );
 
   // Período de 100 ns, el del macro (T = 100 ns). En una simulación sin
-  // retardos el valor no cambia el resultado.
+  // retardos el valor no cambia el resultado; con -DSDF (post-PnR con
+  // retardos anotados) es el período real.
   always #50 clk = ~clk;
+
+`ifdef SDF
+  // Post-PnR con retardos: anota el SDF de la esquina indicada sobre el DUT.
+  // Los modelos de celdas se compilan sin -DFUNCTIONAL para que tengan sus
+  // bloques specify. Ver Makefile, objetivo post-pnr-sdf.
+  initial $sdf_annotate(`SDF, dut);
+`endif
 
   // Decodificador inverso de 7 segmentos ({G,F,E,D,C,B,A}, activo en alto).
   function [7:0] seg2hex(input [6:0] s);
