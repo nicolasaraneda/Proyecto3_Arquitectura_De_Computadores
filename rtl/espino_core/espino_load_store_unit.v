@@ -35,6 +35,7 @@ module espino_load_store_unit (
   reg        busy_q, busy_d;
   wire       is_load, is_store;
   wire [1:0] boff;
+  reg  [1:0] boff_q;
 
   assign is_load  = req_i & ~we_i;
   assign is_store = req_i & we_i;
@@ -45,9 +46,19 @@ module espino_load_store_unit (
     if (is_load && !busy_q) busy_d = 1'b1;
   end
 
+  // Offset de byte de la carga, registrado al emitirla (Proyecto 3, experimento
+  // B2, rama exp/lsu-offset). El dato de una carga llega un ciclo después de
+  // pedirlo (busy_q = 1) y en ese ciclo el pipeline está detenido, así que
+  // addr_i[1:0] vale lo mismo que en el ciclo de la petición: guardarlo en un
+  // flip-flop no cambia el comportamiento, pero saca la ALU (que calcula la
+  // dirección) de la ruta de alineación del dato leído y del write-back.
   always @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) busy_q <= 1'b0;
-    else         busy_q <= busy_d;
+    if (!rst_ni)                busy_q <= 1'b0;
+    else                        busy_q <= busy_d;
+  end
+
+  always @(posedge clk_i) begin
+    if (is_load && !busy_q) boff_q <= boff;
   end
 
   assign busy_o      = is_load & ~busy_q;
@@ -73,9 +84,9 @@ module espino_load_store_unit (
     endcase
   end
 
-  // Load data
-  wire [15:0] lhalf = boff[1] ? data_rdata_i[31:16] : data_rdata_i[15:0];
-  wire [7:0]  lbyte = boff[0] ? lhalf[15:8]         : lhalf[7:0];
+  // Load data: la alineación usa el offset registrado (boff_q), no el de la ALU.
+  wire [15:0] lhalf = boff_q[1] ? data_rdata_i[31:16] : data_rdata_i[15:0];
+  wire [7:0]  lbyte = boff_q[0] ? lhalf[15:8]         : lhalf[7:0];
 
   always @* begin
     case (type_i)
