@@ -30,9 +30,9 @@ module espino_register_file (
   input  wire        clk_i,
   input  wire        rst_ni,     // sin uso
   input  wire [3:0]  raddr_a_i,
-  output reg  [31:0] rdata_a_o,
+  output wire [31:0] rdata_a_o,
   input  wire [3:0]  raddr_b_i,
-  output reg  [31:0] rdata_b_o,
+  output wire [31:0] rdata_b_o,
   input  wire [3:0]  waddr_i,
   input  wire [31:0] wdata_i,
   input  wire        we_i
@@ -44,10 +44,13 @@ module espino_register_file (
     if (we_i && (waddr_i != 4'd0)) regs[waddr_i] <= wdata_i;
   end
 
-  always @(posedge clk_i) begin
-    rdata_a_o <= (raddr_a_i == 4'd0) ? 32'b0 : regs[raddr_a_i];
-    rdata_b_o <= (raddr_b_i == 4'd0) ? 32'b0 : regs[raddr_b_i];
-  end
+  // Experimento B4 (rama exp/cpi): lectura combinacional. Los operandos
+  // están disponibles en el mismo ciclo en que llega la instrucción, así que
+  // desaparece el ciclo de espera de la lectura sincrónica (y los 64
+  // flip-flops de salida). Una escritura se ve en la lectura del ciclo
+  // siguiente, que es cuando ejecuta la instrucción siguiente.
+  assign rdata_a_o = (raddr_a_i == 4'd0) ? 32'b0 : regs[raddr_a_i];
+  assign rdata_b_o = (raddr_b_i == 4'd0) ? 32'b0 : regs[raddr_b_i];
 
   // rst_ni queda sin uso a propósito
   wire _unused = &{1'b0, rst_ni};

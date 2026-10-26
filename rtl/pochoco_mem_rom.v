@@ -25,10 +25,10 @@ module pochoco_mem_rom #(
 ) (
   input  wire        clk_i,
 
-  // Puerto A: instrucciones
+  // Puerto A: instrucciones (combinacional en esta variante: experimento B4)
   input  wire        a_req_i,
   input  wire [31:0] a_addr_i,
-  output reg  [31:0] a_rdata_o,
+  output wire [31:0] a_rdata_o,
 
   // Puerto B: datos
   input  wire        b_req_i,
@@ -46,9 +46,11 @@ module pochoco_mem_rom #(
     .data_o (rom_data)
   );
 
-  always @(posedge clk_i) begin
-    if (a_req_i) a_rdata_o <= rom_data;
-  end
+  // Experimento B4 (rama exp/cpi): la ROM es combinacional, así que la
+  // instrucción se entrega en el mismo ciclo en que el core presenta el PC,
+  // sin el registro de instrucción. a_req_i queda sin uso.
+  assign a_rdata_o = rom_data;
+  wire _unused_a_req = &{1'b0, a_req_i};
 
   generate
     if (DataWords > 0) begin : g_ram

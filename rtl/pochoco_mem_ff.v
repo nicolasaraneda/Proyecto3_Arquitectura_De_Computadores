@@ -26,10 +26,10 @@ module pochoco_mem_ff #(
   input  wire        clk_i,
   input  wire        rst_ni,
 
-  // Puerto A: instrucciones
+  // Puerto A: instrucciones (combinacional en esta variante: experimento B4)
   input  wire        a_req_i,
   input  wire [31:0] a_addr_i,
-  output reg  [31:0] a_rdata_o,
+  output wire [31:0] a_rdata_o,
 
   // Puerto B: datos
   input  wire        b_req_i,
@@ -79,8 +79,11 @@ module pochoco_mem_ff #(
     end
   endgenerate
 
+  // Experimento B4 (rama exp/cpi): lectura de instrucciones combinacional.
+  assign a_rdata_o = a_in ? mem_q[32*a_word +: 32] : 32'b0;
+  wire _unused_a_req = &{1'b0, a_req_i};
+
   always @(posedge clk_i) begin
-    if (a_req_i) a_rdata_o <= a_in ? mem_q[32*a_word +: 32] : 32'b0;
     b_rdata_o <= b_in ? mem_q[32*b_word +: 32] : 32'b0;
   end
 
