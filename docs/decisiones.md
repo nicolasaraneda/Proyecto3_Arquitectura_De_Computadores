@@ -153,3 +153,10 @@ Cada decisión registra las opciones, la elegida, la razón y lo que se pierde c
 - Elegida: (b). Oeste, entradas (clk al centro del lado, rst_n y btn[3:0]); este, displays (seg1[6:0] y seg2[6:0], cada bus contiguo y en orden de bits); norte, led[3:0]; sur, spi_sclk, spi_mosi, spi_cs_n y spi_miso.
 - Razón: cada grupo iría a pads vecinos de un chip completo sin cruces, y el flujo de señales queda entrada, lógica, salida.
 - Qué se pierde: la libertad del flujo para acortar cables (se mide en A4).
+
+## D22. Exploraciones del bloque B en la corrida final (26-10-2026)
+
+- Opciones: (a) ninguna, la corrida final queda como está; (b) incorporar B5 (register file con latches y clock gating); (c) incorporar B2 (offset de byte registrado en la LSU).
+- Elegida: (a).
+- Razón: la corrida final ya cumple todos los criterios con margen (setup 65,2 ns y hold 0,18 ns en la peor esquina a T = 100 ns; período mínimo 25 ns). B2 gana 1 ns a cambio de más violaciones de slew (546 a 672); B5 reduce 9,3 % el área de celdas pero agrega latches, clock gating y préstamo de tiempo, y su WNS de setup se reporta en 0,000 por convención; B4 baja el CPI a la mitad pero rinde 15 % menos en MIPS; las variantes de B1 mejoran slew y capacitancia, que no son criterio de cierre, a costa de área. Cada cambio adoptado amplía lo que el grupo debe defender sin cambiar el cumplimiento de ningún criterio.
+- Qué se pierde: el 9,3 % de área de B5 y el nanosegundo de B2. Las exploraciones quedan documentadas en asic/exploraciones.md y en sus ramas exp/*.
