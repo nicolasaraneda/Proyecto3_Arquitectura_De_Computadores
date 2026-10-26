@@ -38,6 +38,7 @@ textos de las figuras se dibujan como polígonos con la fuente de KLayout
 (TextGenerator), que solo tiene mayúsculas sin acentos.
 """
 
+import math
 import os
 import re
 import sys
@@ -627,13 +628,15 @@ def figura_net(layout, deff, net, nombre):
                     elif en and linea.strip().startswith("Pin:"):
                         celdas_net.add(linea.split()[1].rsplit("/", 1)[0])
         c_cel = lz2.capa(0x1f77b4)
+        alto_z = max(2.0, z.width() / 70)          # texto proporcional al acercamiento
         for nm, celda, box in insts:
             if nm in celdas_net:
-                lz2.caja(c_cel, box)
-                lz2.texto(c_t, nm, box.left, box.top + 0.5, 1.6)
-        lz2.texto(c_t, f"{TAG}: acercamiento al net {net} (rojo); celdas conectadas en azul", z.left, z.top + 3, 2.2)
-        barra_escala(lz2, c_t, z, z.left, z.bottom - 8, largo=20.0, alto_texto=2.0)
-        caja2 = pya.DBox(z.left - 2, z.bottom - 14, z.right + 2, z.top + 8)
+                lz2.caja(c_cel, box.enlarged(0.5, 0.5))
+                lz2.texto(c_t, nm, box.left, box.top + 0.5, alto_z * 0.7)
+        lz2.texto(c_t, f"{TAG}: acercamiento al net {net} (rojo); celdas conectadas en azul", z.left, z.top + alto_z, alto_z)
+        largo = 10.0 ** int(math.log10(z.width() / 5))
+        barra_escala(lz2, c_t, z, z.left, z.bottom - 3 * alto_z, largo=largo, alto_texto=alto_z * 0.8)
+        caja2 = pya.DBox(z.left - 2, z.bottom - 5 * alto_z, z.right + 2, z.top + 3 * alto_z)
         lz2.guardar(os.path.join(OUT, f"{nombre}_zoom.png"), caja2, ANCHO_PX)
     print(f"net {net}: {n_shapes} tramos")
 
