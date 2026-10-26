@@ -50,7 +50,7 @@ module core_trace_tb;
 
   always #20 clk = ~clk;
 
-  integer f, ciclo;
+  integer f, ciclo, retiradas, ciclo_evt, retiradas_evt;
   reg [3:0]  led_prev;
   reg [13:0] seg_prev;
 
@@ -59,27 +59,44 @@ module core_trace_tb;
     repeat (4) @(posedge clk);
     #1 rst_n = 1'b1;
     wait (dut.u_soc.rst_ni);
-    ciclo    = 0;
-    led_prev = led;
-    seg_prev = {seg1, seg2};
+    ciclo     = 0;
+    retiradas = 0;
+    ciclo_evt = 0;
+    retiradas_evt = 0;
+    led_prev  = led;
+    seg_prev  = {seg1, seg2};
     repeat (`CICLOS) begin
       @(posedge clk);
       ciclo = ciclo + 1;
-      if (dut.u_soc.u_core.rf_we)
+      // Instrucción retirada: la etapa ID tiene una instrucción válida y el
+      // pipeline no está detenido (es el mismo "commit" de espino_id_stage).
+      if (dut.u_soc.u_core.instr_valid_id && !dut.u_soc.u_core.stall)
+        retiradas = retiradas + 1;
+      if (dut.u_soc.u_core.rf_we) begin
         $fdisplay(f, "%0d rf x%0d = %h", ciclo,
                   dut.u_soc.u_core.rf_waddr, dut.u_soc.u_core.rf_wdata);
-      if (dut.u_soc.u_core.data_req_o)
+        ciclo_evt = ciclo; retiradas_evt = retiradas;
+      end
+      if (dut.u_soc.u_core.data_req_o) begin
         $fdisplay(f, "%0d bus %s be=%b addr=%h wdata=%h", ciclo,
                   dut.u_soc.u_core.data_we_o ? "W" : "R",
                   dut.u_soc.u_core.data_be_o, dut.u_soc.u_core.data_addr_o,
                   dut.u_soc.u_core.data_wdata_o);
-      if (led !== led_prev || {seg1, seg2} !== seg_prev)
+        ciclo_evt = ciclo; retiradas_evt = retiradas;
+      end
+      if (led !== led_prev || {seg1, seg2} !== seg_prev) begin
         $fdisplay(f, "%0d io led=%b seg=%b_%b", ciclo, led, seg1, seg2);
+        ciclo_evt = ciclo; retiradas_evt = retiradas;
+      end
       led_prev = led;
       seg_prev = {seg1, seg2};
     end
     $fclose(f);
     $display("core_trace_tb: %0d ciclos, traza en %0s", `CICLOS, `TRAZA);
+    // CPI hasta el último evento de la traza: después el programa queda en
+    // un lazo infinito que no representa nada (el final de isa_test.s).
+    $display("core_trace_tb: CPI = %0d ciclos / %0d instrucciones retiradas = %.3f (hasta el ultimo evento de la traza)",
+             ciclo_evt, retiradas_evt, retiradas_evt > 0 ? $itor(ciclo_evt) / $itor(retiradas_evt) : 0.0);
     $finish;
   end
 
