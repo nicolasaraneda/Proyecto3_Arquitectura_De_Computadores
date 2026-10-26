@@ -89,6 +89,11 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
   contra 182.265 µm² (+4,4 % por los 69 flip-flops y muxes de la pre-decodificación);
   r0_t26: pendiente (tabla de `asic/final.md`).
 - Constantes de game.s para T = 100 ns: D10 (`CLK_HZ = 10000000`, `CYCLES_PER_TENTH = 1000000`).
+- Más allá de lo pedido, las ramas exp/* (`asic/exploraciones.md`) miden otros cambios de
+  RTL con la misma configuración: registrar el offset de byte en la LSU (B2) cierra a 24 ns
+  (41,7 MHz) con 0,6 % menos de área; el comparador de saltos dedicado (B3) no mueve el
+  período; ejecutar en un ciclo (B4) baja el CPI de 2,67 a 1,31 pero sube el período mínimo
+  a 60 ns (12,7 contra 15,0 MIPS) y ahorra 13 % de área.
 - Cada CLOCK_PERIOD reoptimiza el circuito: el área de celdas va de 182.265 µm² (100
   ns) a 189.817 µm² (26 y 24 ns) y las violaciones de slew de 546 a 532; f1_t26 y f1_t24
   dieron exactamente el mismo layout (mismo número de celdas, área y largo de cables): el

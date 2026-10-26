@@ -23,7 +23,8 @@ RAMAS = [
     ("exp/lsu-branch (B2+B3)", "exp/lsu-branch", "build/exp_lsu_branch/asic/rom/runs", "b23", "B2 y B3 juntos", "check PASS, equiv ciclo a ciclo", 2.953, 2.665),
     ("exp/cpi (B4)", "exp/cpi", "build/exp_cpi/asic/rom/runs", "b4", "ROM y banco combinacionales, decode en el fetch, 1 instrucción por ciclo", "check PASS, equiv funcional", 1.004, 1.312),
     ("exp/rf-latch (B5)", "exp/rf-latch", "build/exp_rf_latch/asic/rom/runs", "b5", "banco de registros con latches y clock gating", "check PASS, equiv ciclo a ciclo", 2.953, 2.665),
-    ("exp/signoff (B1)", "exp/signoff", "build/exp_signoff/asic/rom/runs", "b1", "solo configuración del flujo (mejor variante)", "misma RTL que main", 2.953, 2.665),
+    ("exp/signoff (B1), variante b1c", "exp/signoff", "build/exp_signoff/asic/rom/runs", "b1c", "reparación post-GRT con márgenes de 30 % (mejor variante dentro del 1 % de área)", "mismo RTL que main", 2.953, 2.665),
+    ("exp/signoff (B1), variante b1g", "exp/signoff", "build/exp_signoff/asic/rom/runs", "b1g", "márgenes del repair de placement en 30 %", "mismo RTL que main", 2.953, 2.665),
 ]
 
 
