@@ -111,8 +111,11 @@ def leer_checks(path):
             continue
         if sec:
             p = linea.split()
-            if len(p) >= 4 and re.match(r"^-?[0-9.]+$", p[1]):
-                out[sec].append((p[0], float(p[1]), float(p[2]), float(p[3])))
+            nums = [float(x) for x in p[1:] if re.match(r"^-?[0-9.]+$", x)]
+            if len(p) >= 3 and len(nums) >= 2:
+                # las filas de fanout sin slack numérico traen "limite valor (VIOLATED)"
+                slack = nums[2] if len(nums) >= 3 else nums[0] - nums[1]
+                out[sec].append((p[0], nums[0], nums[1], slack))
             elif not linea.strip():
                 sec = None
     return out
