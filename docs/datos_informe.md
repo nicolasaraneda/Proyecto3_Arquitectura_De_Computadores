@@ -24,7 +24,8 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
 - Datos de la corrida final (`asic/rom/resultados/final/metrics.json`):
   die 630,6 x 648,52 µm = 408.957 µm² (0,409 mm²); core 379.800 µm²; área de celdas
   estándar 182.265 µm²; utilización 48,0 %; 8.670 celdas estándar, 990 flip-flops;
-  largo de cables 352.253 µm; potencia estimada 11,3 mW a 10 MHz (nom_tt).
+  largo de cables 352.253 µm; potencia estimada 8,97 mW a 10 MHz en nom_tt (`power.rpt` de esa esquina; los 11,3 mW de
+  `power__total` en `metrics.json` son de max_ff, la última esquina que procesa el flujo).
 
 ## 3.1. Construcciones dependientes de la FPGA
 

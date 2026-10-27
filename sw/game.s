@@ -145,9 +145,9 @@
 # Cuando toca armar una ronda se leen los 2 bits bajos del estado que haya en
 # ese momento. El número de ronda NO entra en el cálculo del objetivo.
 #
-# El paso del LFSR va DENTRO del loop de polling, no afuera: el loop son ~10
-# ciclos, o sea una vuelta cada 0,4 us. Una reacción de 300 ms son ~750.000
-# pasos. Para repetir una partida habría que repetir cada tiempo de reacción
+# El paso del LFSR va DENTRO del loop de polling, no afuera: el loop son 13
+# ciclos por cualquiera de sus dos caminos, o sea una vuelta cada 1,3 us a
+# 10 MHz. Una reacción de 300 ms son ~230.000 pasos. Para repetir una partida habría que repetir cada tiempo de reacción
 # con precisión de microsegundos.
 #
 # CUIDADO: el estado cero es un punto fijo. Si la semilla sale 0, forzar a 1.

@@ -24,7 +24,7 @@ resultado queda en `asic/sim/resultado.md`.
 
 | Qué | Macro | Simulación | Por qué |
 |---|---|---|---|
-| `CYCLES_PER_TENTH` (game.s, `-D`) | 1.000.000 | 1 | Una "décima" es un ciclo: el display muestra directamente los ciclos medidos (saturados en 99) y las esperas de 30, 12 y 10 décimas duran decenas de ciclos en vez de millones. El programa es el mismo `sw/game.s`; cambian 2 palabras de la ROM (los `li` de la constante). |
+| `CYCLES_PER_TENTH` (game.s, `-D`) | 1.000.000 | 1 | Una "décima" es un ciclo: el display muestra directamente los ciclos medidos (saturados en 99) y las esperas de 30, 12 y 10 décimas duran decenas de ciclos en vez de millones. El programa es el mismo `sw/game.s`; los dos `li` de la constante pasan de dos instrucciones a una (`addi`), así que el programa queda de 113 palabras en vez de 115 y las direcciones siguientes se corren (el assembler recalcula los saltos). |
 | `DebounceDivBits` | 15 | 2 | Tick del debounce cada 4 ciclos en vez de cada 32.768: un botón se acepta en unos 12 ciclos. Va por `SYNTH_PARAMETERS` en el netlist (queda horneado) y por parámetro en el RTL. |
 | Estímulos | botones físicos | `asic/sim/estimulos.txt` | Ciclos absolutos fijos para que las dos simulaciones vean lo mismo. |
 | Período | 100 ns | 100 ns | Sin efecto en una simulación sin retardos; es el real para la variante con SDF. |
@@ -46,7 +46,7 @@ enciende el LED y dura 60 ciclos.
 | 2141 a 2201 | 0010 | ronda 2: LED objetivo 0001 en el ciclo 2121; botón incorrecto: EE en el ciclo 2181, LEDs apagados en 2183, la ronda vuelve a 02 en 2353 |
 | 2719 a 2779 | 0001 | reintento de la ronda 2: LED 0001 en 2699; acierto, 57 en el ciclo 3492; sigue la ronda 03 |
 
-El valor 57 es determinista: 20 ciclos hasta la pulsación, 2 del sincronizador, 8 a 12
+El valor 57 es determinista: 20 ciclos hasta la pulsación, 2 del sincronizador, 12 a 15
 del debounce y el resto del lazo de polling y de la lectura de CYCLES del programa.
 
 ## Resultado

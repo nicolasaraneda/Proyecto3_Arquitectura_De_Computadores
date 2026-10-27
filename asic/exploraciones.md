@@ -8,8 +8,8 @@ con la misma configuración final (`asic/rom/config.yaml`), y se verifican con
 `sw/isa_test.s` contra el commit 116fa20: idéntica ciclo a ciclo, o en el modo
 funcional, misma secuencia de escrituras al banco, accesos al bus y salidas).
 
-Referencia (main, configuración final D20 y D21): período mínimo 26 ns (f1_t26,
-WNS 1,996 ns en max_ss; 24 ns no cierra por 0,004 ns), 38,5 MHz; área de celdas
+Referencia (main, configuración final D20 y D21): período mínimo 25 ns (f1_t25,
+WNS 0,996 ns en max_ss; 24 ns no cierra por 0,004 ns), 40,0 MHz; área de celdas
 estándar 182.265 µm² a 100 ns; CPI 2,953 en `isa_test.s` y 2,665 en el juego
 completo (`game_tb`); 546 violaciones de max slew y 36 de max capacitancia a 100 ns.
 

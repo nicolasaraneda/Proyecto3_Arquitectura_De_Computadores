@@ -19,7 +19,7 @@ Los tres avisos que siguen apareciendo en la corrida final, con la evidencia de 
 
 - Paso: `56-openroad-irdropreport` (análisis de caída de tensión con `analyze_power_grid`).
 - Causa: `VSRC_LOC_FILES` da la posición de los puntos por donde entra la alimentación (los pads o bumps de un chip completo). Sin ese dato OpenROAD supone fuentes en el borde de la grilla, lo que subestima la caída real de un chip. Este diseño es un macro sin pads, así que el dato no existe: es el caso que el propio aviso dice que se puede ignorar.
-- Resultado del análisis igual: caída máxima 0,148 mV en VDD y 0,248 mV en VSS (`irdrop.rpt`), con un consumo total estimado de 35 mW a 10 MHz (`power__total`), frente a 5 V de alimentación: irrelevante aun con un error grande.
+- Resultado del análisis igual: caída máxima 0,148 mV en VDD y 0,248 mV en VSS (`irdrop.rpt`), con una potencia total de 8,97 mW a 10 MHz en la esquina típica (la que usa el análisis, `irdrop.rpt`), frente a 5 V de alimentación: irrelevante aun con un error grande.
 
 ## Otros avisos del log
 
