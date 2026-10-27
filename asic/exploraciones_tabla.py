@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Tabla resumen de las ramas exp/* (bloque B) a partir de los metrics.json de sus corridas.
 
-Uso: python3 asic/exploraciones_tabla.py [--md asic/exploraciones_tabla.md]
+Uso: python3 asic/exploraciones_tabla.py [--md asic/exploraciones_tabla.md] [--ramas ramas.json]
 Para cada rama busca sus corridas en build/exp_<nombre>/asic/rom/runs/<prefijo>_t<T>
-(o en asic/rom/runs para main) y calcula: período mínimo que cierra (criterio D14 más
-DRC, LVS y antenas), frecuencia máxima, área de celdas estándar a 100 ns y violaciones
-de slew y capacitancia a 100 ns. El CPI se toma de los valores medidos con
-core_trace_tb y game_tb (constantes abajo). MIPS = f máx / CPI del juego.
+(o en asic/rom/runs para main; T admite decimales con "p": f1_t24p5 es 24,5 ns) y calcula:
+período mínimo que cierra (criterio D14 más DRC, LVS y antenas), frecuencia máxima, área de
+celdas estándar a 100 ns y violaciones de slew y capacitancia a 100 ns. El CPI se toma de los
+valores medidos con core_trace_tb y game_tb (constantes abajo o en el JSON). MIPS = f máx / CPI
+del juego. Con --ramas se lee la lista de filas de un JSON (lista de listas con los mismos
+campos que RAMAS) en vez de la lista fija; sirve para las ramas de la sesión del 27-10-2026.
 """
 import argparse
 import glob
@@ -39,10 +41,12 @@ def corridas(carpeta, prefijo):
     out = {}
     for run in glob.glob(os.path.join(carpeta, prefijo + "*")):
         tag = os.path.basename(run)
-        mt = re.search(r"_t(\d+)$", tag)
+        mt = re.search(r"_t(\d+)(?:p(\d+))?$", tag)
         if not mt or not os.path.exists(os.path.join(run, "final", "metrics.json")):
             continue
-        out[(tag, int(mt.group(1)))] = json.load(open(os.path.join(run, "final", "metrics.json")))
+        T = float(mt.group(1) + ("." + mt.group(2) if mt.group(2) else ""))
+        T = int(T) if T == int(T) else T
+        out[(tag, T)] = json.load(open(os.path.join(run, "final", "metrics.json")))
     if prefijo == "f1":
         p = "asic/rom/runs/final/final/metrics.json"
         if os.path.exists(p):
@@ -60,10 +64,12 @@ def commit_de(rama):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--md", default="asic/exploraciones_tabla.md")
+    ap.add_argument("--ramas", help="JSON con la lista de filas (mismos campos que RAMAS)")
     a = ap.parse_args()
+    ramas = [tuple(r) for r in json.load(open(a.ramas))] if a.ramas else RAMAS
     L = ["| rama | commit | cambio | verificación | corridas (T: WNS max_ss) | T mínimo que cierra (ns) | f máx (MHz) | CPI isa_test | CPI juego | MIPS (f/CPI juego) | área stdcell a 100 ns (µm²) | slew / cap a 100 ns |",
          "|---|---|---|---|---|---|---|---|---|---|---|---|"]
-    for nombre, rama, carpeta, prefijo, cambio, verif, cpi_isa, cpi_juego in RAMAS:
+    for nombre, rama, carpeta, prefijo, cambio, verif, cpi_isa, cpi_juego in ramas:
         runs = corridas(carpeta, prefijo)
         if not runs:
             L.append(f"| {nombre} | {commit_de(rama)} | {cambio} | {verif} | sin corridas | | | {cpi_isa:.3f} | {cpi_juego:.3f} | | | |")
@@ -72,6 +78,7 @@ def main():
         que_cierran = [T for (tag, T), m in runs.items() if cierra(m)]
         tmin = min(que_cierran) if que_cierran else None
         f = 1000 / tmin if tmin else None
+        tmin = f"{tmin:g}" if tmin is not None else None
         m100 = [m for (tag, T), m in runs.items() if T == 100]
         area = f"{m100[0]['design__instance__area__stdcell']:.0f}" if m100 else "sin corrida a 100"
         sc = f"{m100[0]['design__max_slew_violation__count']} / {m100[0]['design__max_cap_violation__count']}" if m100 else ""

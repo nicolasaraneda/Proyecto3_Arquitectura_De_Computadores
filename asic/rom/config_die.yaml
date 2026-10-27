@@ -1,0 +1,54 @@
+# Variante de asic/rom/config.yaml con el die dado en absoluto (sección 3.5, corrida
+# d4_die): FP_SIZING: absolute y DIE_AREA de 808,64 x 505,68 µm, la misma área que la
+# corrida final (408.913 contra 408.957 µm², 0,011 % menos) pero con relación de aspecto
+# 1,6:1 en vez de 1:1 (la final mide 630,60 x 648,52 µm). El ancho y el alto se eligen
+# para que el core, que floorplan.tcl calcula restando los márgenes de siempre
+# (LEFT/RIGHT_MARGIN_MULT = 12 sitios = 6,72 µm; BOTTOM/TOP_MARGIN_MULT = 4 filas =
+# 15,68 µm) porque CORE_AREA no se define, sea un número entero de sitios y de filas:
+# 1420 sitios de 0,56 µm x 121 filas de 3,92 µm = 795,20 x 474,32 µm = 377.179 µm²
+# (la final: 1102 x 157 = 617,12 x 615,44 µm = 379.800 µm²). FP_CORE_UTIL no dimensiona
+# el die en este modo, pero se mantiene en 40 porque fija la densidad objetivo del
+# placement global (PL_TARGET_DENSITY_PCT = FP_CORE_UTIL + 10 si no se define).
+# Todo lo demás es idéntico a la configuración final.
+# Estrategia 1 de memoria (sección 3.2): ROM combinacional generada por el assembler más una RAM de datos.
+# Mismo RTL para ambas estrategias; la elige MemStrategy (ver docs/memory_map.md).
+DESIGN_NAME: asic_top
+PDK: gf180mcuD
+VERILOG_FILES:
+  - dir::../../rtl/*.v
+  - dir::../../rtl/espino_core/*.v
+  - dir::../../rtl/gen/*.v
+VERILOG_INCLUDE_DIRS:
+  - dir::../../rtl/gen
+SYNTH_PARAMETERS:
+  - MemStrategy=1
+  - DataWords=4
+# Jerarquía conservada para identificar estos bloques en los reportes y en el
+# layout (secciones 3.3, 3.4 y 3.6; docs/decisiones.md, D12).
+SYNTH_KEEP_HIERARCHY_MODULES:
+  - espino_register_file
+  - espino_alu
+  - pochoco_cycle_counter
+# Celdas excluidas de la síntesis y del buffering: las de retardo (D15) y el
+# buffer más chico, buf_1, que explicaba el 68 % de los nets con violación de
+# slew y las cadenas de buffers de la ruta crítica (D20).
+EXTRA_EXCLUDED_CELLS:
+  - gf180mcu_fd_sc_mcu7t5v0__dly*
+  - gf180mcu_fd_sc_mcu7t5v0__buf_1
+# Margen de setup del resizer durante el placement, en ns (D20): el resizer
+# redimensiona hasta dejar 10 ns de holgura, no solo hasta cumplir.
+PL_RESIZER_SETUP_SLACK_MARGIN: 10
+# Ubicación de los terminales por función (D21), en asic/rom/pines.cfg (el
+# formato no admite comentarios): #W, #E, #N y #S abren cada lado y los
+# terminales se reparten a espacios iguales de la coordenada menor a la mayor
+# (de abajo hacia arriba en oeste y este, de izquierda a derecha en norte y
+# sur); "$n" reserva n posiciones vacías. Oeste: btn[0] a btn[3], clk en la
+# quinta de nueve posiciones (el centro del lado), rst_n y tres vacías. Este:
+# seg1[6:0] y seg2[6:0], cada bus contiguo y en orden de bits. Norte: led[3:0].
+# Sur: spi_sclk, spi_mosi, spi_cs_n, spi_miso.
+IO_PIN_ORDER_CFG: dir::pines.cfg
+CLOCK_PORT: clk
+CLOCK_PERIOD: 100
+FP_CORE_UTIL: 40
+FP_SIZING: absolute
+DIE_AREA: [0, 0, 808.64, 505.68]

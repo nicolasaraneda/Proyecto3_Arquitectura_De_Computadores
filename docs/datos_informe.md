@@ -71,21 +71,30 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
 
 - Barrido de CLOCK_PERIOD con la configuración final (corridas `final` y `f1_*`):
   tabla en `asic/final.md` (sección del barrido) y gráfico `docs/figuras/periodo.png`.
-  Resultado: cierra a 100, 32, 30, 26 y 25 ns; no cierra a 24 ns (WNS -0,004 ns en
-  max_ss). Período mínimo 25 ns, 40,0 MHz (ver cierre.md de f1_t25). f1_t28 se detuvo
+  Resultado: cierra a 100, 32, 30, 26, 25 y 24,5 ns; no cierra a 24 ns (WNS -0,004 ns en
+  max_ss). Período mínimo 24,5 ns, 40,8 MHz (1/24,5 ns = 40,82 MHz; corrida `f1_t24p5` del
+  27-10-2026, `asic/rom/resultados/f1_t24p5/cierre.md`: WNS de setup 0,496 ns y TNS 0 en
+  max_ss, hold 0,178 ns en la peor esquina, DRC de Magic, LVS y antenas en 0). Con 24,5 ns
+  quedan 0,5 ns entre el último período que cierra y el primero que no (24 ns), que es la
+  resolución que fija la regla de la sesión. Con el CPI del juego (2,665) son 15,3 MIPS
+  (40,82 / 2,665 = 15,32; con 25 ns eran 15,0). f1_t28 se detuvo
   a los 40 minutos en ResizerTimingPostCTS (regla de tiempo) y no cuenta.
 - WNS y TNS de setup y hold en nom_tt_025C_5v00 y max_ss_125C_4v50: columnas de la
   tabla de `asic/final.md` (de `metrics.json` de cada corrida).
-- Ruta crítica del período mínimo (`asic/rom/resultados/f1_t25/layout/ruta_critica.txt`
-  y `.png`, esquina max_ss, T = 25 ns): empieza en `_4189_` (dffq_1, registro de
+- Ruta crítica del período mínimo (`asic/rom/resultados/f1_t24p5/layout/ruta_critica.txt`
+  y `.png`, esquina max_ss, T = 24,5 ns; es la misma ruta, celda por celda, que la de f1_t25
+  en `asic/rom/resultados/f1_t25/layout/`, porque las dos corridas tienen el mismo layout):
+  empieza en `_4189_` (dffq_1, registro de
   pre-decodificación `alu_operator[1]`, etapa ID, 1 celda), pasa por la ALU (comparador,
   `u_soc.u_core.u_id.u_alu`, 9 celdas) hasta `lsu_addr[1]`, la alineación de la carga en
   la LSU (lógica aplanada sin nombre jerárquico, 11 celdas), el mux de write-back
   (`rf_wdata[11]`) y el banco de registros (4 celdas), y termina en
   `u_soc.u_core.u_rf/_2933_` (dffq_1, bit de un registro del banco): 25 celdas numeradas
   desde el startpoint, más 3 buffers del camino de reloj (en gris, sin número). Llegada
-  del dato 25,784 ns, tiempo requerido 26,780 ns, slack 0,996 ns
-  (`asic/rom/resultados/f1_t25/max_ss_125C_4v50_ruta_critica.rpt`). Función: ejecución
+  del dato 25,784 ns, tiempo requerido 26,280 ns, slack 0,496 ns
+  (`asic/rom/resultados/f1_t24p5/max_ss_125C_4v50_ruta_critica.rpt`; a 25 ns el mismo
+  camino tiene requerido 26,780 ns y slack 0,996 ns,
+  `asic/rom/resultados/f1_t25/max_ss_125C_4v50_ruta_critica.rpt`). Función: ejecución
   (ALU) -> acceso a memoria (alineación del dato) -> write-back. Es la misma ruta que D18
   describe, ahora sin el decode, y la misma de f1_t26 (mismo layout).
 - Cambio de RTL (D18, pre-decodificación): antes s1_t55 (55 ns, WNS 1,764) y p1_t42
@@ -98,29 +107,80 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
   RTL con la misma configuración: registrar el offset de byte en la LSU (B2) cierra a 24 ns
   (41,7 MHz) con 0,6 % menos de área; el comparador de saltos dedicado (B3) no mueve el
   período; ejecutar en un ciclo (B4) baja el CPI de 2,67 a 1,31 pero sube el período mínimo
-  a 60 ns (12,7 contra 15,0 MIPS) y ahorra 13 % de área.
+  a 60 ns (12,7 contra 15,3 MIPS de main a 24,5 ns) y ahorra 13 % de área.
 - Cada CLOCK_PERIOD reoptimiza el circuito: el área de celdas va de 182.265 µm² (100
-  ns) a 189.817 µm² (26 y 24 ns) y las violaciones de slew de 546 a 532; f1_t26 y f1_t24
-  dieron exactamente el mismo layout (mismo número de celdas, área y largo de cables): el
-  resizer llega a su límite con el margen de 10 ns (D20) y de ahí para abajo solo cambia
-  el slack reportado.
+  ns) a 189.817 µm² (26 a 24 ns) y las violaciones de slew de 546 a 532; f1_t26, f1_t25,
+  f1_t24p5 y f1_t24 dieron exactamente el mismo layout (8.708 celdas estándar, 189.817 µm²
+  y 354.897 µm de cables, `metrics.json` de cada una): el resizer llega a su límite con el
+  margen de 10 ns (D20) y de ahí para abajo solo cambia el slack reportado, 1 ns de WNS
+  por cada ns de período (0,996 a 25 ns, 0,496 a 24,5 ns, -0,004 a 24 ns).
 
 ## 3.5. Floorplan, utilización y costo
 
 - Barrido de FP_CORE_UTIL a 100 ns (corridas `final` = 40, `u1_u50`, `u1_u60`,
-  `u1_u70`, `u1_u80`, `u1_u90`): tabla en `asic/final.md`, gráfico
+  `u1_u70`, `u1_u72`, `u1_u75`, `u1_u78`, `u1_u79`, `u1_u80`, `u1_u90`; las de 72, 75, 78 y
+  79 % son del 27-10-2026): tabla en `asic/final.md`, gráfico
   `docs/figuras/utilizacion.png` (DRC de ruteo por iteración, largo de cables global y
   detallado, slew, capacitancia, antena, área del die, WNS).
   Resultados: 50 % cierra (die 329.861 µm², utilización real 59 %), 60 % cierra
   (276.917 µm², 70 %), 70 % cierra (238.967 µm², 81 %; el ruteo detallado parte con
-  2.149 violaciones de DRC y las resuelve), 80 % falla en CTS (`[DPL-0036] Detailed
-  placement failed`, log `asic/logs/u1_u80.log`), 90 % falla en el placement global
+  2.149 violaciones de DRC y las resuelve), 72 % cierra (232.629 µm², 83 %; WNS 65,7 ns),
+  75 % cierra (223.753 µm², 87 %; WNS 65,8 ns), 78 % cierra (215.545 µm², 90 %; WNS
+  59,6 ns, hold 0,182 ns; cables 425.175 µm contra 318.333 a 70 %, +34 %; slew 880 y
+  capacitancia 49 contra 392 y 27), 79 % falla en CTS (`[DPL-0036] Detailed placement
+  failed`: al legalizar después de insertar los buffers del árbol de reloj quedan 6
+  instancias del banco de registros sin lugar; log `asic/logs/u1_u79.log`; die 452,6 x
+  470,5 µm y utilización 87,5 % según el placement global, GPL-0019), 80 % falla en el
+  mismo paso y con el mismo mensaje (22 instancias; log `asic/logs/u1_u80.log`), 90 % falla en el placement global
   (`[GPL-0301] Utilization 100.531 % exceeds 100%`, `asic/logs/u1_u90.log`). Los logs
   no se versionan (`asic/logs/` está en .gitignore); el extracto de cada falla está en
-  `asic/rom/resultados/u1_u80/falla.txt` y `asic/rom/resultados/u1_u90/falla.txt`. Área
-  mínima que cumple los criterios: u1_u70, 0,239 mm² (die 480,0 x 497,9 µm), con DRC,
-  LVS y antenas limpios y WNS de setup 64,1 ns en max_ss. Las violaciones de slew bajan
-  con la utilización (546, 438, 378, 392) porque los cables se acortan.
+  `asic/rom/resultados/u1_u79/falla.txt`, `asic/rom/resultados/u1_u80/falla.txt` y
+  `asic/rom/resultados/u1_u90/falla.txt`. Cada corrida que cierra tiene su `cierre.md` en
+  `asic/rom/resultados/<tag>/` y sus números salen de `metrics.json` (`design__die__area`,
+  `design__die__bbox`, `design__instance__utilization`, `timing__setup__ws__corner:max_ss_125C_4v50`,
+  `route__wirelength`, `design__max_slew_violation__count`, `design__max_cap_violation__count`).
+  Área mínima que cumple los criterios: u1_u78 (78 %), die 455,4 x 473,3 µm = 215.545 µm²
+  (0,216 mm²; `design__die__bbox` 0 0 455.395 473.315), 47,3 % menos que la final (408.957
+  µm²) y 9,8 % menos que u1_u70 (238.967 µm²), con DRC, LVS y antenas limpios, WNS de setup
+  59,6 ns y hold 0,182 ns en la peor esquina (`asic/rom/resultados/u1_u78/cierre.md`). La
+  utilización máxima que cierra es 78 %: 79 % ya falla. A 78 % cambia la ruta crítica: la
+  de la ALU al banco de registros queda con 60,5 ns de slack y la peor pasa a ser la salida
+  `seg2[2]` del display (startpoint `_4486_`, `u_soc.u_periph.digit_q[1]`, slack 59,6 ns
+  contra 69,2 ns a 75 % y 70,5 ns en la final): el flip-flop sale con un slew de 4,13 ns
+  sobre 0,148 pF y el decodificador de 7 segmentos sigue con slews de 2,7 a 3,5 ns
+  (`asic/rom/resultados/u1_u78/max_ss_125C_4v50_ruta_critica.rpt`), lo mismo que muestra el
+  salto de slew a 880 pines. Las violaciones de slew bajan
+  con la utilización hasta 70 % (546, 438, 378, 392) porque los cables se acortan, se
+  mantienen a 72 y 75 % (388, 424) y suben a 78 % (880): con el core casi lleno el
+  placement ya no puede acercar las celdas y el largo de cables vuelve a crecer.
+- Relación de aspecto del die (corrida `d4_die`, `asic/rom/config_die.yaml`, 27-10-2026;
+  tabla "Floorplan con DIE_AREA absoluto" en `asic/final.md`,
+  `asic/rom/resultados/d4_die/cierre.md`, `metrics.json` y `layout/bloques.png`): mismo
+  diseño y configuración que la final, pero con `FP_SIZING: absolute` y
+  `DIE_AREA: [0, 0, 808.64, 505.68]`, un die de 1,6:1 con la misma área (408.913 contra
+  408.957 µm², 0,011 % menos). `CORE_AREA` no es obligatoria: `floorplan.tcl` de LibreLane
+  la calcula restando los márgenes de siempre (12 sitios = 6,72 µm a los lados, 4 filas =
+  15,68 µm arriba y abajo) cuando no se define, y el die se eligió para que el core sea
+  entero en sitios y filas: 1420 x 121 (795,20 x 474,32 µm, 377.179 µm²) contra 1102 x 157
+  (617,12 x 615,44 µm, 379.800 µm²) en la final (`13-openroad-floorplan/openroad-floorplan.log`
+  de cada corrida, IFP-0001 e IFP-0102). `FP_CORE_UTIL` ya no dimensiona el die pero sigue
+  fijando la densidad objetivo del placement (53,5 % contra 53,3 %). Cierra con los mismos
+  criterios. Efecto medido contra la final (`metrics.json` de cada una): cables 364.879
+  contra 352.253 µm (+3,6 %; ruteo global 509.586 contra 494.524 µm), cable más largo 975
+  contra 1.409 µm (`route__wirelength__max`), WNS de setup 61,672 contra 65,223 ns en max_ss
+  (3,6 ns menos; hold 0,156 contra 0,178 ns), slew 567 contra 546 pines, capacitancia 33
+  contra 36, DRC del ruteo detallado por iteración 1.302, 279, 271, 0 contra 1.546, 501,
+  379, 0, celdas estándar 8.590 contra 8.670 (96 contra 110 buffers de reloj), área de
+  celdas 180.939 contra 182.265 µm² (-0,7 %) y potencia sin actividad 8,69 contra 8,97 mW
+  en nom_tt (`power.rpt` de `55-openroad-stapostpnr`). Ruta crítica
+  (`asic/rom/resultados/d4_die/layout/ruta_critica.txt`): de `_4191_` (`alu_op_a_sel[2]`,
+  etapa ID) por el mux del operando A, la ALU hasta `lsu_addr[0]`, la alineación de la
+  carga y `rf_wdata[23]` hasta `u_soc.u_core.u_rf/_2625_`, 30 celdas (la de la final a
+  100 ns va de `_4191_` a `_4309_`). Lectura: en el die alargado el banco de registros se
+  extiende a lo ancho del core (envolvente de x = 7,8 a 800,8 µm, `bloques.txt`, contra
+  22,4 a 455,3 µm en la final) y el total de cables crece 3,6 %, aunque el cable más largo
+  se acorta; el timing a 100 ns empeora 3,6 ns y ningún criterio cambia. No se corrió a
+  24,5 ns, así que no se sabe si el aspecto mueve el período mínimo.
 - Terminales (D21, `asic/rom/pines.cfg`): oeste entradas (btn[3:0], clk al centro,
   rst_n), este displays (seg1[6:0], seg2[6:0]), norte led[3:0], sur SPI. Son
   rectángulos de metal en el borde del macro (Metal3 en oeste y este, Metal2 en norte y
@@ -136,14 +196,16 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
   (las dos terminan en 0), el timing es el mismo (WNS 65,21 contra 65,22 ns en max_ss) y
   las violaciones de slew y capacitancia cambian poco (569/31 contra 546/36). Es decir, D21
   cuesta casi nada en el macro y ordena los terminales para los pads.
-- Costo a US$23.000/mm²: final 0,409 mm² -> US$9.406; mínima (u1_u70) 0,239 mm² ->
-  US$5.496 (42 % menos); estrategia 2 (s2_t100) 1,794 mm² -> US$41.266.
+- Costo a US$23.000/mm²: final 0,409 mm² -> US$9.406; u1_u70 0,239 mm² -> US$5.496
+  (42 % menos); mínima (u1_u78) 0,216 mm² -> US$4.958 (47 % menos que la final; 0,215545 x
+  23.000); d4_die 0,409 mm² -> US$9.405 (misma área que la final); estrategia 2 (s2_t100)
+  1,794 mm² -> US$41.266.
   Limitaciones del modelo lineal: el costo real de un prototipo se paga por lote
   (multi-project wafer) con un mínimo de área, el macro no incluye pads, anillo de
   sello ni empaque, el precio por mm² baja con el volumen, y una utilización alta
-  ahorra área pero cuesta cierre (80 % ya no coloca). Decisión de mayor impacto en
+  ahorra área pero cuesta cierre (79 % ya no coloca). Decisión de mayor impacto en
   área y costo: la estrategia de memoria (D17): 4,4 veces en área y costo; después
-  la utilización (40 a 70 %: 0,409 a 0,239 mm², 42 %).
+  la utilización (40 a 78 %: 0,409 a 0,216 mm², 47 %; 40 a 70 %: 42 %).
 
 ## 3.6. Signoff y layout
 

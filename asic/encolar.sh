@@ -11,7 +11,11 @@ mkdir -p asic/logs; touch "$COLA"
 dir="$1"; cfg="$2"; tag="$3"; t="$4"; shift 4
 [ -d "$dir" ] || { echo "no existe el directorio $dir" >&2; exit 1; }
 [ -f "$dir/$cfg" ] || { echo "no existe $dir/$cfg" >&2; exit 1; }
-if grep -q "^[0-9]* [^ ]* [^ ]* $tag " "$COLA"; then echo "el tag $tag ya está en la cola" >&2; exit 1; fi
+if grep -q "^[0-9]* [^ ]* [^ ]* $tag " "$COLA"; then
+  echo "el tag $tag ya está en la cola: esa corrida ya se encoló antes (quizás por una ejecución previa e interrumpida de tu mismo frente)." >&2
+  echo "Estado: $(grep " $tag " asic/logs/cola_estado.txt | tail -1). Si terminó, usa su resultado en $dir/$(dirname "$cfg")/runs/$tag en vez de repetirla; si falló o quedó incompleta y quieres repetirla, usa otro tag (p. ej. ${tag}_b)." >&2
+  exit 1
+fi
 id=$(( $(grep -c "^[0-9]" "$COLA" 2>/dev/null || true) + 1 ))
 extra=""
 for kv in "$@"; do
