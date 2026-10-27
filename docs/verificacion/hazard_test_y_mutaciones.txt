@@ -1,0 +1,106 @@
+##### make equiv PROG=hazard_test REF=main MODO=funcional
+python3 assembler/asm.py sw/hazard_test.s -o build/hazard_test/hazard_test.hex --vh build/hazard_test/game_image.vh --rom build/hazard_test/pochoco_rom.v
+sw/hazard_test.s -> build/hazard_test/hazard_test.hex (483 palabras, 1932 bytes)
+sw/hazard_test.s -> build/hazard_test/game_image.vh (imagen Verilog, 483 palabras)
+sw/hazard_test.s -> build/hazard_test/pochoco_rom.v (ROM combinacional, 483 palabras)
+equiv (ref, estrategia 1): core_trace_tb: CPI = 2999 ciclos / 1130 instrucciones retiradas = 2.654 (hasta el ultimo evento de la traza)
+equiv (ref, estrategia 1): core_trace_tb: monitor de X: 0 valores desconocidos usados en 1023 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv (act, estrategia 1): core_trace_tb: CPI = 2999 ciclos / 1695 instrucciones retiradas = 1.769 (hasta el ultimo evento de la traza)
+equiv (act, estrategia 1): core_trace_tb: monitor de X: 0 valores desconocidos usados en 1588 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv: hazard_test, estrategia 1, modo funcional, main contra el RTL actual:
+  rf: 348 eventos iguales (ref 348, act 348)
+  bus: 63 eventos iguales (ref 63, act 63)
+  io: 2 eventos iguales (ref 2, act 2)
+  secuencias de eventos equivalentes (sin ciclos)
+equiv (ref, estrategia 2): core_trace_tb: CPI = 2999 ciclos / 1130 instrucciones retiradas = 2.654 (hasta el ultimo evento de la traza)
+equiv (ref, estrategia 2): core_trace_tb: monitor de X: 0 valores desconocidos usados en 1023 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv (act, estrategia 2): core_trace_tb: CPI = 2999 ciclos / 1130 instrucciones retiradas = 2.654 (hasta el ultimo evento de la traza)
+equiv (act, estrategia 2): core_trace_tb: monitor de X: 0 valores desconocidos usados en 1023 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv: hazard_test, estrategia 2, modo funcional, main contra el RTL actual:
+  rf: 348 eventos iguales (ref 348, act 348)
+  bus: 63 eventos iguales (ref 63, act 63)
+  io: 2 eventos iguales (ref 2, act 2)
+  secuencias de eventos equivalentes (sin ciclos)
+io act m1:
+544 io led=0000 seg=1001111_1111111
+549 io led=1111 seg=1001111_1111111
+##### MUTA_FWD: make equiv PROG=hazard_test REF=main MODO=funcional IVERILOG="iverilog -DMUTA_FWD"
+equiv (ref, estrategia 1): core_trace_tb: CPI = 2999 ciclos / 1130 instrucciones retiradas = 2.654 (hasta el ultimo evento de la traza)
+equiv (ref, estrategia 1): core_trace_tb: monitor de X: 0 valores desconocidos usados en 1023 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv (act, estrategia 1): core_trace_tb: CPI = 3000 ciclos / 2352 instrucciones retiradas = 1.276 (hasta el ultimo evento de la traza)
+equiv (act, estrategia 1): core_trace_tb: monitor de X: 77 valores desconocidos usados en 1884 escrituras al banco (rf_wdata 36, bus 0, operandos ALU 41, salidas 0)
+equiv: hazard_test, estrategia 1, modo funcional, main contra el RTL actual:
+  DIFIEREN (rf) en el evento 6: ref='rf x5 = 0000000f' act='rf x5 = xxxxxxxx'
+  DIFIEREN (bus) en el evento 1: ref='bus W be=1111 addr=00000790 wdata=00000055' act='bus W be=1111 addr=00000790 wdata=ffffffe8'
+  io: 0 eventos iguales (ref 2, act 0)
+  secuencias DISTINTAS
+equiv (ref, estrategia 2): core_trace_tb: CPI = 2999 ciclos / 1130 instrucciones retiradas = 2.654 (hasta el ultimo evento de la traza)
+equiv (ref, estrategia 2): core_trace_tb: monitor de X: 0 valores desconocidos usados en 1023 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv (act, estrategia 2): core_trace_tb: CPI = 2999 ciclos / 1130 instrucciones retiradas = 2.654 (hasta el ultimo evento de la traza)
+equiv (act, estrategia 2): core_trace_tb: monitor de X: 0 valores desconocidos usados en 1023 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv: hazard_test, estrategia 2, modo funcional, main contra el RTL actual:
+  rf: 348 eventos iguales (ref 348, act 348)
+  bus: 63 eventos iguales (ref 63, act 63)
+  io: 2 eventos iguales (ref 2, act 2)
+  secuencias de eventos equivalentes (sin ciclos)
+io act m1:
+##### MUTA_LOADUSE: make equiv PROG=hazard_test REF=main MODO=funcional IVERILOG="iverilog -DMUTA_LOADUSE"
+equiv (ref, estrategia 1): core_trace_tb: CPI = 2999 ciclos / 1130 instrucciones retiradas = 2.654 (hasta el ultimo evento de la traza)
+equiv (ref, estrategia 1): core_trace_tb: monitor de X: 0 valores desconocidos usados en 1023 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv (act, estrategia 1): core_trace_tb: CPI = 2999 ciclos / 1687 instrucciones retiradas = 1.778 (hasta el ultimo evento de la traza)
+equiv (act, estrategia 1): core_trace_tb: monitor de X: 0 valores desconocidos usados en 1574 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv: hazard_test, estrategia 1, modo funcional, main contra el RTL actual:
+  DIFIEREN (rf) en el evento 84: ref='rf x5 = 00000002' act='rf x5 = 00000795'
+  DIFIEREN (bus) en el evento 24: ref='bus W be=1111 addr=00000790 wdata=80ff7f01' act='bus W be=1111 addr=00000790 wdata=00000000'
+  DIFIEREN (io) en el evento 1: ref='io led=0000 seg=1001111_1111111' act='io led=0000 seg=1110001_0000110'
+  secuencias DISTINTAS
+equiv (ref, estrategia 2): core_trace_tb: CPI = 2999 ciclos / 1130 instrucciones retiradas = 2.654 (hasta el ultimo evento de la traza)
+equiv (ref, estrategia 2): core_trace_tb: monitor de X: 0 valores desconocidos usados en 1023 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv (act, estrategia 2): core_trace_tb: CPI = 2999 ciclos / 1130 instrucciones retiradas = 2.654 (hasta el ultimo evento de la traza)
+equiv (act, estrategia 2): core_trace_tb: monitor de X: 0 valores desconocidos usados en 1023 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv: hazard_test, estrategia 2, modo funcional, main contra el RTL actual:
+  rf: 348 eventos iguales (ref 348, act 348)
+  bus: 63 eventos iguales (ref 63, act 63)
+  io: 2 eventos iguales (ref 2, act 2)
+  secuencias de eventos equivalentes (sin ciclos)
+io act m1:
+574 io led=0000 seg=1110001_0000110
+579 io led=0001 seg=1110001_0000110
+##### MUTA_FWD con isa_test: make equiv MODO=funcional IVERILOG="iverilog -DMUTA_FWD"
+equiv (ref, estrategia 1): core_trace_tb: CPI = 3000 ciclos / 1016 instrucciones retiradas = 2.953 (hasta el ultimo evento de la traza)
+equiv (ref, estrategia 1): core_trace_tb: monitor de X: 0 valores desconocidos usados en 994 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv (act, estrategia 1): core_trace_tb: CPI = 3000 ciclos / 1524 instrucciones retiradas = 1.969 (hasta el ultimo evento de la traza)
+equiv (act, estrategia 1): core_trace_tb: monitor de X: 2 valores desconocidos usados en 1502 escrituras al banco (rf_wdata 1, bus 0, operandos ALU 1, salidas 0)
+equiv: isa_test, estrategia 1, modo funcional, 116fa20 contra el RTL actual:
+  DIFIEREN (rf) en el evento 5: ref='rf x4 = 00000001' act='rf x4 = 0000000X'
+  DIFIEREN (bus) en el evento 1: ref='bus W be=1111 addr=0000012c wdata=12345678' act='bus W be=1111 addr=0000012c wdata=00000678'
+  io: 2 eventos iguales (ref 2, act 2)
+  secuencias DISTINTAS
+equiv (ref, estrategia 2): core_trace_tb: CPI = 3000 ciclos / 1016 instrucciones retiradas = 2.953 (hasta el ultimo evento de la traza)
+equiv (ref, estrategia 2): core_trace_tb: monitor de X: 0 valores desconocidos usados en 994 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv (act, estrategia 2): core_trace_tb: CPI = 3000 ciclos / 1016 instrucciones retiradas = 2.953 (hasta el ultimo evento de la traza)
+equiv (act, estrategia 2): core_trace_tb: monitor de X: 0 valores desconocidos usados en 994 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv: isa_test, estrategia 2, modo funcional, 116fa20 contra el RTL actual:
+  rf: 46 eventos iguales (ref 46, act 46)
+  bus: 22 eventos iguales (ref 22, act 22)
+  io: 2 eventos iguales (ref 2, act 2)
+  secuencias de eventos equivalentes (sin ciclos)
+##### MUTA_LOADUSE con isa_test: make equiv MODO=funcional IVERILOG="iverilog -DMUTA_LOADUSE"
+equiv (ref, estrategia 1): core_trace_tb: CPI = 3000 ciclos / 1016 instrucciones retiradas = 2.953 (hasta el ultimo evento de la traza)
+equiv (ref, estrategia 1): core_trace_tb: monitor de X: 0 valores desconocidos usados en 994 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv (act, estrategia 1): core_trace_tb: CPI = 3000 ciclos / 1524 instrucciones retiradas = 1.969 (hasta el ultimo evento de la traza)
+equiv (act, estrategia 1): core_trace_tb: monitor de X: 0 valores desconocidos usados en 1502 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv: isa_test, estrategia 1, modo funcional, 116fa20 contra el RTL actual:
+  rf: 46 eventos iguales (ref 46, act 46)
+  DIFIEREN (bus) en el evento 10: ref='bus R be=0011 addr=00000130 wdata=56785678' act='bus R be=0011 addr=00000130 wdata=00010001'
+  io: 2 eventos iguales (ref 2, act 2)
+  secuencias DISTINTAS
+equiv (ref, estrategia 2): core_trace_tb: CPI = 3000 ciclos / 1016 instrucciones retiradas = 2.953 (hasta el ultimo evento de la traza)
+equiv (ref, estrategia 2): core_trace_tb: monitor de X: 0 valores desconocidos usados en 994 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv (act, estrategia 2): core_trace_tb: CPI = 3000 ciclos / 1016 instrucciones retiradas = 2.953 (hasta el ultimo evento de la traza)
+equiv (act, estrategia 2): core_trace_tb: monitor de X: 0 valores desconocidos usados en 994 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv: isa_test, estrategia 2, modo funcional, 116fa20 contra el RTL actual:
+  rf: 46 eventos iguales (ref 46, act 46)
+  bus: 22 eventos iguales (ref 22, act 22)
+  io: 2 eventos iguales (ref 2, act 2)
+  secuencias de eventos equivalentes (sin ciclos)

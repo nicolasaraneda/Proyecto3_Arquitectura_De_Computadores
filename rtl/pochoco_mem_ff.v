@@ -19,6 +19,13 @@
 // Interfaz y temporización iguales a la pochoco_ram del Proyecto 2: lectura
 // registrada en ambos puertos y escritura por byte en el puerto B. Una
 // dirección fuera de la memoria lee 0 y no escribe nada.
+//
+// Proyecto 3, rama exp/pipeline (frente A): a_next_o entrega, de forma
+// combinacional, la palabra de a_addr_i (el mux sobre los flip-flops que se
+// registra en a_rdata_o). pochoco_soc instancia el core con EarlyRead = 0
+// para esta estrategia (conserva la temporización de main), así que el core
+// no usa este puerto; existe para que las dos memorias tengan la misma
+// interfaz y la elección quede en un solo parámetro (docs/pipeline.md).
 
 module pochoco_mem_ff #(
   parameter integer DataWords = 4
@@ -30,6 +37,7 @@ module pochoco_mem_ff #(
   input  wire        a_req_i,
   input  wire [31:0] a_addr_i,
   output reg  [31:0] a_rdata_o,
+  output wire [31:0] a_next_o,    // palabra de a_addr_i, combinacional
 
   // Puerto B: datos
   input  wire        b_req_i,
@@ -79,8 +87,11 @@ module pochoco_mem_ff #(
     end
   endgenerate
 
+  wire [31:0] a_data = a_in ? mem_q[32*a_word +: 32] : 32'b0;
+  assign a_next_o = a_data;
+
   always @(posedge clk_i) begin
-    if (a_req_i) a_rdata_o <= a_in ? mem_q[32*a_word +: 32] : 32'b0;
+    if (a_req_i) a_rdata_o <= a_data;
     b_rdata_o <= b_in ? mem_q[32*b_word +: 32] : 32'b0;
   end
 
