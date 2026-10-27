@@ -114,7 +114,9 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
   (276.917 µm², 70 %), 70 % cierra (238.967 µm², 81 %; el ruteo detallado parte con
   2.149 violaciones de DRC y las resuelve), 80 % falla en CTS (`[DPL-0036] Detailed
   placement failed`, log `asic/logs/u1_u80.log`), 90 % falla en el placement global
-  (`[GPL-0301] Utilization 100.531 % exceeds 100%`, `asic/logs/u1_u90.log`). Área
+  (`[GPL-0301] Utilization 100.531 % exceeds 100%`, `asic/logs/u1_u90.log`). Los logs
+  no se versionan (`asic/logs/` está en .gitignore); el extracto de cada falla está en
+  `asic/rom/resultados/u1_u80/falla.txt` y `asic/rom/resultados/u1_u90/falla.txt`. Área
   mínima que cumple los criterios: u1_u70, 0,239 mm² (die 480,0 x 497,9 µm), con DRC,
   LVS y antenas limpios y WNS de setup 64,1 ns en max_ss. Las violaciones de slew bajan
   con la utilización (546, 438, 378, 392) porque los cables se acortan.

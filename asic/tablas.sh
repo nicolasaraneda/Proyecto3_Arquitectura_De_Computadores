@@ -30,7 +30,7 @@ fi
 U1=$(existen asic/rom/runs/final asic/rom/runs/u1_u50 asic/rom/runs/u1_u60 asic/rom/runs/u1_u70)
 if [ -n "$U1" ]; then
   $PY asic/recolectar.py --md asic/final.md --titulo "Barrido de FP_CORE_UTIL a 100 ns con la configuración final (sección 3.5)" \
-    --nota "Corridas final (40 %) y u1_u50 a u1_u90. u1_u80 falla en OpenROAD.CTS ([DPL-0036] Detailed placement failed, asic/logs/u1_u80.log) y u1_u90 en el placement global ([GPL-0301] Utilization 100.531 % exceeds 100%, asic/logs/u1_u90.log): no tienen métricas finales. Gráfico: docs/figuras/utilizacion.png (asic/graficos.py --util)." \
+    --nota "Corridas final (40 %) y u1_u50 a u1_u90. u1_u80 falla en OpenROAD.CTS ([DPL-0036] Detailed placement failed, asic/logs/u1_u80.log; extracto versionado en asic/rom/resultados/u1_u80/falla.txt) y u1_u90 en el placement global ([GPL-0301] Utilization 100.531 % exceeds 100%, asic/logs/u1_u90.log; extracto en asic/rom/resultados/u1_u90/falla.txt): no tienen métricas finales. Gráfico: docs/figuras/utilizacion.png (asic/graficos.py --util)." \
     $U1 asic/rom/runs/u1_u80 asic/rom/runs/u1_u90 > /dev/null 2>&1
   $HOME/herramientas/librelane/bin/python3 asic/graficos.py --util $U1 asic/rom/runs/u1_u80 asic/rom/runs/u1_u90 --salida-util docs/figuras/utilizacion.png > /dev/null
 fi

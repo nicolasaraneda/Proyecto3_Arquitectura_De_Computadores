@@ -55,7 +55,7 @@ Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "pe
 
 ## Barrido de FP_CORE_UTIL a 100 ns con la configuración final (sección 3.5)
 
-Corridas final (40 %) y u1_u50 a u1_u90. u1_u80 falla en OpenROAD.CTS ([DPL-0036] Detailed placement failed, asic/logs/u1_u80.log) y u1_u90 en el placement global ([GPL-0301] Utilization 100.531 % exceeds 100%, asic/logs/u1_u90.log): no tienen métricas finales. Gráfico: docs/figuras/utilizacion.png (asic/graficos.py --util).
+Corridas final (40 %) y u1_u50 a u1_u90. u1_u80 falla en OpenROAD.CTS ([DPL-0036] Detailed placement failed, asic/logs/u1_u80.log; extracto versionado en asic/rom/resultados/u1_u80/falla.txt) y u1_u90 en el placement global ([GPL-0301] Utilization 100.531 % exceeds 100%, asic/logs/u1_u90.log; extracto en asic/rom/resultados/u1_u90/falla.txt): no tienen métricas finales. Gráfico: docs/figuras/utilizacion.png (asic/graficos.py --util).
 
 Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
 
