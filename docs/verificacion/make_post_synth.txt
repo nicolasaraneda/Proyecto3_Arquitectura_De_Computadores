@@ -1,0 +1,22 @@
+vvp build/post_synth/tb_rtl
+post_synth_tb: 8 eventos de estimulo leidos de asic/sim/estimulos.txt
+post_synth_tb: 4500 ciclos, 16 cambios de salida (0 con X), traza en build/post_synth/traza_rtl.txt
+tb/post_synth_tb.v:180: $finish called at 450451000 (1ps)
+vvp build/post_synth/tb_netlist
+post_synth_tb: 8 eventos de estimulo leidos de asic/sim/estimulos.txt
+post_synth_tb: 4500 ciclos, 16 cambios de salida (0 con X), traza en build/post_synth/traza_netlist.txt
+tb/post_synth_tb.v:180: $finish called at 450451000 (1ps)
+python3 asic/sim/comparar.py build/post_synth/traza_rtl.txt build/post_synth/traza_netlist.txt --md asic/sim/resultado.md
+RTL: 17 cambios de salida, 0 con valores X
+  ronda 01: acierto, el display muestra 51 (ciclos medidos) en el ciclo 1033
+  ronda 02: acierto, el display muestra 51 (ciclos medidos) en el ciclo 2131
+  pulsacion incorrecta en la ronda 02: EE en el ciclo 1405
+  tras EE vuelve a la ronda 02 en el ciclo 1507 (la ronda NO avanzo)
+netlist: 17 cambios de salida, 0 con valores X
+  ronda 01: acierto, el display muestra 51 (ciclos medidos) en el ciclo 1033
+  ronda 02: acierto, el display muestra 51 (ciclos medidos) en el ciclo 2131
+  pulsacion incorrecta en la ronda 02: EE en el ciclo 1405
+  tras EE vuelve a la ronda 02 en el ciclo 1507 (la ronda NO avanzo)
+trazas identicas (17 lineas RTL, 17 lineas netlist)
+PASS
+codigo 0
