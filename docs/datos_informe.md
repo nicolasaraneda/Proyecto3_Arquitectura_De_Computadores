@@ -155,14 +155,22 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
   Dónde: `asic/ff/resultados/s2_t100/layout/antena_antes.png` y `_zoom.png` (net de
   666 x 364 µm con cinco buffers fanout*). Cómo se resolvió: corrida `s2_t100_diodos`
   con `RUN_HEURISTIC_DIODE_INSERTION=true`: 0 nets en violación
-  (`asic/ff/resultados/s2_t100_diodos/antenna_summary.rpt`), figura `antena_despues.png`
-  y `_zoom.png`; costo: 36.385 celdas de antena (contra 150), área de celdas 838.173 ->
-  992.171 µm² (+18 %), WNS de setup 39,65 -> 23,65 ns. Alternativa más barata, corrida
-  `s2_t100_antrep` (`GRT_ANTENNA_REPAIR_ITERS = 6`, `GRT_ANTENNA_REPAIR_MARGIN = 30`, sin
-  diodos heurísticos): también 0 violaciones, con 110 diodos (contra 73 originales) y
-  833.559 µm² de celdas (menos que la original), WNS 30,03 ns; figura
-  `asic/ff/resultados/s2_t100_antrep/layout/antena_antrep.png` (el net queda en 32 tramos
-  contra 76). Para la estrategia 1 no hizo falta (0 violaciones en todas sus corridas).
+  (`asic/ff/resultados/s2_t100_diodos/antenna_summary.rpt`); costo: 36.385 celdas de
+  antena (`design__instance__count__class:antenna_cell` de `metrics.json`; 150 en
+  s2_t100), área de celdas 838.173 -> 992.171 µm² (+18 %), WNS de setup 39,65 -> 23,65
+  ns. Alternativa más barata, corrida `s2_t100_antrep` (`GRT_ANTENNA_REPAIR_ITERS = 6`,
+  `GRT_ANTENNA_REPAIR_MARGIN = 30`, sin diodos heurísticos): también 0 violaciones
+  (`asic/ff/resultados/s2_t100_antrep/antenna_summary.rpt`), con 258 celdas de antena
+  (contra 150 en s2_t100) y 833.559 µm² de celdas (menos que la original), WNS 30,03 ns.
+  La evidencia del arreglo son los dos `antenna_summary.rpt` vacíos: no hay figura
+  "después" porque en esas corridas `net3342` es otro net con el mismo nombre (los
+  diodos y los buffers extra renumeran los nets del resizer). En s2_t100 lo maneja
+  `fanout3342` desde `u_soc.g_mem_ff.u_mem.a_addr_i[4]` y alimenta cinco buffers en
+  666 x 363 µm; en s2_t100_diodos y s2_t100_antrep lo maneja un `fanout3342` cuya
+  entrada es `net3344` y alimenta 10 compuertas en 107 x 78 µm. La señal original sale
+  en esas corridas por tres buffers (`fanout3613`, `fanout3631`, `fanout3668`, nets de
+  322 x 490, 63 x 478 y 666 x 302 µm), repartida y sin violación. Para la estrategia 1
+  no hizo falta (0 violaciones en todas sus corridas).
   Otra que apareció y se resolvió sola: con D21 el ruteo detallado parte con 1.546
   violaciones de DRC en la iteración 0 (contra 6 sin orden de pines, z3_t100) y
   termina en 0 en la iteración 3 (`route__drc_errors__iter:N` de `metrics.json`).
