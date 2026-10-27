@@ -69,6 +69,11 @@ TAG = os.path.basename(RUN)
 CFG_DIR = os.path.dirname(os.path.dirname(RUN))
 OUT = _param("out", os.path.join(CFG_DIR, "resultados", TAG, "layout"))
 CORNER = _param("corner", "max_ss_125C_4v50")
+# Reporte alternativo con una sola ruta (rama exp/fmax, frente B): con el banco de
+# registros en latches la primera ruta de max.rpt es un endpoint de latch con slack
+# 0,000 por préstamo de tiempo, y la ruta que interesa es la peor a flip-flop, que
+# asic/margen_latch.py --ruta escribe en un archivo con el mismo formato.
+RPT = _param("rpt")
 FIGURAS = _param("figuras", "bloques,ruta,slew").split(",")
 NET = _param("net")
 NOMBRE_NET = _param("nombre", "net")
@@ -374,7 +379,7 @@ def leer_ruta(run, corner):
     sta = sorted(d for d in os.listdir(run) if d.endswith("openroad-stapostpnr"))
     if not sta:
         raise SystemExit("no hay paso openroad-stapostpnr en la corrida")
-    path = os.path.join(run, sta[-1], corner, "max.rpt")
+    path = RPT or os.path.join(run, sta[-1], corner, "max.rpt")
     celdas = []
     en_ruta = False
     inicio = fin = None

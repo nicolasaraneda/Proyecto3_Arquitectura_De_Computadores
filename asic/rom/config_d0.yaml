@@ -1,0 +1,47 @@
+# Estrategia 1 de memoria (sección 3.2): ROM combinacional generada por el assembler más una RAM de datos.
+# Mismo RTL para ambas estrategias; la elige MemStrategy (ver docs/memory_map.md).
+DESIGN_NAME: asic_top
+PDK: gf180mcuD
+VERILOG_FILES:
+  - dir::../../rtl/*.v
+  - dir::../../rtl/espino_core/*.v
+  - dir::../../rtl/gen/*.v
+VERILOG_INCLUDE_DIRS:
+  - dir::../../rtl/gen
+SYNTH_PARAMETERS:
+  - MemStrategy=1
+  - DataWords=4
+# Jerarquía conservada para identificar estos bloques en los reportes y en el
+# layout (secciones 3.3, 3.4 y 3.6; docs/decisiones.md, D12).
+SYNTH_KEEP_HIERARCHY_MODULES:
+  - espino_register_file
+  - espino_alu
+  - pochoco_cycle_counter
+# Celdas excluidas de la síntesis y del buffering: las de retardo (D15) y el
+# buffer más chico, buf_1, que explicaba el 68 % de los nets con violación de
+# slew y las cadenas de buffers de la ruta crítica (D20).
+EXTRA_EXCLUDED_CELLS:
+  - gf180mcu_fd_sc_mcu7t5v0__dly*
+  - gf180mcu_fd_sc_mcu7t5v0__buf_1
+# Margen de setup del resizer durante el placement, en ns (D20): el resizer
+# redimensiona hasta dejar 10 ns de holgura, no solo hasta cumplir.
+PL_RESIZER_SETUP_SLACK_MARGIN: 10
+# Ubicación de los terminales por función (D21), en asic/rom/pines.cfg (el
+# formato no admite comentarios): #W, #E, #N y #S abren cada lado y los
+# terminales se reparten a espacios iguales de la coordenada menor a la mayor
+# (de abajo hacia arriba en oeste y este, de izquierda a derecha en norte y
+# sur); "$n" reserva n posiciones vacías. Oeste: btn[0] a btn[3], clk en la
+# quinta de nueve posiciones (el centro del lado), rst_n y tres vacías. Este:
+# seg1[6:0] y seg2[6:0], cada bus contiguo y en orden de bits. Norte: led[3:0].
+# Sur: spi_sclk, spi_mosi, spi_cs_n, spi_miso.
+IO_PIN_ORDER_CFG: dir::pines.cfg
+# Rama exp/rf-latch (B5): los latches del banco de registros son intencionales;
+# el linter no debe tratarlos como error (el modelo usa always_latch).
+LINTER_ERROR_ON_LATCH: false
+# Rama exp/fmax (frente B): copia de config.yaml que solo agrega SYNTH_STRATEGY
+# (estrategia de ABC). Es una copia porque la cola (asic/cola.sh) no conserva
+# las comillas de un valor con espacio pasado como VAR=VAL.
+SYNTH_STRATEGY: "DELAY 0"
+CLOCK_PORT: clk
+CLOCK_PERIOD: 100
+FP_CORE_UTIL: 40

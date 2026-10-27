@@ -21,7 +21,12 @@ module gf180_clock_gate (
   output wire gclk_o
 );
 `ifdef SYNTHESIS
+`ifdef SCL_gf180mcu_fd_sc_mcu9t5v0
+  // Biblioteca de 9 pistas (rama exp/fmax): Yosys define SCL_<biblioteca>.
+  gf180mcu_fd_sc_mcu9t5v0__icgtp_1 u_icg (.CLK(clk_i), .E(en_i), .TE(1'b0), .Q(gclk_o));
+`else
   gf180mcu_fd_sc_mcu7t5v0__icgtp_1 u_icg (.CLK(clk_i), .E(en_i), .TE(1'b0), .Q(gclk_o));
+`endif
 `else
   reg en_l;
   always_latch if (!clk_i) en_l = en_i;
@@ -36,7 +41,11 @@ module gf180_latch (
   output wire q_o
 );
 `ifdef SYNTHESIS
+`ifdef SCL_gf180mcu_fd_sc_mcu9t5v0
+  gf180mcu_fd_sc_mcu9t5v0__latq_1 u_lat (.E(e_i), .D(d_i), .Q(q_o));
+`else
   gf180mcu_fd_sc_mcu7t5v0__latq_1 u_lat (.E(e_i), .D(d_i), .Q(q_o));
+`endif
 `else
   reg q;
   always_latch if (e_i) q = d_i;
