@@ -14,6 +14,7 @@ SYNTH_PARAMETERS:
   - MemStrategy=1
   - DataWords=4
   - DebounceDivBits=2
+  - EarlyRead=1
 SYNTH_KEEP_HIERARCHY_MODULES:
   - espino_register_file
   - espino_alu

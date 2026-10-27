@@ -19,6 +19,7 @@
 module asic_top #(
   parameter integer MemStrategy = 1,   // 1: ROM + RAM de datos; 2: unificada en flip-flops
   parameter integer DataWords   = 4,   // palabras de datos (sección 3.2, decisión D9)
+  parameter integer EarlyRead   = (MemStrategy == 1) ? 1 : 0,   // rama exp/pipeline, docs/pipeline.md
   parameter DebounceTicks   = 3,
   parameter DebounceDivBits = 15
 ) (
@@ -47,6 +48,7 @@ module asic_top #(
   pochoco_soc #(
     .MemStrategy     (MemStrategy),
     .DataWords       (DataWords),
+    .EarlyRead       (EarlyRead),
     .DebounceTicks   (DebounceTicks),
     .DebounceDivBits (DebounceDivBits)
   ) u_soc (

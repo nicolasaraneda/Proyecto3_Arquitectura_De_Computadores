@@ -189,11 +189,33 @@ module game_tb;
   // (Proyecto 3, experimento B4): una instrucción se retira en cada ciclo en
   // que la etapa ID tiene instrucción válida y el pipeline no está detenido.
   integer    n_ciclos = 0, n_retiradas = 0;
+  // Monitor de valores desconocidos USADOS (rama exp/pipeline, frente A; el
+  // mismo de tb/core_trace_tb.v): rf_wdata con X cuando rf_we; data_addr,
+  // data_be o data_wdata con X cuando data_req; operandos de la ALU con X en
+  // un ciclo de commit en que su resultado se usa; salidas con X. Los
+  // registros x1 a x15 no tienen reset (D4): un X que nadie usa es normal.
+  integer    x_rf = 0, x_bus = 0, x_alu = 0, x_io = 0, n_rf = 0;
+  wire commit_m  = dut.u_soc.u_core.instr_valid_id & ~dut.u_soc.u_core.stall;
+  wire alu_usada = commit_m & (dut.u_soc.u_core.u_id.lsu_req_o | dut.u_soc.u_core.u_id.is_branch |
+                               dut.u_soc.u_core.u_id.is_jalr |
+                               (dut.u_soc.u_core.u_id.rf_we_o & (dut.u_soc.u_core.u_id.rf_wd_sel == 2'd0)));
   always @(posedge clk) begin
     if (dut.u_soc.rst_ni) begin
       n_ciclos = n_ciclos + 1;
       if (dut.u_soc.u_core.instr_valid_id && !dut.u_soc.u_core.stall)
         n_retiradas = n_retiradas + 1;
+      if (dut.u_soc.u_core.rf_we) begin
+        n_rf = n_rf + 1;
+        if (^dut.u_soc.u_core.rf_wdata === 1'bx) x_rf = x_rf + 1;
+      end
+      if (dut.u_soc.u_core.data_req_o &&
+          (^dut.u_soc.u_core.data_addr_o === 1'bx || ^dut.u_soc.u_core.data_be_o === 1'bx ||
+           (dut.u_soc.u_core.data_we_o && ^dut.u_soc.u_core.data_wdata_o === 1'bx)))
+        x_bus = x_bus + 1;
+      if (alu_usada && (^dut.u_soc.u_core.u_id.operand_a === 1'bx || ^dut.u_soc.u_core.u_id.operand_b === 1'bx))
+        x_alu = x_alu + 1;
+      if (^led === 1'bx || ^seg1 === 1'bx || ^seg2 === 1'bx)
+        x_io = x_io + 1;
       if (dut.u_soc.ram_b_req) begin
         if (dut.u_soc.data_we) n_data_wr = n_data_wr + 1;
         else                   n_data_rd = n_data_rd + 1;
@@ -452,6 +474,8 @@ module game_tb;
              n_data_rd, n_data_wr, max_exec, max_exec >> 2);
     $display("CPI del juego: %0d ciclos / %0d instrucciones retiradas = %.3f",
              n_ciclos, n_retiradas, n_retiradas > 0 ? $itor(n_ciclos) / $itor(n_retiradas) : 0.0);
+    $display("monitor de X: %0d valores desconocidos usados en %0d escrituras al banco (rf_wdata %0d, bus %0d, operandos ALU %0d, salidas %0d)",
+             x_rf + x_bus + x_alu + x_io, n_rf, x_rf, x_bus, x_alu, x_io);
 
     if (errors == 0) begin
       $display("\n=== PASS: todos los checks OK ===");

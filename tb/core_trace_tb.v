@@ -54,6 +54,35 @@ module core_trace_tb;
   reg [3:0]  led_prev;
   reg [13:0] seg_prev;
 
+  // Monitor de valores desconocidos USADOS (rama exp/pipeline, frente A).
+  // Cuenta, en cada flanco: rf_wdata con algún bit X cuando rf_we; data_addr,
+  // data_be o data_wdata con X cuando data_req; operandos de la ALU con X en
+  // un ciclo de commit en que su resultado se usa (escritura del resultado
+  // de la ALU, dirección de la LSU, comparación de un salto o destino de
+  // jalr); y salidas (LEDs y segmentos) con X. Los registros x1 a x15 no
+  // tienen reset (D4), así que un X que nadie usa es normal; uno usado, no.
+  integer x_rf = 0, x_bus = 0, x_alu = 0, x_io = 0, n_rf = 0;
+  wire commit_m  = dut.u_soc.u_core.instr_valid_id & ~dut.u_soc.u_core.stall;
+  wire alu_usada = commit_m & (dut.u_soc.u_core.u_id.lsu_req_o | dut.u_soc.u_core.u_id.is_branch |
+                               dut.u_soc.u_core.u_id.is_jalr |
+                               (dut.u_soc.u_core.u_id.rf_we_o & (dut.u_soc.u_core.u_id.rf_wd_sel == 2'd0)));
+  task monitor_x;
+    begin
+      if (dut.u_soc.u_core.rf_we) begin
+        n_rf = n_rf + 1;
+        if (^dut.u_soc.u_core.rf_wdata === 1'bx) x_rf = x_rf + 1;
+      end
+      if (dut.u_soc.u_core.data_req_o &&
+          (^dut.u_soc.u_core.data_addr_o === 1'bx || ^dut.u_soc.u_core.data_be_o === 1'bx ||
+           (dut.u_soc.u_core.data_we_o && ^dut.u_soc.u_core.data_wdata_o === 1'bx)))
+        x_bus = x_bus + 1;
+      if (alu_usada && (^dut.u_soc.u_core.u_id.operand_a === 1'bx || ^dut.u_soc.u_core.u_id.operand_b === 1'bx))
+        x_alu = x_alu + 1;
+      if (^led === 1'bx || ^seg1 === 1'bx || ^seg2 === 1'bx)
+        x_io = x_io + 1;
+    end
+  endtask
+
   initial begin
     f = $fopen(`TRAZA, "w");
     repeat (4) @(posedge clk);
@@ -68,6 +97,7 @@ module core_trace_tb;
     repeat (`CICLOS) begin
       @(posedge clk);
       ciclo = ciclo + 1;
+      monitor_x;
       // Instrucción retirada: la etapa ID tiene una instrucción válida y el
       // pipeline no está detenido (es el mismo "commit" de espino_id_stage).
       if (dut.u_soc.u_core.instr_valid_id && !dut.u_soc.u_core.stall)
@@ -97,6 +127,8 @@ module core_trace_tb;
     // un lazo infinito que no representa nada (el final de isa_test.s).
     $display("core_trace_tb: CPI = %0d ciclos / %0d instrucciones retiradas = %.3f (hasta el ultimo evento de la traza)",
              ciclo_evt, retiradas_evt, retiradas_evt > 0 ? $itor(ciclo_evt) / $itor(retiradas_evt) : 0.0);
+    $display("core_trace_tb: monitor de X: %0d valores desconocidos usados en %0d escrituras al banco (rf_wdata %0d, bus %0d, operandos ALU %0d, salidas %0d)",
+             x_rf + x_bus + x_alu + x_io, n_rf, x_rf, x_bus, x_alu, x_io);
     $finish;
   end
 

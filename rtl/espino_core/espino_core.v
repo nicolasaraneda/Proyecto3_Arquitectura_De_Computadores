@@ -4,12 +4,20 @@
 // SPDX-License-Identifier: SHL-0.51
 //
 // Course: Arquitectura de Computadores (2026)
-// 
+//
 // Authors:
 // - Nicolás Villegas <navillegas@miuandes.cl>
+//
+// Proyecto 3, rama exp/pipeline (frente A): el parámetro EarlyRead elige la
+// temporización de la etapa ID (ver espino_id_stage.v y docs/pipeline.md).
+// Con EarlyRead = 1 la memoria de instrucciones debe entregar en
+// instr_next_i, de forma combinacional, la instrucción de instr_addr_o; el
+// core la usa para leer el banco de registros y decodificar antes del
+// flanco en que la carga. Con EarlyRead = 0 el puerto no se usa.
 
 module espino_core #(
-  parameter [31:0] BootAddr = 32'h0000_0000
+  parameter [31:0]  BootAddr  = 32'h0000_0000,
+  parameter integer EarlyRead = 0
 ) (
   input  wire        clk_i,
   input  wire        rst_ni,
@@ -17,6 +25,7 @@ module espino_core #(
   output wire        instr_req_o,
   output wire [31:0] instr_addr_o,
   input  wire [31:0] instr_rdata_i,
+  input  wire [31:0] instr_next_i,
 
   output wire        data_req_o,
   output wire        data_we_o,
@@ -37,7 +46,7 @@ module espino_core #(
 
   wire [3:0]  rf_raddr_a, rf_raddr_b, rf_waddr;
   wire [31:0] rf_rdata_a, rf_rdata_b, rf_wdata;
-  wire        rf_we;
+  wire        rf_we, rf_rd_en;
   wire        rf_ready;
 
   wire        lsu_req, lsu_we, lsu_sign, lsu_busy;
@@ -58,15 +67,17 @@ module espino_core #(
     .instr_valid_id_o (instr_valid_id)
   );
 
-  espino_id_stage u_id (
+  espino_id_stage #(.EarlyRead(EarlyRead)) u_id (
     .clk_i          (clk_i),
     .rst_ni         (rst_ni),
     .instr_valid_i  (instr_valid_id),
     .instr_rdata_i  (instr_rdata_i),
+    .instr_next_i   (instr_next_i),
     .pc_id_i        (pc_id),
     .stall_i        (stall),
     .rf_raddr_a_o   (rf_raddr_a),
     .rf_raddr_b_o   (rf_raddr_b),
+    .rf_rd_en_o     (rf_rd_en),
     .rf_rdata_a_i   (rf_rdata_a),
     .rf_rdata_b_i   (rf_rdata_b),
     .rf_waddr_o     (rf_waddr),
@@ -89,6 +100,7 @@ module espino_core #(
   espino_register_file u_rf (
     .clk_i     (clk_i),
     .rst_ni    (rst_ni),
+    .rd_en_i   (rf_rd_en),
     .raddr_a_i (rf_raddr_a),
     .rdata_a_o (rf_rdata_a),
     .raddr_b_i (rf_raddr_b),

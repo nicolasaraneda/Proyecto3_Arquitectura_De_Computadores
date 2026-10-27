@@ -19,6 +19,11 @@
 //     escritura por byte y lectura registrada. La dirección se toma módulo
 //     DataWords (DataWords debe ser potencia de 2). El puerto de datos ya
 //     no ve las instrucciones: el juego nunca las lee como datos.
+//
+// Proyecto 3, rama exp/pipeline (frente A): a_next_o entrega, de forma
+// combinacional, la instrucción de a_addr_i (la misma salida de la ROM que
+// se registra en a_rdata_o). Con EarlyRead el core la usa para leer el banco
+// de registros y decodificar un ciclo antes (docs/pipeline.md).
 
 module pochoco_mem_rom #(
   parameter integer DataWords = 4
@@ -29,6 +34,7 @@ module pochoco_mem_rom #(
   input  wire        a_req_i,
   input  wire [31:0] a_addr_i,
   output reg  [31:0] a_rdata_o,
+  output wire [31:0] a_next_o,    // instrucción de a_addr_i, combinacional
 
   // Puerto B: datos
   input  wire        b_req_i,
@@ -45,6 +51,8 @@ module pochoco_mem_rom #(
     .addr_i (a_addr_i),
     .data_o (rom_data)
   );
+
+  assign a_next_o = rom_data;
 
   always @(posedge clk_i) begin
     if (a_req_i) a_rdata_o <= rom_data;

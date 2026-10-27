@@ -11,6 +11,11 @@
 module pochoco_soc #(
   parameter integer MemStrategy = 1,   // 1: ROM + RAM de datos; 2: unificada en flip-flops
   parameter integer DataWords   = 4,   // palabras de datos (sección 3.2, decisión D9)
+  // Lectura anticipada del banco de registros y decode en el fetch (rama
+  // exp/pipeline, docs/pipeline.md): 1 con la ROM combinacional de la
+  // estrategia 1; 0 con la estrategia 2, que conserva la temporización de
+  // main (ciclo de espera) y sirve de referencia de ese camino en make check.
+  parameter integer EarlyRead   = (MemStrategy == 1) ? 1 : 0,
   parameter DebounceTicks   = 3,
   parameter DebounceDivBits = 15
 ) (
@@ -41,18 +46,19 @@ module pochoco_soc #(
 
   // Core-memory wiring
   wire        instr_req;
-  wire [31:0] instr_addr, instr_rdata;
+  wire [31:0] instr_addr, instr_rdata, instr_next;
 
   wire        data_req, data_we;
   wire [3:0]  data_be;
   wire [31:0] data_addr, data_wdata, data_rdata;
 
-  espino_core #(.BootAddr(32'h0000_0000)) u_core (
+  espino_core #(.BootAddr(32'h0000_0000), .EarlyRead(EarlyRead)) u_core (
     .clk_i         (clk),
     .rst_ni        (rst_ni),
     .instr_req_o   (instr_req),
     .instr_addr_o  (instr_addr),
     .instr_rdata_i (instr_rdata),
+    .instr_next_i  (instr_next),
     .data_req_o    (data_req),
     .data_we_o     (data_we),
     .data_be_o     (data_be),
@@ -88,7 +94,9 @@ module pochoco_soc #(
 
   // Memoria de instrucciones y datos (sección 3.2). Las dos estrategias
   // tienen la misma interfaz y temporización que la pochoco_ram del
-  // Proyecto 2; MemStrategy elige cuál se sintetiza.
+  // Proyecto 2; MemStrategy elige cuál se sintetiza. a_next_o es la palabra
+  // de instr_addr sin registrar (rama exp/pipeline): el core la usa solo con
+  // EarlyRead = 1.
   generate
     if (MemStrategy == 2) begin : g_mem_ff
       pochoco_mem_ff #(.DataWords(DataWords)) u_mem (
@@ -97,6 +105,7 @@ module pochoco_soc #(
         .a_req_i   (instr_req),
         .a_addr_i  (instr_addr),
         .a_rdata_o (instr_rdata),
+        .a_next_o  (instr_next),
         .b_req_i   (ram_b_req),
         .b_we_i    (data_we),
         .b_be_i    (data_be),
@@ -110,6 +119,7 @@ module pochoco_soc #(
         .a_req_i   (instr_req),
         .a_addr_i  (instr_addr),
         .a_rdata_o (instr_rdata),
+        .a_next_o  (instr_next),
         .b_req_i   (ram_b_req),
         .b_we_i    (data_we),
         .b_be_i    (data_be),

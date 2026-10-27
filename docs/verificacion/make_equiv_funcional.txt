@@ -1,0 +1,20 @@
+rm -rf build/ref && git worktree prune
+equiv (ref, estrategia 1): core_trace_tb: CPI = 3000 ciclos / 1016 instrucciones retiradas = 2.953 (hasta el ultimo evento de la traza)
+equiv (ref, estrategia 1): core_trace_tb: monitor de X: 0 valores desconocidos usados en 994 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv (act, estrategia 1): core_trace_tb: CPI = 3000 ciclos / 1524 instrucciones retiradas = 1.969 (hasta el ultimo evento de la traza)
+equiv (act, estrategia 1): core_trace_tb: monitor de X: 0 valores desconocidos usados en 1502 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv: isa_test, estrategia 1, modo funcional, 116fa20 contra el RTL actual:
+  rf: 46 eventos iguales (ref 46, act 46)
+  bus: 22 eventos iguales (ref 22, act 22)
+  io: 2 eventos iguales (ref 2, act 2)
+  secuencias de eventos equivalentes (sin ciclos)
+equiv (ref, estrategia 2): core_trace_tb: CPI = 3000 ciclos / 1016 instrucciones retiradas = 2.953 (hasta el ultimo evento de la traza)
+equiv (ref, estrategia 2): core_trace_tb: monitor de X: 0 valores desconocidos usados en 994 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv (act, estrategia 2): core_trace_tb: CPI = 3000 ciclos / 1016 instrucciones retiradas = 2.953 (hasta el ultimo evento de la traza)
+equiv (act, estrategia 2): core_trace_tb: monitor de X: 0 valores desconocidos usados en 994 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv: isa_test, estrategia 2, modo funcional, 116fa20 contra el RTL actual:
+  rf: 46 eventos iguales (ref 46, act 46)
+  bus: 22 eventos iguales (ref 22, act 22)
+  io: 2 eventos iguales (ref 2, act 2)
+  secuencias de eventos equivalentes (sin ciclos)
+

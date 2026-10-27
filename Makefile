@@ -142,7 +142,10 @@ sim: sim1 sim2
 # (escrituras al banco de registros, accesos al bus de datos y salidas, con
 # su ciclo). Si son idénticas, el cambio no alteró el comportamiento.
 REF ?= 116fa20
-IMG_ISA := $(BUILD)/isa_test/game_image.vh
+# PROG: programa de sw/<PROG>.s que corre la traza (rama exp/pipeline):
+#   make equiv PROG=hazard_test REF=main MODO=funcional
+PROG ?= isa_test
+IMG_ISA := $(BUILD)/$(PROG)/game_image.vh
 # MODO=ciclo (por defecto): las trazas deben ser idénticas ciclo a ciclo.
 # MODO=funcional: se comparan por separado las secuencias de escrituras al
 # banco (sin x0), de accesos al bus y de salidas, sin el número de ciclo
@@ -150,9 +153,9 @@ IMG_ISA := $(BUILD)/isa_test/game_image.vh
 # instrucción (experimento B4). En ambos modos se imprime el CPI de cada versión.
 MODO ?= ciclo
 
-$(IMG_ISA): sw/isa_test.s $(ASMDEP)
+$(IMG_ISA): sw/$(PROG).s $(ASMDEP)
 	@mkdir -p $(dir $@)
-	$(PYTHON) $(ASM) $< -o $(dir $@)isa_test.hex --vh $@ --rom $(dir $@)pochoco_rom.v
+	$(PYTHON) $(ASM) $< -o $(dir $@)$(PROG).hex --vh $@ --rom $(dir $@)pochoco_rom.v
 
 equiv: $(IMG_ISA)
 	rm -rf $(BUILD)/ref && git worktree prune
@@ -161,11 +164,11 @@ equiv: $(IMG_ISA)
 	  for v in ref act; do \
 	    if [ $$v = ref ]; then d=$(BUILD)/ref; else d=.; fi; \
 	    $(IVERILOG) -g2012 -DMEM_STRATEGY=$$m -DTRAZA=\"$(BUILD)/traza_$${v}_m$$m.txt\" \
-	      -I $(BUILD)/isa_test -o $(BUILD)/core_trace_$${v}_m$$m tb/core_trace_tb.v \
-	      $$d/rtl/*.v $$d/rtl/espino_core/*.v $(BUILD)/isa_test/pochoco_rom.v || exit 1; \
-	    $(VVP) $(BUILD)/core_trace_$${v}_m$$m | grep "CPI" | sed "s/^/equiv ($$v, estrategia $$m): /" || exit 1; \
+	      -I $(BUILD)/$(PROG) -o $(BUILD)/core_trace_$${v}_m$$m tb/core_trace_tb.v \
+	      $$d/rtl/*.v $$d/rtl/espino_core/*.v $(BUILD)/$(PROG)/pochoco_rom.v || exit 1; \
+	    $(VVP) $(BUILD)/core_trace_$${v}_m$$m | grep "CPI\|monitor de X" | sed "s/^/equiv ($$v, estrategia $$m): /" || exit 1; \
 	  done; \
-	  echo "equiv: estrategia $$m, modo $(MODO), $(REF) contra el RTL actual:"; \
+	  echo "equiv: $(PROG), estrategia $$m, modo $(MODO), $(REF) contra el RTL actual:"; \
 	  $(PYTHON) tb/comparar_trazas.py --modo $(MODO) $(BUILD)/traza_ref_m$$m.txt $(BUILD)/traza_act_m$$m.txt | sed "s/^/  /" || exit 1; \
 	done
 	git worktree remove --force $(BUILD)/ref
