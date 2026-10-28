@@ -11,6 +11,7 @@ VERILOG_INCLUDE_DIRS:
 SYNTH_PARAMETERS:
   - MemStrategy=1
   - DataWords=4
+  - EarlyRead=1
 # Jerarquía conservada para identificar estos bloques en los reportes y en el
 # layout (secciones 3.3, 3.4 y 3.6; docs/decisiones.md, D12).
 SYNTH_KEEP_HIERARCHY_MODULES:

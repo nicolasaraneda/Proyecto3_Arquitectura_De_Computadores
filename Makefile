@@ -142,7 +142,10 @@ sim: sim1 sim2
 # (escrituras al banco de registros, accesos al bus de datos y salidas, con
 # su ciclo). Si son idénticas, el cambio no alteró el comportamiento.
 REF ?= 116fa20
-IMG_ISA := $(BUILD)/isa_test/game_image.vh
+# PROG: programa de sw/<PROG>.s que corre la traza (rama exp/pipeline):
+#   make equiv PROG=hazard_test REF=main MODO=funcional
+PROG ?= isa_test
+IMG_ISA := $(BUILD)/$(PROG)/game_image.vh
 # MODO=ciclo (por defecto): las trazas deben ser idénticas ciclo a ciclo.
 # MODO=funcional: se comparan por separado las secuencias de escrituras al
 # banco (sin x0), de accesos al bus y de salidas, sin el número de ciclo
@@ -150,9 +153,9 @@ IMG_ISA := $(BUILD)/isa_test/game_image.vh
 # instrucción (experimento B4). En ambos modos se imprime el CPI de cada versión.
 MODO ?= ciclo
 
-$(IMG_ISA): sw/isa_test.s $(ASMDEP)
+$(IMG_ISA): sw/$(PROG).s $(ASMDEP)
 	@mkdir -p $(dir $@)
-	$(PYTHON) $(ASM) $< -o $(dir $@)isa_test.hex --vh $@ --rom $(dir $@)pochoco_rom.v
+	$(PYTHON) $(ASM) $< -o $(dir $@)$(PROG).hex --vh $@ --rom $(dir $@)pochoco_rom.v
 
 equiv: $(IMG_ISA)
 	rm -rf $(BUILD)/ref && git worktree prune
@@ -161,11 +164,11 @@ equiv: $(IMG_ISA)
 	  for v in ref act; do \
 	    if [ $$v = ref ]; then d=$(BUILD)/ref; else d=.; fi; \
 	    $(IVERILOG) -g2012 -DMEM_STRATEGY=$$m -DTRAZA=\"$(BUILD)/traza_$${v}_m$$m.txt\" \
-	      -I $(BUILD)/isa_test -o $(BUILD)/core_trace_$${v}_m$$m tb/core_trace_tb.v \
-	      $$d/rtl/*.v $$d/rtl/espino_core/*.v $(BUILD)/isa_test/pochoco_rom.v || exit 1; \
-	    $(VVP) $(BUILD)/core_trace_$${v}_m$$m | grep "CPI" | sed "s/^/equiv ($$v, estrategia $$m): /" || exit 1; \
+	      -I $(BUILD)/$(PROG) -o $(BUILD)/core_trace_$${v}_m$$m tb/core_trace_tb.v \
+	      $$d/rtl/*.v $$d/rtl/espino_core/*.v $(BUILD)/$(PROG)/pochoco_rom.v || exit 1; \
+	    $(VVP) $(BUILD)/core_trace_$${v}_m$$m | grep "CPI\|monitor de X" | sed "s/^/equiv ($$v, estrategia $$m): /" || exit 1; \
 	  done; \
-	  echo "equiv: estrategia $$m, modo $(MODO), $(REF) contra el RTL actual:"; \
+	  echo "equiv: $(PROG), estrategia $$m, modo $(MODO), $(REF) contra el RTL actual:"; \
 	  $(PYTHON) tb/comparar_trazas.py --modo $(MODO) $(BUILD)/traza_ref_m$$m.txt $(BUILD)/traza_act_m$$m.txt | sed "s/^/  /" || exit 1; \
 	done
 	git worktree remove --force $(BUILD)/ref
@@ -245,14 +248,18 @@ post-synth: $(ROM_SIM) $(NETLIST_SIM) $(EST)
 # contra la traza del RTL con los estímulos originales. Como el display muestra
 # los ciclos medidos, el valor y el instante cambian y comparar.py tiene que dar
 # FAIL: el objetivo termina bien solo si la comparación falla (demuestra que la
-# comparación distingue trazas distintas). ATRASO = 6 es el atraso más chico
-# que cambia la traza: el programa lee CYCLES en un lazo de polling de 13
-# ciclos, así que un atraso de 5 cae en la misma vuelta del lazo y la traza del
-# netlist queda idéntica (make post-synth-control ATRASO=5 lo muestra: PASS y el
-# objetivo falla). El resultado se agrega a asic/sim/resultado.md como sección
-# "Control negativo" (make post-synth la reescribe; correr este objetivo después).
+# comparación distingue trazas distintas). ATRASO es el atraso más chico que
+# cambia la traza: el programa lee BTN en un lazo de polling y un atraso menor
+# que una vuelta cae en la misma vuelta y la traza del netlist queda idéntica.
+# En main el lazo son 13 ciclos y el mínimo es 6 (con 5 da PASS); en la rama
+# exp/pipeline (EarlyRead) el lazo son 8 ciclos (lw 2 + blt 1 + add 1 + j 2 +
+# beq 2, o lw 2 + blt tomado 2 + add 1 + xor 1 + beq 2) y el mínimo es 8: con
+# 1 a 7 la traza no cambia (docs/pipeline.md). El resultado se agrega a
+# asic/sim/resultado.md como sección "Control negativo" (make post-synth la
+# reescribe; correr este objetivo después).
 EST_CONTROL := $(PS)/estimulos_control.txt
-ATRASO      ?= 6
+ATRASO      ?= 8
+POLL_CICLOS ?= 8
 
 post-synth-control: $(ROM_SIM) $(NETLIST_SIM) $(EST) asic/sim/atrasar.py
 	@mkdir -p $(PS)
@@ -269,7 +276,10 @@ post-synth-control: $(ROM_SIM) $(NETLIST_SIM) $(EST) asic/sim/atrasar.py
 	@echo "comparar.py tiene que dar FAIL (estimulos distintos):"
 	@if $(PYTHON) asic/sim/comparar.py $(PS)/traza_rtl.txt $(PS)/traza_netlist_control.txt --md $(PS)/control_negativo.md; then \
 	  echo "ERROR del control negativo: la comparacion dio PASS con estimulos distintos (atraso $(ATRASO))"; exit 1; fi
-	@printf '\n## Control negativo\n\n%s\n\n' "Netlist con \`build/post_synth/estimulos_control.txt\` (\`asic/sim/atrasar.py\`: la pulsación de la primera ronda atrasada $(ATRASO) ciclos, es decir los eventos 801 y 861 de \`asic/sim/estimulos.txt\` corridos a $$((801 + $(ATRASO))) y $$((861 + $(ATRASO)))) contra la traza del RTL con los estímulos originales. La comparación tiene que dar FAIL; \`make post-synth-control\` termina bien solo en ese caso. Con un atraso de 5 ciclos la traza no cambia (el programa lee CYCLES en un lazo de polling de 13 ciclos y la pulsación cae en la misma vuelta), por eso el control usa 6, el atraso más chico que la cambia." >> asic/sim/resultado.md
+	@diff $(EST) $(EST_CONTROL) > $(PS)/control_diff.txt || true
+	@printf '\n## Control negativo\n\n%s\n\n```\n' "Netlist con \`build/post_synth/estimulos_control.txt\` (\`asic/sim/atrasar.py\`: la pulsación de la primera ronda, la segunda de \`asic/sim/estimulos.txt\`, atrasada $(ATRASO) ciclos; diff contra los estímulos originales abajo) contra la traza del RTL con los estímulos originales. La comparación tiene que dar FAIL; \`make post-synth-control\` termina bien solo en ese caso. $(ATRASO) es el atraso más chico que cambia la traza: el programa lee BTN en un lazo de polling de $(POLL_CICLOS) ciclos y un atraso menor cae en la misma vuelta del lazo (con $$(( $(ATRASO) - 1 )) ciclos la traza no cambia)." >> asic/sim/resultado.md
+	@cat $(PS)/control_diff.txt >> asic/sim/resultado.md
+	@printf '```\n\n' >> asic/sim/resultado.md
 	@cat $(PS)/control_negativo.md >> asic/sim/resultado.md
 	@echo "control negativo OK: la comparacion dio FAIL con estimulos distintos; seccion agregada a asic/sim/resultado.md"
 

@@ -5,15 +5,15 @@
 300 0001
 # se suelta
 360 0000
-# ronda 1: LED objetivo 0010 encendido en el ciclo 781; boton correcto 20 ciclos despues
-801 0010
+# ronda 1: LED objetivo 0010 encendido en el ciclo 615; boton correcto 20 ciclos despues
+635 0010
 # se suelta
-861 0000
-# ronda 2: LED objetivo 0001 encendido en el ciclo 2121; boton INCORRECTO 0010
-2141 0010
+695 0000
+# ronda 2: LED objetivo 0001 encendido en el ciclo 1353; boton INCORRECTO 0010
+1373 0010
 # se suelta
-2201 0000
-# reintento de la ronda 2: LED objetivo 0001 encendido en el ciclo 2699; boton correcto
-2719 0001
+1433 0000
+# reintento de la ronda 2: LED objetivo 0001 encendido en el ciclo 1713; boton correcto
+1733 0001
 # se suelta
-2779 0000
+1793 0000
