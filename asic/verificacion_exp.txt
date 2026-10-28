@@ -290,3 +290,24 @@ equiv (act, estrategia 2): core_trace_tb: CPI = 3000 ciclos / 1016 instrucciones
 equiv: estrategia 2, modo ciclo, 116fa20 contra el RTL actual:
   trazas identicas ciclo a ciclo (1018 eventos)
 git worktree remove --force build/ref
+
+# Simulación post-síntesis de la rama (28-10-2026, Icarus 14.0-devel)
+
+Netlist de la rama: asic/sim/runs/fb_sim_rom/06-yosys-synthesis/asic_top.nl.v, de la corrida
+fb_sim_rom de la cola (bash asic/encolar.sh build/exp_fmax asic/sim/config.yaml fb_sim_rom 100
+--to Yosys.Synthesis; el objetivo make sim-netlist invoca librelane directo, que las reglas de la
+sesión prohíben, así que el netlist se pidió por la cola y los tres pasos de make post-synth se
+corrieron a mano con NETLIST_SIM apuntando a esa corrida).
+
+RTL: 17 cambios de salida, 0 con valores X
+netlist: 17 cambios de salida, 0 con valores X
+trazas identicas (17 lineas RTL, 17 lineas netlist)
+PASS
+
+Control negativo (asic/sim/atrasar.py, pulsación de la primera ronda atrasada 6 ciclos):
+RTL 17 cambios, netlist 11 cambios, primera diferencia en la línea 5
+trazas DISTINTAS -> FAIL, como tiene que ser (comparar.py devuelve 1).
+
+asic/sim/resultado.md regenerado con estos resultados queda IDÉNTICO al de main (git diff vacío):
+el netlist de B2 + B5 produce la misma traza de salidas que el de main en el mismo escenario, que
+es lo que se espera porque ninguno de los dos cambios altera el número de ciclos.

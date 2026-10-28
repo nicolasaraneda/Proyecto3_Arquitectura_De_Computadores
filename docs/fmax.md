@@ -4,7 +4,11 @@ Rama `exp/fmax` = main 50f8a39 + B2 (f053dec, offset de byte de la carga registr
 LSU) + B5 (73f1d72 y 210b6a7, banco de registros con latches `latq_1` y clock gating
 `icgtp_1`). Worktree `build/exp_fmax`. Todas las corridas con `FP_CORE_UTIL = 40 %` y la
 configuración final de main (`asic/rom/config.yaml`: D15, D20, D21 más
-`LINTER_ERROR_ON_LATCH: false` de B5). Tablas completas en `asic/barrido_exp.md`; criterios de
+`LINTER_ERROR_ON_LATCH: false` de B5). Aviso de reproducibilidad: al cerrar el frente se agregó
+`RUN_POST_GRT_RESIZER_TIMING: true` a `asic/rom/config.yaml` (la mejor combinación, sección 6.4),
+así que las corridas de las secciones 3 a 5 que no llevan esa perilla se reproducen con el
+`asic/rom/config.yaml` de los commits anteriores a `e8eee90`, o con
+`RUN_POST_GRT_RESIZER_TIMING=false` en la línea de `asic/encolar.sh`. Tablas completas en `asic/barrido_exp.md`; criterios de
 cierre de cada corrida en `asic/rom/resultados/<tag>/cierre.md`; prefijo de tags `fb_`.
 
 ## 1. Verificación de la base B2 + B5 (paso 1)
@@ -18,6 +22,14 @@ Icarus 14.0-devel):
   no cambian los ciclos). Con RONDAS=4: 2,682.
 - `make equiv` (ciclo a ciclo contra 116fa20, `sw/isa_test.s`): trazas idénticas en las dos
   estrategias (1.018 eventos); CPI 2,953 en las dos versiones.
+- Simulación post-síntesis con el netlist de la rama (28-10-2026): el netlist sale de la corrida
+  `fb_sim_rom` (`asic/sim/config.yaml` hasta `Yosys.Synthesis`, pedida por la cola porque
+  `make sim-netlist` invoca `librelane` directo) y los tres pasos de `make post-synth` se corrieron
+  a mano contra ese netlist: **PASS**, 17 cambios de salida en los dos lados, trazas idénticas y
+  0 valores X ni en el RTL ni en el netlist. El control negativo (`asic/sim/atrasar.py`, pulsación
+  atrasada 6 ciclos) da FAIL como corresponde. `asic/sim/resultado.md` regenerado queda idéntico
+  al de main: el netlist de B2 + B5 da la misma traza de salidas que el de main en el mismo
+  escenario.
 
 ## 2. Cómo se lee el cierre con latches (B5)
 
