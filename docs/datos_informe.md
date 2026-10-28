@@ -263,7 +263,37 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
 - Extra: `make post-synth-final` (netlist de la corrida final, constantes reales,
   320.000 ciclos con una pulsación de inicio real): `asic/sim/resultado_final.md`.
   Resultado: PASS (LEDs 1111 en el ciclo 262.156 y display 01 en el 262.194, iguales en RTL y netlist).
-  Post-PnR con SDF (opcional): `make post-pnr-sdf`, `asic/sim/resultado_sdf.md`: completó
-  una vez con la misma traza (PASS, 4 min 19 s); las corridas siguientes abortan en vvp
-  al anotar el SDF (aserción interna de Icarus 14.0-devel con `-ginterconnect`); está
-  documentado en `asic/sim/README.md`.
+  Post-PnR con SDF: `asic/sim/resultado_sdf.md` (frente D1 de la sesión del 27 y
+  28-10-2026). Corrida completa del flujo con la configuración de simulación
+  (`asic/sim/config_pnr.yaml`, tag `d1_pnr`, cierra: `asic/sim/resultados/d1_pnr/cierre.md`)
+  y su SDF simulado con el mismo testbench y escenario en cuatro esquinas, con tres
+  ejecuciones por esquina y por simulador: todas las trazas idénticas a la del RTL
+  (md5 `4f14ec05462e4789a3d873d2ba50fd97`), 0 valores X. Dos simuladores:
+  `make post-pnr-sdf` con Icarus Verilog 13.0 de la imagen de LibreLane, que anota los
+  retardos pero NO evalúa los timing checks (lo dice al compilar: "Timing checks are not
+  supported"), y `make post-pnr-cvc` con Open Verilog CVC 7.00b, que sí evalúa `$setup`,
+  `$hold`, `$width`, `$recovery`, `$removal` y `$period` con los valores del SDF y no
+  reporta ninguna violación, con un control positivo que demuestra que los evalúa. El
+  aborto de vvp al anotar el SDF que se veía antes era el nombre jerárquico de las
+  instancias del banco de registros; lo arregla `asic/sim/renombrar_instancias.py`.
+
+## 3.8. Verificación adicional de la sesión del 27 y 28-10-2026 (no cambia el diseño)
+
+- Equivalencia formal entre el RTL y los netlists de la corrida final:
+  `docs/equivalencia.md` y `asic/eqy/` (frente D2). eqy con las funciones del liberty
+  típico como modelo de celda, RTL (`MemStrategy=1`, `DataWords=4`) contra el netlist de
+  síntesis y contra el post-PnR sin celdas físicas, con control negativo que falla como
+  debe, BMC desde reset y el flujo clásico de Yosys (`equiv_make`, `equiv_simple`,
+  `equiv_induct`). El paso `Yosys.EQY` del flujo no sirve para este PDK y se documenta por
+  qué.
+- Potencia con actividad real: `asic/potencia/resultado.md` y `asic/potencia/` (frente D3).
+  VCD de la simulación del netlist de la corrida final en cuatro ventanas del juego
+  (lazo de polling, espera de tres segundos, escritura al display y ráfaga de inicio de
+  ronda), leídos por OpenSTA con el SPEF y el liberty de las 9 esquinas: 11,5 a 12,8 mW en
+  `nom_tt_025C_5v00` según la fase, contra los 8,97 mW de la estimación sin actividad del
+  flujo, con la lógica combinacional pasando de 0,0 a 20 y 28 por ciento del total. El
+  reloj (árbol más pines CLK de los 990 flip-flops) sigue siendo el 70 a 78 por ciento.
+  Incluye la sensibilidad al estado inicial de los flip-flops sin reset (entre -1,2 y
+  +1,8 por ciento).
+- Ramas de exploración de la sesión y propuesta de decisión: `asic/exploraciones.md`,
+  `docs/propuesta_d23.md` y D23 de `docs/decisiones.md`.
