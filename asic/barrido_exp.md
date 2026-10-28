@@ -152,3 +152,17 @@ Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "pe
 | corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
 |---|---|---|---|---|---|---|
 | fb_9tb_t100 | 165934.541 | 45090.662 | 544 | 66701.779 | 13155.206 | 4815.014 |
+
+## Confirmación de la mejor base: fb_best_t23p25
+
+Misma corrida que fb_pgrt_t23p25 pero con RUN_POST_GRT_RESIZER_TIMING dentro de asic/rom/config.yaml (commit e8eee90) en vez de pasado como VAR=VAL al encolar: bash asic/encolar.sh build/exp_fmax asic/rom/config.yaml fb_best_t23p25 23.25. Cierra, con los mismos números que fb_pgrt_t23p25.
+
+Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
+
+| corrida | T (ns) | setup WS tt | setup TNS tt | setup WS ss | setup TNS ss | hold WS tt | hold TNS tt | hold WS ss | hold TNS ss | setup WS peor | setup TNS peor | hold WS peor | hold TNS peor | cierra timing | área stdcell (µm²) | utilización | área die (µm²) | antena (nets) | DRC | LVS | cierra todo | slew (peor) | cap (peor) | celdas dly |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| fb_best_t23p25 | 23.250 | 0 | 0 | 0 | 0 | 0.443 | 0 | 0.202 | 0 | 0 | 0 | 0.172 | 0 | sí | 172211 | 0.526 | 353921 | 0 | 0 | 0 | sí | 324 | 3 | 0 |
+
+| corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
+|---|---|---|---|---|---|---|
+| fb_best_t23p25 | 130954.656 | 36673.011 | 544 | 52425.766 | 10005.722 | 3942.579 |

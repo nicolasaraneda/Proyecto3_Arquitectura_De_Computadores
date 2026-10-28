@@ -342,6 +342,13 @@ completo está en `max_ss_125C_4v50_ruta_ff.rpt` y la ruta del latch, que es la 
   (`design__die__area` de cada `metrics.json`). Las dos únicas
   contrapartidas son de flujo, no de área: el linter necesita `LINTER_ERROR_ON_LATCH: false` y
   cada corrida tarda unos 14 minutos más por el paso post-GRT (27 min a 100 ns contra 16 min).
+- **Confirmada tal cual queda commiteada**: `fb_best_t23p25` es la misma corrida de 23,25 ns pero
+  con la perilla dentro de `asic/rom/config.yaml` (commit `e8eee90`) en vez de pasada como
+  `VAR=VAL` al encolar (`bash asic/encolar.sh build/exp_fmax asic/rom/config.yaml fb_best_t23p25 23.25`).
+  **Cierra**, con los mismos números que `fb_pgrt_t23p25` hasta el último dígito: slack a
+  flip-flop 0,039 ns, préstamo de latch 3,578 de 10,950 ns, 172.211 µm², 324 slew / 3 cap, hold
+  0,172 ns, DRC 0, LVS 0, antena 0 (`asic/rom/resultados/fb_best_t23p25/`). La configuración que
+  queda en la rama es la que se midió.
 - **Advertencia para quien la tome**: con los latches, el WNS de setup de `metrics.json` es
   siempre 0,000 (sección 2). Para comparar variantes hay que usar `asic/margen_latch.py`; para
   decidir si cierra, `asic/verificar_cierre.py`, que sigue siendo válido. Y el STA final de la
