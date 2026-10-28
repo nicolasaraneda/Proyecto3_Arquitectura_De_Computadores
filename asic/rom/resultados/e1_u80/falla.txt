@@ -1,0 +1,17 @@
+Corrida e1_u80 (asic/rom/config.yaml de la rama exp/candidata, T = 100 ns, FP_CORE_UTIL = 80):
+FALLA, no tiene final/metrics.json.
+
+Paso en que falla: OpenROAD.CTS (35-openroad-cts). Mensaje, extracto de asic/logs/e1_u80.log
+(los logs no se versionan, asic/logs/ esta en .gitignore):
+
+  [ERROR    [DPL-0036] Detailed placement failed.        openroad.py:312
+  Error: cts.tcl, 102 DPL-0036
+  ERROR    The following error was encountered while running the flow:
+           OpenROAD.CTS failed with the following errors:
+           [DPL-0036] Detailed placement failed.
+  ERROR    LibreLane will now quit.
+
+Es la misma falla que en main a 79 y 80 % (asic/rom/resultados/u1_u79/falla.txt y u1_u80/falla.txt):
+al legalizar el placement despues de insertar los buffers del arbol de reloj no queda lugar para
+todas las instancias. El placement global si habia terminado (GPL-1014 Final placement area
+169.186,88 um2, +0,00 %).

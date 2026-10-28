@@ -1,0 +1,17 @@
+Corrida e1_u90 (asic/rom/config.yaml de la rama exp/candidata, T = 100 ns, FP_CORE_UTIL = 90):
+FALLA, no tiene final/metrics.json.
+
+Paso en que falla: OpenROAD.GlobalPlacement (28-openroad-globalplacement). Mensaje, extracto de
+asic/logs/e1_u90.log (los logs no se versionan):
+
+  [ERROR    [GPL-0301] Utilization 100.620 % exceeds 100%.     openroad.py:312
+  Error: gpl.tcl, 82 GPL-0301
+  ERROR    The following error was encountered while running the flow:
+           OpenROAD.GlobalPlacement failed with the following errors:
+           [GPL-0301] Utilization 100.620 % exceeds 100%.
+  ERROR    LibreLane will now quit.
+
+Contexto del mismo log: area de instancias movibles 156.282,874 um2, area total de instancias
+161.261,587 um2 y ajuste por densidad de pines 12.904,003 um2 sobre un core dimensionado para 90 %
+de utilizacion: la suma pasa del 100 %. En main el mismo punto da 100,531 % (u1_u90/falla.txt); la
+candidata llega a 100,620 % porque tiene mas celdas.

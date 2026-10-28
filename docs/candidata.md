@@ -178,3 +178,63 @@ Resultados y decisión:
   es decir 1,5 MIPS menos); slew y capacitancia son solo criterio de desempate y no son criterio
   de cierre del enunciado. Las dos variantes quedan medidas y documentadas para que el
   coordinador pueda elegir otra cosa con datos.
+
+## 8. Barrido de utilización a 100 ns
+
+`asic/final.md`, sección del barrido; gráfico `docs/figuras/utilizacion.png`
+(`asic/graficos.py --util`); `cierre.md` de cada tag; `metrics.json` de cada corrida.
+El 40 % es `pa_b2_t100`.
+
+| FP_CORE_UTIL | tag | cierra | área die (µm²) | utilización real | área stdcell (µm²) | slew | cap | WNS setup max_ss (ns) | hold peor (ns) |
+|---|---|---|---|---|---|---|---|---|---|
+| 40 % | pa_b2_t100 | sí | 419.131 | 47,9 % | 186.432 | 571 | 37 | 63,191 | 0,134 |
+| 50 % | e1_u50 | sí | 338.033 | 59,1 % | 183.951 | 506 | 36 | 63,492 | 0,173 |
+| 60 % | e1_u60 | sí | 283.758 | 70,0 % | 182.055 | 486 | 41 | 65,858 | 0,175 |
+| 70 % | e1_u70 | sí | 244.851 | 81,5 % | 181.036 | 404 | 34 | 63,967 | 0,165 |
+| 72 % | e1_u72 | sí | 238.352 | 83,6 % | 180.039 | 357 | 26 | 64,914 | 0,177 |
+| 75 % | e1_u75 | sí | 229.251 | 86,9 % | 180.303 | 478 | 32 | 62,499 | 0,128 |
+| 78 % | e1_u78 | sí | 220.839 | 90,0 % | 180.044 | 446 | 33 | 63,948 | 0,168 |
+| 80 % | e1_u80 | NO: falla en OpenROAD.CTS, `[DPL-0036] Detailed placement failed` | | | | | | | |
+| 90 % | e1_u90 | NO: falla en OpenROAD.GlobalPlacement, `[GPL-0301] Utilization 100.620 % exceeds 100%` | | | | | | | |
+
+El paso y el mensaje de las dos que fallan están en `asic/rom/resultados/e1_u80/falla.txt` y
+`e1_u90/falla.txt` (la tabla de `asic/recolectar.py` las marca como "incompleta", que en su
+vocabulario significa "sin final/metrics.json"; acá fallaron, no se cortaron por tiempo).
+
+- Utilización máxima que cierra: 78 % (igual que `main`), con die 220.839 µm² = 0,221 mm² y
+  utilización real 90,0 %. `main` a 78 % llega a 215.545 µm² (`u1_u78`), un 2,4 % menos, que es
+  la diferencia de área de celdas entre los dos diseños.
+- Área mínima que cumple todos los criterios: 0,221 mm², es decir US$5.079 a US$23.000/mm²
+  contra US$9.637 a 40 % (-47 %).
+- El área de celdas estándar BAJA al apretar el floorplan (186.432 µm² a 40 % y 180.044 a 78 %):
+  con el core más chico los cables son más cortos, el resizer necesita menos buffers y las
+  violaciones de slew caen de 571 a 357 (72 %), sin perder cierre. Las dos fallas son de
+  colocación, no de timing.
+
+## 9. Las dos estrategias de memoria con el RTL de la candidata
+
+`asic/final.md`, sección "Estrategia 2"; `asic/ff/resultados/<tag>/cierre.md`. Decisión del frente
+A que se mantiene: con `MemStrategy=2` el SoC instancia el core con `EarlyRead = 0`
+(`docs/pipeline.md`), que es el camino que verifican `make check` y `make equiv` en esta rama y el
+que hace comparable el resultado con la referencia de `main` para s2. El `asic/ff/config.yaml` de
+la rama es el de `main` sin cambios: el único cambio de configuración de la candidata
+(`EarlyRead=1`) no aplica a esa estrategia.
+
+| magnitud | estrategia 1 (pa_b2_t100) | estrategia 2 (e2_t100) | relación |
+|---|---|---|---|
+| cierra a 100 ns y 40 % | sí | sí | |
+| área de celdas estándar (µm²) | 186.432 | 843.767 | 4,5 veces |
+| área del die (µm²) | 419.131 | 1.801.610 | 4,3 veces |
+| celdas estándar | 9.197 | 40.829 | 4,4 veces |
+| largo de cables (µm) | 371.092 | 2.209.619 | 6,0 veces |
+| WNS de setup, peor esquina (ns) | 63,191 | 30,802 | |
+| hold peor (ns) | 0,134 | 0,164 | |
+| pines con violación de slew / cap | 571 / 37 | 18.557 / 209 | |
+| nets con violación de antena | 0 | 0 | |
+| CPI del juego | 1,665 | 2,665 | |
+| costo a US$23.000/mm² | US$9.637 | US$41.437 | 4,3 veces |
+
+Barrido de período de la estrategia 2 (corridas de unos 14 minutos cada una): cierra a 100 y a
+70 ns (WNS +0,802 ns en `max_ss_125C_4v50`) y no cierra a 65 ns (-4,198 ns, TNS -271,971 ns). Las
+tres corridas tienen el mismo layout (40.829 celdas, 843.767 µm², 2.209.619 µm de cables), así que
+el slack baja 1 ns por cada ns de período. Referencia de `main` con s2: período mínimo 62 ns.
