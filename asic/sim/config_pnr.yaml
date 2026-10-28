@@ -1,0 +1,28 @@
+# GENERADO por asic/sim/generar_config.py a partir de asic/rom/config.yaml: no editar a mano.
+# Configuración COMPLETA del flujo (hasta el signoff) para la simulación post-PnR con SDF
+# (sección 3.7, make post-pnr-sdf): igual a la corrida final, con la ROM del programa de
+# simulación (CYCLES_PER_TENTH=1) y DebounceDivBits=2. Generada con --pnr.
+DESIGN_NAME: asic_top
+PDK: gf180mcuD
+VERILOG_FILES:
+  - dir::../../rtl/*.v
+  - dir::../../rtl/espino_core/*.v
+  - dir::gen/pochoco_rom.v
+VERILOG_INCLUDE_DIRS:
+  - dir::gen
+SYNTH_PARAMETERS:
+  - MemStrategy=1
+  - DataWords=4
+  - DebounceDivBits=2
+SYNTH_KEEP_HIERARCHY_MODULES:
+  - espino_register_file
+  - espino_alu
+  - pochoco_cycle_counter
+EXTRA_EXCLUDED_CELLS:
+  - gf180mcu_fd_sc_mcu7t5v0__dly*
+  - gf180mcu_fd_sc_mcu7t5v0__buf_1
+PL_RESIZER_SETUP_SLACK_MARGIN: 10
+IO_PIN_ORDER_CFG: dir::../rom/pines.cfg
+CLOCK_PORT: clk
+CLOCK_PERIOD: 100
+FP_CORE_UTIL: 40

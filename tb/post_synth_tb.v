@@ -40,6 +40,29 @@
 `ifndef DIV_BITS
   `define DIV_BITS 2
 `endif
+// Instante de muestreo de las salidas, en ns después del flanco de subida.
+// Sin retardos (RTL, netlist con -DFUNCTIONAL) las salidas cambian en el
+// flanco y 1 ns basta. Con el SDF anotado (-DSDF) cambian después de la
+// latencia del árbol de reloj más el clk-a-Q y los buffers de salida (varios
+// ns en la esquina lenta), así que make post-pnr-sdf muestrea a mitad de
+// ciclo (MUESTREO=50) tanto el RTL de referencia como el netlist anotado.
+`ifndef MUESTREO
+  `define MUESTREO 1
+`endif
+// Instante en que se aplican las entradas (los botones de ESTIMULOS y la
+// liberación de rst_n), en ns después del flanco de subida del ciclo indicado.
+// Sin retardos, 1 ns después del flanco basta y el DUT ve el valor nuevo en
+// el flanco siguiente. Con el SDF anotado, el reloj llega a los flip-flops
+// después de la latencia del árbol de reloj (entre 0,8 y 2,7 ns según la
+// esquina en d1_pnr), o sea después de ese +1 ns: el netlist capturaría la
+// entrada en el flanco del MISMO ciclo y toda la traza saldría un ciclo antes
+// que la del RTL. Por eso make post-pnr-sdf aplica las entradas a mitad de
+// ciclo (ESTIMULO=50) en el RTL de referencia y en el netlist anotado; en el
+// RTL el valor de ESTIMULO no cambia nada (cualquier instante entre dos
+// flancos da la misma traza).
+`ifndef ESTIMULO
+  `define ESTIMULO 1
+`endif
 
 module post_synth_tb;
 
@@ -147,9 +170,10 @@ module post_synth_tb;
     con_x   = 0;
     i       = 0;
     // Reset: 4 flancos con rst_n en 0. El sincronizador de asic_top suelta
-    // el reset interno dos flancos después de que rst_n sube.
+    // el reset interno dos flancos después de que rst_n sube. rst_n se
+    // suelta ESTIMULO ns después del cuarto flanco, como cualquier entrada.
     repeat (4) @(posedge clk);
-    #1 rst_n = 1'b1;
+    #(`ESTIMULO) rst_n = 1'b1;
     ciclo    = -1;
     led_prev = led;
     s1_prev  = seg1;
@@ -158,13 +182,9 @@ module post_synth_tb;
     forever begin
       @(posedge clk);
       ciclo = ciclo + 1;
-      // Estímulos del ciclo actual: se aplican justo después del flanco, así
-      // que el DUT los ve en el flanco siguiente.
-      while (i < n_est && est_ciclo[i] == ciclo) begin
-        #1 btn = est_btn[i];
-        i = i + 1;
-      end
-      #1;
+      // Los estímulos del ciclo los aplica el bloque de abajo, ESTIMULO ns
+      // después de este flanco; las salidas se muestrean MUESTREO ns después.
+      #(`MUESTREO);
       if (led !== led_prev || seg1 !== s1_prev || seg2 !== s2_prev) begin
         $fdisplay(f_traza, "%0d led=%b disp=%c%c", ciclo, led, seg2hex(seg1), seg2hex(seg2));
         cambios = cambios + 1;
@@ -179,6 +199,20 @@ module post_synth_tb;
                  ciclo, cambios, con_x, `TRAZA);
         $finish;
       end
+    end
+  end
+
+  // Estímulos: los del ciclo actual se aplican ESTIMULO ns después de su
+  // flanco de subida, así que el DUT los ve en el flanco siguiente (con o sin
+  // retardos anotados, mientras ESTIMULO supere la latencia del reloj y sea
+  // menor que el período). `ciclo` ya está actualizado porque el bloque de
+  // arriba lo incrementa en el flanco, sin retardo; antes del reset vale X y
+  // ninguna comparación es verdadera.
+  always @(posedge clk) begin
+    #(`ESTIMULO);
+    while (i < n_est && est_ciclo[i] == ciclo) begin
+      btn = est_btn[i];
+      i = i + 1;
     end
   end
 
