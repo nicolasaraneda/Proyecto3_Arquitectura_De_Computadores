@@ -1,36 +1,6 @@
-violaciones de max slew de asic/rom/runs/final/55-openroad-stapostpnr/max_ss_125C_4v50/checks.rpt: 546 pines en 520 celdas
-  3.0 a 3.5 ns: 361 celdas
-  3.5 a 4.0 ns: 121 celdas
-  4.0 a 4.5 ns: 28 celdas
-  4.5 a 5.0 ns: 4 celdas
-  5.0 a 99.0 ns: 6 celdas
-  u_soc.u_core.u_rf/fanout35 5.414 ns
-  u_soc.u_core.u_rf/fanout34 5.414 ns
-  _2594_ 5.414 ns
-  u_soc.u_core.u_rf/fanout31 5.412 ns
-  u_soc.u_core.u_rf/fanout30 5.412 ns
-  _2605_ 5.412 ns
-  u_soc.u_core.u_rf/_1443_ 4.923 ns
-  u_soc.u_core.u_rf/fanout245 4.923 ns
-  _2598_ 4.586 ns
-  wire75 4.586 ns
-  _3596_ 4.434 ns
-  wire157 4.434 ns
-  _2504_ 4.425 ns
-  _2505_ 4.425 ns
-  _3228_ 4.365 ns
-  _2529_ 4.365 ns
-  u_soc.u_core.u_id.u_alu/_0964_ 4.365 ns
-  _2434_ 4.336 ns
-  u_soc.u_core.u_rf/fanout87 4.336 ns
-  u_soc.u_core.u_rf/fanout88 4.336 ns
-  _4150_ 4.228 ns
-  _3070_ 4.228 ns
-  _3096_ 4.228 ns
-  _3068_ 4.228 ns
-  _3082_ 4.228 ns
-  _3084_ 4.228 ns
-  _3822_ 4.228 ns
-  _2231_ 4.206 ns
-  _2246_ 4.206 ns
-  _2208_ 4.205 ns
+violaciones de max slew de asic/rom/runs/final/57-openroad-stapostpnr/max_ss_125C_4v50/checks.rpt: 0 pines en 0 celdas
+  3.0 a 3.5 ns: 0 celdas
+  3.5 a 4.0 ns: 0 celdas
+  4.0 a 4.5 ns: 0 celdas
+  4.5 a 5.0 ns: 0 celdas
+  5.0 a 99.0 ns: 0 celdas

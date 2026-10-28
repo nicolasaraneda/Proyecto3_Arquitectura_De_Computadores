@@ -1,0 +1,27 @@
+python3 assembler/asm.py sw/hazard_cycles.s -o build/hazard_cycles/hazard_cycles.hex --vh build/hazard_cycles/game_image.vh --rom build/hazard_cycles/pochoco_rom.v
+sw/hazard_cycles.s -> build/hazard_cycles/hazard_cycles.hex (34 palabras, 136 bytes)
+sw/hazard_cycles.s -> build/hazard_cycles/game_image.vh (imagen Verilog, 34 palabras)
+sw/hazard_cycles.s -> build/hazard_cycles/pochoco_rom.v (ROM combinacional, 34 palabras)
+rm -rf build/ref && git worktree prune
+git worktree add --detach build/ref v1-final
+Preparing worktree (detached HEAD d881583)
+HEAD is now at d881583 Reportes de la corrida final de v1 copiados a asic/rom/resultados/v1_final
+equiv (ref, estrategia 1): core_trace_tb: CPI = 2999 ciclos / 1008 instrucciones retiradas = 2.975 (hasta el ultimo evento de la traza)
+equiv (ref, estrategia 1): core_trace_tb: monitor de X: 0 valores desconocidos usados en 1000 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv (act, estrategia 1): core_trace_tb: CPI = 2999 ciclos / 1512 instrucciones retiradas = 1.983 (hasta el ultimo evento de la traza)
+equiv (act, estrategia 1): core_trace_tb: monitor de X: 0 valores desconocidos usados en 1504 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv: hazard_cycles, estrategia 1, modo funcional, v1-final contra el RTL actual:
+  DIFIEREN (rf) en el evento 3: ref='rf x3 = 00000006' act='rf x3 = 00000003'
+  bus: 10 eventos iguales (ref 10, act 10)
+  io: 2 eventos iguales (ref 2, act 2)
+  secuencias DISTINTAS
+equiv (ref, estrategia 2): core_trace_tb: CPI = 2999 ciclos / 1008 instrucciones retiradas = 2.975 (hasta el ultimo evento de la traza)
+equiv (ref, estrategia 2): core_trace_tb: monitor de X: 0 valores desconocidos usados en 1000 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv (act, estrategia 2): core_trace_tb: CPI = 2999 ciclos / 1008 instrucciones retiradas = 2.975 (hasta el ultimo evento de la traza)
+equiv (act, estrategia 2): core_trace_tb: monitor de X: 0 valores desconocidos usados en 1000 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+equiv: hazard_cycles, estrategia 2, modo funcional, v1-final contra el RTL actual:
+  rf: 25 eventos iguales (ref 25, act 25)
+  bus: 10 eventos iguales (ref 10, act 10)
+  io: 2 eventos iguales (ref 2, act 2)
+  secuencias de eventos equivalentes (sin ciclos)
+git worktree remove --force build/ref

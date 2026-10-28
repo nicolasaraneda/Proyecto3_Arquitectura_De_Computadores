@@ -1,0 +1,19 @@
+escrito asic/sim/estimulos.txt con 8 eventos
+traza del RTL con estos estimulos:
+      0 led=0000 disp=00
+    383 led=1111 disp=00
+    404 led=1111 disp=01
+    615 led=0010 disp=01
+   1033 led=0010 disp=51
+   1126 led=1111 disp=51
+   1147 led=1111 disp=02
+   1353 led=0001 disp=02
+   1405 led=0001 disp=EE
+   1406 led=0000 disp=EE
+   1486 led=1111 disp=EE
+   1507 led=1111 disp=02
+   1713 led=0001 disp=02
+   2131 led=0001 disp=51
+   2224 led=1111 disp=51
+   2245 led=1111 disp=03
+   2451 led=0001 disp=03

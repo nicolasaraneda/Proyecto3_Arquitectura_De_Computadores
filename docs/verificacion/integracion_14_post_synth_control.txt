@@ -1,0 +1,36 @@
+python3 asic/sim/atrasar.py asic/sim/estimulos.txt build/post_synth/estimulos_control.txt --pulsacion 2 --ciclos 8
+9c9
+< 635 0010
+---
+> 643 0010
+11c11
+< 695 0000
+---
+> 703 0000
+iverilog -g2012 -I asic/sim/gen -DESTIMULOS=\"asic/sim/estimulos.txt\" -DTRAZA=\"build/post_synth/traza_rtl.txt\" \
+            -DCICLOS=4500 -DDIV_BITS=2 \
+            -o build/post_synth/tb_rtl tb/post_synth_tb.v ./rtl/asic_top.v ./rtl/debounce.v ./rtl/pochoco_cycle_counter.v ./rtl/pochoco_mem_ff.v ./rtl/pochoco_mem_rom.v ./rtl/pochoco_periph.v ./rtl/pochoco_soc.v ./rtl/pochoco_spi_slave.v ./rtl/espino_core/espino_alu.v ./rtl/espino_core/espino_controller.v ./rtl/espino_core/espino_core.v ./rtl/espino_core/espino_decoder.v ./rtl/espino_core/espino_id_stage.v ./rtl/espino_core/espino_if_stage.v ./rtl/espino_core/espino_load_store_unit.v ./rtl/espino_core/espino_register_file.v asic/sim/gen/pochoco_rom.v
+vvp build/post_synth/tb_rtl
+post_synth_tb: 8 eventos de estimulo leidos de asic/sim/estimulos.txt
+post_synth_tb: 4500 ciclos, 16 cambios de salida (0 con X), traza en build/post_synth/traza_rtl.txt
+tb/post_synth_tb.v:200: $finish called at 450451000 (1ps)
+iverilog -g2012 -DNETLIST -DFUNCTIONAL -DESTIMULOS=\"build/post_synth/estimulos_control.txt\" -DTRAZA=\"build/post_synth/traza_netlist_control.txt\" \
+            -DCICLOS=4500 \
+            -o build/post_synth/tb_netlist_control tb/post_synth_tb.v asic/sim/runs/sim_rom/06-yosys-synthesis/asic_top.nl.v /home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/verilog/primitives.v /home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/verilog/gf180mcu_fd_sc_mcu7t5v0.v
+vvp build/post_synth/tb_netlist_control
+post_synth_tb: 8 eventos de estimulo leidos de build/post_synth/estimulos_control.txt
+post_synth_tb: 4500 ciclos, 11 cambios de salida (0 con X), traza en build/post_synth/traza_netlist_control.txt
+tb/post_synth_tb.v:200: $finish called at 450451000 (1ps)
+comparar.py tiene que dar FAIL (estimulos distintos):
+RTL: 17 cambios de salida, 0 con valores X
+  ronda 01: acierto, el display muestra 51 (ciclos medidos) en el ciclo 1033
+  ronda 02: acierto, el display muestra 51 (ciclos medidos) en el ciclo 2131
+  pulsacion incorrecta en la ronda 02: EE en el ciclo 1405
+  tras EE vuelve a la ronda 02 en el ciclo 1507 (la ronda NO avanzo)
+netlist: 12 cambios de salida, 0 con valores X
+  ronda 01: acierto, el display muestra 59 (ciclos medidos) en el ciclo 1089
+  ronda 02: acierto, el display muestra 99 (ciclos medidos) en el ciclo 2438
+primera diferencia en la linea 5: RTL=(1033, '0010', '51') netlist=(1089, '0010', '59')
+trazas DISTINTAS (17 lineas RTL, 12 lineas netlist)
+FAIL
+control negativo OK: la comparacion dio FAIL con estimulos distintos; seccion agregada a asic/sim/resultado.md

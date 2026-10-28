@@ -1,0 +1,20 @@
+  ref m1: core_trace_tb: CPI = 2998 ciclos / 1101 instrucciones retiradas = 2.723 (hasta el ultimo evento de la traza)
+  ref m1: core_trace_tb: monitor de X: 0 valores desconocidos usados en 1018 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+  act m1: core_trace_tb: CPI = 3000 ciclos / 2329 instrucciones retiradas = 1.288 (hasta el ultimo evento de la traza)
+  act m1: core_trace_tb: monitor de X: 63 valores desconocidos usados en 1793 escrituras al banco (rf_wdata 30, bus 0, operandos ALU 33, salidas 0)
+--- rmfwd / hazard_review / estrategia 1 / main contra . -DMUTA_FWD ---
+    DIFIEREN (rf) en el evento 8: ref='rf x3 = 00000003' act='rf x3 = xxxxxxxx'
+    DIFIEREN (bus) en el evento 3: ref='bus R be=1111 addr=00000604 wdata=00000000' act='bus R be=1111 addr=00000000 wdata=00000000'
+    io: 0 eventos iguales (ref 2, act 0)
+    secuencias DISTINTAS
+    salidas (act): 
+  ref m2: core_trace_tb: CPI = 2998 ciclos / 1101 instrucciones retiradas = 2.723 (hasta el ultimo evento de la traza)
+  ref m2: core_trace_tb: monitor de X: 0 valores desconocidos usados en 1018 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+  act m2: core_trace_tb: CPI = 2998 ciclos / 1101 instrucciones retiradas = 2.723 (hasta el ultimo evento de la traza)
+  act m2: core_trace_tb: monitor de X: 0 valores desconocidos usados en 1018 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+--- rmfwd / hazard_review / estrategia 2 / main contra . -DMUTA_FWD ---
+    rf: 271 eventos iguales (ref 271, act 271)
+    bus: 66 eventos iguales (ref 66, act 66)
+    io: 2 eventos iguales (ref 2, act 2)
+    secuencias de eventos equivalentes (sin ciclos)
+    salidas (act): 791 io led=0000 seg=1001111_0111111 801 io led=1111 seg=1001111_0111111 

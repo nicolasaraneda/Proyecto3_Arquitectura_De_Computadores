@@ -1,0 +1,20 @@
+  ref m1: core_trace_tb: CPI = 2999 ciclos / 1130 instrucciones retiradas = 2.654 (hasta el ultimo evento de la traza)
+  ref m1: core_trace_tb: monitor de X: 0 valores desconocidos usados en 1023 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+  act m1: core_trace_tb: CPI = 2999 ciclos / 1695 instrucciones retiradas = 1.769 (hasta el ultimo evento de la traza)
+  act m1: core_trace_tb: monitor de X: 0 valores desconocidos usados en 1588 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+--- base / hazard_test / estrategia 1 / main contra .  ---
+    rf: 348 eventos iguales (ref 348, act 348)
+    bus: 63 eventos iguales (ref 63, act 63)
+    io: 2 eventos iguales (ref 2, act 2)
+    secuencias de eventos equivalentes (sin ciclos)
+    salidas (act): 544 io led=0000 seg=1001111_1111111 549 io led=1111 seg=1001111_1111111 
+  ref m2: core_trace_tb: CPI = 2999 ciclos / 1130 instrucciones retiradas = 2.654 (hasta el ultimo evento de la traza)
+  ref m2: core_trace_tb: monitor de X: 0 valores desconocidos usados en 1023 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+  act m2: core_trace_tb: CPI = 2999 ciclos / 1130 instrucciones retiradas = 2.654 (hasta el ultimo evento de la traza)
+  act m2: core_trace_tb: monitor de X: 0 valores desconocidos usados en 1023 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+--- base / hazard_test / estrategia 2 / main contra .  ---
+    rf: 348 eventos iguales (ref 348, act 348)
+    bus: 63 eventos iguales (ref 63, act 63)
+    io: 2 eventos iguales (ref 2, act 2)
+    secuencias de eventos equivalentes (sin ciclos)
+    salidas (act): 1008 io led=0000 seg=1001111_1111111 1018 io led=1111 seg=1001111_1111111 
