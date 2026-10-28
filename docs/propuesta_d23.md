@@ -137,7 +137,7 @@ Todo desde `build/exp_candidata` (o `build/exp_pipeline_b2`, el mismo RTL), con
 | Prueba de mutación | `MUTA_FWD` (sin write-through) y `MUTA_LOADUSE` (lectura un flanco antes del commit de la carga) producen trazas distintas y 77 valores X usados; las pruebas las detectan |
 | Monitor de valores desconocidos usados | 0 en 620.217 escrituras al banco del juego completo; 0 en `isa_test` y en `hazard_test` |
 | `make post-synth` con el netlist de la rama | PASS, 17 cambios de salida, 0 X, más control negativo con `ATRASO = 8` |
-| Revisión independiente | ver `docs/revision_frente_a.md` |
+| Revisión independiente | APROBADA CON OBSERVACIONES (`docs/revision_frente_a.md`): el revisor reprodujo toda la verificación, escribió 48 comprobaciones de riesgos nuevas (`sw/hazard_review.s`) y 5 de CYCLES, agregó dos mutaciones propias que las pruebas detectan, y verificó número por número las dos tablas del frente sin encontrar diferencias |
 
 Dos consecuencias de la temporización nueva que hay que tener presentes: el display muestra **51**
 ciclos medidos en vez de 57 en el escenario de `asic/sim/estimulos.txt` (el lazo de polling pasa de
@@ -206,7 +206,19 @@ cambio no altera el comportamiento (hazard_test, mutaciones, monitor de X).
    frecuencia máxima sin más contexto, la candidata parece peor; el argumento es la Ley de Hierro
    (el tiempo de ejecución es instrucciones por CPI por período, y el producto mejora 54 por
    ciento).
-6. **Lo que no se midió.** La potencia con actividad real de la candidata y los puntos del paquete
+6. **Integración con main (lo señaló la revisión independiente, O1).** La rama salió de `main` el
+   27-10 y desde entonces `main` avanzó: el único archivo que tocan los dos lados es el `Makefile`,
+   y la versión de la rama borra lo que agregó el frente D1 (`post-pnr-cvc`, la regla de
+   `asic/sim/config_pnr.yaml`). Además `main` cambió `tb/post_synth_tb.v` y la rama no, así que el
+   `make post-synth` PASS de la rama se obtuvo con el testbench anterior. Antes de adoptarla hay
+   que rebasar la rama sobre `main`, mezclar el `Makefile` a mano (quedarse con el de `main` y
+   agregarle `PROG`, `ATRASO ?= 8` y `POLL_CICLOS ?= 8`) y volver a correr `make check` y
+   `make post-synth`. Es el único trabajo de verificación que queda pendiente de verdad.
+7. **`illegal_insn_o` queda desfasado una instrucción** con la lectura anticipada (O3 de la
+   revisión): hoy es inocuo porque la señal no se usa en ninguna parte (no hay trap), pero si
+   alguien agregara uno apuntaría a la instrucción equivocada. Hay que registrarla con el resto
+   del decode o dejarlo comentado en el RTL.
+8. **Lo que no se midió.** La potencia con actividad real de la candidata y los puntos del paquete
    que queden abiertos en la sección 6.
 
 ## 10. Opciones
