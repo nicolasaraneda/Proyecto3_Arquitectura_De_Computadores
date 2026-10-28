@@ -6,26 +6,67 @@ corridas están en `asic/<config>/runs/<tag>` (no versionadas) y sus reportes en
 `asic/<config>/resultados/<tag>/` (versionados, con `metrics.json`). Las tablas de
 barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
 
+**La corrida final es la de D23** (28-10-2026): el RTL del pipeline con lectura del banco
+de registros y decodificación en el fetch (parámetro `EarlyRead`), banco write-through y
+el offset de byte de la carga registrado en la LSU (B2), más la configuración del modelo
+de cable del resizer (`LAYERS_RC` con los RC medidos) y la reparación después del ruteo
+global. Dos consecuencias que valen para todo el documento:
+
+- **"v1" quiere decir `main` antes de integrar**, marcado con el tag `v1-final`. Sus
+  reportes están en `asic/rom/resultados/v1_final/` (con un `LEEME.md` que lista cada
+  cifra y su clave) y su corrida en disco en `asic/rom/runs/v1_final_run/`. Donde este
+  documento compara contra v1, el valor viejo sale de ahí y no de `resultados/final/`,
+  que es la corrida nueva.
+- **Los pasos del flujo cambiaron de número**: la configuración agrega
+  `OpenROAD.RepairDesignPostGRT` (41) y `OpenROAD.ResizerTimingPostGRT` (44), así que
+  todo lo posterior se corre dos lugares. El STA final pasa de `55-openroad-stapostpnr` a
+  `57-openroad-stapostpnr`, el segundo chequeo de antenas de 46 a 48, el informe de caída
+  de tensión de 56 a 58, `magic-writelef` de 60 a 62 y el chequeo de antenas del LEF de 61
+  a 63. Los scripts del repositorio buscan los pasos por nombre y no por número
+  (`asic/recolectar.py`, `asic/final.sh`, `asic/modelo_cable.py`, `asic/layout/anotar.py`).
+
 ## 2. Corrida final y reproducibilidad
 
-- Corrida final: tag `final`, `asic/rom/config.yaml` (estrategia 1, D17; D15, D20 y
-  D21), T = 100 ns, FP_CORE_UTIL = 40 %. Comando: `make final` (`asic/final.sh`), o
+- Corrida final: tag `final`, `asic/rom/config.yaml` (estrategia 1, D17; D15, D20, D21 y
+  D23), T = 100 ns, FP_CORE_UTIL = 40 %. Comando: `make final` (`asic/final.sh`), o
   `librelane --dockerized --pdk gf180mcuD asic/rom/config.yaml --run-tag final`.
+  `SYNTH_PARAMETERS` es `MemStrategy=1`, `DataWords=4` y `EarlyRead=1`; la configuración
+  trae además `LAYERS_RC` (15 pares de capa y extracción) y las cuatro variables de la
+  reparación post-GRT (`RUN_POST_GRT_DESIGN_REPAIR`, `GRT_DESIGN_REPAIR_MAX_SLEW_PCT = 30`,
+  `GRT_DESIGN_REPAIR_MAX_CAP_PCT = 30`, `RUN_POST_GRT_RESIZER_TIMING`).
 - Criterios de cierre (`asic/rom/resultados/final/cierre.md`, `asic/verificar_cierre.py`):
-  DRC de Magic 0, LVS 0, antena 0 nets, setup WNS 65,223 ns y hold WNS 0,178 ns en
-  la peor de las 9 esquinas, TNS 0 en todas. Además DRC de KLayout 0 marcadores en
-  684 reglas (`asic/rom/resultados/final/drc_klayout/resumen.md`, deck en `asic/drc/`).
+  DRC de Magic 0, LVS 0, antena 0 nets, setup WNS **65,725 ns** y TNS 0 en las 9 esquinas,
+  hold WNS **0,173 ns** en la peor esquina (`min_ff_n40C_5v50` y `nom_ff_n40C_5v50`
+  empatan; en `max_ss_125C_4v50` el hold es 1,065 ns) y TNS 0 en todas. Además DRC de
+  KLayout 0 marcadores en 684 reglas
+  (`asic/rom/resultados/final/drc_klayout/resumen.md`, deck en `asic/drc/`), con su
+  control positivo: el deck marca las dos violaciones de Metal1 inyectadas, en sus
+  coordenadas (`drc_klayout/control_positivo.md`).
+  Para comparar, v1: setup 65,223 ns y hold 0,178 ns (`resultados/v1_final/cierre.md`).
 - Versiones (`asic/versiones.md`, `asic/versiones.sh`): LibreLane 3.0.16, imagen
   `ghcr.io/librelane/librelane:3.0.16`, PDK gf180mcuD revisión
   `54435919abffb937387ec956209f9cf5fd2dfbee`, biblioteca `gf180mcu_fd_sc_mcu7t5v0`,
   Yosys 0.62, OpenROAD dcf36133, Magic 8.3.623, KLayout 0.30.7, Netgen 1.5.316,
-  Icarus 13.0 (imagen) y 14.0 (oss-cad-suite, simulaciones).
+  Icarus 13.0 (imagen) y 14.0 (oss-cad-suite, simulaciones). No cambian con D23.
 - Instalación y regeneración del programa: README (`make image`, assembler propio).
-- Datos de la corrida final (`asic/rom/resultados/final/metrics.json`):
-  die 630,6 x 648,52 µm = 408.957 µm² (0,409 mm²); core 379.800 µm²; área de celdas
-  estándar 182.265 µm²; utilización 48,0 %; 8.670 celdas estándar, 990 flip-flops;
-  largo de cables 352.253 µm; potencia estimada 8,97 mW a 10 MHz en nom_tt (`power.rpt` de esa esquina; los 11,3 mW de
-  `power__total` en `metrics.json` son de max_ff, la última esquina que procesa el flujo).
+- Datos de la corrida final (`asic/rom/resultados/final/metrics.json`), con el valor de v1
+  entre paréntesis (`resultados/v1_final/metrics.json`):
+  die 638,505 x 656,425 µm = **419.131 µm² (0,419 mm²)** (630,6 x 648,52 µm = 408.957 µm²);
+  core **389.525 µm²** en 159 filas de 1.116 sitios (379.800 µm², 157 filas de 1.102;
+  `13-openroad-floorplan`, mensajes IFP-0001 e IFP-0102); área de celdas estándar
+  **208.439 µm²** (182.265); utilización real **53,5 %** (48,0 %); **9.928** celdas
+  estándar (8.670) y **964** flip-flops (990); largo de cables **377.509 µm** (352.253) y
+  cable más largo 1.713,94 µm (1.409,36); **0** violaciones de max slew (546), **1** de max
+  capacitancia (36) y **21** de max fanout (62); potencia estimada **9,620 mW** a 10 MHz en
+  nom_tt (8,971 mW; `power.rpt` de esa esquina: interna 7,555 mW, conmutación 2,062 mW,
+  fuga 0,002 mW; los 12,100 mW de `power__total` en `metrics.json` son de max_ff, la última
+  esquina que procesa el flujo, contra 11,280 mW en v1).
+- Costo a 23.000 dólares por mm²: 0,419131 mm² x 23.000 = **9.640 dólares** (v1: 9.406).
+- Que el die no cambie respecto de la candidata sin modelo de cable es el argumento de D23
+  para levantar el límite de área de celdas de la sesión: los 419.131 µm² son los mismos de
+  `build/exp_candidata/asic/rom/runs/pa_b2_t100/final/metrics.json`, porque el die lo fija
+  `FP_CORE_UTIL = 40` sobre el área de la síntesis y las celdas que agrega el resizer caben
+  dentro. Lo único que sube es la utilización real del core.
 
 ## 3.1. Construcciones dependientes de la FPGA
 
@@ -52,68 +93,180 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
 
 ## 3.3. Síntesis
 
+`LAYERS_RC` y la reparación post-GRT solo actúan en el place and route, así que toda esta
+sección depende únicamente del RTL nuevo: las cifras de síntesis de la corrida final son
+las mismas que daría la candidata sin modelo de cable.
+
 - `asic/sintesis.md` (generado por `asic/analisis_sintesis.py` desde `final` y
-  `h2_t100`): área por módulo con porcentaje, las cinco celdas más usadas con su
+  `h3_t100`): área por módulo con porcentaje, las cinco celdas más usadas con su
   desglose por módulo y la verificación contra el RTL, fracción del contador de ciclos.
-- Cinco celdas más usadas (corrida final, 5.118 celdas de síntesis): dffq_1 804
-  (15,7 %), mux2_2 759 (14,8 %), nand2_1 758 (14,8 %), oai21_1 309 (6,0 %), clkinv_1
-  284 (5,5 %). dffq_1: 544 del banco de registros (480 bits + 64 de salida), 192 de la
-  memoria (registro de instrucción, RAM de 4 palabras, salida de datos), 82 de la
-  pre-decodificación; la síntesis aplanada elimina 14 de los 818 del RTL.
-- Módulo con más área: `espino_register_file` (u_soc.u_core.u_rf), 73.656 µm², 46,6 %
-  de la síntesis jerárquica (157.980 µm²) y 48,4 % de la aplanada (152.169 µm²).
-- Contador de ciclos: 3.943 µm², 2,50 % (jerárquica) y 2,59 % (final); 32 dffrnq_1.
+- Área de celdas de la síntesis: **156.098,48 µm²** aplanada (v1: 152.169,07) y
+  **164.604,88 µm²** jerárquica (v1: 157.980), 5,2 % menos al aplanar porque la
+  optimización cruza los bordes de módulo
+  (`asic/rom/resultados/{final,h3_t100}/` y `resultados/v1_final/sintesis_stat.rpt`).
+- Cinco celdas más usadas (corrida final, **5.577 celdas de 36 tipos**; v1: 5.118 de 34):
+  **nand2_1 934 (16,7 %), mux2_2 889 (15,9 %), dffq_1 779 (14,0 %), aoi21_1 437 (7,8 %),
+  oai21_1 348 (6,2 %)**. En v1 el orden era dffq_1 804 (15,7 %), mux2_2 759 (14,8 %),
+  nand2_1 758 (14,8 %), oai21_1 309 (6,0 %) y clkinv_1 284 (5,5 %): **el flip-flop deja de
+  ser la celda más numerosa** y `clkinv_1` sale de las cinco primeras.
+- Desglose de `dffq_1`: 544 del banco de registros (480 bits de almacenamiento + 64 de las
+  dos salidas registradas), 192 de la memoria (registro de instrucción, RAM de 4 palabras,
+  salida de datos), 82 del decode registrado y **2 nuevos en la LSU** (el offset de byte de
+  la carga registrado al emitirla, que es B2). El RTL tiene 820 bits de registro sin reset
+  y 185 con reset (1.005); la síntesis jerárquica da 820 + 185 y la aplanada 779 + 185 =
+  **964 flip-flops** (v1: 990). La aplanada elimina 41 flip-flops al propagar constantes a
+  través de los bordes de módulo.
+- Desglose de `mux2_2` en la síntesis jerárquica: 796 del banco de registros, 160 de la
+  memoria y 117 de la etapa ID (1.139 en total). Los del banco suben de 622 a 796 porque al
+  mux de retención de cada bit se le suman el mux del write-through y el enable de lectura;
+  a cambio sus `mux4_1` bajan de 128 a 66, así que parte del árbol de lectura se remapeó
+  (`sintesis_jerarquica.json` de `h2_t100` y de `h3_t100`, clave `num_cells_by_type` del
+  módulo). Los 117 de la etapa ID (116 en v1) son los 82 de retención del decode, que ahora
+  cargan solo si el pipeline avanza, más los muxes de operandos, de write-back y de
+  `pc_target`.
+- Módulo con más área: `espino_register_file` (`u_soc.u_core.u_rf`), **80.349 µm², 48,8 %**
+  de la síntesis jerárquica y 51,5 % de la aplanada (v1: 73.656 µm², 46,6 % y 48,4 %).
+- Contador de ciclos: 3.943 µm², **2,40 %** (jerárquica) y **2,53 %** (final); 32 dffrnq_1,
+  que son el 61 % de su área (2.388 de 3.943 µm²). No cambia en valor absoluto: baja de
+  porcentaje porque el diseño creció.
+- Área del resto de los módulos en la síntesis jerárquica (`asic/sintesis.md`):
+  `espino_id_stage` con ALU y decodificador 29.589 µm² (18,0 %), `espino_alu` 10.153
+  (6,2 %), `pochoco_mem_rom` con la ROM 27.458 (16,7 %), `pochoco_rom` 7.448 (4,5 %),
+  `pochoco_periph` con debounce y contador 14.409 (8,8 %), `espino_if_stage` 8.511 (5,2 %),
+  `espino_load_store_unit` **2.819** (1,7 %; sube desde 2.711 por el registro del offset de
+  byte), `espino_decoder` 1.965 (1,2 %), y el bus, el sincronizador de reset y el control
+  1.470 µm² (0,9 %).
 - Método: `SYNTH_KEEP_HIERARCHY_MODULES` en la corrida final y síntesis aparte con
-  `SYNTH_HIERARCHY_MODE=keep` (h2_t100, `asic/rom/resultados/h2_t100/sintesis_jerarquica.rpt`).
+  `SYNTH_HIERARCHY_MODE=keep` (**h3_t100**, `asic/rom/resultados/h3_t100/sintesis_jerarquica.rpt`).
 - Reportes: `asic/rom/resultados/final/sintesis_stat.rpt` y `sintesis_stat.json`.
 
 ## 3.4. Timing y frecuencia máxima
 
-- Barrido de CLOCK_PERIOD con la configuración final (corridas `final` y `f1_*`):
-  tabla en `asic/final.md` (sección del barrido) y gráfico `docs/figuras/periodo.png`.
-  Resultado: cierra a 100, 32, 30, 26, 25 y 24,5 ns; no cierra a 24 ns (WNS -0,004 ns en
-  max_ss). Período mínimo 24,5 ns, 40,8 MHz (1/24,5 ns = 40,82 MHz; corrida `f1_t24p5` del
-  27-10-2026, `asic/rom/resultados/f1_t24p5/cierre.md`: WNS de setup 0,496 ns y TNS 0 en
-  max_ss, hold 0,178 ns en la peor esquina, DRC de Magic, LVS y antenas en 0). Con 24,5 ns
-  quedan 0,5 ns entre el último período que cierra y el primero que no (24 ns), que es la
-  resolución que fija la regla de la sesión. Con el CPI del juego (2,665) son 15,3 MIPS
-  (40,82 / 2,665 = 15,32; con 25 ns eran 15,0). f1_t28 se detuvo
-  a los 40 minutos en ResizerTimingPostCTS (regla de tiempo) y no cuenta.
-- WNS y TNS de setup y hold en nom_tt_025C_5v00 y max_ss_125C_4v50: columnas de la
-  tabla de `asic/final.md` (de `metrics.json` de cada corrida).
-- Ruta crítica del período mínimo (`asic/rom/resultados/f1_t24p5/layout/ruta_critica.txt`
-  y `.png`, esquina max_ss, T = 24,5 ns; es la misma ruta, celda por celda, que la de f1_t25
-  en `asic/rom/resultados/f1_t25/layout/`, porque las dos corridas tienen el mismo layout):
-  empieza en `_4189_` (dffq_1, registro de
-  pre-decodificación `alu_operator[1]`, etapa ID, 1 celda), pasa por la ALU (comparador,
-  `u_soc.u_core.u_id.u_alu`, 9 celdas) hasta `lsu_addr[1]`, la alineación de la carga en
-  la LSU (lógica aplanada sin nombre jerárquico, 11 celdas), el mux de write-back
-  (`rf_wdata[11]`) y el banco de registros (4 celdas), y termina en
-  `u_soc.u_core.u_rf/_2933_` (dffq_1, bit de un registro del banco): 25 celdas numeradas
-  desde el startpoint, más 3 buffers del camino de reloj (en gris, sin número). Llegada
-  del dato 25,784 ns, tiempo requerido 26,280 ns, slack 0,496 ns
-  (`asic/rom/resultados/f1_t24p5/max_ss_125C_4v50_ruta_critica.rpt`; a 25 ns el mismo
-  camino tiene requerido 26,780 ns y slack 0,996 ns,
-  `asic/rom/resultados/f1_t25/max_ss_125C_4v50_ruta_critica.rpt`). Función: ejecución
-  (ALU) -> acceso a memoria (alineación del dato) -> write-back. Es la misma ruta que D18
-  describe, ahora sin el decode, y la misma de f1_t26 (mismo layout).
-- Cambio de RTL (D18, pre-decodificación): antes s1_t55 (55 ns, WNS 1,764) y p1_t42
-  (42 ns); con la configuración final, el RTL anterior (116fa20) corre como r0_t100 y
-  r0_t26: a 100 ns WNS 54,552 contra 65,223 ns (10,7 ns menos de ruta), área 174.529
-  contra 182.265 µm² (+4,4 % por los 69 flip-flops y muxes de la pre-decodificación);
-  r0_t26: pendiente (tabla de `asic/final.md`).
-- Constantes de game.s para T = 100 ns: D10 (`CLK_HZ = 10000000`, `CYCLES_PER_TENTH = 1000000`).
-- Más allá de lo pedido, las ramas exp/* (`asic/exploraciones.md`) miden otros cambios de
-  RTL con la misma configuración: registrar el offset de byte en la LSU (B2) cierra a 24 ns
-  (41,7 MHz) con 0,6 % menos de área; el comparador de saltos dedicado (B3) no mueve el
-  período; ejecutar en un ciclo (B4) baja el CPI de 2,67 a 1,31 pero sube el período mínimo
-  a 60 ns (12,7 contra 15,3 MIPS de main a 24,5 ns) y ahorra 13 % de área.
-- Cada CLOCK_PERIOD reoptimiza el circuito: el área de celdas va de 182.265 µm² (100
-  ns) a 189.817 µm² (26 a 24 ns) y las violaciones de slew de 546 a 532; f1_t26, f1_t25,
-  f1_t24p5 y f1_t24 dieron exactamente el mismo layout (8.708 celdas estándar, 189.817 µm²
-  y 354.897 µm de cables, `metrics.json` de cada una): el resizer llega a su límite con el
-  margen de 10 ns (D20) y de ahí para abajo solo cambia el slack reportado, 1 ns de WNS
-  por cada ns de período (0,996 a 25 ns, 0,496 a 24,5 ns, -0,004 a 24 ns).
+### Barrido de período y período mínimo
+
+- Barrido de `CLOCK_PERIOD` con la configuración final (corridas `final` y `f2_*`): tabla en
+  `asic/final.md` (sección del barrido) y gráfico `docs/figuras/periodo.png`.
+- **Período mínimo 21,5 ns, frecuencia máxima 46,5 MHz** (1 / 21,5 ns = 46,51 MHz). La
+  corrida `f2_t21p5` cierra todo (`asic/rom/resultados/f2_t21p5/cierre.md`: WNS de setup
+  0,876 ns y TNS 0 en `max_ss_125C_4v50`, hold 0,173 ns en la peor esquina, DRC de Magic,
+  LVS y antenas en 0) y `f2_t21` no cierra por 0,129 ns (TNS -0,291 ns,
+  `asic/rom/resultados/f2_t21/cierre.md`). Con eso **la regla de la sesión de dejar 0,5 ns o
+  menos entre el último período que cierra y el primero que no queda cerrada**.
+  En v1 eran 24,5 ns y 40,8 MHz (`f1_t24p5` cierra con 0,496 ns, `f1_t24` no por 0,004 ns).
+- **MIPS (Ley de Hierro) 27,9** = 46,51 MHz / 1,665 de CPI del juego. En v1 eran 15,3
+  (40,82 / 2,665). El CPI del juego completo lo imprime `game_tb` en `make check`:
+  1.595.814 ciclos / 958.358 instrucciones retiradas = **1,665** con la estrategia 1, y
+  1.599.759 / 600.218 = 2,665 con la estrategia 2, que es el valor de v1
+  (`docs/verificacion/integracion_01_make_check.txt`). El CPI de `isa_test.s` lo imprime
+  `core_trace_tb` en `make equiv`: 3.000 / 1.524 = **1,969** (v1: 2,953;
+  `docs/verificacion/integracion_03_equiv_isa_v1.txt`).
+- **El área sigue creciendo en cada período, y el WNS ya no es lineal.** En v1 las corridas
+  de 26 a 24 ns daban exactamente el mismo layout (8.708 celdas, 189.817 µm² y 354.897 µm de
+  cables), porque con el margen de 10 ns de D20 el resizer llegaba a su límite y de ahí para
+  abajo solo cambiaba el slack, 1 ns de WNS por cada ns de período. Con los parásitos medidos
+  eso se cae: el resizer sigue encontrando qué reparar en cada período, así que cada corrida
+  tiene su propio layout y su propia área, y el WNS sube y baja. Medido
+  (`metrics.json` de cada `f2_*`): área de celdas 208.439 µm² a 100 ns, 224.767 a 22 ns,
+  231.229 a 21,5 ns y 231.638 a 21 ns; celdas estándar 9.928 a 100 ns y 9.946 a 21,5 ns;
+  cables 377.509 µm a 100 ns y 386.712 a 21,5 ns; WNS en `max_ss` 0,656 ns a 22 ns y
+  0,876 ns a 21,5 ns, es decir **mejor a 21,5 que a 22**.
+- **Las 0 violaciones de max slew no valen en todo el barrido.** A 100 ns, a 22 ns y a
+  21,5 ns son 0 (`design__max_slew_violation__count` de cada `metrics.json`), y a 21 ns son
+  6. La violación de max capacitancia es 1 en todas las corridas y es siempre el mismo pin
+  (ver 3.6).
+
+### Comparación diseño contra diseño con la misma configuración
+
+Es la comparación que D23 usa como argumento y no existía en v1: el RTL de v1 corrido con la
+misma configuración del modelo de cable (worktree `build/main_rc`, tags `co_rcm_*`,
+reportes en `asic/main_rc/resultados/`) cierra a **22 ns** (45,5 MHz; a 21,5 ns no cierra por
+0,383 ns) y el RTL nuevo a **21,5 ns**. A 23 ns el diseño nuevo cierra con el doble de margen
+(1,494 contra 0,756 ns en `max_ss`). Con el CPI de cada uno, 17,1 contra 27,9 MIPS. O sea que
+el medio nanosegundo de ventaja es del diseño, y los 3 ns que separan a v1 de la corrida final
+se reparten entre el flujo y el RTL (ver la tabla de evolución más abajo). `co_rcm_t100`:
+201.309 µm² de celdas, WNS 65,276 ns, 2 violaciones de slew y 1 de capacitancia.
+
+### Ruta crítica
+
+Las dos rutas están partidas en tramos, con el cálculo del tiempo requerido, en
+`asic/rutas.md` (generado por `bash asic/rutas.sh`, que llama a `asic/ruta_tramos.py` sobre el
+`report_checks` de cada corrida). Las figuras anotadas están en
+`asic/rom/resultados/<tag>/layout/ruta_critica.png` y la numeración de celdas en
+`ruta_critica.txt` (`asic/layout/anotar.sh`).
+
+**A 100 ns (corrida `final`): es la ruta que crea la lectura anticipada.** Empieza en `_4287_`
+(`dffrnq_1`, el bit 2 del PC: su salida es `u_soc.g_mem_rom.u_mem.a_addr_i[2]`, módulo
+`espino_if_stage`, función **fetch**), pasa por 13 celdas aplanadas que son la ROM
+combinacional hasta `u_soc.g_mem_rom.u_mem.a_next_o[17]`, que es el bit 17 de la instrucción,
+o sea `rs1[2]`, y de ahí por 19 celdas dentro de `u_soc.u_core.u_rf` (la decodificación de la
+dirección de lectura y el árbol de lectura de 15 a 1) hasta terminar en
+`u_soc.u_core.u_rf/_4123_` (`dffq_1`, cuya salida es `rdata_a_o[25]`, módulo
+`espino_register_file`, función **lectura de operandos**). Son **34 celdas numeradas más 3
+buffers del camino de reloj** (`asic/rom/resultados/final/layout/ruta_critica.txt`). Tramos:
+árbol de reloj 2,647 ns, reloj a Q 1,877 ns, lógica aplanada (ROM) 12,355 ns, banco de
+registros 19,154 ns; llegada del dato 36,033 ns, tiempo requerido 101,758 ns (100 + 2,412 de
+latencia del reloj de captura - 0,250 de incertidumbre + 0,115 de CRPR - 0,519 de setup) y
+slack 65,725 ns.
+
+**Al período mínimo (`f2_t21p5`, 21,5 ns): es otra ruta, y no pasa por el banco de
+registros.** Empieza en `_4136_` (`dffq_4`, salida `u_soc.u_core.u_id.alu_op_a_sel[2]`: uno de
+los 82 registros del decode, módulo `espino_id_stage`, función **decode**), pasa por 9 celdas
+aplanadas que son el mux del operando A hasta `u_soc.u_core.u_id.operand_a[26]`, por 18 celdas
+dentro de `u_soc.u_core.u_id.u_alu` (función **ejecución**) hasta `u_soc.u_core.lsu_addr[31]`,
+y por 10 celdas aplanadas más que son la decodificación de dirección del bus (función **acceso
+a memoria**), para terminar en `_4440_` (`dffrnq_1`, salida `u_soc.u_periph.digit_q[4]`: el bit
+4 del registro del display, módulo `pochoco_periph`, función **escritura del periférico**). Son
+**39 celdas numeradas más 3 buffers del camino de reloj**
+(`asic/rom/resultados/f2_t21p5/layout/ruta_critica.txt`). Tramos: árbol de reloj 2,673 ns,
+reloj a Q 1,830 ns, mux del operando 4,267 ns, ALU 9,048 ns, dirección del bus y periférico
+4,417 ns; llegada del dato 22,235 ns, tiempo requerido 23,111 ns (21,5 + 2,385 - 0,250 + 0,116
+- 0,640) y slack 0,876 ns.
+
+Lectura de las dos: a 100 ns la ruta larga es la del fetch al banco, porque con 10 ns de margen
+el resizer no necesita atacarla; al período mínimo esa ruta ya está reparada y la que manda es
+la de siempre, decode a ALU a bus. La ruta del store al display aparece porque el programa
+escribe el display con un `sw` cuya dirección la calcula la ALU. En v1 la ruta del período
+mínimo iba del registro de pre-decodificación `_4191_` (`alu_op_a_sel[2]`) por la ALU y la
+alineación de la LSU al banco de registros (`_4309_`), 25 celdas, con llegada 36,485 ns a 100 ns
+(`asic/rom/resultados/v1_final/max_ss_125C_4v50_ruta_critica.rpt`).
+
+### Cambio de RTL: de la pre-decodificación al pipeline
+
+- La pre-decodificación de D18 sigue en el diseño: lo que cambia es **cuándo** se registra el
+  decode. Con `EarlyRead = 1` el decodificador trabaja sobre la instrucción que viene de la ROM
+  (`instr_next_i`) y sus 82 salidas se registran en el mismo flanco en que se carga la
+  instrucción, así que desaparece el ciclo de espera (`ops_valid_q` del bloque `g_wait`, que con
+  `EarlyRead = 1` no se genera: por eso el id_stage pasa de 82 + 1 a 82 + 0 flip-flops).
+  Detalle del RTL y de su verificación: `docs/pipeline.md` y `docs/verificacion/integracion.md`.
+- Medición histórica del efecto de D18, que no cambia porque son corridas del RTL anterior:
+  `r0_t100` y `r0_t26` (RTL del commit `116fa20` con la configuración de v1, worktree
+  `build/ref116`): a 100 ns WNS 54,552 contra 65,223 ns de v1 y área 174.529 contra 182.265 µm²;
+  `r0_t26` **no cierra** (WNS -3,175 ns, TNS -1.223,744 ns, 181.326 µm²). Tabla en
+  `asic/final.md`, sección "RTL sin pre-decodificación".
+
+### Tabla de evolución del rendimiento
+
+Una fila por etapa del proyecto, con el período mínimo, la frecuencia máxima, el CPI del juego
+completo, los MIPS, el área de celdas a 100 ns y las violaciones de slew y de capacitancia a
+100 ns. Está en `asic/evolucion.md` (generada por `python3 asic/evolucion.py`), con el archivo de
+origen de cada fila, y separa cuánto del aumento de MIPS viene del RTL (del CPI) y cuánto del
+flujo (del período).
+
+### Constantes del juego
+
+- Constantes de `game.s` para T = 100 ns: D10 (`CLK_HZ = 10000000`,
+  `CYCLES_PER_TENTH = 1000000`). **No cambian**: el período de la corrida final del enunciado
+  sigue siendo 100 ns, así que `rtl/gen/pochoco_rom.v` y la ROM son las mismas.
+
+### Otras exploraciones de RTL
+
+Las ramas `exp/*` (`asic/exploraciones.md`, tabla generada por `asic/tabla_sesion.py` sobre
+`asic/ramas_sesion.json`) miden otros cambios con la configuración de v1. **A (pipeline) y B2
+ya están dentro de la corrida final**, así que dejan de ser exploraciones; siguen siéndolo B3
+(comparador de saltos dedicado: no mueve el período), B4 (ejecutar en un ciclo: CPI 1,312 pero
+período mínimo 60 ns, 12,7 MIPS) y B5 (banco de latches con clock gating: 165.211 µm² a 100 ns,
+pero con la lectura anticipada el período mínimo sube a 29 ns y rinde 20,7 MIPS). La referencia
+de comparación de esa tabla es v1 y está rotulada como tal.
 
 ## 3.5. Floorplan, utilización y costo
 

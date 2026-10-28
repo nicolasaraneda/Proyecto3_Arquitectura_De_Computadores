@@ -1,0 +1,6 @@
+violaciones de max slew de asic/rom/runs/f2_t21p5/57-openroad-stapostpnr/max_ss_125C_4v50/checks.rpt: 0 pines en 0 celdas
+  3.0 a 3.5 ns: 0 celdas
+  3.5 a 4.0 ns: 0 celdas
+  4.0 a 4.5 ns: 0 celdas
+  4.5 a 5.0 ns: 0 celdas
+  5.0 a 99.0 ns: 0 celdas
