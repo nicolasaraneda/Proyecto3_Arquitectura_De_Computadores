@@ -422,9 +422,11 @@ RUN_POST_GRT_RESIZER_TIMING=true
   permite 3,93 pF en el `clkbuf_16` que la maneja). Fanout: 10 buffers de hoja con 11 o 12 sumideros.
   Fuente: `asic/rom/resultados/{sc2_rccp_t100,sc2_rccp_t22p5,sc_rccp_t24}/pines.md`.
 - Costo en área: a 100 ns 178.834 µm² contra 165.358 de la base, +13.476 µm² (**+8,15 %**); a 22,5 ns
-  186.599 µm² contra 172.185 de fb_t23p5 (+8,37 %). Sigue por debajo de main a 100 ns solo en parte:
-  main mide 182.265 µm² a 100 ns con el RTL sin B2 ni B5, así que contra main esta configuración
-  queda 1,9 % abajo. Fuente: `metrics.json` de cada corrida.
+  186.599 µm² contra 172.185 de fb_t23p5 (+8,37 %). Rompe el límite de 1 % que se fijó este frente,
+  pero no el límite de la sesión: la regla de selección permite hasta 105 % del área de main a 100 ns,
+  o sea 191.378 µm², y main mide 182.265 µm². Esta configuración queda 1,9 % por debajo de main y
+  6,6 % por debajo del límite de la sesión, porque B2 y B5 ya habían bajado el área un 9,3 %.
+  Fuente: `metrics.json` de cada corrida y la regla de selección de la sesión.
 - Costo en período mínimo: **ninguno, lo mejora**. Cierra a 22,5 ns con +1,580 ns en la peor ruta a
   flip-flop, contra 23,5 ns de la base (44,4 MHz contra 42,6 MHz, +4,4 %). El período mínimo real
   está por debajo de 22,5 ns y no quedó acotado por la regla de 0,5 ns (sección 8).
