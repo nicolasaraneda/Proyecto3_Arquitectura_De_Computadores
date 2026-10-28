@@ -198,8 +198,8 @@ Opciones:
     Ley de Hierro como eje (CPI, período y MIPS medidos en cuatro variantes del core).
 - **(b) Adoptar la candidata como corrida final.**
   - Consecuencias: hay que rehacer las secciones 3.3 a 3.7 del informe con los números nuevos,
-    regenerar cuatro figuras y reescribir unas 25 respuestas de `docs/defensa.md` (la lista por
-    pregunta está en `docs/propuesta_d23.md`, sección 8), y agregar al banco las preguntas nuevas
+    regenerar cuatro figuras y revisar 46 respuestas de `docs/defensa.md`, de las que unas 25 cambian de cifra (la
+    lista por pregunta está en `docs/propuesta_d23.md`, sección 8), y agregar al banco las preguntas nuevas
     sobre el write-through, los riesgos de datos y por qué B5 deja de convenir. El paquete de
     corridas y simulaciones que el informe necesita ya está hecho en la rama.
   - Qué se pierde: la frecuencia máxima baja de 40,8 a 39,2 MHz y el margen de hold de 0,178 a

@@ -30,8 +30,8 @@ límite de área de la sesión (105 por ciento de `main`) y cierra todos los cri
 a 100 ns y 40 por ciento de utilización.
 
 Recomendación del coordinador: **es un cambio defendible y bien verificado, pero adoptarlo obliga
-a rehacer las secciones 3.3 a 3.7 del informe y a reescribir unas 25 respuestas del banco de la
-defensa, a 14 días de la entrega.** Las tres opciones, con sus consecuencias, están en la
+a rehacer las secciones 3.3 a 3.7 del informe y a revisar 46 respuestas del banco de la
+defensa, de las que unas 25 cambian de cifra, a 14 días de la entrega.** Las tres opciones, con sus consecuencias, están en la
 sección 9 y en D23. La opción intermedia (adoptar nada en la corrida final y presentar la
 candidata como la exploración principal de la sección 3.4, que es lo que hoy hace D22 con el
 bloque B) conserva todo el trabajo hecho y no toca ninguna cifra del informe.
@@ -88,9 +88,9 @@ mismo RTL y la misma configuración). Las dos a T = 100 ns y `FP_CORE_UTIL` = 40
 | MIPS (Ley de Hierro) | 15,3 | 23,6 | cálculo con las dos filas anteriores |
 | Violaciones de max slew / max cap a 100 ns | 546 / 36 | 571 / 37 | `design__max_slew_violation__count` y `__max_cap__` |
 | Potencia sin actividad, nom_tt | 8,97 mW | ver sección 6 | `55-openroad-stapostpnr/nom_tt_025C_5v00/power.rpt` |
-| Potencia con actividad real, nom_tt | 11,5 a 12,8 mW según la fase | no medido (ver sección 6) | `asic/potencia/resultado.md` |
+| Potencia con actividad real, nom_tt | 11,5 a 12,8 mW según la fase del juego | ver sección 6 | `asic/potencia/resultado.md` |
 | Simulación post-síntesis (3.7) | PASS, 0 X, con control negativo | PASS, 0 X, con control negativo | `asic/sim/resultado.md` de cada rama |
-| Simulación post-PnR con SDF (3.7) | PASS en 3 esquinas, Icarus y CVC | ver sección 6 | `asic/sim/resultado_sdf.md` |
+| Simulación post-PnR con SDF (3.7) | PASS en 4 esquinas, con Icarus y con CVC | ver sección 6 | `asic/sim/resultado_sdf.md` |
 | Utilización máxima que cierra (3.5) | 78 por ciento, die 0,216 mm² | ver sección 6 | `asic/final.md` |
 
 Las violaciones de max slew y de max capacitancia no son criterio de cierre del enunciado; se
@@ -193,7 +193,8 @@ cambio no altera el comportamiento (hazard_test, mutaciones, monitor de X).
 ## 9. Riesgos
 
 1. **Tiempo.** Adoptar la candidata obliga a rehacer las secciones 3.3 a 3.7 del informe, las
-   figuras y unas 25 respuestas de la defensa, a 14 días de la entrega. Es el riesgo principal.
+   figuras y 46 respuestas de la defensa (unas 25 cambian de cifra), a 14 días de la entrega.
+   Es el riesgo principal.
 2. **Superficie que defender.** El cambio introduce un camino de datos nuevo (write-through) y un
    parámetro de temporización (`EarlyRead`) que los tres integrantes tienen que poder explicar,
    incluidos los riesgos de datos y por qué cada uno está resuelto.
