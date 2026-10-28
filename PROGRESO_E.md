@@ -22,3 +22,12 @@
 - Decision pendiente: si e1_g30 cierra a 25,5 ns se usa esa configuracion para el paquete
   (slew 279 contra 571 y area 188.798 < 191.378, el limite de 105 % de main); si pierde periodo,
   se queda la base (MIPS es la metrica principal).
+
+## Estado a las 09:15
+- Todo el paquete hecho y empujado: git push -u origin exp/candidata (12 commits sobre be50893).
+- Barrido de utilizacion completo (50 a 78 cierran, 80 y 90 fallan con falla.txt).
+- Estrategia 2: periodo minimo 69,5 ns (e2_t69p5 cierra, e2_t69 no), 7,5 ns peor que main.
+- Signoff: el paquete se queda con la configuracion base porque e1_g30 no cierra a 25,5 ns.
+- En curso: make post-synth-final con el netlist de pa_b2_t100 (320.000 ciclos), log
+  asic/logs/e1_post_synth_final.log. Es lo unico que falta del paquete.
+- NO se hizo: CVC (timing checks evaluados) ni las ventanas espera/display/rafaga de potencia.
