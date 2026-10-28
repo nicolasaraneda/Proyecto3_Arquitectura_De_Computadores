@@ -8,3 +8,17 @@
 - [pendiente] post-synth con el netlist e1_sim_rom; SDF sobre e1_pnr en 3 esquinas; e1_u70 y el
   resto del barrido de utilizacion; periodo minimo de la estrategia 2; asic/sintesis.md con
   e1_h100; docs/candidata.md, docs/datos_informe.md y docs/progreso.md; push.
+
+## Estado a las 08:05
+- Terminadas y procesadas: e1_g30_t100 (cierra; slew 279, cap 32, area 188.798), e1_h100
+  (sintesis jerarquica, asic/sintesis.md), e1_full_t100 (cierra; slew 0, cap 0, area 209.185 =
+  114,8 % de main, fuera del limite), e1_sim_rom (netlist de simulacion), e1_pnr (corrida
+  completa de config_pnr.yaml), e1_u75 (cierra; die 229.251, utilizacion real 86,9 %),
+  e2_t100 (cierra; area 843.767, die 1.801.610, WNS 30,802 ns en max_ss).
+- make post-synth PASS con el netlist e1_sim_rom y control negativo FAIL con ATRASO=8.
+- SDF: nom_tt PASS (3 de 3, md5 iguales), max_ss PASS; min_ff en curso (log asic/logs/e1_sdf_otras.log).
+- En la cola: 96 e1_u78 (corriendo), 100 e1_g30_t25p5 (corriendo), 101 e1_g30_t25, 102 e1_u70,
+  103 e2_t70, 104 e2_t65.
+- Decision pendiente: si e1_g30 cierra a 25,5 ns se usa esa configuracion para el paquete
+  (slew 279 contra 571 y area 188.798 < 191.378, el limite de 105 % de main); si pierde periodo,
+  se queda la base (MIPS es la metrica principal).
