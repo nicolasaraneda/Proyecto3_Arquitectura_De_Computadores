@@ -297,8 +297,11 @@ Figuras: `asic/rom/resultados/pa_t26/layout/ruta_critica.png`, `bloques.png`, `s
 
 Las dos variantes salen de `exp/pipeline` (worktrees `build/exp_pipeline_b5` y
 `build/exp_pipeline_b2`, creados con `git worktree add -b <rama> <dir> exp/pipeline`).
-Las dos pasan la verificación obligatoria completa y las dos se midieron a 100 ns y en su
-período mínimo con la regla de 0,5 ns.
+Las dos pasan la verificación obligatoria completa (make check, equivalencia funcional de
+isa_test y de hazard_test con las dos estrategias, monitor de X y post-synth con el netlist
+de la propia rama) y las dos se midieron a 100 ns y en su período mínimo. La regla de
+0,5 ns queda cerrada en B2 (25,5 ns cierra, 25 ns no) y abierta en B5, porque la corrida
+de 28 ns se cortó por tiempo (sección 5.1).
 
 ### 5.1 exp/pipeline-b5 (banco de latches de B5)
 
