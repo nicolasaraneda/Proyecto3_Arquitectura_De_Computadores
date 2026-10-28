@@ -1,5 +1,14 @@
 # Datos para el informe, por sección del enunciado
 
+AVISO (rama `exp/candidata`, frente E): este archivo es la versión de la CANDIDATA. Cada sección
+mantiene los números de `main` (corrida `final`) y termina con un bloque "Candidata" con los
+números medidos en esta rama y su archivo de origen. La corrida base de la candidata es
+`pa_b2_t100` (100 ns, 40 %), no `final`; el resumen del paquete está en `docs/candidata.md` y las
+tablas en `asic/final.md` (las genera `bash asic/tablas.sh`). Qué es la candidata: el core del
+frente A (lectura del banco y decodificación en el fetch, `EarlyRead=1`, write-through en el
+banco) más el offset de byte registrado en la LSU (B2), con la configuración final de `main`
+(D15, D20, D21).
+
 Cada sección lista los números, tablas y figuras que la responden, con la corrida de
 origen de cada dato. No es el informe: es el índice de dónde está cada cosa. Las
 corridas están en `asic/<config>/runs/<tag>` (no versionadas) y sus reportes en
@@ -27,6 +36,19 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
   largo de cables 352.253 µm; potencia estimada 8,97 mW a 10 MHz en nom_tt (`power.rpt` de esa esquina; los 11,3 mW de
   `power__total` en `metrics.json` son de max_ff, la última esquina que procesa el flujo).
 
+**Candidata.** Corrida base `pa_b2_t100`: misma `asic/rom/config.yaml` del enunciado (D15, D20,
+D21) más `EarlyRead=1`, T = 100 ns, FP_CORE_UTIL = 40 %. Encolada con
+`bash asic/encolar.sh build/exp_candidata asic/rom/config.yaml pa_b2_t100 100` (la corrió el frente
+A en `build/exp_pipeline_b2`, árbol idéntico a esta rama; enlazada en `asic/rom/runs/`). Cierra:
+`asic/rom/resultados/pa_b2_t100/cierre.md` (DRC de Magic 0, LVS 0, antenas 0, setup y hold con
+WNS >= 0 y TNS = 0 en las 9 esquinas; WNS de setup 63,191 ns y hold 0,134 ns en la peor esquina), y
+DRC de KLayout 0 marcadores. Datos de `metrics.json`: die 419.131 µm² (0,419 mm²), core 389.525 µm²,
+área de celdas estándar 186.432 µm² (+2,3 % sobre los 182.265 de `main`, dentro del límite de
+105 %), 9.197 celdas, 964 flip-flops, cables 371.092 µm, utilización 47,9 %, potencia sin actividad
+8,597 mW en nom_tt (`55-openroad-stapostpnr/nom_tt_025C_5v00/power.rpt`). Versiones: las mismas de
+`main` (`asic/versiones.md`), porque es el mismo LibreLane, la misma imagen y el mismo PDK.
+Verificación funcional de la rama: `docs/candidata.md`, sección 1.
+
 ## 3.1. Construcciones dependientes de la FPGA
 
 - `asic/p2_original/evidencia.md` y `asic/p2_original/evidencia/` (corridas c0a, c0b,
@@ -50,6 +72,16 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
 - ROM generada por el assembler: `rtl/gen/pochoco_rom.v` (`make image`, D11);
   memoria unificada: `rtl/pochoco_mem_ff.v` con `rtl/gen/game_image.vh`.
 
+**Candidata.** Las dos estrategias con el RTL de la candidata (`asic/final.md`, sección
+"Estrategia 2"): `pa_b2_t100` (s1) contra `e2_t100` (s2, `asic/ff/config.yaml`): área de celdas
+tras PnR 186.432 contra 843.767 µm², die 419.131 contra 1.801.610 µm² (4,3 veces), 9.197 contra
+40.829 celdas, cables 371.092 contra 2.209.619 µm, slew/cap 571/37 contra 18.557/209, antenas 0 en
+las dos. Las dos cierran a 100 ns (`cierre.md` de cada tag; para s2, WNS de setup 30,802 ns y hold
+0,164 ns en la peor esquina). Costo a US$23.000/mm²: 0,419 mm² -> US$9.637 contra 1,802 mm² ->
+US$41.437. Con `MemStrategy=2` el SoC instancia el core con `EarlyRead = 0` (decisión del frente A,
+`docs/pipeline.md`), así que el CPI del juego con s2 es 2,665, el mismo de `main`, y la comparación
+con la referencia de `main` para s2 (período mínimo 62 ns) usa la misma configuración de flujo.
+
 ## 3.3. Síntesis
 
 - `asic/sintesis.md` (generado por `asic/analisis_sintesis.py` desde `final` y
@@ -66,6 +98,19 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
 - Método: `SYNTH_KEEP_HIERARCHY_MODULES` en la corrida final y síntesis aparte con
   `SYNTH_HIERARCHY_MODE=keep` (h2_t100, `asic/rom/resultados/h2_t100/sintesis_jerarquica.rpt`).
 - Reportes: `asic/rom/resultados/final/sintesis_stat.rpt` y `sintesis_stat.json`.
+
+**Candidata.** `asic/sintesis.md` de la rama, regenerado con
+`python3 asic/analisis_sintesis.py --final asic/rom/runs/pa_b2_t100 --jerarquica asic/rom/runs/e1_h100 --md asic/sintesis.md`
+(del script solo se adaptó el texto que nombraba la corrida jerárquica; los nombres de módulo son
+los mismos). Área de celdas de síntesis 156.098 µm² (aplanada) contra 164.605 µm² (jerárquica,
+`e1_h100`, -5,2 % por la optimización entre bordes de módulo); 5.577 celdas de 36 tipos;
+`espino_register_file` 80.349 µm², 49 % del total (contra 73.656 µm² y 46,6 % en `main`: el
+write-through y el enable de lectura suben los mux2_2 de 622 a 796); 964 flip-flops contra 990
+(el registro de instrucción pierde 28 bits porque con EarlyRead solo se usa rd). Celdas más
+usadas: `nand2_1` 934 (16,7 %), `mux2_2` 889 (15,9 %), `dffq_1` 779 (14,0 %), `aoi21_1` 437,
+`oai21_1` 348; en `main` el orden era dffq_1, mux2_2, nand2_1. Reportes:
+`asic/rom/resultados/pa_b2_t100/sintesis_stat.rpt` y
+`asic/rom/resultados/e1_h100/sintesis_jerarquica.rpt`.
 
 ## 3.4. Timing y frecuencia máxima
 
@@ -104,6 +149,26 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
   dieron exactamente el mismo layout (mismo número de celdas, área y largo de cables): el
   resizer llega a su límite con el margen de 10 ns (D20) y de ahí para abajo solo cambia
   el slack reportado.
+
+**Candidata.** Barrido de CLOCK_PERIOD (`asic/final.md`, sección del barrido; gráfico
+`docs/figuras/periodo.png`): cierra a 100, 26 y 25,5 ns; 25 ns NO cierra (setup -0,409 ns y TNS
+-1,027 ns en max_ss_125C_4v50, `asic/rom/resultados/pa_b2_t25/cierre.md`). Período mínimo 25,5 ns,
+f_max 39,2 MHz, brecha de 0,5 ns con el primero que no cierra (regla de la sesión cumplida).
+Contra `main`: 24,5 ns y 40,8 MHz (`m_f1_t24p5`, enlace a la corrida f1_t24p5 del repo principal).
+Las corridas de 26, 25,5 y 25 ns tienen el mismo layout (9.224 celdas, 194.212 µm², 373.251 µm de
+cables): el resizer llega a su límite con el margen de 10 ns de D20.
+Ruta crítica a 25,5 ns (`asic/rom/resultados/pa_b2_t25p5/layout/ruta_critica.txt` y `.png`):
+24 celdas, de `_4288_` (`dffrnq_2`, un bit de `pc_q` que maneja
+`u_soc.g_mem_rom.u_mem.a_addr_i[3]`) por la ROM combinacional (`a_next_o[17]`) al banco de
+registros, y termina en `u_soc.u_core.u_rf/_4114_` (`dffq_1`). Función: fetch (PC -> ROM) ->
+lectura anticipada del banco de registros, que es la ruta que crea EarlyRead; en `main` la crítica
+era ALU -> alineación de la carga -> write-back. A 100 ns la crítica es otra: 29 celdas de `_4325_`
+(`alu_op_b_sel` de la etapa ID) a `_4442_` (`asic/rom/resultados/pa_b2_t100/layout/ruta_critica.txt`).
+CPI y MIPS (regla de selección): CPI del juego 1,665 y de isa_test 1,969; MIPS = 39,2 / 1,665 =
+23,6 contra 15,3 de `main` (`docs/candidata.md`, secciones 1 y 4).
+Variantes de signoff de slew y capacitancia sobre este RTL: `docs/candidata.md`, sección 7
+(`e1_g30_t100` baja de 571 a 279 pines de slew por +1,27 % de área, pero `e1_g30_t25p5` no cierra
+(-1,422 ns); `e1_full_t100` llega a 0 slew y 0 cap pero cuesta 209.185 µm², 114,8 % de `main`).
 
 ## 3.5. Floorplan, utilización y costo
 
@@ -145,6 +210,15 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
   área y costo: la estrategia de memoria (D17): 4,4 veces en área y costo; después
   la utilización (40 a 70 %: 0,409 a 0,239 mm², 42 %).
 
+**Candidata.** Barrido de FP_CORE_UTIL a 100 ns (`asic/final.md`, sección del barrido; gráfico
+`docs/figuras/utilizacion.png`; `cierre.md` de cada tag): 70 % cierra (die 244.851 µm²,
+utilización real 81,5 %, área de celdas 181.036 µm²), 75 % cierra (229.251 µm², 86,9 %, 180.303 µm²)
+y 78 % cierra (220.839 µm², 90,0 %, 180.044 µm², WNS de setup 63,948 ns y hold 0,168 ns). Las
+violaciones de slew bajan con la utilización (571 a 40 %, 404 a 70 %, 478 a 75 %, 446 a 78 %)
+porque los cables se acortan. Área mínima que cierra: 0,221 mm² a 78 % (contra 0,216 mm² de `main`
+a 78 %). Costo a US$23.000/mm²: 0,419 mm² -> US$9.637 a 40 % y 0,221 mm² -> US$5.079 a 78 %
+(-47 %). Los terminales son los mismos de D21 (`asic/rom/pines.cfg` sin cambios).
+
 ## 3.6. Signoff y layout
 
 - DRC de Magic 0, LVS 0, antena 0 (final; `cierre.md`). Segundo DRC con el deck de
@@ -184,6 +258,16 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
 - Avisos que quedan: `asic/rom/resultados/final/avisos.md` (3 pines SPI sin compuerta,
   VDD y VSS "flotantes" para el resizer, VSRC_LOC_FILES sin valor).
 
+**Candidata.** DRC de Magic 0, LVS 0 y antenas 0 (`asic/rom/resultados/pa_b2_t100/cierre.md`);
+segundo DRC con el deck de KLayout: 0 marcadores en 684 reglas
+(`asic/rom/resultados/pa_b2_t100/drc_klayout/resumen.md`), con control positivo que marca M1.1 y
+M1.2a en sus coordenadas (`drc_klayout/control_positivo.md`). Figuras del layout:
+`asic/rom/resultados/pa_b2_t100/layout/` y `asic/rom/resultados/pa_b2_t25p5/layout/`
+(`bloques.png`, `bloques.txt`, `bloques.lyrdb`, `ruta_critica.png`, `slew.png`: 571 pines en 558
+celdas a 100 ns y 508 en 498 a 25,5 ns). Estrategia 2 con este RTL (`e2_t100`): 0 nets con
+violación de antena (en `main`, s2_t100 tenía 1), pero 18.557 pines con violación de slew y 209 de
+capacitancia (`asic/ff/resultados/e2_t100/metrics.json`).
+
 ## 3.7. Simulación post-síntesis
 
 - `make post-synth` (`asic/sim/resultado.md`): RTL y netlist de celdas estándar
@@ -205,3 +289,24 @@ barridos las genera `asic/recolectar.py` y los gráficos `asic/graficos.py`.
   una vez con la misma traza (PASS, 4 min 19 s); las corridas siguientes abortan en vvp
   al anotar el SDF (aserción interna de Icarus 14.0-devel con `-ginterconnect`); está
   documentado en `asic/sim/README.md`.
+
+**Candidata.**
+
+- `make post-synth NETLIST_SIM=asic/sim/runs/e1_sim_rom/06-yosys-synthesis/asic_top.nl.v`
+  (`asic/sim/resultado.md` de la rama): trazas idénticas entre el RTL y el netlist de celdas
+  estándar de ESTA rama, 17 cambios de salida, 0 valores X, PASS. Control negativo
+  (`make post-synth-control`, ATRASO=8): FAIL como corresponde, sección "Control negativo" del
+  mismo archivo. El netlist es de la corrida `e1_sim_rom` (`asic/sim/config.yaml` de la rama,
+  generada por `asic/sim/generar_config.py`, con `EarlyRead=1`, la ROM del programa de simulación
+  y DebounceDivBits=2).
+- Post-PnR con SDF: `asic/sim/resultado_sdf.md` de la rama. Corrida completa `e1_pnr`
+  (`asic/sim/config_pnr.yaml`; cierra, `asic/sim/resultados/e1_pnr/cierre.md`) y
+  `make post-pnr-sdf ESQUINA=<esquina>` con el Icarus 13.0 de la imagen en nom_tt_025C_5v00,
+  max_ss_125C_4v50 y min_ff_n40C_5v50: las tres PASS, 3 de 3 repeticiones con el mismo md5 que la
+  traza del RTL, 0 valores X, 33.247 de 35.715 IOPATH y 15.543 de 15.544 INTERCONNECT anotados.
+  Los 7.173 timing checks de los 951 bloques TIMINGCHECK del SDF NO los evalúa Icarus: el cierre
+  de setup y hold lo da el STA de las 9 esquinas.
+- Potencia con actividad real (`asic/potencia/resultado.md` de la rama, versión reducida del
+  método del frente D3): ventana polling, 12,392 mW en nom_tt contra 8,597 mW sin actividad
+  (+44,1 %), 10,260 contra 7,098 mW en max_ss y 15,096 contra 10,529 mW en min_ff; 22.130
+  actividades de pin anotadas y 0 sin anotar.
