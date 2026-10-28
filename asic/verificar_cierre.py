@@ -96,6 +96,7 @@ def main():
     texto = "\n".join(lineas) + "\n"
     print(texto)
     if a.md:
+        os.makedirs(os.path.dirname(os.path.abspath(a.md)), exist_ok=True)
         with open(a.md, "w", encoding="utf-8") as f:
             f.write(texto)
     sys.exit(0 if ok else 1)

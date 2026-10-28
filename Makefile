@@ -194,7 +194,7 @@ PDK      ?= gf180mcuD
 SCL      := gf180mcu_fd_sc_mcu7t5v0
 CELDAS_V := $(PDK_ROOT)/$(PDK)/libs.ref/$(SCL)/verilog/primitives.v \
             $(PDK_ROOT)/$(PDK)/libs.ref/$(SCL)/verilog/$(SCL).v
-LIBRELANE ?= $(HOME)/herramientas/librelane/bin/librelane --dockerized --pdk $(PDK)
+LIBRELANE ?= $(HOME)/herramientas/librelane/bin/librelane --docker-no-tty --dockerized --pdk $(PDK)
 SIM_DIVBITS := 2
 PS          := $(BUILD)/post_synth
 ROM_SIM     := asic/sim/gen/pochoco_rom.v
