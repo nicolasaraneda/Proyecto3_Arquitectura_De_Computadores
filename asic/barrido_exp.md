@@ -52,3 +52,45 @@ Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "pe
 | sc_full0_t100 | 130954.656 | 36673.011 | 544 | 52425.766 | 10005.722 | 3942.579 |
 | sc_g30_t24 | 130954.656 | 36673.011 | 544 | 52425.766 | 10005.722 | 3942.579 |
 | sc_full_t23 | 130954.656 | 36673.011 | 544 | 52425.766 | 10005.722 | 3942.579 |
+
+## Frente C, tercera tanda: repair post-GRT con margenes 30, 50 y 65 % a 100 ns; repair post-GRT 30 % al periodo (24 y 23,5 ns); y las combinaciones con LAYERS_RC mas resizer post-GRT de timing a 24 ns
+
+Base de comparacion: sc_base_t100 a 100 ns (165.358 um2, 327 slew / 1 cap) y fb_t24 / fb_t23p5 del frente B al periodo. Cierre segun asic/verificar_cierre.py.
+
+Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
+
+| corrida | T (ns) | setup WS tt | setup TNS tt | setup WS ss | setup TNS ss | hold WS tt | hold TNS tt | hold WS ss | hold TNS ss | setup WS peor | setup TNS peor | hold WS peor | hold TNS peor | cierra timing | área stdcell (µm²) | utilización | área die (µm²) | antena (nets) | DRC | LVS | cierra todo | slew (peor) | cap (peor) | celdas dly |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| sc_c50_t100 | 100 | 0 | 0 | 0 | 0 | 0.443 | 0 | 1.060 | 0 | 0 | 0 | 0.157 | 0 | sí | 166592 | 0.509 | 353921 | 0 | 0 | 0 | sí | 321 | 2 | 0 |
+| sc_c65_t100 | 100 | 0 | 0 | 0 | 0 | 0.443 | 0 | 1.066 | 0 | 0 | 0 | 0.174 | 0 | sí | 171316 | 0.523 | 353921 | 0 | 0 | 0 | sí | 811 | 1 | 0 |
+| sc_c30_t24 | 24 | 0 | 0 | 0 | 0 | 0.444 | 0 | 0.334 | 0 | 0 | 0 | 0.161 | 0 | sí | 171403 | 0.523 | 353921 | 0 | 0 | 0 | sí | 342 | 2 | 0 |
+| sc_c30_t23p5 | 23.500 | 0 | 0 | 0 | 0 | 0.444 | 0 | 0.240 | 0 | 0 | 0 | 0.158 | 0 | sí | 172290 | 0.526 | 353921 | 0 | 0 | 0 | sí | 323 | 1 | 0 |
+| sc_fullp_t24 | 24 | 0 | 0 | 0 | 0 | 0.443 | 0 | 0.658 | 0 | 0 | 0 | 0.174 | 0 | sí | 184698 | 0.564 | 353921 | 0 | 0 | 0 | sí | 3 | 1 | 0 |
+| sc_rccp_t24 | 24 | 0 | 0 | 0 | 0 | 0.443 | 0 | 0.692 | 0 | 0 | 0 | 0.174 | 0 | sí | 185602 | 0.567 | 353921 | 0 | 0 | 0 | sí | 3 | 1 | 0 |
+
+| corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
+|---|---|---|---|---|---|---|
+| sc_c50_t100 | 130954.656 | 36673.011 | 544 | 52425.766 | 10005.722 | 3942.579 |
+| sc_c65_t100 | 130954.656 | 36673.011 | 544 | 52425.766 | 10005.722 | 3942.579 |
+| sc_c30_t24 | 130954.656 | 36673.011 | 544 | 52425.766 | 10005.722 | 3942.579 |
+| sc_c30_t23p5 | 130954.656 | 36673.011 | 544 | 52425.766 | 10005.722 | 3942.579 |
+| sc_fullp_t24 | 130954.656 | 36673.011 | 544 | 52425.766 | 10005.722 | 3942.579 |
+| sc_rccp_t24 | 130954.656 | 36673.011 | 544 | 52425.766 | 10005.722 | 3942.579 |
+
+## Frente C, cuarta tanda (sc2_*): el resizer de timing post-GRT sobre la variante dentro del 1 % y la configuracion recomendada a 100 ns y a 22,5 ns
+
+sc2_g30p_t24 prueba si RUN_POST_GRT_RESIZER_TIMING le devuelve el periodo a sc_g30 (no lo hace); sc2_rccp_t100 y sc2_rccp_t22p5 miden la configuracion recomendada (LAYERS_RC mas repair post-GRT 30 % mas resizer de timing post-GRT) a 100 ns y al periodo.
+
+Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
+
+| corrida | T (ns) | setup WS tt | setup TNS tt | setup WS ss | setup TNS ss | hold WS tt | hold TNS tt | hold WS ss | hold TNS ss | setup WS peor | setup TNS peor | hold WS peor | hold TNS peor | cierra timing | área stdcell (µm²) | utilización | área die (µm²) | antena (nets) | DRC | LVS | cierra todo | slew (peor) | cap (peor) | celdas dly |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| sc2_g30p_t24 | 24 | 0 | 0 | -2.411 | -32.918 | 0.443 | 0 | 0.360 | 0 | -2.411 | -32.918 | 0.169 | 0 | no | 169935 | 0.519 | 353921 | 0 | 0 | 0 | no | 191 | 1 | 0 |
+| sc2_rccp_t100 | 100 | 0 | 0 | 0 | 0 | 0.443 | 0 | 1.068 | 0 | 0 | 0 | 0.174 | 0 | sí | 178834 | 0.546 | 353921 | 1 | 0 | 0 | no | 0 | 1 | 0 |
+| sc2_rccp_t22p5 | 22.500 | 0 | 0 | 0 | 0 | 0.443 | 0 | 0.520 | 0 | 0 | 0 | 0.174 | 0 | sí | 186599 | 0.570 | 353921 | 0 | 0 | 0 | sí | 0 | 1 | 0 |
+
+| corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
+|---|---|---|---|---|---|---|
+| sc2_g30p_t24 | 130954.656 | 36673.011 | 544 | 52425.766 | 10005.722 | 3942.579 |
+| sc2_rccp_t100 | 130954.656 | 36673.011 | 544 | 52425.766 | 10005.722 | 3942.579 |
+| sc2_rccp_t22p5 | 130954.656 | 36673.011 | 544 | 52425.766 | 10005.722 | 3942.579 |
