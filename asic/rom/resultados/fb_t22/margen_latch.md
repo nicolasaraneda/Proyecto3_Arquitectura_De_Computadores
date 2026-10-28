@@ -3,3 +3,4 @@ Margen real de setup en `asic/rom/runs/fb_t22/55-openroad-stapostpnr/max_ss_125C
 - Peor ruta a flip-flop o puerto: slack -1.670 ns, de `_4668_` (rising edge-triggered flip-flop clocked by clk) a `_4330_` (rising edge-triggered flip-flop clocked by clk).
 - Mayor préstamo de tiempo en latches: 3.508 ns de 10.320 ns disponibles, en `u_soc.u_core.u_rf/g_reg[2].g_bit[2].u_lat.u_lat` (desde `u_soc.u_core.u_rf/_2016_`); slack reportado 0.000 ns.
 - Peor slack entre endpoints de latch: 0.000 ns (`u_soc.u_core.u_rf/g_reg[2].g_bit[2].u_lat.u_lat`).
+- Bloque de la peor ruta a flip-flop escrito en `asic/rom/resultados/fb_t22/max_ss_125C_4v50_ruta_ff.rpt`.

@@ -1,0 +1,328 @@
+173. Printing statistics.
+
+=== asic_top ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+     3466        - wires
+     3484        - wire bits
+      664        - public wires
+      682        - public wire bits
+       10        - ports
+       28        - port bits
+     3346 7.18E+04 cells
+       16  280.986   gf180mcu_fd_sc_mcu7t5v0__and2_1
+        1   19.757   gf180mcu_fd_sc_mcu7t5v0__and2_2
+        5   109.76   gf180mcu_fd_sc_mcu7t5v0__and3_1
+        1   24.147   gf180mcu_fd_sc_mcu7t5v0__and4_1
+        4   87.808   gf180mcu_fd_sc_mcu7t5v0__aoi211_1
+       96 1.69E+03   gf180mcu_fd_sc_mcu7t5v0__aoi21_1
+        8  228.301   gf180mcu_fd_sc_mcu7t5v0__aoi21_2
+        2   105.37   gf180mcu_fd_sc_mcu7t5v0__aoi21_4
+       14  338.061   gf180mcu_fd_sc_mcu7t5v0__aoi221_1
+        1   87.808   gf180mcu_fd_sc_mcu7t5v0__aoi221_4
+      128  2528.87   gf180mcu_fd_sc_mcu7t5v0__aoi22_1
+        7  245.862   gf180mcu_fd_sc_mcu7t5v0__aoi22_2
+       14        -   gf180mcu_fd_sc_mcu7t5v0__buf_1
+       37  649.779   gf180mcu_fd_sc_mcu7t5v0__buf_2
+        2   43.904   gf180mcu_fd_sc_mcu7t5v0__buf_3
+        2   61.466   gf180mcu_fd_sc_mcu7t5v0__buf_4
+        1   57.075   gf180mcu_fd_sc_mcu7t5v0__buf_8
+      118 1.55E+03   gf180mcu_fd_sc_mcu7t5v0__clkbuf_1
+      417 3.66E+03   gf180mcu_fd_sc_mcu7t5v0__clkinv_1
+        4   52.685   gf180mcu_fd_sc_mcu7t5v0__clkinv_2
+        2   35.123   gf180mcu_fd_sc_mcu7t5v0__clkinv_3
+      262 1.67E+04   gf180mcu_fd_sc_mcu7t5v0__dffq_1
+      154 1.15E+04   gf180mcu_fd_sc_mcu7t5v0__dffrnq_1
+       35  307.328   gf180mcu_fd_sc_mcu7t5v0__inv_1
+        6   79.027   gf180mcu_fd_sc_mcu7t5v0__inv_2
+      943 1.04E+04   gf180mcu_fd_sc_mcu7t5v0__nand2_1
+       26  513.677   gf180mcu_fd_sc_mcu7t5v0__nand2_2
+        5  175.616   gf180mcu_fd_sc_mcu7t5v0__nand2_4
+      211  3242.31   gf180mcu_fd_sc_mcu7t5v0__nand3_1
+       10  285.376   gf180mcu_fd_sc_mcu7t5v0__nand3_2
+        5  285.376   gf180mcu_fd_sc_mcu7t5v0__nand3_4
+       22   434.65   gf180mcu_fd_sc_mcu7t5v0__nand4_1
+        1   35.123   gf180mcu_fd_sc_mcu7t5v0__nand4_2
+      144  1.9E+03   gf180mcu_fd_sc_mcu7t5v0__nor2_1
+        9  197.568   gf180mcu_fd_sc_mcu7t5v0__nor2_2
+        2   79.027   gf180mcu_fd_sc_mcu7t5v0__nor2_4
+       16  280.986   gf180mcu_fd_sc_mcu7t5v0__nor3_1
+        1   57.075   gf180mcu_fd_sc_mcu7t5v0__nor3_4
+        5   109.76   gf180mcu_fd_sc_mcu7t5v0__nor4_1
+        1   39.514   gf180mcu_fd_sc_mcu7t5v0__nor4_2
+       70  1536.64   gf180mcu_fd_sc_mcu7t5v0__oai211_1
+       11   434.65   gf180mcu_fd_sc_mcu7t5v0__oai211_2
+      315 5.53E+03   gf180mcu_fd_sc_mcu7t5v0__oai21_1
+       54 1.78E+03   gf180mcu_fd_sc_mcu7t5v0__oai21_2
+        1    59.27   gf180mcu_fd_sc_mcu7t5v0__oai21_4
+       48 1.26E+03   gf180mcu_fd_sc_mcu7t5v0__oai221_1
+       10  504.896   gf180mcu_fd_sc_mcu7t5v0__oai221_2
+        1   94.394   gf180mcu_fd_sc_mcu7t5v0__oai221_4
+       43  943.936   gf180mcu_fd_sc_mcu7t5v0__oai22_1
+        3  125.126   gf180mcu_fd_sc_mcu7t5v0__oai22_2
+        3   72.442   gf180mcu_fd_sc_mcu7t5v0__oai31_1
+        2   83.418   gf180mcu_fd_sc_mcu7t5v0__oai31_2
+        8  210.739   gf180mcu_fd_sc_mcu7t5v0__oai32_1
+        2  100.979   gf180mcu_fd_sc_mcu7t5v0__oai32_2
+       31   544.41   gf180mcu_fd_sc_mcu7t5v0__or2_1
+        2   43.904   gf180mcu_fd_sc_mcu7t5v0__or2_2
+        1   26.342   gf180mcu_fd_sc_mcu7t5v0__or4_1
+        2   17.562   gf180mcu_fd_sc_mcu7t5v0__tieh
+        1   28.538   gf180mcu_fd_sc_mcu7t5v0__xnor2_1
+        3        - submodules
+        1        -   espino_alu
+        1        -   espino_register_file
+        1        -   pochoco_cycle_counter
+
+   Area for cell type \gf180mcu_fd_sc_mcu7t5v0__buf_1 is unknown!
+
+   Chip area for module '\asic_top': 71802.796800
+     of which used for sequential elements: 28173.196800 (39.24%)
+
+=== espino_alu ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      738        - wires
+      834        - wire bits
+        5        - public wires
+      101        - public wire bits
+        5        - ports
+      101        - port bits
+      766 1.33E+04 cells
+        1   17.562   gf180mcu_fd_sc_mcu7t5v0__and2_1
+        5   98.784   gf180mcu_fd_sc_mcu7t5v0__and2_2
+        4   87.808   gf180mcu_fd_sc_mcu7t5v0__aoi211_1
+       35  614.656   gf180mcu_fd_sc_mcu7t5v0__aoi21_1
+        7  199.763   gf180mcu_fd_sc_mcu7t5v0__aoi21_2
+        2   105.37   gf180mcu_fd_sc_mcu7t5v0__aoi21_4
+        1   24.147   gf180mcu_fd_sc_mcu7t5v0__aoi221_1
+       29  572.947   gf180mcu_fd_sc_mcu7t5v0__aoi22_1
+        3   52.685   gf180mcu_fd_sc_mcu7t5v0__buf_2
+        1   30.733   gf180mcu_fd_sc_mcu7t5v0__buf_4
+        8   105.37   gf180mcu_fd_sc_mcu7t5v0__clkbuf_1
+        1   30.733   gf180mcu_fd_sc_mcu7t5v0__clkbuf_4
+      113   992.23   gf180mcu_fd_sc_mcu7t5v0__clkinv_1
+        5   65.856   gf180mcu_fd_sc_mcu7t5v0__clkinv_2
+        2   35.123   gf180mcu_fd_sc_mcu7t5v0__clkinv_3
+       22  193.178   gf180mcu_fd_sc_mcu7t5v0__inv_1
+       20  263.424   gf180mcu_fd_sc_mcu7t5v0__inv_2
+        1   21.952   gf180mcu_fd_sc_mcu7t5v0__inv_4
+      163 1.79E+03   gf180mcu_fd_sc_mcu7t5v0__nand2_1
+       55 1.09E+03   gf180mcu_fd_sc_mcu7t5v0__nand2_2
+       10  351.232   gf180mcu_fd_sc_mcu7t5v0__nand2_4
+       66 1.01E+03   gf180mcu_fd_sc_mcu7t5v0__nand3_1
+       14  399.526   gf180mcu_fd_sc_mcu7t5v0__nand3_2
+        3  171.226   gf180mcu_fd_sc_mcu7t5v0__nand3_4
+        6  118.541   gf180mcu_fd_sc_mcu7t5v0__nand4_1
+       13  456.602   gf180mcu_fd_sc_mcu7t5v0__nand4_2
+        8  561.971   gf180mcu_fd_sc_mcu7t5v0__nand4_4
+       34  447.821   gf180mcu_fd_sc_mcu7t5v0__nor2_1
+       23  504.896   gf180mcu_fd_sc_mcu7t5v0__nor2_2
+        5  197.568   gf180mcu_fd_sc_mcu7t5v0__nor2_4
+        1   17.562   gf180mcu_fd_sc_mcu7t5v0__nor3_1
+        8  175.616   gf180mcu_fd_sc_mcu7t5v0__oai211_1
+        2   79.027   gf180mcu_fd_sc_mcu7t5v0__oai211_2
+        3  217.325   gf180mcu_fd_sc_mcu7t5v0__oai211_4
+       43  755.149   gf180mcu_fd_sc_mcu7t5v0__oai21_1
+        7  230.496   gf180mcu_fd_sc_mcu7t5v0__oai21_2
+        6  355.622   gf180mcu_fd_sc_mcu7t5v0__oai21_4
+        1    50.49   gf180mcu_fd_sc_mcu7t5v0__oai221_2
+        1   94.394   gf180mcu_fd_sc_mcu7t5v0__oai221_4
+        2   43.904   gf180mcu_fd_sc_mcu7t5v0__oai22_1
+        1   41.709   gf180mcu_fd_sc_mcu7t5v0__oai31_2
+       16  280.986   gf180mcu_fd_sc_mcu7t5v0__or2_1
+       12  263.424   gf180mcu_fd_sc_mcu7t5v0__or2_2
+        1   21.952   gf180mcu_fd_sc_mcu7t5v0__or3_1
+        2   52.685   gf180mcu_fd_sc_mcu7t5v0__or3_2
+
+   Chip area for module '\espino_alu': 13291.936000
+     of which used for sequential elements: 0.000000 (0.00%)
+
+=== espino_register_file ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+     3045        - wires
+     3147        - wire bits
+      551        - public wires
+      653        - public wire bits
+        9        - ports
+      111        - port bits
+     3100 6.11E+04 cells
+       32  561.971   gf180mcu_fd_sc_mcu7t5v0__and2_1
+      120 2.11E+03   gf180mcu_fd_sc_mcu7t5v0__aoi21_1
+       91  1.6E+03   gf180mcu_fd_sc_mcu7t5v0__buf_2
+        1   21.952   gf180mcu_fd_sc_mcu7t5v0__buf_3
+       10  307.328   gf180mcu_fd_sc_mcu7t5v0__buf_4
+       85 1.12E+03   gf180mcu_fd_sc_mcu7t5v0__clkbuf_1
+        8  140.493   gf180mcu_fd_sc_mcu7t5v0__clkbuf_2
+      381 3.35E+03   gf180mcu_fd_sc_mcu7t5v0__clkinv_1
+       96 6.11E+03   gf180mcu_fd_sc_mcu7t5v0__dffq_1
+       15  921.984   gf180mcu_fd_sc_mcu7t5v0__icgtp_1
+        3   26.342   gf180mcu_fd_sc_mcu7t5v0__inv_1
+        3   39.514   gf180mcu_fd_sc_mcu7t5v0__inv_2
+      480 2.11E+04   gf180mcu_fd_sc_mcu7t5v0__latq_1
+      965 1.06E+04   gf180mcu_fd_sc_mcu7t5v0__nand2_1
+       64 1.26E+03   gf180mcu_fd_sc_mcu7t5v0__nand2_2
+      571 8.77E+03   gf180mcu_fd_sc_mcu7t5v0__nand3_1
+        3   39.514   gf180mcu_fd_sc_mcu7t5v0__nor2_1
+        6  131.712   gf180mcu_fd_sc_mcu7t5v0__nor2_2
+        7   215.13   gf180mcu_fd_sc_mcu7t5v0__nor3_2
+      144  2528.87   gf180mcu_fd_sc_mcu7t5v0__oai21_1
+       15  131.712   gf180mcu_fd_sc_mcu7t5v0__tiel
+
+   Chip area for module '\espino_register_file': 61052.902400
+     of which used for sequential elements: 6111.436800 (10.01%)
+
+=== pochoco_cycle_counter ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+      164        - wires
+      195        - wire bits
+        3        - public wires
+       34        - public wire bits
+        3        - ports
+       34        - port bits
+      193  5.2E+03 cells
+        4   70.246   gf180mcu_fd_sc_mcu7t5v0__and2_1
+        4   79.027   gf180mcu_fd_sc_mcu7t5v0__and2_2
+        1   37.318   gf180mcu_fd_sc_mcu7t5v0__and2_4
+        1   17.562   gf180mcu_fd_sc_mcu7t5v0__aoi21_1
+        2   35.123   gf180mcu_fd_sc_mcu7t5v0__buf_2
+        2   43.904   gf180mcu_fd_sc_mcu7t5v0__buf_3
+        2   61.466   gf180mcu_fd_sc_mcu7t5v0__buf_4
+       25   219.52   gf180mcu_fd_sc_mcu7t5v0__clkinv_1
+        3   39.514   gf180mcu_fd_sc_mcu7t5v0__clkinv_2
+       32 2.39E+03   gf180mcu_fd_sc_mcu7t5v0__dffrnq_1
+        4   35.123   gf180mcu_fd_sc_mcu7t5v0__inv_1
+        3   39.514   gf180mcu_fd_sc_mcu7t5v0__inv_2
+       38  417.088   gf180mcu_fd_sc_mcu7t5v0__nand2_1
+       13  256.838   gf180mcu_fd_sc_mcu7t5v0__nand2_2
+        6  210.739   gf180mcu_fd_sc_mcu7t5v0__nand2_4
+        3   46.099   gf180mcu_fd_sc_mcu7t5v0__nand3_1
+        3   85.613   gf180mcu_fd_sc_mcu7t5v0__nand3_2
+        1   19.757   gf180mcu_fd_sc_mcu7t5v0__nand4_1
+       14  184.397   gf180mcu_fd_sc_mcu7t5v0__nor2_1
+       12  263.424   gf180mcu_fd_sc_mcu7t5v0__nor2_2
+       10  395.136   gf180mcu_fd_sc_mcu7t5v0__nor2_4
+        1   17.562   gf180mcu_fd_sc_mcu7t5v0__nor3_1
+        1   57.075   gf180mcu_fd_sc_mcu7t5v0__nor3_4
+        3   52.685   gf180mcu_fd_sc_mcu7t5v0__oai21_1
+        1   41.709   gf180mcu_fd_sc_mcu7t5v0__oai31_2
+        1   17.562   gf180mcu_fd_sc_mcu7t5v0__or2_1
+        3   65.856   gf180mcu_fd_sc_mcu7t5v0__or2_2
+
+   Chip area for module '\pochoco_cycle_counter': 5198.233600
+     of which used for sequential elements: 2388.377600 (45.95%)
+
+=== design hierarchy ===
+
+        +----------Count including submodules.
+        |        +-Area including submodules.
+        |        | 
+     7405 1.51E+05 asic_top
+      766 1.33E+04 espino_alu
+     3100 6.11E+04 espino_register_file
+      193  5.2E+03 pochoco_cycle_counter
+
+        +----------Count including submodules.
+        |        +-Area including submodules.
+        |        | 
+     7413        - wires
+     7660        - wire bits
+     1223        - public wires
+     1470        - public wire bits
+       27        - ports
+      274        - port bits
+        -        - memories
+        -        - memory bits
+        -        - processes
+     7405 1.51E+05 cells
+       53  930.765   gf180mcu_fd_sc_mcu7t5v0__and2_1
+       10  197.568   gf180mcu_fd_sc_mcu7t5v0__and2_2
+        1   37.318   gf180mcu_fd_sc_mcu7t5v0__and2_4
+        5   109.76   gf180mcu_fd_sc_mcu7t5v0__and3_1
+        1   24.147   gf180mcu_fd_sc_mcu7t5v0__and4_1
+        8  175.616   gf180mcu_fd_sc_mcu7t5v0__aoi211_1
+      252 4.43E+03   gf180mcu_fd_sc_mcu7t5v0__aoi21_1
+       15  428.064   gf180mcu_fd_sc_mcu7t5v0__aoi21_2
+        4  210.739   gf180mcu_fd_sc_mcu7t5v0__aoi21_4
+       15  362.208   gf180mcu_fd_sc_mcu7t5v0__aoi221_1
+        1   87.808   gf180mcu_fd_sc_mcu7t5v0__aoi221_4
+      157  3.1E+03   gf180mcu_fd_sc_mcu7t5v0__aoi22_1
+        7  245.862   gf180mcu_fd_sc_mcu7t5v0__aoi22_2
+       14        -   gf180mcu_fd_sc_mcu7t5v0__buf_1
+      133 2.34E+03   gf180mcu_fd_sc_mcu7t5v0__buf_2
+        5   109.76   gf180mcu_fd_sc_mcu7t5v0__buf_3
+       15  460.992   gf180mcu_fd_sc_mcu7t5v0__buf_4
+        1   57.075   gf180mcu_fd_sc_mcu7t5v0__buf_8
+      211 2.78E+03   gf180mcu_fd_sc_mcu7t5v0__clkbuf_1
+        8  140.493   gf180mcu_fd_sc_mcu7t5v0__clkbuf_2
+        1   30.733   gf180mcu_fd_sc_mcu7t5v0__clkbuf_4
+      936 8.22E+03   gf180mcu_fd_sc_mcu7t5v0__clkinv_1
+       12  158.054   gf180mcu_fd_sc_mcu7t5v0__clkinv_2
+        4   70.246   gf180mcu_fd_sc_mcu7t5v0__clkinv_3
+      358 2.28E+04   gf180mcu_fd_sc_mcu7t5v0__dffq_1
+      186 1.39E+04   gf180mcu_fd_sc_mcu7t5v0__dffrnq_1
+       15  921.984   gf180mcu_fd_sc_mcu7t5v0__icgtp_1
+       64  561.971   gf180mcu_fd_sc_mcu7t5v0__inv_1
+       32  421.478   gf180mcu_fd_sc_mcu7t5v0__inv_2
+        1   21.952   gf180mcu_fd_sc_mcu7t5v0__inv_4
+      480 2.11E+04   gf180mcu_fd_sc_mcu7t5v0__latq_1
+     2109 2.31E+04   gf180mcu_fd_sc_mcu7t5v0__nand2_1
+      158 3.12E+03   gf180mcu_fd_sc_mcu7t5v0__nand2_2
+       21  737.587   gf180mcu_fd_sc_mcu7t5v0__nand2_4
+      851 1.31E+04   gf180mcu_fd_sc_mcu7t5v0__nand3_1
+       27  770.515   gf180mcu_fd_sc_mcu7t5v0__nand3_2
+        8  456.602   gf180mcu_fd_sc_mcu7t5v0__nand3_4
+       29  572.947   gf180mcu_fd_sc_mcu7t5v0__nand4_1
+       14  491.725   gf180mcu_fd_sc_mcu7t5v0__nand4_2
+        8  561.971   gf180mcu_fd_sc_mcu7t5v0__nand4_4
+      195 2.57E+03   gf180mcu_fd_sc_mcu7t5v0__nor2_1
+       50   1097.6   gf180mcu_fd_sc_mcu7t5v0__nor2_2
+       17  671.731   gf180mcu_fd_sc_mcu7t5v0__nor2_4
+       18  316.109   gf180mcu_fd_sc_mcu7t5v0__nor3_1
+        7   215.13   gf180mcu_fd_sc_mcu7t5v0__nor3_2
+        2   114.15   gf180mcu_fd_sc_mcu7t5v0__nor3_4
+        5   109.76   gf180mcu_fd_sc_mcu7t5v0__nor4_1
+        1   39.514   gf180mcu_fd_sc_mcu7t5v0__nor4_2
+       78 1.71E+03   gf180mcu_fd_sc_mcu7t5v0__oai211_1
+       13  513.677   gf180mcu_fd_sc_mcu7t5v0__oai211_2
+        3  217.325   gf180mcu_fd_sc_mcu7t5v0__oai211_4
+      505 8.87E+03   gf180mcu_fd_sc_mcu7t5v0__oai21_1
+       61 2.01E+03   gf180mcu_fd_sc_mcu7t5v0__oai21_2
+        7  414.893   gf180mcu_fd_sc_mcu7t5v0__oai21_4
+       48 1.26E+03   gf180mcu_fd_sc_mcu7t5v0__oai221_1
+       11  555.386   gf180mcu_fd_sc_mcu7t5v0__oai221_2
+        2  188.787   gf180mcu_fd_sc_mcu7t5v0__oai221_4
+       45   987.84   gf180mcu_fd_sc_mcu7t5v0__oai22_1
+        3  125.126   gf180mcu_fd_sc_mcu7t5v0__oai22_2
+        3   72.442   gf180mcu_fd_sc_mcu7t5v0__oai31_1
+        4  166.835   gf180mcu_fd_sc_mcu7t5v0__oai31_2
+        8  210.739   gf180mcu_fd_sc_mcu7t5v0__oai32_1
+        2  100.979   gf180mcu_fd_sc_mcu7t5v0__oai32_2
+       48  842.957   gf180mcu_fd_sc_mcu7t5v0__or2_1
+       17  373.184   gf180mcu_fd_sc_mcu7t5v0__or2_2
+        1   21.952   gf180mcu_fd_sc_mcu7t5v0__or3_1
+        2   52.685   gf180mcu_fd_sc_mcu7t5v0__or3_2
+        1   26.342   gf180mcu_fd_sc_mcu7t5v0__or4_1
+        2   17.562   gf180mcu_fd_sc_mcu7t5v0__tieh
+       15  131.712   gf180mcu_fd_sc_mcu7t5v0__tiel
+        1   28.538   gf180mcu_fd_sc_mcu7t5v0__xnor2_1
+        3 7.95E+04 submodules
+        1 1.33E+04   espino_alu
+        1 6.11E+04   espino_register_file
+        1  5.2E+03   pochoco_cycle_counter
+
+   Area for cell type \gf180mcu_fd_sc_mcu7t5v0__buf_1 is unknown!
+
+   Chip area for top module '\asic_top': 151345.868800
+     of which used for sequential elements: 36673.011200 (24.23%)
+
