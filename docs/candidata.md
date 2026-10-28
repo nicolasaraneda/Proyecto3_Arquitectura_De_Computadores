@@ -238,3 +238,63 @@ Barrido de período de la estrategia 2 (corridas de unos 14 minutos cada una): c
 70 ns (WNS +0,802 ns en `max_ss_125C_4v50`) y no cierra a 65 ns (-4,198 ns, TNS -271,971 ns). Las
 tres corridas tienen el mismo layout (40.829 celdas, 843.767 µm², 2.209.619 µm de cables), así que
 el slack baja 1 ns por cada ns de período. Referencia de `main` con s2: período mínimo 62 ns.
+
+## 10. Simulación post-síntesis y post-PnR
+
+- `make post-synth NETLIST_SIM=asic/sim/runs/e1_sim_rom/06-yosys-synthesis/asic_top.nl.v`
+  (`asic/sim/resultado.md`): el netlist de celdas estándar de ESTA rama y el RTL dan trazas
+  idénticas (17 cambios de salida, 0 valores X). PASS. El netlist sale de la corrida `e1_sim_rom`
+  (`asic/sim/config.yaml` de la rama, con `EarlyRead=1`, la ROM del programa de simulación y
+  `DebounceDivBits=2`), encolada con
+  `bash asic/encolar.sh build/exp_candidata asic/sim/config.yaml e1_sim_rom 100 --to Yosys.Synthesis`.
+- Control negativo (`make post-synth-control`, ATRASO = 8): la comparación da FAIL con los
+  estímulos corridos 8 ciclos, como tiene que ser (sección "Control negativo" del mismo archivo).
+  El 8 es el valor que dejó el frente A para este core: su lazo de polling son 8 ciclos.
+- Post-PnR con retardos: `asic/sim/resultado_sdf.md`. Corrida completa `e1_pnr` de
+  `asic/sim/config_pnr.yaml` (cierra; `asic/sim/resultados/e1_pnr/cierre.md`) y
+  `make post-pnr-sdf ESQUINA=<esquina>` en `nom_tt_025C_5v00`, `max_ss_125C_4v50` y
+  `min_ff_n40C_5v50`: las tres PASS, con el mismo md5 de traza en las 3 repeticiones de cada
+  esquina y el mismo md5 que la traza del RTL, 0 valores X. Icarus no evalúa los timing checks
+  del SDF (eso lo da el STA de las 9 esquinas).
+
+## 11. La candidata contra main en todos los criterios
+
+Fuentes: `asic/rom/resultados/<tag>/{cierre.md,metrics.json,sintesis_stat.rpt,drc_klayout/resumen.md}`,
+`asic/final.md`, `asic/sintesis.md`, `asic/sim/resultado.md`, `asic/sim/resultado_sdf.md`,
+`asic/potencia/resultado.md`, `docs/verificacion/*.txt`. Los números de `main` salen de
+`asic/rom/resultados/final/` y de los enlaces `m_final` y `m_f1_t24p5`.
+
+| criterio | main | candidata | fuente |
+|---|---|---|---|
+| cierre a 100 ns y 40 % | sí | sí | `cierre.md` de final y de pa_b2_t100 |
+| DRC de Magic / LVS / antenas | 0 / 0 / 0 | 0 / 0 / 0 | `cierre.md` |
+| DRC de KLayout (684 reglas) | 0 marcadores | 0 marcadores | `drc_klayout/resumen.md` |
+| setup WNS peor esquina a 100 ns (ns) | 65,223 | 63,191 | `metrics.json` |
+| hold WNS peor esquina a 100 ns (ns) | 0,178 | 0,134 | `metrics.json` |
+| período mínimo que cierra (ns) | 24,5 | 25,5 | `cierre.md` de f1_t24p5 y pa_b2_t25p5 |
+| f_max (MHz) | 40,8 | 39,2 | derivado del período mínimo |
+| CPI del juego completo (game_tb, s1) | 2,665 | 1,665 | `docs/verificacion/b2_make_check.txt` |
+| CPI de isa_test | 2,953 | 1,969 | `docs/verificacion/b2_make_equiv_funcional.txt` |
+| MIPS = f_max / CPI del juego | 15,3 | 23,6 | derivado |
+| área de celdas a 100 ns (µm²) | 182.265 | 186.432 (102,3 %) | `metrics.json` |
+| área de celdas al período mínimo (µm²) | 189.817 | 194.212 | `metrics.json` de f1_t24p5 y pa_b2_t25p5 |
+| área del die a 100 ns y 40 % (µm²) | 408.957 | 419.131 | `metrics.json` |
+| área del die al período mínimo (µm²) | 408.957 | 419.131 | `metrics.json` |
+| celdas estándar / flip-flops | 8.670 / 990 | 9.197 / 964 | `metrics.json`, `sintesis_stat.rpt` |
+| largo de cables a 100 ns (µm) | 352.253 | 371.092 | `metrics.json` |
+| utilización máxima que cierra | 78 % | 78 % | `cierre.md` de u1_u78 y e1_u78 |
+| área mínima que cierra (mm²) | 0,216 (78 %) | 0,221 (78 %) | `metrics.json` |
+| pines con violación de max slew a 100 ns | 546 | 571 (279 con e1_g30, 0 con e1_full) | `metrics.json` |
+| pines con violación de max cap a 100 ns | 36 | 37 (32 con e1_g30, 0 con e1_full) | `metrics.json` |
+| potencia sin actividad, nom_tt (mW) | 8,971 | 8,597 | `power.rpt` de nom_tt |
+| potencia con actividad, ventana polling, nom_tt (mW) | 11,504 | 12,392 | `asic/potencia/resultado.md` (de main y de la rama) |
+| post-síntesis (RTL contra netlist) | PASS | PASS | `asic/sim/resultado.md` |
+| post-PnR con SDF | PASS (nom_tt) | PASS (nom_tt, max_ss, min_ff) | `asic/sim/resultado_sdf.md` |
+| estrategia 2 a 100 ns: die (µm²) | 1.794.180 (s2_t100) | 1.801.610 (e2_t100) | `metrics.json` |
+| estrategia 2: período mínimo (ns) | 62 | cierra a 70, no a 65 | `cierre.md` de e2_t70 y e2_t65 |
+| make check, make equiv, monitor de X | PASS | PASS | `docs/verificacion/` |
+
+Lectura corta: la candidata cambia 1,6 ns de período (-4 %) y 2,3 % de área de celdas por un CPI
+del juego 1,6 veces mejor, es decir 23,6 contra 15,3 MIPS (+54 %), cumpliendo todos los criterios
+de cierre del enunciado y los dos límites de la regla de selección (área de celdas <= 105 % de
+main y cierre completo a 100 ns y 40 %).
