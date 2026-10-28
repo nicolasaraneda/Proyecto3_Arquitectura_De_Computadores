@@ -33,10 +33,10 @@ if [ -n "$P" ]; then
   $HOME/herramientas/librelane/bin/python3 asic/graficos.py --periodo $P --salida-periodo docs/figuras/periodo.png > /dev/null 2>&1 || echo "aviso: graficos.py --periodo falló"
 fi
 
-G=$(existen asic/rom/runs/pa_b2_t100 asic/rom/runs/e1_g30_t100 asic/rom/runs/e1_full_t100)
+G=$(existen asic/rom/runs/pa_b2_t100 asic/rom/runs/e1_g30_t100 asic/rom/runs/e1_full_t100 asic/rom/runs/e1_g30_t25p5 asic/rom/runs/e1_g30_t25)
 if [ -n "$G" ]; then
   $PY asic/recolectar.py --md asic/final.md --titulo "Variantes de signoff de slew y capacitancia sobre la candidata a 100 ns" \
-    --nota "e1_g30_t100: asic/rom/config.yaml más DESIGN_REPAIR_MAX_SLEW_PCT=30 y DESIGN_REPAIR_MAX_CAP_PCT=30 (la variante que el frente C midió dentro del 1 % de área sobre el RTL B2+B5, docs/signoff0.md). e1_full_t100: asic/rom/config_rc.yaml de la rama (LAYERS_RC medidos por el frente C, con EarlyRead=1) más RUN_POST_GRT_DESIGN_REPAIR=true, GRT_DESIGN_REPAIR_MAX_SLEW_PCT=30, GRT_DESIGN_REPAIR_MAX_CAP_PCT=30 y CTS_DISTANCE_BETWEEN_BUFFERS=100. Comparar con pa_b2_t100 (571 pines de slew y 37 de capacitancia, 186.432 µm²)." \
+    --nota "e1_g30_t100: asic/rom/config.yaml más DESIGN_REPAIR_MAX_SLEW_PCT=30 y DESIGN_REPAIR_MAX_CAP_PCT=30 (la variante que el frente C midió dentro del 1 % de área sobre el RTL B2+B5, docs/signoff0.md). e1_full_t100: asic/rom/config_rc.yaml de la rama (LAYERS_RC medidos por el frente C, con EarlyRead=1) más RUN_POST_GRT_DESIGN_REPAIR=true, GRT_DESIGN_REPAIR_MAX_SLEW_PCT=30, GRT_DESIGN_REPAIR_MAX_CAP_PCT=30 y CTS_DISTANCE_BETWEEN_BUFFERS=100. Comparar con pa_b2_t100 (571 pines de slew y 37 de capacitancia, 186.432 µm²). e1_g30_t25p5 y e1_g30_t25 son la misma variante g30 al periodo minimo de la base y un paso mas abajo: NO cierran (setup -1,422 y -1,922 ns en max_ss_125C_4v50), asi que la variante de signoff cuesta periodo y el paquete se queda con la configuracion base (docs/candidata.md, seccion 7)." \
     $G > /dev/null
 fi
 

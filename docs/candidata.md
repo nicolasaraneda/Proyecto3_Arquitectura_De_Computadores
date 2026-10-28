@@ -146,3 +146,35 @@ medición.
 La candidata consume un 4 % menos en las tres esquinas porque tiene 26 flip-flops menos (964
 contra 990): con esta actividad por defecto el consumo es casi todo árbol de reloj y pines CLK de
 los flip-flops (ver `asic/potencia/resultado.md` del frente D3 para el desglose de `main`).
+
+## 7. Variantes de signoff de slew y capacitancia (configuración del frente C sobre este RTL)
+
+Las medidas del frente C (`docs/signoff0.md` de `build/exp_signoff0`) son sobre el RTL B2+B5, no
+sobre este, así que se repitieron acá. Tablas en `asic/final.md`, sección "Variantes de signoff";
+cierre en `asic/rom/resultados/<tag>/cierre.md`.
+
+| tag | variante | T (ns) | cierra | área stdcell (µm²) | sobre la base | slew | cap | fanout | hold peor (ns) |
+|---|---|---|---|---|---|---|---|---|---|
+| `pa_b2_t100` | base (asic/rom/config.yaml) | 100 | sí | 186.432 | 0 | 571 | 37 | 61 | 0,134 |
+| `e1_g30_t100` | `DESIGN_REPAIR_MAX_SLEW_PCT=30 DESIGN_REPAIR_MAX_CAP_PCT=30` | 100 | sí | 188.798 | +1,27 % | 279 | 32 | 61 | 0,135 |
+| `e1_full_t100` | `config_rc.yaml` (LAYERS_RC) + repair post-GRT al 30 % + `CTS_DISTANCE_BETWEEN_BUFFERS=100` | 100 | sí | 209.185 | +12,2 % | 0 | 0 | 20 | 0,173 |
+| `e1_g30_t25p5` | igual que e1_g30 al período mínimo de la base | 25,5 | NO (setup -1,422 ns en max_ss) | 195.944 | | 243 | 35 | | 0,128 |
+
+Resultados y decisión:
+
+- `e1_full_t100` es el mejor resultado de calidad de señal de toda la sesión sobre este diseño:
+  0 pines con violación de max slew y 0 de max capacitancia en las 9 esquinas, y cierra. Pero
+  cuesta 209.185 µm² de celdas, el 114,8 % del área de `main` (182.265 µm²), fuera del límite de
+  105 % de la regla de selección, así que NO se puede usar para el paquete. Se informa como la
+  cota de lo que se consigue con configuración del flujo (en la rama del frente C, con el RTL
+  B2+B5, la misma configuración dejaba 2 violaciones de capacitancia; con este RTL llega a 0).
+- `e1_g30_t100` baja las violaciones de slew de 571 a 279 (-51 %) y las de capacitancia de 37 a
+  32 por +1,27 % de área, y queda en 188.798 µm² (103,6 % de `main`, dentro del límite global).
+  Pero al período mínimo de la base NO cierra: `e1_g30_t25p5` da -1,422 ns de setup en
+  `max_ss_125C_4v50` contra +0,091 ns de `pa_b2_t25p5`. Es el mismo efecto que midió el frente C
+  (sc_g30 perdía 2,9 ns de slack a 24 ns).
+- Decisión: el paquete se queda con la configuración BASE. La métrica principal de la sesión es
+  MIPS = f_max / CPI y la variante de signoff cuesta período (de 25,5 ns se iría a 27 ns o más,
+  es decir 1,5 MIPS menos); slew y capacitancia son solo criterio de desempate y no son criterio
+  de cierre del enunciado. Las dos variantes quedan medidas y documentadas para que el
+  coordinador pueda elegir otra cosa con datos.
