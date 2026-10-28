@@ -1,0 +1,94 @@
+# Configuracion final de D23 (asic/rom/config.yaml de main en el commit 71fe7a0) aplicada al
+# RTL de esta rama, que es el frente A SIN B2: pipeline con lectura del banco y decodificacion
+# en el fetch, pero sin el offset de byte de la carga registrado en la LSU. Sirve para medir con
+# el flujo final cuanto aporta B2 (corridas pr_*). No se toca asic/rom/config.yaml de la rama:
+# esa es la que uso el barrido pa_* con la configuracion anterior.
+# Mismo RTL para ambas estrategias; la elige MemStrategy (ver docs/memory_map.md).
+DESIGN_NAME: asic_top
+PDK: gf180mcuD
+VERILOG_FILES:
+  - dir::../../rtl/*.v
+  - dir::../../rtl/espino_core/*.v
+  - dir::../../rtl/gen/*.v
+VERILOG_INCLUDE_DIRS:
+  - dir::../../rtl/gen
+SYNTH_PARAMETERS:
+  - MemStrategy=1
+  - DataWords=4
+  - EarlyRead=1
+# Jerarquía conservada para identificar estos bloques en los reportes y en el
+# layout (secciones 3.3, 3.4 y 3.6; docs/decisiones.md, D12).
+SYNTH_KEEP_HIERARCHY_MODULES:
+  - espino_register_file
+  - espino_alu
+  - pochoco_cycle_counter
+# Celdas excluidas de la síntesis y del buffering: las de retardo (D15) y el
+# buffer más chico, buf_1, que explicaba el 68 % de los nets con violación de
+# slew y las cadenas de buffers de la ruta crítica (D20).
+EXTRA_EXCLUDED_CELLS:
+  - gf180mcu_fd_sc_mcu7t5v0__dly*
+  - gf180mcu_fd_sc_mcu7t5v0__buf_1
+# Margen de setup del resizer durante el placement, en ns (D20): el resizer
+# redimensiona hasta dejar 10 ns de holgura, no solo hasta cumplir.
+PL_RESIZER_SETUP_SLACK_MARGIN: 10
+# Ubicación de los terminales por función (D21), en asic/rom/pines.cfg (el
+# formato no admite comentarios): #W, #E, #N y #S abren cada lado y los
+# terminales se reparten a espacios iguales de la coordenada menor a la mayor
+# (de abajo hacia arriba en oeste y este, de izquierda a derecha en norte y
+# sur); "$n" reserva n posiciones vacías. Oeste: btn[0] a btn[3], clk en la
+# quinta de nueve posiciones (el centro del lado), rst_n y tres vacías. Este:
+# seg1[6:0] y seg2[6:0], cada bus contiguo y en orden de bits. Norte: led[3:0].
+# Sur: spi_sclk, spi_mosi, spi_cs_n, spi_miso.
+IO_PIN_ORDER_CFG: dir::pines.cfg
+CLOCK_PORT: clk
+CLOCK_PERIOD: 100
+FP_CORE_UTIL: 40
+
+# D23: modelo de cable del resizer y reparacion despues del ruteo global.
+# Sin estas dos cosas la corrida final cierra a 24,5 ns con el RTL de v1 y a
+# 25,5 ns con el RTL de la candidata; con ellas cierra a 21,5 ns. La
+# exploracion que las midio esta en docs/modelo_cable.md y en
+# asic/exploraciones.md; los valores de LAYERS_RC los deriva
+# asic/modelo_cable.py de la extraccion de una corrida (ver ese archivo para el
+# comando). En la exploracion (tags co_rc_* y co_rcm_*) estas cuatro variables
+# iban por linea de comandos y LAYERS_RC en un archivo aparte,
+# asic/rom/config_rc.yaml; desde D23 las dos cosas son la configuracion final.
+# Reparacion de diseño (slew y capacitancia) despues del ruteo global, con los
+# parasitos del ruteo global en vez de los estimados por el placement.
+RUN_POST_GRT_DESIGN_REPAIR: true
+GRT_DESIGN_REPAIR_MAX_SLEW_PCT: 30
+GRT_DESIGN_REPAIR_MAX_CAP_PCT: 30
+# Resizer de timing despues del ruteo global: solo sirve si los parasitos que
+# estima se parecen a los que se extraen, es decir junto con LAYERS_RC.
+RUN_POST_GRT_RESIZER_TIMING: true
+
+# Frente C (exp/signoff0): RC de cable por capa y por esquina para la estimación de
+# parásitos del resizer (repair_design, repair_timing, CTS). Sin esta variable, el
+# resizer usa el promedio del tech LEF de Metal2 a Metal5 (0,275 ohm/µm y 64,3 aF/µm,
+# 14-openroad-dumprcvalues/resizer_values_after.rpt) en las 9 esquinas, y con ese
+# modelo ve 0 violaciones de slew tras el ruteo global; la extracción de OpenRCX
+# del ruteo detallado da 188 / 166 / 148 aF/µm y 0,60 / 0,55 / 0,50 ohm/µm (max /
+# nom / min; regresión capacidad de cable del SPEF contra largo ruteado sobre 2.399
+# nets, asic/signoff_pines.py sobre b5_t100), así que las violaciones aparecen recién
+# en el STA final. Estos valores son el tech LEF escalado por esquina (factores
+# cap 2,93 / 2,59 / 2,30 y R 2,18 / 1,99 / 1,81) para que el promedio que usa el
+# resizer coincida con la pendiente medida. Unidades: ohm/µm y pF/µm.
+LAYERS_RC:
+  "max_*":
+    Metal1: {res: 0.85199, cap: 0.00026941}
+    Metal2: {res: 0.69985, cap: 0.00024598}
+    Metal3: {res: 0.69985, cap: 0.00022958}
+    Metal4: {res: 0.69985, cap: 0.00022712}
+    Metal5: {res: 0.29691, cap: 0.000050766}
+  "nom_*":
+    Metal1: {res: 0.78028, cap: 0.00023788}
+    Metal2: {res: 0.64095, cap: 0.00021719}
+    Metal3: {res: 0.64095, cap: 0.00020271}
+    Metal4: {res: 0.64095, cap: 0.00020054}
+    Metal5: {res: 0.27192, cap: 0.000044824}
+  "min_*":
+    Metal1: {res: 0.70858, cap: 0.00021165}
+    Metal2: {res: 0.58205, cap: 0.00019324}
+    Metal3: {res: 0.58205, cap: 0.00018036}
+    Metal4: {res: 0.58205, cap: 0.00017843}
+    Metal5: {res: 0.24693, cap: 0.000039882}
