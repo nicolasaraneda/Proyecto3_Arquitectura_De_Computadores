@@ -83,8 +83,9 @@ con WNS >= 0 y TNS = 0 en las 9 esquinas).
 | potencia sin actividad, nom_tt (mW) | 8,597 | 8,971 | `55-openroad-stapostpnr/nom_tt_025C_5v00/power.rpt` |
 
 El banco de registros crece 6.693 µm² por el write-through y el enable de lectura, y el registro
-de instrucción pierde 28 flip-flops (con EarlyRead solo se usan los bits de rd): el neto es
-+2,3 % de área de celdas a 100 ns, dentro del límite.
+de instrucción pierde 28 flip-flops (con EarlyRead solo se usan los bits de rd) mientras B2 agrega
+2 para el offset de byte registrado (990 - 28 + 2 = 964): el neto es +2,3 % de área de celdas a
+100 ns, dentro del límite.
 
 ## 3. Barrido de período y ruta crítica
 
@@ -291,7 +292,7 @@ Fuentes: `asic/rom/resultados/<tag>/{cierre.md,metrics.json,sintesis_stat.rpt,dr
 | post-síntesis (RTL contra netlist) | PASS | PASS | `asic/sim/resultado.md` |
 | post-PnR con SDF | PASS (nom_tt) | PASS (nom_tt, max_ss, min_ff) | `asic/sim/resultado_sdf.md` |
 | estrategia 2 a 100 ns: die (µm²) | 1.794.180 (s2_t100) | 1.801.610 (e2_t100) | `metrics.json` |
-| estrategia 2: período mínimo (ns) | 62 | cierra a 70, no a 65 | `cierre.md` de e2_t70 y e2_t65 |
+| estrategia 2: período mínimo (ns) | 62 | 69,5 (cierra 69,5, no 69) | `cierre.md` de e2_t69p5 y e2_t69 |
 | make check, make equiv, monitor de X | PASS | PASS | `docs/verificacion/` |
 
 Lectura corta: la candidata cambia 1,6 ns de período (-4 %) y 2,3 % de área de celdas por un CPI

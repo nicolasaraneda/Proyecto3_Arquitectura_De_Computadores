@@ -81,6 +81,10 @@ las dos. Las dos cierran a 100 ns (`cierre.md` de cada tag; para s2, WNS de setu
 US$41.437. Con `MemStrategy=2` el SoC instancia el core con `EarlyRead = 0` (decisión del frente A,
 `docs/pipeline.md`), así que el CPI del juego con s2 es 2,665, el mismo de `main`, y la comparación
 con la referencia de `main` para s2 (período mínimo 62 ns) usa la misma configuración de flujo.
+Período mínimo de s2 con este RTL: 69,5 ns (cierra `e2_t69p5` con WNS +0,302 ns y no cierra
+`e2_t69` con -0,198 ns; brecha de 0,5 ns). Son 7,5 ns más que `main` porque el banco de registros
+con write-through y enable de lectura alarga también la ruta crítica de esa estrategia, en la que
+`EarlyRead = 0` y la lectura anticipada no se usa.
 
 ## 3.3. Síntesis
 
@@ -106,7 +110,8 @@ los mismos). Área de celdas de síntesis 156.098 µm² (aplanada) contra 164.60
 `e1_h100`, -5,2 % por la optimización entre bordes de módulo); 5.577 celdas de 36 tipos;
 `espino_register_file` 80.349 µm², 49 % del total (contra 73.656 µm² y 46,6 % en `main`: el
 write-through y el enable de lectura suben los mux2_2 de 622 a 796); 964 flip-flops contra 990
-(el registro de instrucción pierde 28 bits porque con EarlyRead solo se usa rd). Celdas más
+(el registro de instrucción pierde 28 bits, porque con EarlyRead solo se usa rd, y B2 agrega 2 para el
+offset de byte registrado de la carga: 990 - 28 + 2). Celdas más
 usadas: `nand2_1` 934 (16,7 %), `mux2_2` 889 (15,9 %), `dffq_1` 779 (14,0 %), `aoi21_1` 437,
 `oai21_1` 348; en `main` el orden era dffq_1, mux2_2, nand2_1. Reportes:
 `asic/rom/resultados/pa_b2_t100/sintesis_stat.rpt` y

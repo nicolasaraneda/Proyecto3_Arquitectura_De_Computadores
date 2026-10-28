@@ -59,7 +59,7 @@ Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "pe
 
 ## Estrategia 2 (memoria en flip-flops) con el RTL de la candidata
 
-Corridas e2_* con asic/ff/config.yaml de la rama (MemStrategy=2, EarlyRead en su valor por defecto 0 para esa estrategia, igual que en main: ver docs/candidata.md). Referencia de main con la estrategia 2: período mínimo 62 ns (asic/exploraciones.md). Con el RTL de la candidata cierra a 100 y 70 ns y no cierra a 65 ns (WNS -4,198 ns y TNS -271,971 ns en max_ss_125C_4v50); las corridas de 100, 70 y 65 ns dan el mismo layout (40.829 celdas, 843.767 um2, 2.209.619 um de cables), asi que el slack baja 1 ns por cada ns de periodo.
+Corridas e2_* con asic/ff/config.yaml de la rama (MemStrategy=2, EarlyRead en su valor por defecto 0 para esa estrategia, igual que en main: ver docs/candidata.md). Referencia de main con la estrategia 2: período mínimo 62 ns (asic/exploraciones.md). Con el RTL de la candidata cierra a 100, 70 y 69,5 ns (WNS +0,302 ns en max_ss_125C_4v50) y no cierra a 69 ns (-0,198 ns, TNS -1,074) ni a 65 ns (-4,198 ns, TNS -271,971): periodo minimo 69,5 ns, con 0,5 ns de brecha con el primero que no cierra. Todas las corridas dan el mismo layout (40.829 celdas, 843.767 um2, 2.209.619 um de cables), asi que el slack baja 1 ns por cada ns de periodo. Main con s2 llegaba a 62 ns: el banco de registros de la candidata (write-through y enable de lectura) tambien alarga la ruta critica de esa estrategia, donde EarlyRead no se usa.
 
 Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
 
@@ -67,12 +67,16 @@ Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "pe
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | e2_t100 | 100 | 63.255 | 0 | 30.802 | 0 | 0.429 | 0 | 1.041 | 0 | 30.802 | 0 | 0.164 | 0 | sí | 843767 | 0.486 | 1801610 | 0 | 0 | 0 | sí | 18557 | 209 | 0 |
 | e2_t70 | 70 | 33.255 | 0 | 0.802 | 0 | 0.429 | 0 | 1.041 | 0 | 0.802 | 0 | 0.164 | 0 | sí | 843767 | 0.486 | 1801610 | 0 | 0 | 0 | sí | 18557 | 209 | 0 |
+| e2_t69p5 | 69.500 | 32.755 | 0 | 0.302 | 0 | 0.429 | 0 | 1.041 | 0 | 0.302 | 0 | 0.164 | 0 | sí | 843767 | 0.486 | 1801610 | 0 | 0 | 0 | sí | 18557 | 209 | 0 |
+| e2_t69 | 69 | 32.255 | 0 | -0.198 | -1.074 | 0.429 | 0 | 1.041 | 0 | -0.198 | -1.074 | 0.164 | 0 | no | 843767 | 0.486 | 1801610 | 0 | 0 | 0 | no | 18557 | 209 | 0 |
 | e2_t65 | 65 | 28.255 | 0 | -4.198 | -271.971 | 0.429 | 0 | 1.041 | 0 | -4.198 | -271.971 | 0.164 | 0 | no | 843767 | 0.486 | 1801610 | 0 | 0 | 0 | no | 18557 | 209 | 0 |
 
 | corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
 |---|---|---|---|---|---|---|
 | e2_t100 | 696824.531 | 346545.248 | 4673 | 80348.710 | 10005.722 | 3942.579 |
 | e2_t70 | 696824.531 | 346545.248 | 4673 | 80348.710 | 10005.722 | 3942.579 |
+| e2_t69p5 | 696824.531 | 346545.248 | 4673 | 80348.710 | 10005.722 | 3942.579 |
+| e2_t69 | 696824.531 | 346545.248 | 4673 | 80348.710 | 10005.722 | 3942.579 |
 | e2_t65 | 696824.531 | 346545.248 | 4673 | 80348.710 | 10005.722 | 3942.579 |
 
 ## Barrido de FP_CORE_UTIL a 100 ns sobre la candidata

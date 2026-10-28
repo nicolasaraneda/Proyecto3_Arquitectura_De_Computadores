@@ -43,7 +43,7 @@ fi
 E2=$(existen asic/ff/runs/e2_t100 asic/ff/runs/e2_t70 asic/ff/runs/e2_t69p5 asic/ff/runs/e2_t69 asic/ff/runs/e2_t65)
 if [ -n "$E2" ]; then
   $PY asic/recolectar.py --md asic/final.md --titulo "Estrategia 2 (memoria en flip-flops) con el RTL de la candidata" \
-    --nota "Corridas e2_* con asic/ff/config.yaml de la rama (MemStrategy=2, EarlyRead en su valor por defecto 0 para esa estrategia, igual que en main: ver docs/candidata.md). Referencia de main con la estrategia 2: período mínimo 62 ns (asic/exploraciones.md). Con el RTL de la candidata cierra a 100 y 70 ns y no cierra a 65 ns (WNS -4,198 ns y TNS -271,971 ns en max_ss_125C_4v50); las corridas de 100, 70 y 65 ns dan el mismo layout (40.829 celdas, 843.767 um2, 2.209.619 um de cables), asi que el slack baja 1 ns por cada ns de periodo." \
+    --nota "Corridas e2_* con asic/ff/config.yaml de la rama (MemStrategy=2, EarlyRead en su valor por defecto 0 para esa estrategia, igual que en main: ver docs/candidata.md). Referencia de main con la estrategia 2: período mínimo 62 ns (asic/exploraciones.md). Con el RTL de la candidata cierra a 100, 70 y 69,5 ns (WNS +0,302 ns en max_ss_125C_4v50) y no cierra a 69 ns (-0,198 ns, TNS -1,074) ni a 65 ns (-4,198 ns, TNS -271,971): periodo minimo 69,5 ns, con 0,5 ns de brecha con el primero que no cierra. Todas las corridas dan el mismo layout (40.829 celdas, 843.767 um2, 2.209.619 um de cables), asi que el slack baja 1 ns por cada ns de periodo. Main con s2 llegaba a 62 ns: el banco de registros de la candidata (write-through y enable de lectura) tambien alarga la ruta critica de esa estrategia, donde EarlyRead no se usa." \
     $E2 > /dev/null
 fi
 
