@@ -283,7 +283,9 @@ Es la ruta nueva de un ciclo que crea el diseño: la dirección del fetch pasa p
 ROM, elige el registro y atraviesa el mux de lectura antes del flanco en que se carga
 la instrucción. De los 23 ns de lógica, 11,6 ns son buffers de fanout (`fanout*`,
 `max_cap*`): el bit del PC alimenta toda la ROM y cada bit de rs2 alimenta 32 x 15
-entradas de mux. En `main` la ruta crítica a 25 ns era la del write-back de la carga
+entradas de mux. En `main` la ruta crítica al período mínimo (24,5 ns; f1_t26, f1_t25 y
+f1_t24p5 comparten layout y ruta: startpoint `_4189_`, endpoint
+`u_soc.u_core.u_rf/_2933_`) era la del write-back de la carga
 (ALU -> alineación -> banco); esa ruta ya no aparece entre las primeras porque la
 instrucción que sigue a la carga lee el banco en el flanco del commit (write-through
 sobre `wdata_i`, un mux2 más), y el decode sigue fuera de las rutas de ejecución.
@@ -293,51 +295,232 @@ Figuras: `asic/rom/resultados/pa_t26/layout/ruta_critica.png`, `bloques.png`, `s
 
 ## 5. Variantes
 
+Las dos variantes salen de `exp/pipeline` (worktrees `build/exp_pipeline_b5` y
+`build/exp_pipeline_b2`, creados con `git worktree add -b <rama> <dir> exp/pipeline`).
+Las dos pasan la verificación obligatoria completa y las dos se midieron a 100 ns y en su
+período mínimo con la regla de 0,5 ns.
+
 ### 5.1 exp/pipeline-b5 (banco de latches de B5)
 
-Cherry-pick de 792d410 y ef957ef de exp/rf-latch sobre exp/pipeline, con el
-write-through reimplementado sobre la salida registrada (el dato entra a los latches en
-la fase alta siguiente al flanco, así que en el flanco del commit la lectura del mismo
-registro toma `wdata_i`; una lectura en el flanco siguiente ya ve el latch actualizado) y
-`rd_en_i` conservado; `LINTER_ERROR_ON_LATCH: false` en las dos configs. Verificación
-(`docs/verificacion/b5_*.txt` de la sub-rama): make check PASS (CPI del juego 1,665
-y 2,665), make equiv funcional isa_test y hazard_test equivalentes con las dos
-estrategias, 0 X usados.
+Cherry-pick de 792d410 y ef957ef de exp/rf-latch sobre exp/pipeline (commits 0876577 y
+966a36b), con el write-through reimplementado sobre la salida registrada (el dato entra a
+los latches en la fase alta siguiente al flanco, así que en el flanco del commit la
+lectura del mismo registro toma `wdata_i`; una lectura en el flanco siguiente ya ve el
+latch actualizado) y `rd_en_i` conservado; `LINTER_ERROR_ON_LATCH: false` en las dos
+configs (`asic/rom/config.yaml` y `asic/sim/config.yaml`, regenerada con
+`python3 asic/sim/generar_config.py`).
 
-VARIANTE_B5_PENDIENTE
+Verificación (commit 092ec33, `docs/verificacion/b5_*.txt`):
+
+| paso | comando | resultado |
+|---|---|---|
+| assembler y seis testbenches | `make check` | PASS (80 pruebas del assembler, game_top_tb, game_tb 10 y 4 rondas, estrategias 1 y 2). CPI del juego 1,665 (estrategia 1, 10 rondas) y 2,665 (estrategia 2) |
+| equivalencia funcional isa_test | `flock /tmp/claude-1000/equiv.lock make equiv MODO=funcional` | rf 46, bus 22, io 2 eventos iguales con las dos estrategias; CPI de isa_test 1,969 (referencia 2,953) |
+| equivalencia funcional hazard_test | `make equiv PROG=hazard_test REF=main MODO=funcional` | rf 348, bus 63, io 2 eventos iguales con las dos estrategias; CPI 1,769 |
+| monitor de X | game_tb completa y core_trace_tb | 0 valores desconocidos usados en 620.217 escrituras al banco (estrategia 1) y 388.411 (estrategia 2) |
+| RTL contra netlist | `make post-synth` y `make post-synth-control` (28-10-2026, `docs/verificacion/b5_make_post_synth.txt`) | PASS: 17 cambios de salida idénticos, display 51, 0 valores X; control negativo con ATRASO = 8 da FAIL como corresponde. `asic/sim/resultado.md` regenerado queda idéntico al de exp/pipeline |
+
+Corridas (`asic/barrido_exp.md`, `asic/rom/resultados/pa_b5_*/cierre.md` y `metrics.json`):
+
+| tag | T (ns) | cierra | setup WNS max_ss (ns) | hold WNS peor (ns) | área stdcell (µm²) | celdas | slew / cap | DRC / LVS / antena |
+|---|---|---|---|---|---|---|---|---|
+| pa_b5_t100 | 100 | sí | 0,000 (préstamo de los latches) | 0,134 | 165.211 | 8.254 | 386 / 3 | 0 / 0 / 0 |
+| pa_b5_t34 | 34 | sí | 0,000 (préstamo de los latches) | 0,136 | 165.700 | 8.255 | 386 / 3 | 0 / 0 / 0 |
+| pa_b5_t32 | 32 | sí | 0,000 (préstamo de los latches) | 0,137 | 167.050 | 8.258 | 329 / 3 | 0 / 0 / 0 |
+| pa_b5_t30 | 30 | sí | 0,000 (préstamo de los latches) | 0,119 | 170.589 | 8.262 | 300 / 4 | 0 / 0 / 0 |
+| pa_b5_t29 | 29 | sí | 0,000 (préstamo de los latches) | 0,118 | 174.933 | 8.280 | 223 / 5 | 0 / 0 / 0 |
+| pa_b5_t28 | 28 | incompleta: cortada a los 40 min en `OpenROAD.ResizerTimingPostCTS` (paso 37 de 76) | sin dato | sin dato | sin dato | sin dato | sin dato | sin dato |
+| pa_b5_t26 | 26 | no (setup max_ss) | -7,102 (TNS -310,392) | 0,139 | 171.700 | 8.276 | 403 / 3 | 0 / 0 / 0 |
+| pa_b5_t25 | 25 | no (setup max_ss) | -8,102 (TNS -374,392) | 0,139 | 171.700 | 8.276 | 403 / 3 | 0 / 0 / 0 |
+
+- A 100 ns cierra con 165.211 µm² de celdas estándar: -9,4 % contra `main` (182.265) y
+  -11,2 % contra `exp/pipeline` (186.087). Slew y capacitancia 386 / 3, mejor que `main`
+  (546 / 36) y que `exp/pipeline` (506 / 32).
+- Síntesis (`asic/rom/resultados/pa_b5_t100/sintesis_stat.rpt`): 130.930,509 µm² de
+  celdas (contra 155.854,810 de `exp/pipeline`), banco de registros 55.628,563 µm²
+  (contra 80.348,710: -30,8 %), con 480 `latq_1` (2,11E+04 µm²), 15 `icgtp_1` de clock
+  gating y 96 `dffq_1` en los puertos de lectura. OJO con la columna "flip-flops" de
+  `asic/barrido_exp.md`: `asic/recolectar.py` cuenta las celdas cuyo nombre contiene
+  "dff" o "latch", y la celda de latch del PDK se llama `latq_1`, así que la tabla
+  informa 514 flip-flops y NO suma los 480 latches; lo mismo pasa con el área secuencial
+  que informa Yosys (34.752,211 µm², solo los flip-flops). Sumando los latches el área
+  secuencial real es del orden de 55.900 µm² contra 63.272,250 de `exp/pipeline`.
+- **El WNS de setup no sirve como medida de margen en esta variante.** Cuando la corrida
+  cierra, `metrics.json` informa setup WNS = 0,000 y TNS = 0,000 EXACTOS en las nueve
+  esquinas. La razón está en el reporte de la ruta crítica
+  (`asic/rom/resultados/pa_b5_t100/max_ss_125C_4v50_ruta_critica.rpt`): el endpoint es el
+  pin D de un latch (`u_soc.u_core.u_rf/g_reg[6].g_bit[2].u_lat.u_lat`, `latq_1`) y
+  OpenSTA cierra la ruta con `time borrowed from endpoint 3,538487` (préstamo de tiempo
+  de la fase transparente del latch), con lo que el slack queda `0.000000 slack (MET)`.
+  Son 480 endpoints de latch, todos con slack 0,000 y préstamos de hasta 7,154 ns
+  (`max.rpt` de `pa_b5_t29`, 1.185 rutas revisadas con un script sobre el reporte).
+  Consecuencias prácticas:
+  (1) el criterio de cierre (WNS >= 0 y TNS = 0 en las nueve esquinas) se cumple, pero el
+  margen reportado es cero por construcción, no medido;
+  (2) el margen real de las rutas entre flip-flops sí se puede leer del mismo reporte y es
+  holgado: la ruta de mayor retardo de `pa_b5_t29` llega a 28,710 ns con 3,292 ns de slack
+  (startpoint `_4305_`, el bit 2 del PC, red `u_soc.g_mem_rom.u_mem.a_addr_i[2]`; endpoint
+  `u_soc.u_core.u_rf/_2385_`, `u_soc.u_core.rf_rdata_a[1]`), es decir la misma ruta
+  PC -> ROM -> mux de lectura del banco que limita a A y a A+B2;
+  (3) el resizer de OpenROAD recibe como peor endpoint un pin D de latch con slack 0,000 y
+  gasta ahí sus iteraciones: en `asic/logs/pa_b5_t28.log` se ven más de 7.000 pasadas de
+  `repair_timing` con `+0,1 %` de área y slack 0,000 sobre
+  `u_soc.u_core.u_rf/g_reg[10].g_bit[0].u_lat.u_lat/D`, y esa corrida se quedó en
+  `OpenROAD.ResizerTimingPostCTS` hasta el corte de 40 minutos de la cola. En las corridas
+  que no cierran el efecto se ve claro: en `pa_b5_t26` la violación no está en un latch
+  sino en una ruta normal entre flip-flops que el flujo dejó sin arreglar
+  (`_4307_`, bit 4 del PC, a `u_soc.u_core.u_rf/_2426_`, `u_soc.u_core.lsu_wdata[10]`:
+  llegada 36,238 ns contra 29,136 requeridos, slack -7,102);
+  (4) el período mínimo hay que buscarlo corrida por corrida, porque el slack no permite
+  extrapolar. Para el coordinador: la comparación de márgenes entre `main`, A y A+B2 (que
+  informan slack real) y A+B5 no es homogénea, y el límite de 29 ns de A+B5 es un límite
+  del flujo (el paso de resizer se va en los latches y se corta por tiempo), no un límite
+  de la lógica, que a 29 ns todavía tiene 3,292 ns de sobra.
+- Período mínimo 29 ns (34,5 MHz): 29 ns es el último período medido que cierra
+  (`pa_b5_t29`) y 26 ns el primero que no (`pa_b5_t26`). La regla de la sesión de dejar
+  0,5 ns o menos entre los dos NO queda cerrada en esta variante: `pa_b5_t28` se cortó a
+  los 40 minutos en `OpenROAD.ResizerTimingPostCTS` sin llegar a `final/metrics.json`, así
+  que 28 ns no está medido. El 28-10-2026 a las 07:45 se encoló `pa_b5_t28p5` (28,5 ns,
+  número 99 de la cola) para cerrarla por arriba: si 28,5 ns no cierra, el par queda
+  (29 cierra, 28,5 no) y la regla se cumple con período mínimo 29 ns; si cierra, el
+  período mínimo baja a 28,5 ns y la regla sigue abierta por abajo mientras 28 ns no se
+  pueda medir dentro del límite de 40 minutos. MIPS con el dato medido:
+  (1000 / 29) / 1,665 = 20,71.
+
+#### Ruta crítica a 29 ns (`asic/rom/resultados/pa_b5_t29/max_ss_125C_4v50_ruta_critica.rpt`, `layout/ruta_critica.txt`)
+
+`bash asic/layout/anotar.sh asic/rom/runs/pa_b5_t29`: la ruta que OpenSTA informa como
+peor es corta y no es la que manda el período. Son 4 celdas, todas dentro del banco:
+startpoint `u_soc.u_core.u_rf/_2450_` (`dffq_1`, un bit del dato de escritura), dos
+buffers de fanout (`fanout524`, `fanout523`) y endpoint
+`u_soc.u_core.u_rf/g_reg[1].g_bit[2].u_lat.u_lat` (`latq_1`, el latch del bit 2 de x1).
+Llegada 7,153 ns, de los cuales 3,600 son préstamo del latch: slack 0,000 (MET). La ruta
+que de verdad fija el período es la de mayor retardo entre flip-flops (28,710 ns de
+llegada, 3,292 ns de slack, PC -> ROM -> mux de lectura del puerto A -> `rf_rdata_a[1]`),
+la misma familia que en A y A+B2. En el layout el banco ocupa 2.074 celdas y 61.334 µm²
+(37,3 % del área), la ALU 632 celdas y 13.964 µm² (8,5 %). Figuras:
+`asic/rom/resultados/pa_b5_t29/layout/ruta_critica.png`, `bloques.png`, `slew.png`.
+
 
 ### 5.2 exp/pipeline-b2 (offset de byte registrado de B2)
 
-Cherry-pick de 7ff1d06 de exp/lsu-offset sobre exp/pipeline: la LSU guarda
-`addr_i[1:0]` en `boff_q` al emitir la carga y alinea el dato con ese registro (la ALU
-sale de la ruta de alineación y write-back). Verificación (`docs/verificacion/b2_*.txt`
-de la sub-rama): make check PASS (CPI del juego 1,665 y 2,665), make equiv funcional
-isa_test y hazard_test equivalentes con las dos estrategias, 0 X usados.
+Cherry-pick de 7ff1d06 de exp/lsu-offset sobre exp/pipeline (commit 3b5b452): la LSU
+guarda `addr_i[1:0]` en `boff_q` al emitir la carga y alinea el dato con ese registro, con
+lo que la ALU sale de la ruta de alineación y write-back de la carga.
 
-VARIANTE_B2_PENDIENTE
+Verificación (commit be50893, `docs/verificacion/b2_*.txt`):
 
-## 6. Comparación con main
-
-| | main (`asic/final.md`, `asic/exploraciones.md`) | exp/pipeline (esta rama) |
+| paso | comando | resultado |
 |---|---|---|
-| ciclos por instrucción (aritmética / carga / salto tomado) | 2 / 3 / 3 | 1 / 2 / 2 |
-| CPI isa_test (core_trace_tb) | 2,953 | 1,969 |
-| CPI del juego (game_tb, 10 rondas) | 2,665 | 1,665 (-37,5 %) |
-| período mínimo que cierra todo (ns) | 25 (referencia de la sesión; `asic/final.md` agrega f1_t24p5 con 0,496 ns: 24,5) | 26 (25,5 no cierra por 0,302 ns) |
-| f máx (MHz) | 40,0 (40,8 con 24,5 ns) | 38,5 |
-| MIPS = f máx / CPI del juego | 15,0 (15,3 con 24,5 ns) | 23,1 (+54 %; +51 % contra 15,3) |
-| área de celdas estándar a 100 ns (µm²) | 182.265 | 186.087 (+2,1 %; límite 191.378) |
-| área de celdas estándar al período mínimo (µm²) | 189.817 (f1_t25) | 195.281 (pa_t26) |
-| flip-flops (síntesis) | 990 | 962 |
-| slew / cap a 100 ns | 546 / 36 | 506 / 32 |
-| slew / cap al período mínimo | 532 / 36 (f1_t25) | 447 / 33 (pa_t26) |
-| hold WNS peor a 100 ns (ns) | 0,178 | 0,134 |
-| ruta crítica al período mínimo | write-back de la carga (ALU -> alineación -> banco) | PC -> ROM -> rs2 -> mux de lectura del banco -> registro de operando |
-| verificación | check PASS, equiv ciclo a ciclo | check PASS, equiv funcional (isa_test, hazard_test contra main), mutaciones detectadas, 0 X usados, post-synth PASS |
+| assembler y seis testbenches | `make check` | PASS. CPI del juego 1,665 (estrategia 1) y 2,665 (estrategia 2), iguales a exp/pipeline |
+| equivalencia funcional isa_test | `flock /tmp/claude-1000/equiv.lock make equiv MODO=funcional` | rf 46, bus 22, io 2 eventos iguales con las dos estrategias; CPI de isa_test 1,969 |
+| equivalencia funcional hazard_test | `make equiv PROG=hazard_test REF=main MODO=funcional` | rf 348, bus 63, io 2 eventos iguales con las dos estrategias; CPI 1,769 |
+| monitor de X | game_tb completa y core_trace_tb | 0 valores desconocidos usados en 620.217 escrituras al banco (estrategia 1) y 388.411 (estrategia 2) |
+| RTL contra netlist | `make post-synth` y `make post-synth-control` (28-10-2026, `docs/verificacion/b2_make_post_synth.txt`) | PASS: 17 cambios de salida idénticos, display 51, 0 valores X; control negativo con ATRASO = 8 da FAIL como corresponde. `asic/sim/resultado.md` regenerado queda idéntico al de exp/pipeline |
 
-MIPS = (1000 / 26) / 1,665 = 23,1. El período sube 1 ns (4 %) y el CPI baja 37,5 %, así
-que el rendimiento en el juego sube 54 % con 2,1 % más de área. El costo real es la
-ruta nueva ROM -> banco, que fija el período en 26 ns; lo que haría bajar ese período es
-acortar esa ruta (por ejemplo registrar las direcciones rs1/rs2 decodificadas de la ROM
-en el PC, o reducir el fanout de los bits de rs en el banco), no la ALU ni la LSU.
+Corridas (`asic/barrido_exp.md`, `asic/rom/resultados/pa_b2_*/cierre.md` y `metrics.json`):
 
+| tag | T (ns) | cierra | setup WNS max_ss (ns) | hold WNS peor (ns) | área stdcell (µm²) | celdas | slew / cap | DRC / LVS / antena |
+|---|---|---|---|---|---|---|---|---|
+| pa_b2_t100 | 100 | sí | 63,191 | 0,134 | 186.432 | 9.224 | 571 / 37 | 0 / 0 / 0 |
+| pa_b2_t26 | 26 | sí | 0,591 | 0,135 | 194.212 | 9.224 | 508 / 40 | 0 / 0 / 0 |
+| pa_b2_t25p5 | 25,5 | sí | 0,091 | 0,135 | 194.212 | 9.224 | 508 / 40 | 0 / 0 / 0 |
+| pa_b2_t25 | 25 | no (setup max_ss) | -0,409 (TNS -1,027) | 0,135 | 194.212 | 9.224 | 508 / 40 | 0 / 0 / 0 |
+
+- A 100 ns cierra con 186.432 µm²: +2,3 % contra `main` (182.265), dentro del límite de
+  105 % (191.378), y +0,2 % contra `exp/pipeline`. Slew y capacitancia 571 / 37 a 100 ns,
+  peor que `exp/pipeline` (506 / 32) y que `main` en slew (546) aunque mejor en
+  capacitancia (36).
+- Período mínimo 25,5 ns (39,2 MHz): medio nanosegundo menos que `exp/pipeline`, con
+  0,091 ns de slack en `max_ss_125C_4v50`; 25 ns no cierra por 0,409 ns. Queda 0,5 ns
+  entre el último período que cierra y el primero que no, como pide la regla. Las
+  corridas de 26, 25,5 y 25 ns tienen el mismo layout (9.224 celdas, 194.212 µm²,
+  373.251 µm de cables).
+- Síntesis: 156.098,477 µm², 964 flip-flops, banco de registros 80.348,710 µm² (igual que
+  `exp/pipeline`); el costo de B2 son dos flip-flops más (el offset `boff_q`).
+
+#### Ruta crítica a 25,5 ns (`asic/rom/resultados/pa_b2_t25p5/max_ss_125C_4v50_ruta_critica.rpt`, `layout/ruta_critica.txt`)
+
+`bash asic/layout/anotar.sh asic/rom/runs/pa_b2_t25p5`: startpoint `_4288_`
+(`dffrnq_2`, el bit 3 del PC de la etapa IF, red `u_soc.g_mem_rom.u_mem.a_addr_i[3]`),
+endpoint `u_soc.u_core.u_rf/_4114_` (`dffq_1`, el bit 16 del puerto de lectura A del
+banco, `u_soc.u_core.rf_rdata_a[16]` en
+`asic/rom/runs/pa_b2_t25p5/final/nl/asic_top.nl.v`). Llegada 27,002 ns contra 27,093
+requeridos (reloj 25,5 + 2,319 de latencia al endpoint, -0,25 de incertidumbre, +0,109 de
+pesimismo, -0,585 de setup): slack 0,091 ns. 24 celdas, 3 de ellas del camino de reloj:
+
+| tramo | celdas | desde | hasta | ns |
+|---|---|---|---|---|
+| reloj a Q del PC | 1 | 2,607 | 4,789 | 2,2 |
+| ROM combinacional (`pochoco_rom`, lógica aplanada): dos buffers de fanout, inversor, buffer de fanout, nor2, nand2, oai22, nor3, nor2 | 9 | 4,789 | 14,111 | 9,3 |
+| `a_next_o[17]` (bit 2 de rs1) hasta el banco: tres buffers de fanout | 3 | 14,111 | 17,016 | 2,9 |
+| decodificación de rs1 y mux 16:1 del puerto A dentro de `espino_register_file`: inversor, dos buffers de fanout, nand2, tres buffers de fanout, aoi21, nor3, oai32 | 10 | 17,016 | 27,002 | 10,0 |
+
+Es la misma ruta nueva que fija el período en `exp/pipeline` (PC -> ROM -> bit de rs ->
+mux de lectura del banco), ahora por el puerto A y con medio nanosegundo menos de retardo:
+B2 sirve justamente porque saca de la ruta de la carga la alineación con la ALU, que en
+`exp/pipeline` era la segunda ruta más lenta. El límite sigue siendo ROM -> banco.
+
+## 6. Comparación con main y entre las tres opciones del frente
+
+`main` es la referencia de la sesión con el dato nuevo del frente D4: cierra a 24,5 ns
+(`asic/rom/resultados/f1_t24p5/cierre.md`, WNS 0,496 ns en `max_ss_125C_4v50`) y 24 ns no
+cierra por 0,004 ns, así que su período mínimo es 24,5 ns (40,8 MHz) y su MIPS es
+(1000 / 24,5) / 2,665 = 15,32.
+
+| | main | A (exp/pipeline) | A+B2 (exp/pipeline-b2) | A+B5 (exp/pipeline-b5) |
+|---|---|---|---|---|
+| ciclos por instrucción (aritmética / carga / salto tomado) | 2 / 3 / 3 | 1 / 2 / 2 | 1 / 2 / 2 | 1 / 2 / 2 |
+| CPI isa_test (core_trace_tb) | 2,953 | 1,969 | 1,969 | 1,969 |
+| CPI del juego (game_tb, 10 rondas) | 2,665 | 1,665 | 1,665 | 1,665 |
+| período mínimo que cierra todo (ns) | 24,5 (f1_t24p5) | 26 (pa_t26) | 25,5 (pa_b2_t25p5) | 29 (pa_b5_t29) |
+| primer período que no cierra (ns) | 24 (WNS -0,004) | 25,5 (WNS -0,302) | 25 (WNS -0,409) | 26 (WNS -7,102); 28 quedó incompleta |
+| f máx (MHz) | 40,8 | 38,5 | 39,2 | 34,5 |
+| **MIPS = f máx / CPI del juego** | **15,32** | **23,10** | **23,55** | **20,71** |
+| área de celdas estándar a 100 ns (µm²) | 182.265 | 186.087 (+2,1 %) | 186.432 (+2,3 %) | 165.211 (-9,4 %) |
+| área de celdas estándar al período mínimo (µm²) | 189.817 | 195.281 | 194.212 | 174.933 |
+| celdas a 100 ns (`design__instance__count__stdcell`) | 8.670 | 9.180 | 9.224 | 8.254 |
+| flip-flops (síntesis) | 990 | 962 | 964 | 514 más 480 latches `latq_1` y 15 `icgtp_1` |
+| slew / cap a 100 ns | 546 / 36 | 506 / 32 | 571 / 37 | 386 / 3 |
+| slew / cap al período mínimo | 532 / 36 | 447 / 33 | 508 / 40 | 223 / 5 |
+| hold WNS peor a 100 ns (ns) | 0,178 | 0,134 | 0,134 | 0,134 |
+| setup WNS en max_ss al período mínimo (ns) | 0,496 | 0,198 | 0,091 | 0,000 con préstamo de los latches (no es margen medido) |
+| ruta crítica al período mínimo | write-back de la carga (ALU -> alineación -> banco) | PC -> ROM -> rs2 -> mux de lectura del puerto B -> registro de operando | PC -> ROM -> rs1 -> mux de lectura del puerto A -> registro de operando | la peor que informa OpenSTA está dentro del banco (registro de escritura -> latch, 4 celdas, slack 0,000 con préstamo); la de mayor retardo real es PC -> ROM -> mux de lectura del puerto A -> registro de operando, con 3,292 ns de slack |
+| verificación | check PASS, equiv ciclo a ciclo | check PASS, equiv funcional (isa_test y hazard_test contra main), mutaciones detectadas, 0 X usados, post-synth PASS con control negativo | lo mismo | lo mismo |
+
+Límites de la regla de selección: área de celdas estándar a 100 ns hasta 191.378 µm²
+(105 % de main) y cierre completo a 100 ns y 40 %. Las tres opciones del frente cumplen
+las dos cosas.
+
+Lectura de la tabla:
+
+- El cambio que paga es el del frente A: el CPI del juego baja 37,5 % (2,665 a 1,665)
+  porque desaparece el ciclo de espera de operandos, y el período solo sube 1,5 ns
+  (24,5 a 26). Resultado: 23,10 MIPS contra 15,32, un 51 % más, con 2,1 % más de área.
+- B2 es el mejor de los tres en la métrica principal: 23,55 MIPS. Cuesta dos flip-flops y
+  0,2 % de área contra A, y empeora slew y capacitancia (571 / 37 contra 506 / 32 a
+  100 ns).
+- B5 es el mejor en área (165.211 µm², -9,4 % contra main y -11,2 % contra A) y en slew y
+  capacitancia (386 / 3 a 100 ns, 223 / 5 a 29 ns), pero es el peor en la métrica
+  principal (20,71 MIPS). Dos advertencias para leer su fila (sección 5.1): su cierre se
+  apoya en el préstamo de tiempo de los latches, con slack reportado 0,000 en los 480
+  endpoints de latch, de modo que ese número no mide margen (el margen real de las rutas
+  entre flip-flops a 29 ns es 3,292 ns); y su período mínimo de 29 ns es un límite del
+  flujo, no de la lógica: el paso `OpenROAD.ResizerTimingPostCTS` se va iterando sobre los
+  endpoints de latch y `pa_b5_t28` se cortó ahí a los 40 minutos, así que 28 ns no está
+  medido y la regla de 0,5 ns queda abierta en esta variante (`pa_b5_t28p5` encolada).
+  Dicho eso, la conclusión no cambia con el dato que falta: incluso si cerrara a 28 ns,
+  B5 daría 21,45 MIPS, menos que A (23,10) y que A+B2 (23,55). Es la opción a elegir solo
+  si el criterio cambia de rendimiento a área.
+- Lo que limita a A y a A+B2 es la ruta nueva PC -> ROM -> bit de rs -> mux de lectura del
+  banco: de los 22,2 ns que la ruta de A+B2 pasa en lógica (de 4,789 a 27,002 ns, sin
+  contar el clk -> Q del PC), 2,9 ns son buffers de fanout entre la ROM y el banco y
+  6,1 ns son buffers dentro del banco. Lo que bajaría el
+  período no es la ALU ni la LSU, sino acortar esa ruta: registrar las direcciones rs1 y
+  rs2 ya decodificadas (sacarlas del camino combinacional de la ROM) o reducir el fanout
+  de los bits de rs en el banco (32 registros por 15 entradas de mux cada bit).
+
+Recomendación del frente: **A+B2 (`exp/pipeline-b2`, 25,5 ns, 23,55 MIPS)** como
+candidata, con A (`exp/pipeline`, 26 ns, 23,10 MIPS) como respaldo si se prefiere el
+diseño con menos cambios respecto de main y mejores números de slew y capacitancia, y
+A+B5 si el criterio pasa a ser el área.

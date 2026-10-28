@@ -1,0 +1,12 @@
+ruta critica de asic/rom/runs/pa_b5_t29/55-openroad-stapostpnr/max_ss_125C_4v50/max.rpt
+startpoint u_soc.u_core.u_rf/_2450_, endpoint u_soc.u_core.u_rf/g_reg[1].g_bit[2].u_lat.u_lat: 4 celdas numeradas; 6 celdas del camino de reloj (--, sin numero)
+-- delaybuf_0_clk (clkbuf_16) -> delaynet_0_clk  [camino de reloj]
+-- delaybuf_1_clk (clkbuf_16) -> delaynet_1_clk  [camino de reloj]
+-- clkbuf_regs_0_clk (clkbuf_16) -> clk_regs  [camino de reloj]
+-- clkbuf_0_clk_regs (clkbuf_16) -> clknet_0_clk_regs  [camino de reloj]
+-- clkbuf_2_0__f_clk_regs (clkbuf_16) -> clknet_2_0__leaf_clk_regs  [camino de reloj]
+-- clkbuf_leaf_33_clk_regs (clkbuf_8) -> clknet_leaf_33_clk_regs  [camino de reloj]
+ 1 u_soc.u_core.u_rf/_2450_ (dffq_1) -> u_soc.u_core.u_rf/g_reg[10].g_bit[2].u_lat.d_i  [register file (u_soc.u_core.u_rf)]
+ 2 u_soc.u_core.u_rf/fanout524 (buf_2) -> u_soc.u_core.u_rf/net524  [register file (u_soc.u_core.u_rf)]
+ 3 u_soc.u_core.u_rf/fanout523 (buf_2) -> u_soc.u_core.u_rf/net523  [register file (u_soc.u_core.u_rf)]
+ 4 u_soc.u_core.u_rf/g_reg[1].g_bit[2].u_lat.u_lat (latq_1) -> None  [register file (u_soc.u_core.u_rf)]
