@@ -294,10 +294,11 @@
     "corrida_100": "build/main_rc/asic/rom/runs/co_rcm_t100",
     "corridas_periodo": [
       "build/main_rc/asic/rom/runs/co_rcm_t23",
-      "build/main_rc/asic/rom/runs/co_rcm_t22"
+      "build/main_rc/asic/rom/runs/co_rcm_t22",
+      "build/main_rc/asic/rom/runs/co_rcm_t21p5"
     ],
     "potencia_mw": null,
-    "nota": "110,4 por ciento del area de main: fuera del limite; 0 slew en las 9 esquinas"
+    "nota": "110,4 por ciento del area de main: fuera del limite; 0 slew en las 9 esquinas; datos en exp/candidata-rc, asic/main_rc/"
   },
   {
     "nombre": "exp/candidata-rc (exploracion del coordinador)",
@@ -312,9 +313,10 @@
       "build/exp_candidata_rc/asic/rom/runs/co_rc_t24",
       "build/exp_candidata_rc/asic/rom/runs/co_rc_t23",
       "build/exp_candidata_rc/asic/rom/runs/co_rc_t22",
+      "build/exp_candidata_rc/asic/rom/runs/co_rc_t21p5",
       "build/exp_candidata_rc/asic/rom/runs/co_rc_t21"
     ],
     "potencia_mw": null,
-    "nota": "114,4 por ciento del area de main: fuera del limite; 0 slew a 100 ns"
+    "nota": "114,4 por ciento del area de main: fuera del limite; 0 slew en las 9 esquinas; ver docs/modelo_cable.md de la rama"
   }
 ]

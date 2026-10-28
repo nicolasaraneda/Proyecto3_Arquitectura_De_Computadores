@@ -198,14 +198,33 @@ medida sobre 2.399 nets) más la reparación post-GRT cambia el período que alc
 esa misma configuración sobre los dos RTL, en ramas aparte (`exp/candidata-rc` y un worktree
 `build/main_rc` de `main`), con los tags `co_rc_*` y `co_rcm_*`:
 
-TABLA_RC
+| corrida | RTL | T (ns) | cierra | WNS setup max_ss (ns) | TNS setup (ns) | hold peor (ns) | área stdcell (µm²) | slew / cap |
+|---|---|---|---|---|---|---|---|---|
+| `co_rcm_t100` | main | 100 | sí | 65.276 | 0.000 | 0.158 | 201.309 (110,4 por ciento de main) | 2 / 1 |
+| `co_rcm_t23` | main | 23 | sí | 0.756 | 0.000 | 0.158 | 212.530 | 0 / 1 |
+| `co_rcm_t22` | main | 22 | sí | 0.215 | 0.000 | 0.157 | 214.348 | 0 / 1 |
+| `co_rcm_t21p5` | main | 21,5 | **no** | -0.383 | -15.730 | 0.157 | 215.406 | 3 / 1 |
+| `co_rc_t100` | candidata | 100 | sí | 65.725 | 0.000 | 0.173 | 208.439 (114,4 por ciento de main) | 0 / 1 |
+| `co_rc_t25` | candidata | 25 | sí | 1.579 | 0.000 | 0.173 | 219.531 | 0 / 1 |
+| `co_rc_t24` | candidata | 24 | sí | 1.755 | 0.000 | 0.173 | 220.655 | 4 / 1 |
+| `co_rc_t23` | candidata | 23 | sí | 1.494 | 0.000 | 0.173 | 222.714 | 4 / 1 |
+| `co_rc_t22` | candidata | 22 | sí | 0.656 | 0.000 | 0.173 | 224.767 | 0 / 1 |
+| `co_rc_t21p5` | candidata | 21,5 | sí | 0.876 | 0.000 | 0.173 | 231.229 | 0 / 1 |
+| `co_rc_t21` | candidata | 21 | **no** | -0.129 | -0.291 | 0.173 | 231.638 | 6 / 1 |
+Período mínimo con esta configuración: **22 ns** para el RTL de `main` (45,5 MHz; 21,5 ns no cierra
+por 0,383 ns) y **21,5 ns** para el de la candidata (46,5 MHz; 21 ns no cierra por 0,129 ns). Las
+dos cierran la regla de 0,5 ns de resolución. Con el CPI de cada uno eso son 17,1 MIPS para `main`
+y **27,9 MIPS** para la candidata.
+
 
 Conclusiones, que valen para el informe aunque esta configuración no pueda ser la final:
 
-1. **La candidata no es intrínsecamente más lenta que `main`.** Con el modelo de cable corregido
-   los dos cierran a 23 ns, y la candidata lo hace con el doble de margen (1,494 contra 0,756 ns).
-   El nanosegundo de diferencia de la configuración base (25,5 contra 24,5 ns) lo produce el
-   resizer, que con parásitos optimistas deja de reparar antes en el diseño con la ruta nueva.
+1. **La candidata no es más lenta que `main`: con el modelo de cable corregido es medio
+   nanosegundo más rápida.** El RTL de `main` cierra a 22 ns y el de la candidata a 21,5 ns, las
+   dos con la regla de 0,5 ns cerrada, y a 23 ns la candidata tiene el doble de margen (1,494
+   contra 0,756 ns). Con el CPI de cada uno eso son 17,1 contra 27,9 MIPS. El nanosegundo de
+   diferencia de la configuración del enunciado (25,5 contra 24,5 ns) lo produce el resizer, que
+   con parásitos optimistas deja de reparar antes en el diseño con la ruta nueva.
 2. **Esta configuración no puede ser la corrida final**: cuesta 110,4 por ciento del área de
    `main` sobre el RTL de `main` y 114,4 por ciento sobre el de la candidata, las dos por encima
    del límite de 105 por ciento de la regla de selección. Por eso ni `main` ni la candidata la
@@ -269,10 +288,12 @@ cambio no altera el comportamiento (hazard_test, mutaciones, monitor de X).
    de `main`: sigue cumpliendo, pero con 25 por ciento menos de margen.
 4. **Slew.** 571 pines con violación de max slew contra 546. No es criterio de cierre, pero es un
    número que empeora y que hay que saber explicar (cables más largos, 6 por ciento más de celdas).
-5. **La frecuencia máxima baja.** De 40,8 a 39,2 MHz. Si en la defensa se pregunta por la
-   frecuencia máxima sin más contexto, la candidata parece peor; el argumento es la Ley de Hierro
-   (el tiempo de ejecución es instrucciones por CPI por período, y el producto mejora 54 por
-   ciento).
+5. **La frecuencia máxima baja.** De 40,8 a 39,2 MHz con la configuración del enunciado. Si en la
+   defensa se pregunta por la frecuencia máxima sin más contexto, la candidata parece peor; hay dos
+   argumentos: la Ley de Hierro (el tiempo de ejecución es instrucciones por CPI por período, y el
+   producto mejora 54 por ciento) y la medición de la sección 6 bis (con un modelo de cable
+   realista la candidata cierra a 21,5 ns y `main` a 22, o sea que la desventaja es de la
+   herramienta).
 6. **Integración con main (lo señaló la revisión independiente, O1).** La rama salió de `main` el
    27-10 y desde entonces `main` avanzó: el único archivo que tocan los dos lados es el `Makefile`,
    y la versión de la rama borra lo que agregó el frente D1 (`post-pnr-cvc`, la regla de

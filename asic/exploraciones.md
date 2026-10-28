@@ -41,7 +41,7 @@ actividad real solo está medida para `main` (frente D3).
 
 | rama o variante | commit | cambio | verificación | barrido (T: WNS max_ss) | T mínimo (ns) | cota inferior | f máx (MHz) | CPI isa_test | CPI juego | MIPS | área stdcell a 100 ns (µm²) | área die a 100 ns (µm²) | slew / cap a 100 ns | potencia con actividad (mW) | nota |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| main (referencia) | fa6086e | configuración final (D15, D18, D20, D21) | check PASS, equiv ciclo a ciclo contra 116fa20 | 32: 4.395, 30: 5.103, 26: 1.996, 25: 0.996, 24.5: 0.496, 24: -0.004 (no cierra) | 24.5 | (no cierra a 24) | 40.8 | 2.953 | 2.665 | 15.3 | 182.265 | 408.957 | 546 / 36 | 12.76 | potencia con actividad: ventana de espera de 3 s en nom_tt (asic/potencia/resultado.md) |
+| main (referencia) | fd497bf | configuración final (D15, D18, D20, D21) | check PASS, equiv ciclo a ciclo contra 116fa20 | 32: 4.395, 30: 5.103, 26: 1.996, 25: 0.996, 24.5: 0.496, 24: -0.004 (no cierra) | 24.5 | (no cierra a 24) | 40.8 | 2.953 | 2.665 | 15.3 | 182.265 | 408.957 | 546 / 36 | 12.76 | potencia con actividad: ventana de espera de 3 s en nom_tt (asic/potencia/resultado.md) |
 | exp/lsu-offset (B2) | eb29650 | offset de byte de la carga registrado en la LSU | check PASS, equiv ciclo a ciclo | 26: 4.543, 24: 0.088, 23: -0.912 (no cierra), 22: -1.912 (no cierra) | 24 | (no cierra a 23) | 41.7 | 2.953 | 2.665 | 15.6 | 181.170 | 409.040 | 672 / 40 | n/d | sesión anterior (26-10-2026) |
 | exp/branch-cmp (B3) | 6ef475f | comparador de saltos desde el banco de registros | check PASS, equiv ciclo a ciclo | 26: 1.915, 24: -0.085 (no cierra) | 26 | (no cierra a 24) | 38.5 | 2.953 | 2.665 | 14.4 | 183.962 | 413.568 | 554 / 29 | n/d | sesión anterior (26-10-2026) |
 | exp/lsu-branch (B2+B3) | 35b2d5d | B2 y B3 juntos | check PASS, equiv ciclo a ciclo | b23_t26: incompleta, 24: -0.836 (no cierra) | ninguna cierra | (no cierra a 24) | n/d | 2.953 | 2.665 | n/d | 183.890 | 414.257 | 689 / 39 | n/d | b23_t26 detenida a los 40 min (incompleta); sesión anterior |
@@ -59,8 +59,8 @@ actividad real solo está medida para `main` (frente D3).
 | exp/signoff0, g30 (mejor slew dentro del 1 %) | c7637b7 | B2+B5 con márgenes del repair de placement en 30 % | mismo RTL que exp/fmax | 24: -2.500 (no cierra) | ninguna cierra | (no cierra a 24) | n/d | 2.953 | 2.665 | n/d | 166.423 | 353.921 | 214 / 1 | n/d | 214 slew / 1 cap con +0,64 % de área, pero no cierra a 24 ns |
 | exp/candidata (A+B2, paquete completo) | ff8adb9 | A mas B2 con la configuracion final de main y EarlyRead=1 | check PASS, equiv funcional, hazard_test, 0 X, post-synth, SDF en 3 esquinas, DRC de KLayout con control positivo, revision independiente | 26: 0.591, 25.5: 0.091, 25: -0.409 (no cierra) | 25.5 | (no cierra a 25) | 39.2 | 1.969 | 1.665 | 23.6 | 186.432 | 419.131 | 571 / 37 | 12.39 | corridas base reusadas de exp/pipeline-b2 (mismo arbol); potencia con actividad: ventana de polling en nom_tt |
 | exp/candidata, variante de cero slew | ff8adb9 | la candidata con los RC de cable medidos y reparacion post-GRT (frente C) | mismo RTL que la candidata | sin barrido | ninguna cierra | sin cota | n/d | 1.969 | 1.665 | n/d | 209.185 | 419.131 | 0 / 0 | n/d | 0 slew y 0 cap a 100 ns, pero 114,8 por ciento del area de main: fuera del limite de 105 por ciento |
-| main con LAYERS_RC (exploracion del coordinador) | fa6086e | el RTL de main con los RC de cable medidos y reparacion post-GRT | mismo RTL que main | 23: 0.756, 22: 0.215 | 22 | sin cota | 45.5 | 2.953 | 2.665 | 17.1 | 201.309 | 408.957 | 2 / 1 | n/d | 110,4 por ciento del area de main: fuera del limite; 0 slew en las 9 esquinas |
-| exp/candidata-rc (exploracion del coordinador) | 58d32de | la candidata con los RC de cable medidos y reparacion post-GRT | mismo RTL que la candidata | 25: 1.579, 24: 1.755, 23: 1.494, co_rc_t22: incompleta, co_rc_t21: incompleta | 23 | sin cota | 43.5 | 1.969 | 1.665 | 26.1 | 208.439 | 419.131 | 0 / 1 | n/d | 114,4 por ciento del area de main: fuera del limite; 0 slew a 100 ns |
+| main con LAYERS_RC (exploracion del coordinador) | fd497bf | el RTL de main con los RC de cable medidos y reparacion post-GRT | mismo RTL que main | 23: 0.756, 22: 0.215, 21.5: -0.383 (no cierra) | 22 | (no cierra a 21.5) | 45.5 | 2.953 | 2.665 | 17.1 | 201.309 | 408.957 | 2 / 1 | n/d | 110,4 por ciento del area de main: fuera del limite; 0 slew en las 9 esquinas; datos en exp/candidata-rc, asic/main_rc/ |
+| exp/candidata-rc (exploracion del coordinador) | 297c5fe | la candidata con los RC de cable medidos y reparacion post-GRT | mismo RTL que la candidata | 25: 1.579, 24: 1.755, 23: 1.494, 22: 0.656, 21.5: 0.876, 21: -0.129 (no cierra) | 21.5 | (no cierra a 21) | 46.5 | 1.969 | 1.665 | 27.9 | 208.439 | 419.131 | 0 / 1 | n/d | 114,4 por ciento del area de main: fuera del limite; 0 slew en las 9 esquinas; ver docs/modelo_cable.md de la rama |
 
 Lectura de la sesión del 27 y 28-10-2026:
 
@@ -357,11 +357,15 @@ cuesta 114,8 por ciento del área de `main`, fuera del límite de la sesión.
 Ramas `exp/candidata-rc` (worktree `build/exp_candidata_rc`) y un worktree desprendido de `main`
 (`build/main_rc`), las dos con la configuración de `LAYERS_RC` del frente C más la reparación
 post-GRT, corridas con los tags `co_rc_*` y `co_rcm_*`. Con los parásitos de cable medidos en vez
-de los del tech LEF, los dos RTL cierran a 23 ns y la candidata lo hace con el doble de margen que
-`main` (1,494 contra 0,756 ns en max_ss), es decir que la candidata no es más lenta: el
-nanosegundo de diferencia de la configuración del enunciado lo produce la estimación optimista con
-la que el resizer decide dónde poner buffers. La configuración no puede ser la final porque cuesta
+de los del tech LEF, el RTL de `main` cierra a 22 ns (45,5 MHz; 21,5 no cierra) y el de la
+candidata a 21,5 ns (46,5 MHz; 21 no cierra), las dos con la regla de 0,5 ns cerrada. O sea que la
+candidata no es más lenta que `main`: es medio nanosegundo más rápida, y a 23 ns cierra con el
+doble de margen (1,494 contra 0,756 ns en max_ss). El nanosegundo de diferencia de la
+configuración del enunciado lo produce la estimación optimista con la que el resizer decide dónde
+poner buffers, no la ruta nueva del pipeline. Con el CPI de cada uno son 17,1 MIPS para `main` y
+27,9 MIPS para la candidata. La configuración no puede ser la final porque cuesta
 110,4 por ciento del área de `main` sobre el RTL de `main` y 114,4 por ciento sobre el de la
 candidata, los dos por encima del límite de 105 por ciento. Como efecto secundario deja 0
-violaciones de max slew en las 9 esquinas en los dos diseños.
+violaciones de max slew en las 9 esquinas en los dos diseños. Detalle, tabla completa y
+reproducción en `docs/modelo_cable.md` de la rama `exp/candidata-rc`.
 
