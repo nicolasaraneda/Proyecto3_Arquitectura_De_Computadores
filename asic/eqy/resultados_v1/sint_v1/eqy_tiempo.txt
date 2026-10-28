@@ -1,0 +1,2 @@
+Command exited with non-zero status 2
+tiempo_real_26.04_s;usuario_31.28_s;sistema_5.10_s;memoria_maxima_1638388_KB

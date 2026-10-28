@@ -1,0 +1,80 @@
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[27] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[26] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[25] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[24] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[23] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[22] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[21] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[20] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[19] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[18] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[17] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[16] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[15] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[14] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[13] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[12] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[11] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[10] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[9] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[8] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[7] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[6] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[5] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[4] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[3] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[2] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[1] is used but has no driver.
+EQY 21:08:27 [build/eqy/pnr_v1ff/eqy] read_gold: Warning: Wire asic_top.$memory\u_soc.u_core.u_rf.regs$rdmux[0][3][0]$a$1700[0] is used but has no driver.
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: make: Entering directory '/home/nicolasaraneda/proyectos/Proyecto3_Arquitectura_De_Computadores/build/eqy/pnr_v1ff/eqy'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.spi_miso' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.rst_sync_q.1' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_core.rf_ready' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.seg1.0' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.seg2.0' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_core.u_lsu.busy_q' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.btn_meta.0' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.0.u_db.raw_i' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.0.u_db.clean_o' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.0.u_db.sr.0' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.1.u_db.clean_o' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_core.pc_id.0' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.cycles_q.0' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.1.u_db.sr.0' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.2.u_db.clean_o' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.3.u_db.clean_o' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.2.u_db.sr.0' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.3.u_db.sr.0' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.u_tick.cnt.0' using strategy 'sat'
+EQY 21:08:31 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_core.rf_rdata_a.0' using strategy 'sat'
+EQY 21:09:22 [build/eqy/pnr_v1ff/eqy] run: Could not prove equivalence of partition 'asic_top.led.0' using strategy 'sat': equivalence unknown
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] run: Proved equivalence of partition 'asic_top.led.0' using strategy 'pdr'
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] run: make -f strategies.mk summary
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] run: make[1]: Entering directory '/home/nicolasaraneda/proyectos/Proyecto3_Arquitectura_De_Computadores/build/eqy/pnr_v1ff/eqy'
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] run: make[1]: Leaving directory '/home/nicolasaraneda/proyectos/Proyecto3_Arquitectura_De_Computadores/build/eqy/pnr_v1ff/eqy'
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] run: make: Leaving directory '/home/nicolasaraneda/proyectos/Proyecto3_Arquitectura_De_Computadores/build/eqy/pnr_v1ff/eqy'
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.u_tick.cnt.0
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.3.u_db.sr.0
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.0.u_db.raw_i
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.2.u_db.sr.0
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.1.u_db.sr.0
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.3.u_db.clean_o
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.1.u_db.clean_o
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.0.u_db.sr.0
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.2.u_db.clean_o
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.0.u_db.clean_o
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.rf_rdata_a.0
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.pc_id.0
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_lsu.busy_q
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.cycles_q.0
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.btn_meta.0
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.rf_ready
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.spi_miso
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.seg2.0
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.seg1.0
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.rst_sync_q.1
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved equivalence of partition asic_top.led.0
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] Successfully proved designs equivalent
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] summary: Elapsed clock time [H:MM:SS (secs)]: 0:06:27 (387)
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] summary: Elapsed process time [H:MM:SS (secs)]: 0:06:34 (394)
+EQY 21:14:55 [build/eqy/pnr_v1ff/eqy] DONE (PASS, rc=0)

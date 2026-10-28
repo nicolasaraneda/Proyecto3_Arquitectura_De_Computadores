@@ -3,7 +3,7 @@
 
 Uso:
     python3 asic/analisis_sintesis.py --final asic/rom/runs/final \\
-        --jerarquica asic/rom/runs/h2_t100 --md asic/sintesis.md
+        --jerarquica asic/rom/runs/h3_t100 --md asic/sintesis.md
 
 Entradas (de cada corrida, el reporte de Yosys 06-yosys-synthesis/reports/stat.json):
   --final       la corrida final: síntesis aplanada salvo los tres módulos de
@@ -58,10 +58,10 @@ FUNCION = {
     "pochoco_soc": "decodificador de direcciones y mux de lectura del bus",
     "espino_core": "solo instancias",
     "espino_if_stage": "fetch: PC, PC+4 y registro de PC de la etapa ID",
-    "espino_id_stage": "decode y ejecución: pre-decodificación registrada, muxes de operandos, salto y write-back",
+    "espino_id_stage": "decode y ejecución: decode registrado en el flanco del fetch (EarlyRead), muxes de operandos, salto y write-back",
     "espino_decoder": "decodificador de instrucciones (combinacional)",
     "espino_alu": "ALU: suma, resta, lógica y comparaciones",
-    "espino_register_file": "banco de registros x1 a x15 con dos puertos de lectura registrados",
+    "espino_register_file": "banco de registros x1 a x15 con dos puertos de lectura registrados y write-through",
     "espino_load_store_unit": "LSU: alineación de bytes y medias palabras",
     "espino_controller": "control de stall y salto",
     "pochoco_mem_rom": "registro de instrucción y RAM de datos de 4 palabras",
@@ -76,11 +76,11 @@ FUNCION = {
 # Flip-flops esperados desde el RTL, por módulo: (sin reset -> dffq, con reset
 # asíncrono -> dffrnq). Cada entrada dice de dónde sale el número.
 FF_ESPERADOS = {
-    "espino_register_file": {"dffq": (544, "15 registros x 32 bits = 480 de almacenamiento + 2 puertos de lectura registrados x 32 = 64"), "dffrnq": (0, "sin reset (D4)")},
+    "espino_register_file": {"dffq": (544, "15 registros x 32 bits = 480 de almacenamiento + 2 puertos de lectura registrados x 32 = 64; el write-through no agrega registros, solo muxes"), "dffrnq": (0, "sin reset (D4)")},
     "pochoco_mem_rom": {"dffq": (192, "registro de instrucción a_rdata_o (32) + RAM de 4 x 32 (128) + b_rdata_o (32)"), "dffrnq": (0, "")},
-    "espino_id_stage": {"dffq": (82, "pre-decodificación (D18): alu_operator 4 + alu_op_a_sel 2 + alu_op_b_sel 1 + imm_operand 32 + imm_target 32 + rf_we 1 + rf_wd_sel 2 + is_branch/is_jal/is_jalr 3 + lsu_req/lsu_we 2 + lsu_type 2 + lsu_sign 1"), "dffrnq": (1, "ops_valid_q")},
+    "espino_id_stage": {"dffq": (82, "decode registrado: alu_operator 4 + alu_op_a_sel 2 + alu_op_b_sel 1 + imm_operand 32 + imm_target 32 + rf_we 1 + rf_wd_sel 2 + is_branch/is_jal/is_jalr 3 + lsu_req/lsu_we 2 + lsu_type 2 + lsu_sign 1"), "dffrnq": (0, "con EarlyRead = 1 no hay ops_valid_q: el bloque g_wait, que aportaba ese flip-flop con reset en v1, no se genera")},
     "espino_if_stage": {"dffq": (0, ""), "dffrnq": (65, "pc_q 32 + pc_id_q 32 + valid_q 1")},
-    "espino_load_store_unit": {"dffq": (0, ""), "dffrnq": (1, "busy_q")},
+    "espino_load_store_unit": {"dffq": (2, "addr_q[1:0] de B2: el offset de byte de la carga registrado al emitirla"), "dffrnq": (1, "busy_q")},
     "pochoco_soc": {"dffq": (0, ""), "dffrnq": (2, "rd_is_per y rd_is_spi")},
     "asic_top": {"dffq": (0, ""), "dffrnq": (2, "rst_sync_q[1:0]")},
     "pochoco_periph": {"dffq": (0, ""), "dffrnq": (52, "btn_meta 4 + btn_sync 4 + led_q 4 + digit_q 8 + rdata_o 32")},
@@ -95,11 +95,11 @@ FF_ESPERADOS = {
 MUX2_ESPERADOS = {
     "espino_register_file": (480, "retención de los 480 bits de almacenamiento (regs[waddr] <= wdata solo si we_i); el resto son los árboles de lectura"),
     "pochoco_mem_rom": (160, "retención de los 128 bits de la RAM (escritura por byte) + 32 del registro de instrucción (carga solo si a_req_i)"),
-    "espino_id_stage": (82, "retención de los 82 registros de pre-decodificación (cargan solo si !ops_valid_q); el resto son los muxes de operandos, de write-back y de pc_target"),
+    "espino_id_stage": (82, "retención de los 82 registros de decode (con EarlyRead = 1 cargan solo si el pipeline avanza, dec_load = ~stall_i); el resto son los muxes de operandos, de write-back y de pc_target"),
 }
 
 EXPLICACION_CELDA = {
-    "dffq_1": "flip-flop D sin reset. Los usa todo registro que no necesita valor de reset: el banco de registros (D4), la RAM de datos, el registro de instrucción y los registros de pre-decodificación.",
+    "dffq_1": "flip-flop D sin reset. Los usa todo registro que no necesita valor de reset: el banco de registros (D4), la RAM de datos, el registro de instrucción, los 82 registros de decode y los 2 bits del offset de byte de la carga en la LSU (B2).",
     "dffrnq_1": "flip-flop D con reset asíncrono activo en bajo. Es todo registro con `if (!rst_ni)`: PC, contador de ciclos, periféricos, debounce, sincronizadores.",
     "mux2_2": "multiplexor 2:1. La biblioteca no tiene flip-flops con enable, así que cada bit que se escribe bajo condición lleva un mux2 de retención delante del flip-flop; los demás forman los árboles de lectura del banco de registros y los muxes de operandos.",
     "nand2_1": "NAND de 2 entradas, la compuerta más chica de la biblioteca: ABC con la estrategia AREA mapea sobre ella la lógica aleatoria (ROM, decodificador, ALU, comparadores).",
@@ -193,7 +193,7 @@ def main():
         "(`SYNTH_KEEP_HIERARCHY_MODULES`: register file, ALU y contador de ciclos, D12), así que su reporte "
         "solo separa esos tres bloques del resto. Para repartir el área y las celdas entre todos los módulos se "
         "corrió además la misma configuración con `SYNTH_HIERARCHY_MODE=keep` solo hasta `Yosys.Synthesis` "
-        "(`librelane --dockerized --pdk gf180mcuD asic/rom/config.yaml -c SYNTH_HIERARCHY_MODE=keep --to Yosys.Synthesis --run-tag h2_t100`). "
+        "(`librelane --dockerized --pdk gf180mcuD asic/rom/config.yaml -c SYNTH_HIERARCHY_MODE=keep --to Yosys.Synthesis --run-tag h3_t100`). "
         "Esa síntesis conserva todos los módulos y Yosys informa cada uno por separado (`reports/stat.json`). "
         "Las dos síntesis usan el mismo RTL, la misma configuración y las mismas celdas; difieren solo en que la "
         "aplanada optimiza a través de los bordes de módulo, por eso sus totales no son idénticos y la tabla final los compara.\n"

@@ -1,0 +1,22 @@
+# Herramientas dentro de la imagen ghcr.io/librelane/librelane:3.0.16 (frente D2, 28-10-2026)
+# Comando:
+#   docker run --rm --user $(id -u):$(id -g) ghcr.io/librelane/librelane:3.0.16 bash -lc \
+#     'for h in make gmake bmake eqy sby yosys yosys-smtbmc yosys-abc yices z3 boolector bitwuzla; do
+#        printf "%-14s %s\n" "$h" "$(command -v $h || echo NO_ESTA)"; done; eqy --version; sby --version; yosys -V'
+
+make           NO_ESTA
+gmake          NO_ESTA
+bmake          NO_ESTA
+eqy            /nix/store/vqq4mi8prw8x5rfwz7b3136rqi8v70m7-yosys-with-plugins-0.62-python3-3.13.9-env/bin/eqy
+sby            /nix/store/vqq4mi8prw8x5rfwz7b3136rqi8v70m7-yosys-with-plugins-0.62-python3-3.13.9-env/bin/sby
+yosys          /nix/store/vqq4mi8prw8x5rfwz7b3136rqi8v70m7-yosys-with-plugins-0.62-python3-3.13.9-env/bin/yosys
+yosys-smtbmc   /nix/store/vqq4mi8prw8x5rfwz7b3136rqi8v70m7-yosys-with-plugins-0.62-python3-3.13.9-env/bin/yosys-smtbmc
+yosys-abc      /nix/store/vqq4mi8prw8x5rfwz7b3136rqi8v70m7-yosys-with-plugins-0.62-python3-3.13.9-env/bin/yosys-abc
+yices          NO_ESTA
+z3             NO_ESTA
+boolector      NO_ESTA
+bitwuzla       NO_ESTA
+
+EQY v0.62
+SBY v0.62
+Yosys 0.62 (git sha1 7326bb7d6641500ecb285c291a54a662cb1e76cf, clang++ 21.1.2 -fPIC -O3)

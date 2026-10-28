@@ -35,13 +35,23 @@
 #
 # Ventanas (ciclos contados como en tb/post_synth_tb.v: ciclo 0 = primer flanco
 # con rst_n en 1; estimulos asic/sim/estimulos_final.txt: boton 0001 en el ciclo
-# 1000, suelto en 150000; la traza del netlist muestra 4 LEDs en 262156 y el 01
-# en 262194). Las justifica el histograma del PC (resultados/ventanas_pc.md):
+# 1000, suelto en 150000). Las justifica el histograma del PC
+# (resultados/ventanas_pc.md).
+#
+# Con el core de D23 la traza del netlist muestra los 4 LEDs en el ciclo 262151 y
+# el 01 en el 262172 (build/post_synth/traza_netlist_final.txt, make
+# post-synth-final); con el core de v1 eran 262156 y 262194, y con la candidata sin
+# modelo de cable los mismos 262151 y 262172 (el RTL es el mismo). Las dos ventanas
+# que dependen de ese instante se corrieron de 22 ciclos para que sigan centradas
+# en el mismo evento del programa; las otras dos son lazos en regimen y no se
+# mueven, para que la comparacion con v1 sea de la misma fase del juego:
 #   polling  [500, 20500)      pantalla de inicio: lazo ss_wait_press (lw BTN / beq)
 #   espera   [265000, 285000)  los 3 s de la ronda 1: lazo wt_wait_loop (lw CYCLES / sub / bltu)
-#   display  [261194, 263194)  2000 ciclos centrados en el cambio del display al 01
-#   rafaga   [262150, 262490)  solo la rafaga: round_begin, show_bcd (div), sw LEDS,
+#   display  [261172, 263172)  2000 ciclos centrados en el cambio del display al 01
+#                              (v1: [261194, 263194))
+#   rafaga   [262151, 262491)  solo la rafaga: round_begin, show_bcd (div), sw LEDS,
 #                              sw DISP y la multiplicacion de wait_tenths (30 vueltas)
+#                              (v1: [262150, 262490))
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 export PATH=$HOME/herramientas/oss-cad-suite/bin:$PATH
@@ -56,7 +66,7 @@ R=asic/potencia/resultados
 IMG=ghcr.io/librelane/librelane:3.0.16
 DOCKER="docker run --rm --user $(id -u):$(id -g) -v $HOME:$HOME -w $(pwd) -e HOME=$HOME -e PDK_ROOT=$PDK_ROOT"
 ESQUINAS="nom_tt_025C_5v00 nom_ss_125C_4v50 nom_ff_n40C_5v50 min_tt_025C_5v00 min_ss_125C_4v50 min_ff_n40C_5v50 max_tt_025C_5v00 max_ss_125C_4v50 max_ff_n40C_5v50"
-VENTANAS=("polling 500 20500" "espera 265000 285000" "display 261194 263194" "rafaga 262150 262490")
+VENTANAS=("polling 500 20500" "espera 265000 285000" "display 261172 263172" "rafaga 262151 262491")
 
 mkdir -p $B $R
 fase=${1:-todo}

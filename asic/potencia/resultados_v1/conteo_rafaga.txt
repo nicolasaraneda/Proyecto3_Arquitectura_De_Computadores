@@ -1,0 +1,14 @@
+vcd: build/potencia/rafaga.vcd
+t_min = 26215450000, t_max = 26249450000 (unidades de 1 ps), duracion = 340.0 ciclos de 100 ns
+senal                                            transiciones    act/ciclo  densidad(1/s)     duty
+clk                                                       680     2.000000   2.000000e+07 0.500000
+btn[0]                                                      0     0.000000   0.000000e+00 0.000000
+rst_n                                                       0     0.000000   0.000000e+00 1.000000
+\u_soc.u_periph.cycles_q[0]                               340     1.000000   1.000000e+07 0.500000
+\u_soc.u_periph.cycles_q[2]                                85     0.250000   2.500000e+06 0.502941
+\u_soc.u_core.pc_id[2]                                    153     0.450000   4.500000e+06 0.447059
+\u_soc.u_core.pc_id[3]                                     77     0.226471   2.264706e+06 0.550000
+\u_soc.g_mem_rom.u_mem.a_rdata_o[0]                         0     0.000000   0.000000e+00 1.000000
+\u_soc.u_core.u_rf/regs[9][0]                               3     0.008824   8.823529e+04 0.917647
+\u_soc.u_periph.u_debounce.u_tick.cnt[0]                  340     1.000000   1.000000e+07 0.500000
+\u_soc.u_core.u_id.operand_a[0]                            65     0.191176   1.911765e+06 0.194118

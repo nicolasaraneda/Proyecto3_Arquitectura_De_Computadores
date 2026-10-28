@@ -4,7 +4,7 @@ Generado por `asic/analisis_sintesis.py` a partir de `asic/rom/runs/final` (corr
 
 ## Método
 
-La corrida final sintetiza aplanando el diseño salvo tres módulos cuya jerarquía se conserva (`SYNTH_KEEP_HIERARCHY_MODULES`: register file, ALU y contador de ciclos, D12), así que su reporte solo separa esos tres bloques del resto. Para repartir el área y las celdas entre todos los módulos se corrió además la misma configuración con `SYNTH_HIERARCHY_MODE=keep` solo hasta `Yosys.Synthesis` (`librelane --dockerized --pdk gf180mcuD asic/rom/config.yaml -c SYNTH_HIERARCHY_MODE=keep --to Yosys.Synthesis --run-tag h2_t100`). Esa síntesis conserva todos los módulos y Yosys informa cada uno por separado (`reports/stat.json`). Las dos síntesis usan el mismo RTL, la misma configuración y las mismas celdas; difieren solo en que la aplanada optimiza a través de los bordes de módulo, por eso sus totales no son idénticos y la tabla final los compara.
+La corrida final sintetiza aplanando el diseño salvo tres módulos cuya jerarquía se conserva (`SYNTH_KEEP_HIERARCHY_MODULES`: register file, ALU y contador de ciclos, D12), así que su reporte solo separa esos tres bloques del resto. Para repartir el área y las celdas entre todos los módulos se corrió además la misma configuración con `SYNTH_HIERARCHY_MODE=keep` solo hasta `Yosys.Synthesis` (`librelane --dockerized --pdk gf180mcuD asic/rom/config.yaml -c SYNTH_HIERARCHY_MODE=keep --to Yosys.Synthesis --run-tag h3_t100`). Esa síntesis conserva todos los módulos y Yosys informa cada uno por separado (`reports/stat.json`). Las dos síntesis usan el mismo RTL, la misma configuración y las mismas celdas; difieren solo en que la aplanada optimiza a través de los bordes de módulo, por eso sus totales no son idénticos y la tabla final los compara.
 
 ## Área por módulo (síntesis jerárquica)
 
@@ -20,13 +20,13 @@ La corrida final sintetiza aplanando el diseño salvo tres módulos cuya jerarqu
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`debounce_tick` (u_soc.u_periph.u_debounce.u_tick) | divisor del debounce (contador de 15 bits) | 55 | 15 | 1.877 | 1.877 | 1.1 |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`pochoco_cycle_counter` (u_soc.u_periph.u_cycles) | contador de ciclos CYCLES (32 bits) | 114 | 32 | 3.943 | 3.943 | 2.4 |
 | &nbsp;&nbsp;&nbsp;&nbsp;`espino_core` (u_soc.u_core) | solo instancias | 0 | 0 | 0 | 121.337 | 73.7 |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`espino_id_stage` (u_soc.u_core.u_id) | decode y ejecución: pre-decodificación registrada, muxes de operandos, salto y write-back | 726 | 82 | 17.472 | 29.589 | 18.0 |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`espino_id_stage` (u_soc.u_core.u_id) | decode y ejecución: decode registrado en el flanco del fetch (EarlyRead), muxes de operandos, salto y write-back | 726 | 82 | 17.472 | 29.589 | 18.0 |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`espino_alu` (u_soc.u_core.u_id.u_alu) | ALU: suma, resta, lógica y comparaciones | 589 | 0 | 10.153 | 10.153 | 6.2 |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`espino_decoder` (u_soc.u_core.u_id.u_decoder) | decodificador de instrucciones (combinacional) | 158 | 0 | 1.965 | 1.965 | 1.2 |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`espino_if_stage` (u_soc.u_core.u_if) | fetch: PC, PC+4 y registro de PC de la etapa ID | 249 | 65 | 8.511 | 8.511 | 5.2 |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`espino_controller` (u_soc.u_core.u_ctrl) | control de stall y salto | 5 | 0 | 70 | 70 | 0.0 |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`espino_load_store_unit` (u_soc.u_core.u_lsu) | LSU: alineación de bytes y medias palabras | 219 | 3 | 2.819 | 2.819 | 1.7 |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`espino_register_file` (u_soc.u_core.u_rf) | banco de registros x1 a x15 con dos puertos de lectura registrados | 2353 | 544 | 80.349 | 80.349 | 48.8 |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`espino_register_file` (u_soc.u_core.u_rf) | banco de registros x1 a x15 con dos puertos de lectura registrados y write-through | 2353 | 544 | 80.349 | 80.349 | 48.8 |
 | &nbsp;&nbsp;&nbsp;&nbsp;`pochoco_mem_rom` (u_soc.g_mem_rom.u_mem) | registro de instrucción y RAM de datos de 4 palabras | 480 | 192 | 20.009 | 27.458 | 16.7 |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`pochoco_rom` (u_soc.g_mem_rom.u_mem.u_rom) | ROM combinacional del programa (generada por el assembler) | 439 | 0 | 7.448 | 7.448 | 4.5 |
 
@@ -44,7 +44,7 @@ La corrida final tiene 5.577 celdas de 36 tipos. El desglose por módulo sale de
 |---|---|---|---|---|---|
 | 1 | `nand2_1` | 934 | 16.7 | 785 | NAND de 2 entradas, la compuerta más chica de la biblioteca: ABC con la estrategia AREA mapea sobre ella la lógica aleatoria (ROM, decodificador, ALU, comparadores). |
 | 2 | `mux2_2` | 889 | 15.9 | 1139 | multiplexor 2:1. La biblioteca no tiene flip-flops con enable, así que cada bit que se escribe bajo condición lleva un mux2 de retención delante del flip-flop; los demás forman los árboles de lectura del banco de registros y los muxes de operandos. |
-| 3 | `dffq_1` | 779 | 14.0 | 820 | flip-flop D sin reset. Los usa todo registro que no necesita valor de reset: el banco de registros (D4), la RAM de datos, el registro de instrucción y los registros de pre-decodificación. |
+| 3 | `dffq_1` | 779 | 14.0 | 820 | flip-flop D sin reset. Los usa todo registro que no necesita valor de reset: el banco de registros (D4), la RAM de datos, el registro de instrucción, los 82 registros de decode y los 2 bits del offset de byte de la carga en la LSU (B2). |
 | 4 | `aoi21_1` | 437 | 7.8 | 375 | AND-OR-inversor: lógica aleatoria. |
 | 5 | `oai21_1` | 348 | 6.2 | 268 | OR-AND-inversor: lógica aleatoria de la ROM, la ALU y el decodificador de direcciones. |
 
@@ -72,7 +72,7 @@ La corrida final tiene 5.577 celdas de 36 tipos. El desglose por módulo sale de
 |---|---|---|---|
 | `espino_register_file` | 796 | >= 480 | retención de los 480 bits de almacenamiento (regs[waddr] <= wdata solo si we_i); el resto son los árboles de lectura; quedan 316 muxes funcionales |
 | `pochoco_mem_rom` | 160 | >= 160 | retención de los 128 bits de la RAM (escritura por byte) + 32 del registro de instrucción (carga solo si a_req_i); quedan 0 muxes funcionales |
-| `espino_id_stage` | 117 | >= 82 | retención de los 82 registros de pre-decodificación (cargan solo si !ops_valid_q); el resto son los muxes de operandos, de write-back y de pc_target; quedan 35 muxes funcionales |
+| `espino_id_stage` | 117 | >= 82 | retención de los 82 registros de decode (con EarlyRead = 1 cargan solo si el pipeline avanza, dec_load = ~stall_i); el resto son los muxes de operandos, de write-back y de pc_target; quedan 35 muxes funcionales |
 | `espino_if_stage` | 30 |  |  |
 | `pochoco_periph` | 12 |  |  |
 | `debounce` x4 | 12 |  |  |
@@ -84,12 +84,12 @@ La corrida final tiene 5.577 celdas de 36 tipos. El desglose por módulo sale de
 
 | módulo | cantidad | esperado desde el RTL | comentario |
 |---|---|---|---|
-| `espino_register_file` | 544 | 544 | 15 registros x 32 bits = 480 de almacenamiento + 2 puertos de lectura registrados x 32 = 64 (coincide) |
+| `espino_register_file` | 544 | 544 | 15 registros x 32 bits = 480 de almacenamiento + 2 puertos de lectura registrados x 32 = 64; el write-through no agrega registros, solo muxes (coincide) |
 | `pochoco_mem_rom` | 192 | 192 | registro de instrucción a_rdata_o (32) + RAM de 4 x 32 (128) + b_rdata_o (32) (coincide) |
-| `espino_id_stage` | 82 | 82 | pre-decodificación (D18): alu_operator 4 + alu_op_a_sel 2 + alu_op_b_sel 1 + imm_operand 32 + imm_target 32 + rf_we 1 + rf_wd_sel 2 + is_branch/is_jal/is_jalr 3 + lsu_req/lsu_we 2 + lsu_type 2 + lsu_sign 1 (coincide) |
-| `espino_load_store_unit` | 2 | 0 |  (difiere en +2) |
+| `espino_id_stage` | 82 | 82 | decode registrado: alu_operator 4 + alu_op_a_sel 2 + alu_op_b_sel 1 + imm_operand 32 + imm_target 32 + rf_we 1 + rf_wd_sel 2 + is_branch/is_jal/is_jalr 3 + lsu_req/lsu_we 2 + lsu_type 2 + lsu_sign 1 (coincide) |
+| `espino_load_store_unit` | 2 | 2 | addr_q[1:0] de B2: el offset de byte de la carga registrado al emitirla (coincide) |
 
-Total esperado desde el RTL: 818; síntesis jerárquica: 820; corrida final: 779. La diferencia de 41 entre la jerárquica y la final son flip-flops que la síntesis aplanada elimina al propagar constantes a través de los bordes de módulo (por ejemplo, bits de inmediato que siempre valen 0).
+Total esperado desde el RTL: 820; síntesis jerárquica: 820; corrida final: 779. La diferencia de 41 entre la jerárquica y la final son flip-flops que la síntesis aplanada elimina al propagar constantes a través de los bordes de módulo (por ejemplo, bits de inmediato que siempre valen 0).
 
 ### 4. `aoi21_1`: desglose por módulo
 
@@ -124,7 +124,7 @@ Total esperado desde el RTL: 818; síntesis jerárquica: 820; corrida final: 779
 
 ## Comparación con lo esperado antes de sintetizar
 
-- Flip-flops: el RTL tiene 818 bits de registro sin reset y 186 con reset (1004 en total, contados módulo por módulo arriba). La síntesis jerárquica da 820 + 185 y la final 779 + 185 = 964.
+- Flip-flops: el RTL tiene 820 bits de registro sin reset y 185 con reset (1005 en total, contados módulo por módulo arriba). La síntesis jerárquica da 820 + 185 y la final 779 + 185 = 964.
 - Se esperaba que el banco de registros dominara el área: 480 bits de almacenamiento más dos árboles de lectura de 15 a 1 por 32 bits, sin celdas de memoria en la biblioteca. Resultó el 49 % del área y concentra los flip-flops sin reset y los multiplexores.
 - Se esperaba que los flip-flops fueran la celda más numerosa y los multiplexores la segunda, por los muxes de retención (un mux2 por bit escrito bajo condición). La tabla anterior lo confirma; la novedad es que `nand2_1` queda casi a la par de `mux2_2`: la ROM combinacional, el decodificador y la ALU se mapean sobre la compuerta más chica.
 - El contador de ciclos es un bloque chico: 2.4 % del área, casi todo flip-flops con reset.

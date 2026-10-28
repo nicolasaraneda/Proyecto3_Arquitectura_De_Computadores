@@ -1,0 +1,45 @@
+script: build/eqy/sint_v1ff/equiv.ys
+read_rtlil build/eqy/sint_v1ff/gold.il
+rename asic_top gold
+read_rtlil build/eqy/sint_v1ff/gate.il
+rename asic_top gate
+delete t:$scopeinfo
+async2sync
+equiv_make gold gate equiv
+hierarchy -top equiv
+stat
+equiv_status
+equiv_simple -seq 2
+equiv_status
+equiv_induct -seq 4
+equiv_status
+
+tiempo_real_515.62_s;usuario_515.02_s;sistema_0.80_s;memoria_maxima_679580_KB
+
+equiv_status (en orden: tras equiv_make, tras equiv_simple, tras equiv_induct):
+2240:7. Executing EQUIV_STATUS pass.
+2242:  Of those cells 0 are proven and 1002 are unproven.
+3247:8. Executing EQUIV_SIMPLE pass.
+3248:Found 1002 unproven $equiv cells (1002 groups) in equiv:
+7254:Proved 3 previously unproven $equiv cells.
+7256:9. Executing EQUIV_STATUS pass.
+7258:  Of those cells 3 are proven and 999 are unproven.
+8260:10. Executing EQUIV_INDUCT pass.
+8261:Found 999 unproven $equiv cells in module equiv:
+8262:  Proving existence of base case for step 1. (453200 clauses over 175640 variables)
+8263:  Proving induction step 1. (928565 clauses over 358007 variables)
+8264:  Proof for induction step failed. Extending to next time step.
+8265:  Proving existence of base case for step 2. (928566 clauses over 358007 variables)
+8266:  Proving induction step 2. (1403931 clauses over 540374 variables)
+8267:  Proof for induction step failed. Extending to next time step.
+8268:  Proving existence of base case for step 3. (1403932 clauses over 540374 variables)
+8269:  Proving induction step 3. (1879297 clauses over 722741 variables)
+8270:  Proof for induction step failed. Extending to next time step.
+8271:  Proving existence of base case for step 4. (1879298 clauses over 722741 variables)
+8272:  Proving induction step 4. (2354663 clauses over 905108 variables)
+8273:  Proof for induction step holds. Entire workset of 999 cells proven!
+8274:Proved 999 previously unproven $equiv cells.
+8276:11. Executing EQUIV_STATUS pass.
+8278:  Of those cells 1002 are proven and 0 are unproven.
+
+no probados al final:

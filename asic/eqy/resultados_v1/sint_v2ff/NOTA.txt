@@ -1,0 +1,14 @@
+Corrida detenida a mano a las 21:21 (27-10-2026) tras 12 min, con 1004 particiones (una por bit: con el gold v2 eqy no agrupa los bits de un mismo registro) y este balance parcial:
+  probadas: 285 (todas por sat)
+  no probadas por sat (equivalence unknown): 719
+  no probadas por pdr (partitions not equivalent): 173
+  grupos con 'not equivalent' en pdr:
+     32 asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2
+     32 asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1
+     32 asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.0
+     32 asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o
+     32 asic_top.u_soc.g_mem_rom.u_mem.a_addr_i
+      9 asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.3
+      4 asic_top.led
+
+Motivo (docs/equivalencia.md, 5.3): el pase fsm de 'synth' recodifica en el gold v2 el registro alu_operator a one-hot de 16 bits, mientras la síntesis de LibreLane lo dejó binario de 4 bits (yosys-synthesis.log: 'Not marking ... alu_operator as FSM state register: Users of register don't seem to benefit from recoding'), así que los nombres alu_operator[0..3] coinciden pero no significan lo mismo, y todo registro aguas abajo de la ALU (banco de registros, RAM, PC) da contraejemplos falsos.

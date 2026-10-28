@@ -1,0 +1,4 @@
+lineas_01 333506
+lineas_x 18521
+porcentaje_x 5.55
+senales_con_x 1599

@@ -92,7 +92,7 @@ o con `make final`, que además verifica los criterios de cierre y regenera todo
 1. la corrida (se puede saltar con `bash asic/final.sh --sin-corrida` si `asic/rom/runs/final` ya existe);
 2. `asic/verificar_cierre.py`: DRC de Magic, LVS, antenas y setup y hold en las 9 esquinas (`asic/rom/resultados/final/cierre.md`);
 3. `asic/recolectar.py`: reportes a `asic/rom/resultados/final/` y tabla en `asic/final.md`;
-4. síntesis jerárquica (`h2_t100`) y `asic/analisis_sintesis.py` -> `asic/sintesis.md` (sección 3.3);
+4. síntesis jerárquica (`h3_t100`) y `asic/analisis_sintesis.py` -> `asic/sintesis.md` (sección 3.3);
 5. `asic/layout/anotar.py` con KLayout en la imagen de Docker -> `asic/rom/resultados/final/layout/` (sección 3.6);
 6. `asic/drc_klayout.sh`: segundo DRC con el deck de KLayout de GF180MCU (`asic/drc/`);
 7. `make post-synth` y `make post-synth-final` (sección 3.7, `asic/sim/`);
@@ -105,7 +105,7 @@ Los barridos se lanzan aparte, de a tres corridas (`PAR=3 bash asic/barrido.sh <
 ```
 asic/rom/config.yaml f1_t26 26
 asic/rom/config.yaml u1_u60 100 FP_CORE_UTIL=60
-asic/rom/config.yaml h2_t100 100 SYNTH_HIERARCHY_MODE=keep --to Yosys.Synthesis
+asic/rom/config.yaml h3_t100 100 SYNTH_HIERARCHY_MODE=keep --to Yosys.Synthesis
 ```
 
 ## Programa del juego

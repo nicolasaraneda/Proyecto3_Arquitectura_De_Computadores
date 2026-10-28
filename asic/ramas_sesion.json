@@ -1,322 +1,322 @@
 [
-  {
-    "nombre": "main (referencia)",
-    "rama": "main",
-    "cambio": "configuración final (D15, D18, D20, D21)",
-    "verificacion": "check PASS, equiv ciclo a ciclo contra 116fa20",
-    "cpi_isa": 2.953,
-    "cpi_juego": 2.665,
-    "corrida_100": "asic/rom/runs/final",
-    "corridas_periodo": [
-      "asic/rom/runs/f1_t32",
-      "asic/rom/runs/f1_t30",
-      "asic/rom/runs/f1_t26",
-      "asic/rom/runs/f1_t25",
-      "asic/rom/runs/f1_t24p5",
-      "asic/rom/runs/f1_t24"
-    ],
-    "potencia_mw": 12.755,
-    "nota": "potencia con actividad: ventana de espera de 3 s en nom_tt (asic/potencia/resultado.md)"
-  },
-  {
-    "nombre": "exp/lsu-offset (B2)",
-    "rama": "exp/lsu-offset",
-    "cambio": "offset de byte de la carga registrado en la LSU",
-    "verificacion": "check PASS, equiv ciclo a ciclo",
-    "cpi_isa": 2.953,
-    "cpi_juego": 2.665,
-    "corrida_100": "build/exp_lsu_offset/asic/rom/runs/b2_t100",
-    "corridas_periodo": [
-      "build/exp_lsu_offset/asic/rom/runs/b2_t26",
-      "build/exp_lsu_offset/asic/rom/runs/b2_t24",
-      "build/exp_lsu_offset/asic/rom/runs/b2_t23",
-      "build/exp_lsu_offset/asic/rom/runs/b2_t22"
-    ],
-    "potencia_mw": null,
-    "nota": "sesión anterior (26-10-2026)"
-  },
-  {
-    "nombre": "exp/branch-cmp (B3)",
-    "rama": "exp/branch-cmp",
-    "cambio": "comparador de saltos desde el banco de registros",
-    "verificacion": "check PASS, equiv ciclo a ciclo",
-    "cpi_isa": 2.953,
-    "cpi_juego": 2.665,
-    "corrida_100": "build/exp_branch_cmp/asic/rom/runs/b3_t100",
-    "corridas_periodo": [
-      "build/exp_branch_cmp/asic/rom/runs/b3_t26",
-      "build/exp_branch_cmp/asic/rom/runs/b3_t24"
-    ],
-    "potencia_mw": null,
-    "nota": "sesión anterior (26-10-2026)"
-  },
-  {
-    "nombre": "exp/lsu-branch (B2+B3)",
-    "rama": "exp/lsu-branch",
-    "cambio": "B2 y B3 juntos",
-    "verificacion": "check PASS, equiv ciclo a ciclo",
-    "cpi_isa": 2.953,
-    "cpi_juego": 2.665,
-    "corrida_100": "build/exp_lsu_branch/asic/rom/runs/b23_t100",
-    "corridas_periodo": [
-      "build/exp_lsu_branch/asic/rom/runs/b23_t26",
-      "build/exp_lsu_branch/asic/rom/runs/b23_t24"
-    ],
-    "potencia_mw": null,
-    "nota": "b23_t26 detenida a los 40 min (incompleta); sesión anterior"
-  },
-  {
-    "nombre": "exp/cpi (B4)",
-    "rama": "exp/cpi",
-    "cambio": "ROM y banco combinacionales, decode en el fetch, 1 instrucción por ciclo",
-    "verificacion": "check PASS, equiv funcional",
-    "cpi_isa": 1.004,
-    "cpi_juego": 1.312,
-    "corrida_100": "build/exp_cpi/asic/rom/runs/b4_t100",
-    "corridas_periodo": [
-      "build/exp_cpi/asic/rom/runs/b4_t60",
-      "build/exp_cpi/asic/rom/runs/b4_t55",
-      "build/exp_cpi/asic/rom/runs/b4_t50",
-      "build/exp_cpi/asic/rom/runs/b4_t45"
-    ],
-    "potencia_mw": null,
-    "nota": "sesión anterior; brecha de 5 ns, no cumple la regla de 0,5 ns"
-  },
-  {
-    "nombre": "exp/rf-latch (B5)",
-    "rama": "exp/rf-latch",
-    "cambio": "banco de registros con latches latq_1 y clock gating icgtp_1",
-    "verificacion": "check PASS, equiv ciclo a ciclo",
-    "cpi_isa": 2.953,
-    "cpi_juego": 2.665,
-    "corrida_100": "build/exp_rf_latch/asic/rom/runs/b5_t100",
-    "corridas_periodo": [
-      "build/exp_rf_latch/asic/rom/runs/b5_t26"
-    ],
-    "potencia_mw": null,
-    "nota": "sesión anterior; WNS 0,000 por el préstamo de tiempo de los latches"
-  },
-  {
-    "nombre": "exp/signoff (B1), variante b1c",
-    "rama": "exp/signoff",
-    "cambio": "reparación post-GRT con márgenes de 30 %",
-    "verificacion": "mismo RTL que main",
-    "cpi_isa": 2.953,
-    "cpi_juego": 2.665,
-    "corrida_100": "build/exp_signoff/asic/rom/runs/b1c_t100",
-    "corridas_periodo": [
-      "build/exp_signoff/asic/rom/runs/b1c_t26"
-    ],
-    "potencia_mw": null,
-    "nota": "sesión anterior; no se barrió bajo 26 ns"
-  },
-  {
-    "nombre": "exp/signoff (B1), variante b1g",
-    "rama": "exp/signoff",
-    "cambio": "márgenes del repair de placement en 30 %",
-    "verificacion": "mismo RTL que main",
-    "cpi_isa": 2.953,
-    "cpi_juego": 2.665,
-    "corrida_100": "build/exp_signoff/asic/rom/runs/b1g_t100",
-    "corridas_periodo": [
-      "build/exp_signoff/asic/rom/runs/b1g_t26"
-    ],
-    "potencia_mw": null,
-    "nota": "sesión anterior; no se barrió bajo 26 ns"
-  },
-  {
-    "nombre": "exp/pipeline (A)",
-    "rama": "exp/pipeline",
-    "cambio": "lectura del banco y decodificación en el fetch (EarlyRead), banco write-through",
-    "verificacion": "check PASS, equiv funcional, hazard_test, mutaciones detectadas, 0 X usados, post-synth PASS",
-    "cpi_isa": 1.969,
-    "cpi_juego": 1.665,
-    "corrida_100": "build/exp_pipeline/asic/rom/runs/pa_t100",
-    "corridas_periodo": [
-      "build/exp_pipeline/asic/rom/runs/pa_t40",
-      "build/exp_pipeline/asic/rom/runs/pa_t32",
-      "build/exp_pipeline/asic/rom/runs/pa_t26",
-      "build/exp_pipeline/asic/rom/runs/pa_t25p5",
-      "build/exp_pipeline/asic/rom/runs/pa_t25",
-      "build/exp_pipeline/asic/rom/runs/pa_t24p5"
-    ],
-    "potencia_mw": null,
-    "nota": "CPI del juego con la estrategia 2 (EarlyRead = 0): 2,665, igual que main"
-  },
-  {
-    "nombre": "exp/pipeline-b2 (A+B2)",
-    "rama": "exp/pipeline-b2",
-    "cambio": "A más el offset de byte registrado en la LSU",
-    "verificacion": "check PASS, equiv funcional, hazard_test, 0 X usados",
-    "cpi_isa": 1.969,
-    "cpi_juego": 1.665,
-    "corrida_100": "build/exp_pipeline_b2/asic/rom/runs/pa_b2_t100",
-    "corridas_periodo": [
-      "build/exp_pipeline_b2/asic/rom/runs/pa_b2_t26",
-      "build/exp_pipeline_b2/asic/rom/runs/pa_b2_t25p5",
-      "build/exp_pipeline_b2/asic/rom/runs/pa_b2_t25"
-    ],
-    "potencia_mw": null,
-    "nota": "base de exp/candidata"
-  },
-  {
-    "nombre": "exp/pipeline-b5 (A+B5)",
-    "rama": "exp/pipeline-b5",
-    "cambio": "A más el banco de latches con clock gating",
-    "verificacion": "check PASS, equiv funcional, hazard_test, 0 X usados",
-    "cpi_isa": 1.969,
-    "cpi_juego": 1.665,
-    "corrida_100": "build/exp_pipeline_b5/asic/rom/runs/pa_b5_t100",
-    "corridas_periodo": [
-      "build/exp_pipeline_b5/asic/rom/runs/pa_b5_t34",
-      "build/exp_pipeline_b5/asic/rom/runs/pa_b5_t32",
-      "build/exp_pipeline_b5/asic/rom/runs/pa_b5_t30",
-      "build/exp_pipeline_b5/asic/rom/runs/pa_b5_t29",
-      "build/exp_pipeline_b5/asic/rom/runs/pa_b5_t28",
-      "build/exp_pipeline_b5/asic/rom/runs/pa_b5_t26",
-      "build/exp_pipeline_b5/asic/rom/runs/pa_b5_t25"
-    ],
-    "potencia_mw": null,
-    "nota": "WNS 0,000 por el préstamo de tiempo de los latches"
-  },
-  {
-    "nombre": "exp/fmax (B2+B5, base)",
-    "rama": "exp/fmax",
-    "cambio": "B2 y B5 juntos, sin cambio en el pipeline",
-    "verificacion": "check PASS, equiv ciclo a ciclo",
-    "cpi_isa": 2.953,
-    "cpi_juego": 2.665,
-    "corrida_100": "build/exp_fmax/asic/rom/runs/fb_t100",
-    "corridas_periodo": [
-      "build/exp_fmax/asic/rom/runs/fb_t24",
-      "build/exp_fmax/asic/rom/runs/fb_t23p5",
-      "build/exp_fmax/asic/rom/runs/fb_t23",
-      "build/exp_fmax/asic/rom/runs/fb_t22"
-    ],
-    "potencia_mw": null,
-    "nota": "WNS 0,000 por los latches; margen real en max.rpt (asic/margen_latch.py)"
-  },
-  {
-    "nombre": "exp/fmax con reparación post-GRT",
-    "rama": "exp/fmax",
-    "cambio": "B2+B5 más RUN_POST_GRT_RESIZER_TIMING",
-    "verificacion": "check PASS, equiv ciclo a ciclo (mismo RTL que la base)",
-    "cpi_isa": 2.953,
-    "cpi_juego": 2.665,
-    "corrida_100": "build/exp_fmax/asic/rom/runs/fb_pgrt_t100",
-    "corridas_periodo": [
-      "build/exp_fmax/asic/rom/runs/fb_pgrt_t23p25",
-      "build/exp_fmax/asic/rom/runs/fb_pgrt_t23"
-    ],
-    "potencia_mw": null,
-    "nota": "mejor base del frente B"
-  },
-  {
-    "nombre": "exp/signoff0, c30 (sin costo de período)",
-    "rama": "exp/signoff0",
-    "cambio": "B2+B5 con reparación post-GRT de diseño y márgenes de 30 %",
-    "verificacion": "mismo RTL que exp/fmax",
-    "cpi_isa": 2.953,
-    "cpi_juego": 2.665,
-    "corrida_100": "build/exp_signoff0/asic/rom/runs/sc_c30_t100",
-    "corridas_periodo": [
-      "build/exp_signoff0/asic/rom/runs/sc_c30_t24",
-      "build/exp_signoff0/asic/rom/runs/sc_c30_t23p5"
-    ],
-    "potencia_mw": null,
-    "nota": "323 slew / 1 cap con +0,08 % de área y el mismo período mínimo que la base"
-  },
-  {
-    "nombre": "exp/signoff0, cero slew",
-    "rama": "exp/signoff0",
-    "cambio": "B2+B5 con LAYERS_RC medidos, repair post-GRT 30 % y CTS_DISTANCE_BETWEEN_BUFFERS",
-    "verificacion": "mismo RTL que exp/fmax",
-    "cpi_isa": 2.953,
-    "cpi_juego": 2.665,
-    "corrida_100": "build/exp_signoff0/asic/rom/runs/sc_full_t100",
-    "corridas_periodo": [
-      "build/exp_signoff0/asic/rom/runs/sc_fullp_t24",
-      "build/exp_signoff0/asic/rom/runs/sc_full_t24",
-      "build/exp_signoff0/asic/rom/runs/sc_full_t23"
-    ],
-    "potencia_mw": null,
-    "nota": "0 slew / 2 cap a 100 ns con +7,5 % de área; al período, sc_fullp_t24 (margen 15) cierra a 24 ns con 3 / 1"
-  },
-  {
-    "nombre": "exp/signoff0, g30 (mejor slew dentro del 1 %)",
-    "rama": "exp/signoff0",
-    "cambio": "B2+B5 con márgenes del repair de placement en 30 %",
-    "verificacion": "mismo RTL que exp/fmax",
-    "cpi_isa": 2.953,
-    "cpi_juego": 2.665,
-    "corrida_100": "build/exp_signoff0/asic/rom/runs/sc_g30_t100",
-    "corridas_periodo": [
-      "build/exp_signoff0/asic/rom/runs/sc_g30_t24"
-    ],
-    "potencia_mw": null,
-    "nota": "214 slew / 1 cap con +0,64 % de área, pero no cierra a 24 ns"
-  },
-  {
-    "nombre": "exp/candidata (A+B2, paquete completo)",
-    "rama": "exp/candidata",
-    "cambio": "A mas B2 con la configuracion final de main y EarlyRead=1",
-    "verificacion": "check PASS, equiv funcional, hazard_test, 0 X, post-synth, SDF en 3 esquinas, DRC de KLayout con control positivo, revision independiente",
-    "cpi_isa": 1.969,
-    "cpi_juego": 1.665,
-    "corrida_100": "build/exp_candidata/asic/rom/runs/pa_b2_t100",
-    "corridas_periodo": [
-      "build/exp_candidata/asic/rom/runs/pa_b2_t26",
-      "build/exp_candidata/asic/rom/runs/pa_b2_t25p5",
-      "build/exp_candidata/asic/rom/runs/pa_b2_t25"
-    ],
-    "potencia_mw": 12.392,
-    "nota": "corridas base reusadas de exp/pipeline-b2 (mismo arbol); potencia con actividad: ventana de polling en nom_tt"
-  },
-  {
-    "nombre": "exp/candidata, variante de cero slew",
-    "rama": "exp/candidata",
-    "cambio": "la candidata con los RC de cable medidos y reparacion post-GRT (frente C)",
-    "verificacion": "mismo RTL que la candidata",
-    "cpi_isa": 1.969,
-    "cpi_juego": 1.665,
-    "corrida_100": "build/exp_candidata/asic/rom/runs/e1_full_t100",
-    "corridas_periodo": [],
-    "potencia_mw": null,
-    "nota": "0 slew y 0 cap a 100 ns, pero 114,8 por ciento del area de main: fuera del limite de 105 por ciento"
-  },
-  {
-    "nombre": "main con LAYERS_RC (exploracion del coordinador)",
-    "rama": "main",
-    "cambio": "el RTL de main con los RC de cable medidos y reparacion post-GRT",
-    "verificacion": "mismo RTL que main",
-    "cpi_isa": 2.953,
-    "cpi_juego": 2.665,
-    "corrida_100": "build/main_rc/asic/rom/runs/co_rcm_t100",
-    "corridas_periodo": [
-      "build/main_rc/asic/rom/runs/co_rcm_t23",
-      "build/main_rc/asic/rom/runs/co_rcm_t22",
-      "build/main_rc/asic/rom/runs/co_rcm_t21p5"
-    ],
-    "potencia_mw": null,
-    "nota": "110,4 por ciento del area de main: fuera del limite; 0 slew en las 9 esquinas; datos en exp/candidata-rc, asic/main_rc/"
-  },
-  {
-    "nombre": "exp/candidata-rc (exploracion del coordinador)",
-    "rama": "exp/candidata-rc",
-    "cambio": "la candidata con los RC de cable medidos y reparacion post-GRT",
-    "verificacion": "mismo RTL que la candidata",
-    "cpi_isa": 1.969,
-    "cpi_juego": 1.665,
-    "corrida_100": "build/exp_candidata_rc/asic/rom/runs/co_rc_t100",
-    "corridas_periodo": [
-      "build/exp_candidata_rc/asic/rom/runs/co_rc_t25",
-      "build/exp_candidata_rc/asic/rom/runs/co_rc_t24",
-      "build/exp_candidata_rc/asic/rom/runs/co_rc_t23",
-      "build/exp_candidata_rc/asic/rom/runs/co_rc_t22",
-      "build/exp_candidata_rc/asic/rom/runs/co_rc_t21p5",
-      "build/exp_candidata_rc/asic/rom/runs/co_rc_t21"
-    ],
-    "potencia_mw": null,
-    "nota": "114,4 por ciento del area de main: fuera del limite; 0 slew en las 9 esquinas; ver docs/modelo_cable.md de la rama"
-  }
+ {
+  "nombre": "v1 (main antes de integrar, tag v1-final)",
+  "rama": "v1-final",
+  "cambio": "configuración final de v1 (D15, D18, D20, D21), sin modelo de cable",
+  "verificacion": "check PASS, equiv ciclo a ciclo contra 116fa20",
+  "cpi_isa": 2.953,
+  "cpi_juego": 2.665,
+  "corrida_100": "asic/rom/runs/v1_final_run",
+  "corridas_periodo": [
+   "asic/rom/runs/f1_t32",
+   "asic/rom/runs/f1_t30",
+   "asic/rom/runs/f1_t26",
+   "asic/rom/runs/f1_t25",
+   "asic/rom/runs/f1_t24p5",
+   "asic/rom/runs/f1_t24"
+  ],
+  "potencia_mw": 12.755,
+  "nota": "potencia con actividad: ventana de espera de 3 s en nom_tt (asic/potencia/resultado_v1.md). asic/rom/runs/final pasó a ser la corrida final nueva de D23, así que la de v1 quedó en asic/rom/runs/v1_final_run y sus reportes versionados en asic/rom/resultados/v1_final/"
+ },
+ {
+  "nombre": "exp/lsu-offset (B2)",
+  "rama": "exp/lsu-offset",
+  "cambio": "offset de byte de la carga registrado en la LSU",
+  "verificacion": "check PASS, equiv ciclo a ciclo",
+  "cpi_isa": 2.953,
+  "cpi_juego": 2.665,
+  "corrida_100": "build/exp_lsu_offset/asic/rom/runs/b2_t100",
+  "corridas_periodo": [
+   "build/exp_lsu_offset/asic/rom/runs/b2_t26",
+   "build/exp_lsu_offset/asic/rom/runs/b2_t24",
+   "build/exp_lsu_offset/asic/rom/runs/b2_t23",
+   "build/exp_lsu_offset/asic/rom/runs/b2_t22"
+  ],
+  "potencia_mw": null,
+  "nota": "sesión anterior (26-10-2026)"
+ },
+ {
+  "nombre": "exp/branch-cmp (B3)",
+  "rama": "exp/branch-cmp",
+  "cambio": "comparador de saltos desde el banco de registros",
+  "verificacion": "check PASS, equiv ciclo a ciclo",
+  "cpi_isa": 2.953,
+  "cpi_juego": 2.665,
+  "corrida_100": "build/exp_branch_cmp/asic/rom/runs/b3_t100",
+  "corridas_periodo": [
+   "build/exp_branch_cmp/asic/rom/runs/b3_t26",
+   "build/exp_branch_cmp/asic/rom/runs/b3_t24"
+  ],
+  "potencia_mw": null,
+  "nota": "sesión anterior (26-10-2026)"
+ },
+ {
+  "nombre": "exp/lsu-branch (B2+B3)",
+  "rama": "exp/lsu-branch",
+  "cambio": "B2 y B3 juntos",
+  "verificacion": "check PASS, equiv ciclo a ciclo",
+  "cpi_isa": 2.953,
+  "cpi_juego": 2.665,
+  "corrida_100": "build/exp_lsu_branch/asic/rom/runs/b23_t100",
+  "corridas_periodo": [
+   "build/exp_lsu_branch/asic/rom/runs/b23_t26",
+   "build/exp_lsu_branch/asic/rom/runs/b23_t24"
+  ],
+  "potencia_mw": null,
+  "nota": "b23_t26 detenida a los 40 min (incompleta); sesión anterior"
+ },
+ {
+  "nombre": "exp/cpi (B4)",
+  "rama": "exp/cpi",
+  "cambio": "ROM y banco combinacionales, decode en el fetch, 1 instrucción por ciclo",
+  "verificacion": "check PASS, equiv funcional",
+  "cpi_isa": 1.004,
+  "cpi_juego": 1.312,
+  "corrida_100": "build/exp_cpi/asic/rom/runs/b4_t100",
+  "corridas_periodo": [
+   "build/exp_cpi/asic/rom/runs/b4_t60",
+   "build/exp_cpi/asic/rom/runs/b4_t55",
+   "build/exp_cpi/asic/rom/runs/b4_t50",
+   "build/exp_cpi/asic/rom/runs/b4_t45"
+  ],
+  "potencia_mw": null,
+  "nota": "sesión anterior; brecha de 5 ns, no cumple la regla de 0,5 ns"
+ },
+ {
+  "nombre": "exp/rf-latch (B5)",
+  "rama": "exp/rf-latch",
+  "cambio": "banco de registros con latches latq_1 y clock gating icgtp_1",
+  "verificacion": "check PASS, equiv ciclo a ciclo",
+  "cpi_isa": 2.953,
+  "cpi_juego": 2.665,
+  "corrida_100": "build/exp_rf_latch/asic/rom/runs/b5_t100",
+  "corridas_periodo": [
+   "build/exp_rf_latch/asic/rom/runs/b5_t26"
+  ],
+  "potencia_mw": null,
+  "nota": "sesión anterior; WNS 0,000 por el préstamo de tiempo de los latches"
+ },
+ {
+  "nombre": "exp/signoff (B1), variante b1c",
+  "rama": "exp/signoff",
+  "cambio": "reparación post-GRT con márgenes de 30 %",
+  "verificacion": "mismo RTL que main",
+  "cpi_isa": 2.953,
+  "cpi_juego": 2.665,
+  "corrida_100": "build/exp_signoff/asic/rom/runs/b1c_t100",
+  "corridas_periodo": [
+   "build/exp_signoff/asic/rom/runs/b1c_t26"
+  ],
+  "potencia_mw": null,
+  "nota": "sesión anterior; no se barrió bajo 26 ns"
+ },
+ {
+  "nombre": "exp/signoff (B1), variante b1g",
+  "rama": "exp/signoff",
+  "cambio": "márgenes del repair de placement en 30 %",
+  "verificacion": "mismo RTL que main",
+  "cpi_isa": 2.953,
+  "cpi_juego": 2.665,
+  "corrida_100": "build/exp_signoff/asic/rom/runs/b1g_t100",
+  "corridas_periodo": [
+   "build/exp_signoff/asic/rom/runs/b1g_t26"
+  ],
+  "potencia_mw": null,
+  "nota": "sesión anterior; no se barrió bajo 26 ns"
+ },
+ {
+  "nombre": "exp/pipeline (A)",
+  "rama": "exp/pipeline",
+  "cambio": "lectura del banco y decodificación en el fetch (EarlyRead), banco write-through",
+  "verificacion": "check PASS, equiv funcional, hazard_test, mutaciones detectadas, 0 X usados, post-synth PASS",
+  "cpi_isa": 1.969,
+  "cpi_juego": 1.665,
+  "corrida_100": "build/exp_pipeline/asic/rom/runs/pa_t100",
+  "corridas_periodo": [
+   "build/exp_pipeline/asic/rom/runs/pa_t40",
+   "build/exp_pipeline/asic/rom/runs/pa_t32",
+   "build/exp_pipeline/asic/rom/runs/pa_t26",
+   "build/exp_pipeline/asic/rom/runs/pa_t25p5",
+   "build/exp_pipeline/asic/rom/runs/pa_t25",
+   "build/exp_pipeline/asic/rom/runs/pa_t24p5"
+  ],
+  "potencia_mw": null,
+  "nota": "CPI del juego con la estrategia 2 (EarlyRead = 0): 2,665, igual que main"
+ },
+ {
+  "nombre": "exp/pipeline-b2 (A+B2)",
+  "rama": "exp/pipeline-b2",
+  "cambio": "A más el offset de byte registrado en la LSU",
+  "verificacion": "check PASS, equiv funcional, hazard_test, 0 X usados",
+  "cpi_isa": 1.969,
+  "cpi_juego": 1.665,
+  "corrida_100": "build/exp_pipeline_b2/asic/rom/runs/pa_b2_t100",
+  "corridas_periodo": [
+   "build/exp_pipeline_b2/asic/rom/runs/pa_b2_t26",
+   "build/exp_pipeline_b2/asic/rom/runs/pa_b2_t25p5",
+   "build/exp_pipeline_b2/asic/rom/runs/pa_b2_t25"
+  ],
+  "potencia_mw": null,
+  "nota": "base de exp/candidata"
+ },
+ {
+  "nombre": "exp/pipeline-b5 (A+B5)",
+  "rama": "exp/pipeline-b5",
+  "cambio": "A más el banco de latches con clock gating",
+  "verificacion": "check PASS, equiv funcional, hazard_test, 0 X usados",
+  "cpi_isa": 1.969,
+  "cpi_juego": 1.665,
+  "corrida_100": "build/exp_pipeline_b5/asic/rom/runs/pa_b5_t100",
+  "corridas_periodo": [
+   "build/exp_pipeline_b5/asic/rom/runs/pa_b5_t34",
+   "build/exp_pipeline_b5/asic/rom/runs/pa_b5_t32",
+   "build/exp_pipeline_b5/asic/rom/runs/pa_b5_t30",
+   "build/exp_pipeline_b5/asic/rom/runs/pa_b5_t29",
+   "build/exp_pipeline_b5/asic/rom/runs/pa_b5_t28",
+   "build/exp_pipeline_b5/asic/rom/runs/pa_b5_t26",
+   "build/exp_pipeline_b5/asic/rom/runs/pa_b5_t25"
+  ],
+  "potencia_mw": null,
+  "nota": "WNS 0,000 por el préstamo de tiempo de los latches"
+ },
+ {
+  "nombre": "exp/fmax (B2+B5, base)",
+  "rama": "exp/fmax",
+  "cambio": "B2 y B5 juntos, sin cambio en el pipeline",
+  "verificacion": "check PASS, equiv ciclo a ciclo",
+  "cpi_isa": 2.953,
+  "cpi_juego": 2.665,
+  "corrida_100": "build/exp_fmax/asic/rom/runs/fb_t100",
+  "corridas_periodo": [
+   "build/exp_fmax/asic/rom/runs/fb_t24",
+   "build/exp_fmax/asic/rom/runs/fb_t23p5",
+   "build/exp_fmax/asic/rom/runs/fb_t23",
+   "build/exp_fmax/asic/rom/runs/fb_t22"
+  ],
+  "potencia_mw": null,
+  "nota": "WNS 0,000 por los latches; margen real en max.rpt (asic/margen_latch.py)"
+ },
+ {
+  "nombre": "exp/fmax con reparación post-GRT",
+  "rama": "exp/fmax",
+  "cambio": "B2+B5 más RUN_POST_GRT_RESIZER_TIMING",
+  "verificacion": "check PASS, equiv ciclo a ciclo (mismo RTL que la base)",
+  "cpi_isa": 2.953,
+  "cpi_juego": 2.665,
+  "corrida_100": "build/exp_fmax/asic/rom/runs/fb_pgrt_t100",
+  "corridas_periodo": [
+   "build/exp_fmax/asic/rom/runs/fb_pgrt_t23p25",
+   "build/exp_fmax/asic/rom/runs/fb_pgrt_t23"
+  ],
+  "potencia_mw": null,
+  "nota": "mejor base del frente B"
+ },
+ {
+  "nombre": "exp/signoff0, c30 (sin costo de período)",
+  "rama": "exp/signoff0",
+  "cambio": "B2+B5 con reparación post-GRT de diseño y márgenes de 30 %",
+  "verificacion": "mismo RTL que exp/fmax",
+  "cpi_isa": 2.953,
+  "cpi_juego": 2.665,
+  "corrida_100": "build/exp_signoff0/asic/rom/runs/sc_c30_t100",
+  "corridas_periodo": [
+   "build/exp_signoff0/asic/rom/runs/sc_c30_t24",
+   "build/exp_signoff0/asic/rom/runs/sc_c30_t23p5"
+  ],
+  "potencia_mw": null,
+  "nota": "323 slew / 1 cap con +0,08 % de área y el mismo período mínimo que la base"
+ },
+ {
+  "nombre": "exp/signoff0, cero slew",
+  "rama": "exp/signoff0",
+  "cambio": "B2+B5 con LAYERS_RC medidos, repair post-GRT 30 % y CTS_DISTANCE_BETWEEN_BUFFERS",
+  "verificacion": "mismo RTL que exp/fmax",
+  "cpi_isa": 2.953,
+  "cpi_juego": 2.665,
+  "corrida_100": "build/exp_signoff0/asic/rom/runs/sc_full_t100",
+  "corridas_periodo": [
+   "build/exp_signoff0/asic/rom/runs/sc_fullp_t24",
+   "build/exp_signoff0/asic/rom/runs/sc_full_t24",
+   "build/exp_signoff0/asic/rom/runs/sc_full_t23"
+  ],
+  "potencia_mw": null,
+  "nota": "0 slew / 2 cap a 100 ns con +7,5 % de área; al período, sc_fullp_t24 (margen 15) cierra a 24 ns con 3 / 1"
+ },
+ {
+  "nombre": "exp/signoff0, g30 (mejor slew dentro del 1 %)",
+  "rama": "exp/signoff0",
+  "cambio": "B2+B5 con márgenes del repair de placement en 30 %",
+  "verificacion": "mismo RTL que exp/fmax",
+  "cpi_isa": 2.953,
+  "cpi_juego": 2.665,
+  "corrida_100": "build/exp_signoff0/asic/rom/runs/sc_g30_t100",
+  "corridas_periodo": [
+   "build/exp_signoff0/asic/rom/runs/sc_g30_t24"
+  ],
+  "potencia_mw": null,
+  "nota": "214 slew / 1 cap con +0,64 % de área, pero no cierra a 24 ns"
+ },
+ {
+  "nombre": "exp/candidata (A+B2, paquete completo)",
+  "rama": "exp/candidata",
+  "cambio": "A mas B2 con la configuracion final de main y EarlyRead=1",
+  "verificacion": "check PASS, equiv funcional, hazard_test, 0 X, post-synth, SDF en 3 esquinas, DRC de KLayout con control positivo, revision independiente",
+  "cpi_isa": 1.969,
+  "cpi_juego": 1.665,
+  "corrida_100": "build/exp_candidata/asic/rom/runs/pa_b2_t100",
+  "corridas_periodo": [
+   "build/exp_candidata/asic/rom/runs/pa_b2_t26",
+   "build/exp_candidata/asic/rom/runs/pa_b2_t25p5",
+   "build/exp_candidata/asic/rom/runs/pa_b2_t25"
+  ],
+  "potencia_mw": 12.392,
+  "nota": "corridas base reusadas de exp/pipeline-b2 (mismo arbol); potencia con actividad: ventana de polling en nom_tt"
+ },
+ {
+  "nombre": "exp/candidata, variante de cero slew",
+  "rama": "exp/candidata",
+  "cambio": "la candidata con los RC de cable medidos y reparacion post-GRT (frente C)",
+  "verificacion": "mismo RTL que la candidata",
+  "cpi_isa": 1.969,
+  "cpi_juego": 1.665,
+  "corrida_100": "build/exp_candidata/asic/rom/runs/e1_full_t100",
+  "corridas_periodo": [],
+  "potencia_mw": null,
+  "nota": "0 slew y 0 cap a 100 ns, pero 114,8 por ciento del area de main: fuera del limite de 105 por ciento"
+ },
+ {
+  "nombre": "main con LAYERS_RC (exploracion del coordinador)",
+  "rama": "main",
+  "cambio": "el RTL de main con los RC de cable medidos y reparacion post-GRT",
+  "verificacion": "mismo RTL que main",
+  "cpi_isa": 2.953,
+  "cpi_juego": 2.665,
+  "corrida_100": "build/main_rc/asic/rom/runs/co_rcm_t100",
+  "corridas_periodo": [
+   "build/main_rc/asic/rom/runs/co_rcm_t23",
+   "build/main_rc/asic/rom/runs/co_rcm_t22",
+   "build/main_rc/asic/rom/runs/co_rcm_t21p5"
+  ],
+  "potencia_mw": null,
+  "nota": "110,4 por ciento del area de main: fuera del limite; 0 slew en las 9 esquinas; datos en exp/candidata-rc, asic/main_rc/"
+ },
+ {
+  "nombre": "exp/candidata-rc (exploracion del coordinador)",
+  "rama": "exp/candidata-rc",
+  "cambio": "la candidata con los RC de cable medidos y reparacion post-GRT",
+  "verificacion": "mismo RTL que la candidata",
+  "cpi_isa": 1.969,
+  "cpi_juego": 1.665,
+  "corrida_100": "build/exp_candidata_rc/asic/rom/runs/co_rc_t100",
+  "corridas_periodo": [
+   "build/exp_candidata_rc/asic/rom/runs/co_rc_t25",
+   "build/exp_candidata_rc/asic/rom/runs/co_rc_t24",
+   "build/exp_candidata_rc/asic/rom/runs/co_rc_t23",
+   "build/exp_candidata_rc/asic/rom/runs/co_rc_t22",
+   "build/exp_candidata_rc/asic/rom/runs/co_rc_t21p5",
+   "build/exp_candidata_rc/asic/rom/runs/co_rc_t21"
+  ],
+  "potencia_mw": null,
+  "nota": "114,4 por ciento del area de main: fuera del limite; 0 slew en las 9 esquinas; ver docs/modelo_cable.md de la rama"
+ }
 ]

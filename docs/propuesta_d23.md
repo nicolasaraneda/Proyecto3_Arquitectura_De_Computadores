@@ -187,8 +187,10 @@ Variantes de signoff del frente C medidas sobre la candidata, las dos descartada
   ciento del área de `main`, fuera del límite de 105 por ciento. Es la respuesta medida a si las
   546 violaciones de slew de `main` se pueden eliminar: sí, y este es el precio.
 
-**El paquete se queda con la configuración base** de la rama, que es la final de `main` más
-`EarlyRead = 1`.
+**El paquete se quedó con la configuración base** de la rama, que es la final de `main` más
+`EarlyRead = 1`. Eso valía mientras el límite de área de la sesión estuviera en pie; D23 lo levantó
+y la corrida final adoptó la variante `e1_full_t100` de esta misma tabla (los RC de cable medidos
+más la reparación post-GRT), que es la que deja 0 violaciones de slew.
 
 Lo que quedó sin hacer en el paquete, dicho explícitamente: la simulación con Open Verilog CVC de
 la rama (el objetivo está copiado pero no se corrió), la potencia con actividad en las otras tres
@@ -232,10 +234,13 @@ Conclusiones, que valen para el informe aunque esta configuración no pueda ser 
    contra 0,756 ns). Con el CPI de cada uno eso son 17,1 contra 27,9 MIPS. El nanosegundo de
    diferencia de la configuración del enunciado (25,5 contra 24,5 ns) lo produce el resizer, que
    con parásitos optimistas deja de reparar antes en el diseño con la ruta nueva.
-2. **Esta configuración no puede ser la corrida final**: cuesta 110,4 por ciento del área de
-   `main` sobre el RTL de `main` y 114,4 por ciento sobre el de la candidata, las dos por encima
-   del límite de 105 por ciento de la regla de selección. Por eso ni `main` ni la candidata la
-   usan, y el período mínimo que se reporta sigue siendo el de la configuración del enunciado.
+2. **Esta configuración costaba 110,4 por ciento del área de celdas de `main` sobre el RTL de
+   `main` y 114,4 por ciento sobre el de la candidata**, las dos por encima del límite de 105 por
+   ciento de la regla de selección de la sesión, y por eso cuando se escribió esta sección quedó
+   descartada. **D23 levantó ese límite** (era una regla del grupo y no del enunciado; el die y el
+   costo no cambian) y la configuración pasó a ser la de la corrida final: ver D23 en
+   `docs/decisiones.md` y `docs/modelo_cable.md`. El período mínimo que se reporta en el informe es
+   el de esta configuración, 21,5 ns.
 3. Como efecto secundario, la misma configuración deja 0 violaciones de max slew en las 9 esquinas
    en los dos diseños, lo que confirma el diagnóstico del frente C: las violaciones de slew de la
    corrida final no son un problema del diseño sino del modelo con que el flujo decide dónde

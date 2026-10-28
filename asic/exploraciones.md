@@ -70,7 +70,7 @@ Lectura de la sesión del 27 y 28-10-2026:
   y 2,3 por ciento de área a 100 ns, dentro del límite.
 - Las dos variantes del pipeline se comportan distinto: el offset de byte registrado de B2 le gana
   medio nanosegundo (25,5 contra 26 ns) por 0,2 por ciento de área, mientras que el banco de
-  latches de B5 le quita cuatro nanosegundos y medio (30 contra 25,5 ns) aunque ahorra 11 por
+  latches de B5 le quita tres nanosegundos y medio (29 contra 25,5 ns) aunque ahorra 11 por
   ciento de área, porque con la lectura anticipada el camino que pasa por los latches deja de
   tener medio ciclo de holgura.
 - Sin tocar el pipeline, lo más rápido es `exp/fmax` (B2+B5) con la reparación post-GRT del

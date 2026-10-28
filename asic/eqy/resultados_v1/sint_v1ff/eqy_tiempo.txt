@@ -1,0 +1,1 @@
+tiempo_real_118.71_s;usuario_121.37_s;sistema_5.12_s;memoria_maxima_2640744_KB

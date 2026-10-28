@@ -1,0 +1,36 @@
+
+=== help set_power_activity ===
+set_power_activity [-global] [-input] [-input_ports ports] [-pins pins]
+   [-activity activity | -density density] [-duty duty] [-clock clock] 
+
+
+=== help read_power_activities ===
+read_power_activities [-scope scope] -vcd filename  
+
+
+=== help read_vcd ===
+read_vcd [-scope scope] filename  
+
+
+=== help read_saif ===
+read_saif [-scope scope] filename  
+
+
+=== help report_activity_annotation ===
+report_activity_annotation [-report_unannotated] [-report_annotated]  
+
+
+=== help report_power ===
+report_power [-instances instances] [-highest_power_instances count]
+   [-corner corner] [-digits digits] [-format format] [> filename] [>> filename]  
+
+
+=== comandos *power* / *activit* ===
+read_power_activities report_power set_max_dynamic_power set_max_leakage_power set_power_activity unset_power_activity
+read_power_activities report_activity_annotation set_power_activity unset_power_activity
+::sta::Net_is_power ::sta::design_power ::sta::format_power ::sta::highest_power_instances ::sta::instance_power ::sta::power_col ::sta::power_col_percent ::sta::power_find_nan ::sta::power_sta_ui ::sta::power_ui_sta ::sta::read_power_activities ::sta::report_power ::sta::report_power_design ::sta::report_power_design_json ::sta::report_power_inst ::sta::report_power_inst_json ::sta::report_power_insts ::sta::report_power_insts_json ::sta::report_power_line ::sta::report_power_row ::sta::report_power_row_json ::sta::report_power_title4 ::sta::report_power_title4_units ::sta::report_power_title5 ::sta::report_power_title5_units ::sta::set_max_dynamic_power ::sta::set_max_leakage_power ::sta::set_power_activity ::sta::set_power_global_activity ::sta::set_power_input_activity ::sta::set_power_input_port_activity ::sta::set_power_pin_activity ::sta::unset_power_activity ::sta::unset_power_global_activity ::sta::unset_power_input_activity ::sta::unset_power_input_port_activity ::sta::unset_power_pin_activity
+::sta::read_power_activities ::sta::report_activity_annotation ::sta::report_activity_annotation_cmd ::sta::set_power_activity ::sta::set_power_global_activity ::sta::set_power_input_activity ::sta::set_power_input_port_activity ::sta::set_power_pin_activity ::sta::unset_power_activity ::sta::unset_power_global_activity ::sta::unset_power_input_activity ::sta::unset_power_input_port_activity ::sta::unset_power_pin_activity
+
+=== variables sta::power* ===
+
+

@@ -1,0 +1,4 @@
+lineas_01 2203101
+lineas_x 0
+porcentaje_x 0.00
+senales_con_x 0
