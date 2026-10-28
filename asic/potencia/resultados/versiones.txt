@@ -1,10 +1,10 @@
-fecha: 2026-10-27 16:10
+fecha: 2026-10-28 20:32
 iverilog: Icarus Verilog version 14.0 (devel) (s20260301-403-g5ab23063f-dirty)
 sta (imagen ghcr.io/librelane/librelane:3.0.16): 2.7.0
-netlist: asic/rom/runs/final/final/nl/asic_top.nl.v (14b9a3c4728d0ec6d2df1304ece1f84a)
-spef min: asic/rom/runs/final/final/spef/min/asic_top.min.spef (20b4494747869e3958ffdea287a4dbcd)
-spef nom: asic/rom/runs/final/final/spef/nom/asic_top.nom.spef (bcc30d8f9cbfb0e595acc80ab821f593)
-spef max: asic/rom/runs/final/final/spef/max/asic_top.max.spef (7f2f0c77c7be7e1a6de9933963d33149)
+netlist: asic/rom/runs/final/final/nl/asic_top.nl.v (056d827251cfb75f940a58d0f45ff75e)
+spef min: asic/rom/runs/final/final/spef/min/asic_top.min.spef (af5401b9a1230b279b4b5c0d946bfd5c)
+spef nom: asic/rom/runs/final/final/spef/nom/asic_top.nom.spef (bc7f28c8d1692a34f4aa60a7f2294276)
+spef max: asic/rom/runs/final/final/spef/max/asic_top.max.spef (f2609690e1d6c5809dcd32d0b91381ab)
 sdc: asic/rom/runs/final/final/sdc/asic_top.sdc (84709c30e945cd68da18d4c713df65a2)
 liberty: /home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/lib/gf180mcu_fd_sc_mcu7t5v0__{tt_025C_5v00,ss_125C_4v50,ff_n40C_5v50}.lib
 estimulos: asic/sim/estimulos_final.txt

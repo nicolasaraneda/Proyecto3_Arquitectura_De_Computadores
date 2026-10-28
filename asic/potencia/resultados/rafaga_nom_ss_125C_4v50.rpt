@@ -8,14 +8,14 @@ potencia.tcl: esquina nom_ss_125C_4v50, modo vcd
 clock clk: periodo 100.000000, propagado 1
 
 MODO vcd: read_vcd -scope potencia_tb/dut build/potencia/rafaga.vcd
-Annotated 20679 pin activities.
+Annotated 23591 pin activities.
 
 === report_activity_annotation ===
-vcd         20679
+vcd         23591
 unannotated     0
 
 === report_activity_annotation -report_unannotated ===
-vcd         20679
+vcd         23591
 unannotated     0
 Unannotated pins:
 
@@ -23,39 +23,39 @@ Unannotated pins:
 Group                    Internal    Switching      Leakage        Total
                             Power        Power        Power        Power (Watts)
 ------------------------------------------------------------------------
-Sequential           4.378477e-03 1.145729e-04 1.157036e-06 4.494207e-03  45.6%
-Combinational        9.216954e-04 1.457959e-03 3.113840e-06 2.382768e-03  24.2%
-Clock                1.383298e-03 1.584290e-03 8.000591e-06 2.975589e-03  30.2%
+Sequential           4.255763e-03 1.223676e-04 1.127180e-06 4.379258e-03  34.1%
+Combinational        2.041108e-03 2.752402e-03 3.885012e-06 4.797395e-03  37.4%
+Clock                1.970835e-03 1.677268e-03 8.114489e-06 3.656217e-03  28.5%
 Macro                0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00   0.0%
 Pad                  0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00   0.0%
 ------------------------------------------------------------------------
-Total                6.683474e-03 3.156825e-03 1.227138e-05 9.852571e-03 100.0%
-                            67.8%        32.0%         0.1%
+Total                8.267718e-03 4.552042e-03 1.312671e-05 1.283289e-02 100.0%
+                            64.4%        35.5%         0.1%
 
 === report_power -highest_power_instances 20 ===
      Internal    Switching      Leakage        Total
         Power        Power        Power        Power (Watts)
 ----------------------------------------------------
- 2.562710e-05 6.819773e-05 1.642207e-09 9.382647e-05 clkbuf_0_clk
- 2.703160e-05 4.875958e-05 1.642207e-09 7.579282e-05 clkbuf_3_4__f_clk
- 2.724420e-05 3.778820e-05 1.642207e-09 6.503404e-05 clkbuf_3_2__f_clk
- 2.725243e-05 3.728758e-05 1.642207e-09 6.454166e-05 clkbuf_3_3__f_clk
- 2.727556e-05 3.599206e-05 1.642207e-09 6.326926e-05 clkbuf_3_1__f_clk
- 2.728479e-05 3.556734e-05 1.642207e-09 6.285378e-05 clkbuf_3_6__f_clk
- 2.728572e-05 3.551935e-05 1.642207e-09 6.280672e-05 clkbuf_3_5__f_clk
- 2.728861e-05 3.535142e-05 1.642207e-09 6.264167e-05 clkbuf_3_0__f_clk
- 2.736171e-05 3.158113e-05 1.642207e-09 5.894449e-05 clkbuf_3_7__f_clk
- 1.270402e-05 2.142298e-05 1.089495e-09 3.412808e-05 clkbuf_leaf_56_clk
- 1.254946e-05 2.064562e-05 1.089495e-09 3.319616e-05 clkbuf_leaf_25_clk
- 1.271898e-05 2.040677e-05 1.089495e-09 3.312683e-05 clkbuf_leaf_46_clk
- 1.253290e-05 2.048738e-05 1.089495e-09 3.302136e-05 clkbuf_leaf_60_clk
- 1.253359e-05 2.043693e-05 1.089495e-09 3.297161e-05 clkbuf_leaf_8_clk
- 1.253009e-05 2.027134e-05 1.089495e-09 3.280251e-05 clkbuf_leaf_28_clk
- 1.247093e-05 2.028400e-05 1.089495e-09 3.275602e-05 clkbuf_leaf_36_clk
- 1.272597e-05 1.993907e-05 1.089495e-09 3.266613e-05 clkbuf_leaf_57_clk
- 1.253242e-05 1.998536e-05 1.089495e-09 3.251887e-05 clkbuf_leaf_44_clk
- 1.253382e-05 1.986872e-05 1.089495e-09 3.240363e-05 clkbuf_leaf_48_clk
- 1.254172e-05 1.979923e-05 1.089495e-09 3.234204e-05 clkbuf_leaf_61_clk
+ 2.556419e-05 8.160780e-05 1.642207e-09 1.071736e-04 clkbuf_0_clk
+ 1.323956e-05 2.834571e-05 1.089495e-09 4.158636e-05 clkbuf_4_8_0_clk
+ 1.325298e-05 2.780068e-05 1.089495e-09 4.105475e-05 clkbuf_4_3_0_clk
+ 1.327431e-05 2.688145e-05 1.089495e-09 4.015685e-05 clkbuf_4_1_0_clk
+ 1.327983e-05 2.680114e-05 1.089495e-09 4.008206e-05 clkbuf_4_4_0_clk
+ 1.328018e-05 2.674596e-05 1.089495e-09 4.002723e-05 clkbuf_4_14_0_clk
+ 1.328247e-05 2.663154e-05 1.089495e-09 3.991510e-05 clkbuf_4_6_0_clk
+ 1.328914e-05 2.629528e-05 1.089495e-09 3.958551e-05 clkbuf_4_7_0_clk
+ 1.329945e-05 2.581193e-05 1.089495e-09 3.911247e-05 clkbuf_4_13_0_clk
+ 1.330989e-05 2.528935e-05 1.089495e-09 3.860032e-05 clkbuf_4_12_0_clk
+ 1.330907e-05 2.512306e-05 1.089495e-09 3.843322e-05 clkbuf_4_9_0_clk
+ 1.332291e-05 2.479866e-05 1.089495e-09 3.812265e-05 clkbuf_4_5_0_clk
+ 1.332611e-05 2.448047e-05 1.089495e-09 3.780766e-05 clkbuf_4_0_0_clk
+ 1.332616e-05 2.433459e-05 1.089495e-09 3.766184e-05 clkbuf_4_10_0_clk
+ 1.332946e-05 2.428977e-05 1.089495e-09 3.762032e-05 clkbuf_4_2_0_clk
+ 1.332966e-05 2.417099e-05 1.089495e-09 3.750173e-05 clkbuf_4_11_0_clk
+ 1.335617e-05 2.323854e-05 1.089495e-09 3.659580e-05 clkbuf_4_15_0_clk
+ 1.284904e-05 1.403897e-05 1.089495e-09 2.688910e-05 clkbuf_leaf_61_clk
+ 1.285632e-05 1.355406e-05 1.089495e-09 2.641147e-05 clkbuf_leaf_66_clk
+ 1.295569e-05 1.331920e-05 1.089495e-09 2.627598e-05 clkbuf_leaf_45_clk
 
 === sonda: actividad de pines (densidad 1/s, duty, origen) ===
 sonda puerto clk: 2.00000e+07 0.500 clock
@@ -63,24 +63,24 @@ sonda puerto btn[0]: 0.00000e+00 0.000 vcd
 sonda puerto rst_n: 0.00000e+00 1.000 vcd
 sonda pin clkbuf_0_clk/Z: 2.00000e+07 0.500 clock
 sonda pin u_soc.u_periph.u_cycles/_164_/Q: 1.00000e+07 0.500 vcd
-sonda pin u_soc.u_periph.u_cycles/_166_/Q: 2.50000e+06 0.503 vcd
-sonda pin _4418_/Q: 4.50000e+06 0.447 vcd
-sonda pin _4186_/Q: 0.00000e+00 1.000 vcd
-sonda pin u_soc.u_core.u_rf/_3050_/Q: 8.82353e+04 0.918 vcd
-sonda pin _4551_/Q: 1.00000e+07 0.500 vcd
-sonda pin _2617_/ZN: 1.88235e+06 0.194 vcd
+sonda pin u_soc.u_periph.u_cycles/_166_/Q: 2.50000e+06 0.500 vcd
+sonda pin _4418_/Q: 2.94118e+04 0.462 vcd
+sonda pin _4186_/Q: 0.00000e+00 0.000 vcd
+sonda pin u_soc.u_core.u_rf/_3050_/Q: no existe
+sonda pin _4551_/Q: no existe
+sonda pin _2617_/ZN: 1.76471e+05 0.788 vcd
 
 === sonda: report_power -instances ===
+Warning: potencia.tcl line 1, instance '_4551_' not found.
      Internal    Switching      Leakage        Total
         Power        Power        Power        Power (Watts)
 ----------------------------------------------------
- 2.562710e-05 6.819773e-05 1.642207e-09 9.382647e-05 clkbuf_0_clk
- 8.463330e-06 3.341867e-06 1.284356e-09 1.180648e-05 u_soc.u_periph.u_cycles/_164_
- 8.442281e-06 2.770443e-06 1.284356e-09 1.121401e-05 _4551_
- 6.355761e-06 9.313690e-07 1.280875e-09 7.288411e-06 _4418_
- 5.518801e-06 7.906476e-07 1.284356e-09 6.310733e-06 u_soc.u_periph.u_cycles/_166_
- 4.318290e-06 9.786061e-09 1.170213e-09 4.329247e-06 u_soc.u_core.u_rf/_3050_
- 4.283411e-06 0.000000e+00 1.172475e-09 4.284584e-06 _4186_
- 1.013944e-07 6.073605e-07 5.290020e-10 7.092839e-07 _2617_
+ 2.556419e-05 8.160780e-05 1.642207e-09 1.071736e-04 clkbuf_0_clk
+ 8.423382e-06 3.092654e-06 1.284356e-09 1.151732e-05 u_soc.u_periph.u_cycles/_164_
+ 5.457350e-06 6.843503e-07 1.284173e-09 6.142984e-06 u_soc.u_periph.u_cycles/_166_
+ 4.469793e-06 4.810580e-09 1.282157e-09 4.475885e-06 _4418_
+ 4.218703e-06 0.000000e+00 1.143990e-09 4.219847e-06 _4186_
+ 1.917428e-06 1.986429e-07 7.754154e-10 2.116847e-06 u_soc.u_core.u_rf/_3050_
+ 1.349176e-08 3.677184e-08 6.287401e-10 5.089234e-08 _2617_
 
-=== design_power (W): interna 0.0066834744065999985 conmutacion 0.0031568254344165325 fuga 1.227138091053348e-5 total 0.009852571412920952 ===
+=== design_power (W): interna 0.008267718367278576 conmutacion 0.00455204164609313 fuga 1.3126711564837024e-5 total 0.012832886539399624 ===

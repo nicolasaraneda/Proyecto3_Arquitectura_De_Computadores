@@ -6,9 +6,9 @@ btn[0]                                                      1     0.000050   5.0
 rst_n                                                       0     0.000000   0.000000e+00 1.000000
 \u_soc.u_periph.cycles_q[0]                             20000     1.000000   1.000000e+07 0.500000
 \u_soc.u_periph.cycles_q[2]                              5000     0.250000   2.500000e+06 0.500000
-\u_soc.u_core.pc_id[2]                                   6666     0.333300   3.333000e+06 0.666700
-\u_soc.u_core.pc_id[3]                                   6666     0.333300   3.333000e+06 0.499950
-\u_soc.g_mem_rom.u_mem.a_rdata_o[0]                         0     0.000000   0.000000e+00 1.000000
+\u_soc.u_core.pc_id[2]                                  10000     0.500000   5.000000e+06 0.750000
+\u_soc.u_core.pc_id[3]                                  10000     0.500000   5.000000e+06 0.500000
+\u_soc.g_mem_rom.u_mem.a_rdata_o[0]              no esta en el VCD
 \u_soc.u_core.u_rf/regs[9][0]                               0     0.000000   0.000000e+00 0.000000
 \u_soc.u_periph.u_debounce.u_tick.cnt[0]                20000     1.000000   1.000000e+07 0.500000
 \u_soc.u_core.u_id.operand_a[0]                             0     0.000000   0.000000e+00 0.000000
