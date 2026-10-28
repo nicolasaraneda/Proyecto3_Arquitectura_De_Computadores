@@ -1,0 +1,9 @@
+    30366 cells
+     6877   $_AND_
+      186   $_DFF_PP0_
+      804   $_DFF_P_
+    11821   $_NOT_
+     4602   $_OR_
+      186   $_XOR_
+     5890   $scopeinfo
+

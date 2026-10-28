@@ -1,0 +1,27 @@
+# Frente D2: guion de eqy para el paso Yosys.EQY de LibreLane (variable EQY_SCRIPT de
+# asic/eqy/config.yaml). El guion genérico del paso falla al leer el RTL (sin -I para
+# game_image.vh) y, aunque se corrigiera, el lado gate usaría los modelos Verilog del PDK con
+# primitivas UDP que Yosys no lee. Este guion lee en cambio los RTLIL canónicos que deja
+# `bash asic/eqy/correr.sh preparar` en el anfitrión (variante sint_v1ff: RTL aplanado sin
+# optimizar contra el netlist de síntesis, celdas desde el liberty típico, solo puertos y
+# salidas de flip-flop con nombre común). El paso corre eqy 0.62 y yosys 0.62 de la imagen de
+# LibreLane 3.0.16; la imagen no trae yices, z3, boolector ni bitwuzla, así que solo hay
+# estrategias sat (yosys sat, inducción temporal de 5 pasos) y pdr (sby con abc pdr).
+# Rutas absolutas porque eqy corre dentro del contenedor con $HOME montado en la misma ruta.
+# Resultado de la corrida d2_eqy_script (27-10-2026): read_gold, read_gate, combine y partition
+# terminan bien y dan las mismas 22 particiones que en el anfitrión, pero la fase run falla con
+# "make: command not found" (la imagen no trae make). Ver docs/equivalencia.md, sección 3.2.
+
+[gold]
+read_rtlil /home/nicolasaraneda/proyectos/Proyecto3_Arquitectura_De_Computadores/build/eqy/sint_v1ff/gold.il
+
+[gate]
+read_rtlil /home/nicolasaraneda/proyectos/Proyecto3_Arquitectura_De_Computadores/build/eqy/sint_v1ff/gate.il
+
+[strategy sat]
+use sat
+depth 5
+
+[strategy pdr]
+use sby
+engine abc pdr

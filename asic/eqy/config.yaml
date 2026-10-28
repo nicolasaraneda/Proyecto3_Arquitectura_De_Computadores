@@ -1,0 +1,42 @@
+# Frente D2: copia de asic/rom/config.yaml (estrategia 1, configuración final D15, D20 y D21)
+# con el paso Yosys.EQY habilitado. Solo se usa para probar el paso de equivalencia del flujo:
+#   bash asic/encolar.sh . asic/eqy/config.yaml d2_eqy 100 --from Yosys.EQY --to Yosys.EQY \
+#        --with-initial-state <ruta>/asic/rom/runs/final/06-yosys-synthesis/state_out.json
+# (En el flujo clásico Yosys.EQY va después de Netgen.LVS, así que --to Yosys.EQY solo
+# corre todo el PnR y compara contra el netlist post-PnR; ver docs/equivalencia.md.)
+# Corridas d2_eqy y d2_eqy_pnr: guion genérico del paso (sin EQY_SCRIPT), fallan en read_gold.
+# Corrida d2_eqy_script: con EQY_SCRIPT = asic/eqy/flujo.eqy (RTLIL canónicos de
+# build/eqy/sint_v1ff generados antes en el anfitrión con bash asic/eqy/correr.sh preparar).
+# Esa corrida lee los dos lados y particiona bien (22 particiones), pero muere al correr las
+# estrategias: eqy las lanza con "make -f strategies.mk" y la imagen de LibreLane 3.0.16 no
+# trae make (docs/equivalencia.md, sección 3.2). El paso del flujo, por lo tanto, no sirve
+# para este PDK: la equivalencia se prueba en el anfitrión con bash asic/eqy/correr.sh.
+DESIGN_NAME: asic_top
+PDK: gf180mcuD
+VERILOG_FILES:
+  - dir::../../rtl/*.v
+  - dir::../../rtl/espino_core/*.v
+  - dir::../../rtl/gen/*.v
+VERILOG_INCLUDE_DIRS:
+  - dir::../../rtl/gen
+SYNTH_PARAMETERS:
+  - MemStrategy=1
+  - DataWords=4
+SYNTH_KEEP_HIERARCHY_MODULES:
+  - espino_register_file
+  - espino_alu
+  - pochoco_cycle_counter
+EXTRA_EXCLUDED_CELLS:
+  - gf180mcu_fd_sc_mcu7t5v0__dly*
+  - gf180mcu_fd_sc_mcu7t5v0__buf_1
+PL_RESIZER_SETUP_SLACK_MARGIN: 10
+IO_PIN_ORDER_CFG: dir::../rom/pines.cfg
+CLOCK_PORT: clk
+CLOCK_PERIOD: 100
+FP_CORE_UTIL: 40
+# Paso de equivalencia (experimental en LibreLane 3.0.16): sin EQY_FORCE_ACCEPT_PDK el paso
+# se salta porque solo soporta sky130A.
+RUN_EQY: true
+EQY_FORCE_ACCEPT_PDK: true
+# Guion propio (ver arriba); comentar esta línea para repetir el intento con el guion genérico.
+EQY_SCRIPT: dir::flujo.eqy

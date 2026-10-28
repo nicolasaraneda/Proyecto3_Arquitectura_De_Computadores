@@ -1,0 +1,32 @@
+     4960 cells
+     1002   $_AND_
+       63   $_DFFE_PN0N_
+       64   $_DFFE_PN0P_
+       88   $_DFFE_PN_
+      608   $_DFFE_PP_
+       59   $_DFF_PN0_
+       50   $_DFF_P_
+     1964   $_MUX_
+      123   $_NOT_
+      562   $_OR_
+        2   $_SDFFCE_PN1N_
+       64   $_SDFF_PP0_
+      292   $_XOR_
+       19   $scopeinfo
+
+     4960 cells
+     1002   $_AND_
+       63   $_DFFE_PN0N_
+       64   $_DFFE_PN0P_
+       88   $_DFFE_PN_
+      608   $_DFFE_PP_
+       59   $_DFF_PN0_
+       50   $_DFF_P_
+     1964   $_MUX_
+      123   $_NOT_
+      562   $_OR_
+        2   $_SDFFCE_PN1N_
+       64   $_SDFF_PP0_
+      292   $_XOR_
+       19   $scopeinfo
+

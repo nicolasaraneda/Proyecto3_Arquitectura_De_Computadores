@@ -1,0 +1,10 @@
+gold: 60 celdas de flip-flop, 1004 bits Q, 1486 redes con nombre público, 3472 nombres públicos, 28 puertos, 0 wires de más de un bit
+gate: 990 celdas de flip-flop, 990 bits Q, 5111 redes con nombre público, 23429 nombres públicos, 28 puertos, 0 wires de más de un bit
+redes del gold con más de un nombre: 690; del gate: 5108
+nombres comunes antes de canonizar: 1402 (1093 son salida de flip-flop en los dos lados)
+redes con nombre canónico común después: 1010
+nombres ocultados: 1638 en gold, 8777 en gate
+redes del gold que el gate tiene separadas (se dejó un nombre): 0
+bits Q de flip-flop con nombre común: gold 987 de 1004, gate 987 de 990
+bits Q sin par: gold 17 (ff_gold_sin_par.txt), gate 3 (ff_gate_sin_par.txt)
+--solo-ff: 132 nombres comunes que no son puerto ni flip-flop ocultados en los dos lados; quedan 1010 nombres comunes (puertos y salidas de flip-flop)

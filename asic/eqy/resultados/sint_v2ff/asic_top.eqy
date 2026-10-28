@@ -1,0 +1,36 @@
+# Frente D2: plantilla de configuración de eqy. asic/eqy/correr.sh reemplaza /home/nicolasaraneda/proyectos/Proyecto3_Arquitectura_De_Computadores/build/eqy/sint_v2ff/gold.il y /home/nicolasaraneda/proyectos/Proyecto3_Arquitectura_De_Computadores/build/eqy/sint_v2ff/gate.il
+# por los RTLIL canónicos de cada variante (build/eqy/<variante>/gold.il y gate.il: diseños
+# aplanados, con splitnets -ports y un solo nombre público por red, común a los dos lados;
+# ver asic/eqy/canonizar.py) y deja la copia en build/eqy/<variante>/asic_top.eqy.
+#
+# Los dos lados ya vienen partidos por bit, así que splitnets queda apagado (eqy lo haría
+# de nuevo con "splitnets on", sin efecto).
+#
+# Estrategias, en el orden en que eqy las prueba sobre cada partición (se detiene en la
+# primera que prueba la equivalencia):
+#   sat: yosys "sat -tempinduct -set-init-undef -set-def-formal -set-def-inputs -maxsteps 5"
+#        sobre el miter de la partición (inducción temporal hasta 5 pasos; los flip-flops
+#        del gate parten con valor libre, los del gold sin init parten en x).
+#   pdr: sby con el motor "abc pdr" (prueba no acotada por IC3/PDR).
+#   smt: sby en modo prove con smtbmc y yices, profundidad 5 (BMC más inducción k=5).
+
+[options]
+
+[gold]
+read_rtlil /home/nicolasaraneda/proyectos/Proyecto3_Arquitectura_De_Computadores/build/eqy/sint_v2ff/gold.il
+
+[gate]
+read_rtlil /home/nicolasaraneda/proyectos/Proyecto3_Arquitectura_De_Computadores/build/eqy/sint_v2ff/gate.il
+
+[strategy sat]
+use sat
+depth 5
+
+[strategy pdr]
+use sby
+engine abc pdr
+
+[strategy smt]
+use sby
+engine smtbmc yices
+depth 5

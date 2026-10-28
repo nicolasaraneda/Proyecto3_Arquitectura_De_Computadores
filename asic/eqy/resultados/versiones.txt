@@ -1,0 +1,14 @@
+yosys: Yosys 0.68+195 (git sha1 435977e97-dirty, Release, Clang /usr/bin/clang++ 21.1.8)
+eqy: EQY v0.68-2-g4a72eb9 (/home/nicolasaraneda/herramientas/oss-cad-suite/bin/eqy)
+sby: SBY v0.68
+yices: Yices 2.7.0
+yosys-abc: UC Berkeley, ABC 1.01 (compiled Sep  5 2026 04:56:44)
+ruta de yices: /home/nicolasaraneda/herramientas/oss-cad-suite/bin/yices
+ruta de z3: /home/nicolasaraneda/herramientas/oss-cad-suite/bin/z3
+ruta de boolector: /home/nicolasaraneda/herramientas/oss-cad-suite/bin/boolector
+ruta de bitwuzla: /home/nicolasaraneda/herramientas/oss-cad-suite/bin/bitwuzla
+ruta de yosys-smtbmc: /home/nicolasaraneda/herramientas/oss-cad-suite/bin/yosys-smtbmc
+ruta de make: /usr/bin/make
+liberty: /home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/lib/gf180mcu_fd_sc_mcu7t5v0__tt_025C_5v00.lib
+netlist de síntesis: asic/rom/runs/final/06-yosys-synthesis/asic_top.nl.v
+netlist post-PnR: asic/rom/runs/final/final/nl/asic_top.nl.v

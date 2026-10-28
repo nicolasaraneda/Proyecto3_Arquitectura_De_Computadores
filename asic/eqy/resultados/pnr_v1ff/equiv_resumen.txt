@@ -1,0 +1,36 @@
+script: build/eqy/pnr_v1ff/equiv.ys
+read_rtlil build/eqy/pnr_v1ff/gold.il
+rename asic_top gold
+read_rtlil build/eqy/pnr_v1ff/gate.il
+rename asic_top gate
+delete t:$scopeinfo
+async2sync
+equiv_make gold gate equiv
+hierarchy -top equiv
+stat
+equiv_status
+equiv_simple -seq 2
+equiv_status
+equiv_induct -seq 4
+equiv_status
+
+tiempo_real_496.25_s;usuario_495.27_s;sistema_1.17_s;memoria_maxima_688160_KB
+
+equiv_status (en orden: tras equiv_make, tras equiv_simple, tras equiv_induct):
+2263:7. Executing EQUIV_STATUS pass.
+2264:Found 994 $equiv cells in equiv:
+2265:  Of those cells 0 are proven and 994 are unproven.
+3262:8. Executing EQUIV_SIMPLE pass.
+3263:Found 994 unproven $equiv cells (994 groups) in equiv:
+7237:Proved 3 previously unproven $equiv cells.
+7239:9. Executing EQUIV_STATUS pass.
+7240:Found 994 $equiv cells in equiv:
+7241:  Of those cells 3 are proven and 991 are unproven.
+8235:10. Executing EQUIV_INDUCT pass.
+8236:Found 991 unproven $equiv cells in module equiv:
+8249:Proved 991 previously unproven $equiv cells.
+8251:11. Executing EQUIV_STATUS pass.
+8252:Found 994 $equiv cells in equiv:
+8253:  Of those cells 994 are proven and 0 are unproven.
+
+no probados al final:

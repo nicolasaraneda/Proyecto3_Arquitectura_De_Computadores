@@ -1,0 +1,21 @@
+     2614 cells
+        7   $add
+       23   $adff
+     1055   $and
+       37   $dff
+      108   $eq
+        3   $logic_and
+       13   $logic_not
+        2   $lt
+     1289   $mux
+       15   $not
+        8   $or
+       22   $pmux
+        5   $reduce_and
+        1   $reduce_bool
+        4   $reduce_or
+       19   $scopeinfo
+        1   $shl
+        1   $sub
+        1   $xor
+

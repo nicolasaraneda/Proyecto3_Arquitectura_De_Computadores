@@ -1,0 +1,33 @@
+[options]
+mode bmc
+depth 100
+
+[engines]
+smtbmc yices
+
+[script]
+read_rtlil /home/nicolasaraneda/proyectos/Proyecto3_Arquitectura_De_Computadores/build/eqy/sint_v1/gold.il
+rename asic_top gold_top
+read_rtlil /home/nicolasaraneda/proyectos/Proyecto3_Arquitectura_De_Computadores/build/eqy/sint_v1/gate.il
+rename asic_top gate_top
+delete t:$scopeinfo
+read_verilog -formal miter_reset.sv
+prep -top miter_reset
+
+[files]
+miter_reset.sv
+
+tiempo_real_1394.40_s;usuario_1379.52_s;sistema_35.98_s;memoria_maxima_932200_KB
+
+SBY  7:24:41 [miter_reset] engine_0: ##   0:19:39  Checking assertions in step 95..
+SBY  7:25:25 [miter_reset] engine_0: ##   0:20:24  Checking assertions in step 96..
+SBY  7:25:58 [miter_reset] engine_0: ##   0:20:57  Checking assertions in step 97..
+SBY  7:26:27 [miter_reset] engine_0: ##   0:21:25  Checking assertions in step 98..
+SBY  7:27:14 [miter_reset] engine_0: ##   0:22:12  Checking assertions in step 99..
+SBY  7:28:12 [miter_reset] engine_0: ##   0:23:11  Status: passed
+SBY  7:28:13 [miter_reset] engine_0: Status returned by engine: pass
+SBY  7:28:13 [miter_reset] summary: Elapsed clock time [H:MM:SS (secs)]: 0:23:14 (1394)
+SBY  7:28:13 [miter_reset] summary: Elapsed process time [H:MM:SS (secs)]: 0:23:35 (1415)
+SBY  7:28:13 [miter_reset] summary: engine_0 (smtbmc yices) returned pass
+SBY  7:28:13 [miter_reset] summary: engine_0 did not produce any traces
+SBY  7:28:13 [miter_reset] DONE (PASS, rc=0)

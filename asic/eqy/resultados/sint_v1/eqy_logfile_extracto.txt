@@ -1,0 +1,80 @@
+EQY 20:55:19 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_core.u_rf.regs.2.0' using strategy 'sat'
+EQY 20:55:19 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_core.u_rf.regs.3.0' using strategy 'sat'
+EQY 20:55:19 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_core.u_rf.regs.4.0' using strategy 'sat'
+EQY 20:55:19 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_core.u_rf.regs.6.0' using strategy 'sat'
+EQY 20:55:19 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_core.u_rf.regs.7.0' using strategy 'sat'
+EQY 20:55:19 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_core.u_rf.regs.5.0' using strategy 'sat'
+EQY 20:55:19 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_core.u_rf.regs.8.0' using strategy 'sat'
+EQY 20:55:20 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.btn_meta.0' using strategy 'sat'
+EQY 20:55:20 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.0.u_db.clean_o' using strategy 'sat'
+EQY 20:55:20 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.0.u_db.raw_i' using strategy 'sat'
+EQY 20:55:20 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_core.u_rf.regs.9.0' using strategy 'sat'
+EQY 20:55:20 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.1.u_db.clean_o' using strategy 'sat'
+EQY 20:55:20 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.1.u_db.sr.0' using strategy 'sat'
+EQY 20:55:20 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.0.u_db.sr.0' using strategy 'sat'
+EQY 20:55:20 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.2.u_db.clean_o' using strategy 'sat'
+EQY 20:55:20 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.cycles_q.0' using strategy 'sat'
+EQY 20:55:20 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.3.u_db.clean_o' using strategy 'sat'
+EQY 20:55:20 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.2.u_db.sr.0' using strategy 'sat'
+EQY 20:55:20 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.g_btn.3.u_db.sr.0' using strategy 'sat'
+EQY 20:55:20 [build/eqy/sint_v1/eqy] run: Proved equivalence of partition 'asic_top.u_soc.u_periph.u_debounce.u_tick.cnt.0' using strategy 'sat'
+EQY 20:55:20 [build/eqy/sint_v1/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.u_core.pc_id.0' using strategy 'pdr': partitions not equivalent
+EQY 20:55:20 [build/eqy/sint_v1/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.per_rdata.0' using strategy 'pdr': partitions not equivalent
+EQY 20:55:36 [build/eqy/sint_v1/eqy] run: Could not prove equivalence of partition 'asic_top.led.0' using strategy 'sat': equivalence unknown
+EQY 20:55:41 [build/eqy/sint_v1/eqy] run: Could not prove equivalence of partition 'asic_top.led.0' using strategy 'pdr': partitions not equivalent
+EQY 20:55:41 [build/eqy/sint_v1/eqy] run: make -f strategies.mk summary
+EQY 20:55:41 [build/eqy/sint_v1/eqy] run: make[1]: Entering directory '/home/nicolasaraneda/proyectos/Proyecto3_Arquitectura_De_Computadores/build/eqy/sint_v1/eqy'
+EQY 20:55:41 [build/eqy/sint_v1/eqy] run: make[1]: Leaving directory '/home/nicolasaraneda/proyectos/Proyecto3_Arquitectura_De_Computadores/build/eqy/sint_v1/eqy'
+EQY 20:55:41 [build/eqy/sint_v1/eqy] run: make: Leaving directory '/home/nicolasaraneda/proyectos/Proyecto3_Arquitectura_De_Computadores/build/eqy/sint_v1/eqy'
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.u_tick.cnt.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.3.u_db.sr.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.0.u_db.raw_i
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.2.u_db.sr.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.1.u_db.sr.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.3.u_db.clean_o
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.1.u_db.clean_o
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.0.u_db.sr.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.2.u_db.clean_o
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.u_debounce.g_btn.0.u_db.clean_o
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.btn_meta.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_periph.cycles_q.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_rf.regs.9.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_rf.regs.8.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_rf.regs.7.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_rf.regs.6.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_rf.regs.5.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_rf.regs.4.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_rf.regs.3.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_rf.regs.2.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_rf.regs.1.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_rf.regs.15.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_rf.regs.14.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_rf.regs.13.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_rf.regs.12.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_rf.regs.11.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_rf.regs.10.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_id.operand_b.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.rf_rdata_a.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.lsu_wdata.8
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.lsu_addr.16
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.instr_valid_id
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_id.alu_cmp_result
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.rd_is_spi
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.rd_is_per
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.rf_ready
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.lsu_busy
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.u_soc.u_core.u_lsu.busy_q
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.spi_miso
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.seg2.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.seg1.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Successfully proved equivalence of partition asic_top.rst_sync_q.1
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Warning: Failed to prove equivalence for 5/48 partitions:
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Failed to prove equivalence of partition asic_top.u_soc.u_core.pc_id.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Failed to prove equivalence of partition asic_top.u_soc.per_rdata.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Failed to prove equivalence of partition asic_top.u_soc.u_core.stall
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Failed to prove equivalence of partition asic_top.u_soc.u_core.rf_we
+EQY 20:55:41 [build/eqy/sint_v1/eqy] Failed to prove equivalence of partition asic_top.led.0
+EQY 20:55:41 [build/eqy/sint_v1/eqy] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:25 (25)
+EQY 20:55:41 [build/eqy/sint_v1/eqy] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:35 (35)
+EQY 20:55:41 [build/eqy/sint_v1/eqy] DONE (FAIL, rc=2)
