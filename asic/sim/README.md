@@ -75,16 +75,66 @@ traza queda idéntica (`make post-synth-control ATRASO=5` da PASS y el objetivo 
   (`asic/sim/estimulos_final.txt`): pantalla de inicio tras el reset y, unos 280.000
   ciclos después (el debounce real), los cuatro LEDs y el 01 de la primera ronda;
   comparado con el RTL en `asic/sim/resultado_final.md`.
-- `make post-pnr-sdf`: lo mismo con el SDF de la esquina típica de la corrida final
-  (`$sdf_annotate`, modelos compilados con `-gspecify -ginterconnect` para que tengan
-  sus bloques `specify` y los retardos de interconexión del SDF). Resultado en
-  `asic/sim/resultado_sdf.md`: la simulación anotada completó una vez los 320.000
-  ciclos (4 min 19 s de CPU) con la misma traza que el RTL (PASS), pero los intentos
-  siguientes de correr el mismo binario abortaron al leer el SDF con una aserción
-  interna de vvp (`vpi_scan(vpiHandle): Assertion 0 failed`, Icarus 14.0-devel).
-  El objetivo borra la traza anterior antes de correr para que un aborto no dé un
-  PASS falso; si aborta, hay que relanzarlo. Sin `-ginterconnect` iverilog omite la
-  anotación (`Omitting $sdf_annotate()`), y sin `-gspecify` ni siquiera compila los
-  bloques `specify`.
 - Para rehacer los estímulos tras cambiar el programa: `make asic/sim/estimulos.txt`
   (o `python3 asic/sim/calibrar.py`).
+
+## Post-PnR con retardos (SDF): `make post-pnr-sdf` y `make post-pnr-cvc`
+
+El mismo testbench y escenario, con el netlist post-PnR y el SDF de una esquina de una
+corrida COMPLETA del flujo. La corrida es `d1_pnr` (`asic/sim/config_pnr.yaml`, generada
+por `generar_config.py --pnr`: la configuración final completa, incluido
+`IO_PIN_ORDER_CFG`, con la ROM de simulación y `DebounceDivBits=2`; se encola con
+`bash asic/encolar.sh . asic/sim/config_pnr.yaml d1_pnr 100`; cierre y tablas en
+`asic/sim/resultados/d1_pnr/` y `asic/sim/resultado_sdf.md`). Los dos objetivos tienen como
+prerrequisito la ROM de simulación `asic/sim/gen/pochoco_rom.v` (no versionada; la genera el
+assembler) y no corren LibreLane: el netlist y los SDF tienen que existir en `RUN`.
+
+- `make post-pnr-sdf ESQUINA=<esquina>` (`asic/sim/post_pnr_sdf.sh`): Icarus Verilog 13.0
+  de la imagen de LibreLane (`docker run ... ghcr.io/librelane/librelane:3.0.16 iverilog|vvp`,
+  variable `IMAGEN_DOCKER`), no el 14.0-devel del host. Simula el RTL de referencia con
+  el mismo Icarus, renombra las instancias de nombre jerárquico del netlist y del SDF
+  (`renombrar_instancias.py`: sin eso vvp aborta con `vpi_scan(vpiHandle): Assertion 0 failed`
+  en el primer INTERCONNECT a `\u_soc.u_core.u_rf/_N_ `, en 13.0 y en 14.0), compila el
+  netlist con los modelos del PDK con sus bloques `specify` (`-gspecify -ginterconnect`,
+  sin `-DFUNCTIONAL`) y el `$sdf_annotate` del testbench (`-DSDF`), corre vvp `REPETIR`
+  veces (3) con el mismo binario borrando la traza antes de cada una, guarda el tiempo y
+  el md5 de cada traza y compara cada una con la del RTL. Cuenta las entradas del SDF por
+  tipo y los mensajes de anotación de vvp, y dice explícitamente que Icarus NO evalúa los
+  timing checks (`warning: Timing checks are not supported.` al compilar, `TIMINGCHECK not
+  supported` al anotar): no reporta "0 violaciones". Parámetros: `ESQUINA`
+  (`nom_tt_025C_5v00`), `RUN` (`asic/sim/runs/d1_pnr`), `REPETIR` (3), `ESCENARIO`
+  (`sim`; `final` corre `asic/sim/estimulos_final.txt`, 320.000 ciclos, con
+  `RUN=asic/rom/runs/final`), `MUESTREO` (50) y `ESTIMULO` (50). Salidas en
+  `build/post_pnr/<tag>/<esquina>[_final]/` (netlist y SDF renombrados, `iverilog.log`,
+  `vvp_<n>.log`, `traza_<n>.txt`, `tiempo_<n>.txt`, `mensajes_sdf.txt`, `resumen.md`).
+- `make post-pnr-cvc ESQUINA=<esquina>` (`asic/sim/cvc_sdf.sh`): lo mismo con Open Verilog
+  CVC 7.00b (`build/cvc/open-src-cvc/build64/cvc64`, compilado en el host con `make cvc64`;
+  instrucciones en el script), que SÍ evalúa `$setup`, `$hold`, `$width`, `$recovery`,
+  `$removal` y `$period` con los valores del SDF y reporta cada violación
+  (`[566] timing violation`). Usa una copia del modelo sin el `ifnone` de los 120 arcos con
+  flanco (`modelo_cvc.py`; CVC los rechaza como error e Icarus los descarta como aviso), el
+  SDF sin los 19 INTERCONNECT hacia puertos de salida (error 1509 de CVC) y el modo
+  interpretado `+interp` (el enlace del ejecutable compilado falla con el ld actual). Como
+  CVC no compila el RTL (cae con Segmentation fault), la referencia es la traza del RTL de
+  `make post-pnr-sdf`. Cuenta las violaciones por tipo y por instancia. `ETIQUETA` es un
+  sufijo del directorio de salida (`build/post_pnr/cvc/<tag>/<esquina>[_final]<ETIQUETA>/`):
+  `make post-pnr-cvc ESTIMULO=1 ETIQUETA=_control_estimulo1` es el control positivo, que
+  tiene que reportar violaciones de removal y de setup en los sincronizadores de entrada.
+- `MUESTREO` y `ESTIMULO` (`tb/post_synth_tb.v`): ns después del flanco en que se muestrean
+  las salidas y se aplican las entradas (`rst_n` y botones). `make post-synth` usa 1 y 1;
+  con retardos anotados hay que usar 50 y 50 en el RTL de referencia y en el netlist,
+  porque el reloj llega a los flip-flops 0,8 a 2,7 ns después del flanco externo
+  (latencia del árbol de reloj) y una entrada aplicada a +1 ns la captura el netlist un
+  ciclo antes que el RTL (toda la traza sale corrida un ciclo). En el RTL el valor no
+  cambia la traza.
+- Resultado (`asic/sim/resultado_sdf.md`): en `nom_tt_025C_5v00`, `max_ss_125C_4v50` y
+  `min_ff_n40C_5v50`, con los dos simuladores, la traza del netlist con retardos es
+  idéntica a la del RTL (mismo md5 en las tres ejecuciones por esquina), sin X; Icarus
+  anota 35.910 de 38.086 IOPATH (los 2.176 que faltan son los arcos `ifnone` con flanco de
+  mux2, xor2 y xnor2) y 14.565 de 14.566 INTERCONNECT, e ignora los 977 bloques
+  TIMINGCHECK; CVC anota todo, evalúa los 7.358 checks y no reporta ninguna violación en
+  4.500 ciclos a 100 ns, y en el control positivo reporta 10 (removal/recovery de 33 ps en
+  `rst_sync_q` y setup de 88 a 107 ps en `btn_meta`), con lo que la traza queda en X. El netlist
+  real de la corrida final con su SDF de `nom_tt` (`make post-pnr-sdf RUN=asic/rom/runs/final
+  ESCENARIO=final REPETIR=1`) completó con Icarus los 320.000 ciclos del escenario de
+  `make post-synth-final` con la misma traza que el RTL (una ejecución de 24 min 45 s).

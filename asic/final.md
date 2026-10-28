@@ -1,92 +1,50 @@
 
-## Corrida final (tag final): T = 100 ns, FP_CORE_UTIL = 40 %
+## Candidata (rama exp/candidata) a 100 ns y 40 %, contra la corrida final de main
 
-Configuración: asic/rom/config.yaml (D15, D20, D21). Criterios de cierre: asic/rom/resultados/final/cierre.md. Las tablas de este archivo las genera asic/tablas.sh con asic/recolectar.py.
-
-Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
-
-| corrida | T (ns) | setup WS tt | setup TNS tt | setup WS ss | setup TNS ss | hold WS tt | hold TNS tt | hold WS ss | hold TNS ss | setup WS peor | setup TNS peor | hold WS peor | hold TNS peor | cierra timing | área stdcell (µm²) | utilización | área die (µm²) | antena (nets) | DRC | LVS | cierra todo | slew (peor) | cap (peor) | celdas dly |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| final | 100 | 74.694 | 0 | 65.223 | 0 | 0.450 | 0 | 1.081 | 0 | 65.223 | 0 | 0.178 | 0 | sí | 182265 | 0.480 | 408957 | 0 | 0 | 0 | sí | 546 | 36 | 0 |
-
-| corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
-|---|---|---|---|---|---|---|
-| final | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
-
-## Barrido de CLOCK_PERIOD con la configuración final (sección 3.4)
-
-Corridas f1_* (mismo RTL y configuración que la final, solo cambia CLOCK_PERIOD). Cierra a 100, 32, 30, 26 y 25 ns; 24 ns no cierra por 0,004 ns en max_ss_125C_4v50. f1_t28 se detuvo a los 40 minutos en OpenROAD.ResizerTimingPostCTS (regla de tiempo del grupo) y no se cuenta. f1_t26, f1_t25 y f1_t24 tienen exactamente el mismo layout (celdas, área y largo de cables): con el margen de 10 ns de D20 el resizer llega a su límite y de ahí para abajo solo cambia el slack.
+pa_b2_t100 es la corrida base de la candidata (asic/rom/config.yaml de la rama: la configuración final de main, D15, D20 y D21, más EarlyRead=1 en SYNTH_PARAMETERS); el RTL es el del frente A (lectura del banco y decode en el fetch) más B2 (offset de byte registrado en la LSU). m_final es la corrida final de main (enlace a asic/rom/runs/final del repo principal) y m_f1_t24p5 su período mínimo. Criterios de cierre: asic/rom/resultados/<tag>/cierre.md.
 
 Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
 
 | corrida | T (ns) | setup WS tt | setup TNS tt | setup WS ss | setup TNS ss | hold WS tt | hold TNS tt | hold WS ss | hold TNS ss | setup WS peor | setup TNS peor | hold WS peor | hold TNS peor | cierra timing | área stdcell (µm²) | utilización | área die (µm²) | antena (nets) | DRC | LVS | cierra todo | slew (peor) | cap (peor) | celdas dly |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| final | 100 | 74.694 | 0 | 65.223 | 0 | 0.450 | 0 | 1.081 | 0 | 65.223 | 0 | 0.178 | 0 | sí | 182265 | 0.480 | 408957 | 0 | 0 | 0 | sí | 546 | 36 | 0 |
-| f1_t32 | 32 | 17.409 | 0 | 4.395 | 0 | 0.450 | 0 | 1.081 | 0 | 4.395 | 0 | 0.178 | 0 | sí | 183725 | 0.484 | 408957 | 0 | 0 | 0 | sí | 490 | 38 | 0 |
-| f1_t30 | 30 | 16.758 | 0 | 5.103 | 0 | 0.450 | 0 | 1.081 | 0 | 5.103 | 0 | 0.178 | 0 | sí | 186320 | 0.491 | 408957 | 0 | 0 | 0 | sí | 521 | 36 | 0 |
-| f1_t26 | 26 | 13.160 | 0 | 1.996 | 0 | 0.450 | 0 | 1.081 | 0 | 1.996 | 0 | 0.178 | 0 | sí | 189817 | 0.500 | 408957 | 0 | 0 | 0 | sí | 532 | 36 | 0 |
-| f1_t25 | 25 | 12.160 | 0 | 0.996 | 0 | 0.450 | 0 | 1.081 | 0 | 0.996 | 0 | 0.178 | 0 | sí | 189817 | 0.500 | 408957 | 0 | 0 | 0 | sí | 532 | 36 | 0 |
-| f1_t24 | 24 | 11.160 | 0 | -0.004 | -0.004 | 0.450 | 0 | 1.081 | 0 | -0.004 | -0.004 | 0.178 | 0 | no | 189817 | 0.500 | 408957 | 0 | 0 | 0 | no | 532 | 36 | 0 |
+| pa_b2_t100 | 100 | 74.531 | 0 | 63.191 | 0 | 0.381 | 0 | 0.953 | 0 | 63.191 | 0 | 0.134 | 0 | sí | 186432 | 0.479 | 419131 | 0 | 0 | 0 | sí | 571 | 37 | 0 |
+| m_final | 100 | 74.694 | 0 | 65.223 | 0 | 0.450 | 0 | 1.081 | 0 | 65.223 | 0 | 0.178 | 0 | sí | 182265 | 0.480 | 408957 | 0 | 0 | 0 | sí | 546 | 36 | 0 |
 
 | corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
 |---|---|---|---|---|---|---|
-| final | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
-| f1_t32 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
-| f1_t30 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
-| f1_t26 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
-| f1_t25 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
-| f1_t24 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| pa_b2_t100 | 156098.477 | 63399.571 | 964 | 80348.710 | 10005.722 | 3942.579 |
+| m_final | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
 
-## RTL sin pre-decodificación (116fa20) con la configuración final (sección 3.4, efecto de D18)
+## Barrido de CLOCK_PERIOD de la candidata (configuración base)
 
-Corridas r0_* del RTL del commit 116fa20 (sin D18) en un worktree (build/ref116, enlazado en asic/rom/runs/r0_*) con la misma asic/rom/config.yaml y pines.cfg de la corrida final, a 100 ns y al período mínimo del diseño final (26 ns, el primer punto que cerró; el final cierra también a 25 ns). Comparar con final y f1_t26.
+Corridas pa_b2_* (mismo RTL y configuración, solo cambia CLOCK_PERIOD), medidas por el frente A en build/exp_pipeline_b2 y enlazadas acá. Cierra a 100, 26 y 25,5 ns; 25 ns no cierra (setup en max_ss_125C_4v50, WNS -0,409 ns). Período mínimo 25,5 ns (39,2 MHz) y la brecha con el primero que no cierra es 0,5 ns, lo que cumple la regla de la sesión. Las corridas de 26, 25,5 y 25 ns tienen el mismo layout (9.224 celdas, 194.212 µm², 373.251 µm de cables).
 
 Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
 
 | corrida | T (ns) | setup WS tt | setup TNS tt | setup WS ss | setup TNS ss | hold WS tt | hold TNS tt | hold WS ss | hold TNS ss | setup WS peor | setup TNS peor | hold WS peor | hold TNS peor | cierra timing | área stdcell (µm²) | utilización | área die (µm²) | antena (nets) | DRC | LVS | cierra todo | slew (peor) | cap (peor) | celdas dly |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| r0_t100 | 100 | 74.579 | 0 | 54.552 | 0 | 0.410 | 0 | 1.005 | 0 | 54.552 | 0 | 0.153 | 0 | sí | 174529 | 0.478 | 393525 | 0 | 0 | 0 | sí | 754 | 48 | 0 |
-| r0_t26 | 26 | 10.461 | 0 | -3.175 | -1223.744 | 0.413 | 0 | 1.012 | 0 | -3.175 | -1223.744 | 0.155 | 0 | no | 181326 | 0.497 | 393525 | 0 | 0 | 0 | no | 648 | 46 | 0 |
+| pa_b2_t100 | 100 | 74.531 | 0 | 63.191 | 0 | 0.381 | 0 | 0.953 | 0 | 63.191 | 0 | 0.134 | 0 | sí | 186432 | 0.479 | 419131 | 0 | 0 | 0 | sí | 571 | 37 | 0 |
+| pa_b2_t26 | 26 | 12.482 | 0 | 0.591 | 0 | 0.381 | 0 | 0.955 | 0 | 0.591 | 0 | 0.135 | 0 | sí | 194212 | 0.499 | 419131 | 0 | 0 | 0 | sí | 508 | 40 | 0 |
+| pa_b2_t25p5 | 25.500 | 11.982 | 0 | 0.091 | 0 | 0.381 | 0 | 0.955 | 0 | 0.091 | 0 | 0.135 | 0 | sí | 194212 | 0.499 | 419131 | 0 | 0 | 0 | sí | 508 | 40 | 0 |
+| pa_b2_t25 | 25 | 11.482 | 0 | -0.409 | -1.027 | 0.381 | 0 | 0.955 | 0 | -0.409 | -1.027 | 0.135 | 0 | no | 194212 | 0.499 | 419131 | 0 | 0 | 0 | no | 508 | 40 | 0 |
 
 | corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
 |---|---|---|---|---|---|---|
-| r0_t100 | 146215.686 | 60673.133 | 921 | 73655.546 | 10005.722 | 3942.579 |
-| r0_t26 | 146215.686 | 60673.133 | 921 | 73655.546 | 10005.722 | 3942.579 |
+| pa_b2_t100 | 156098.477 | 63399.571 | 964 | 80348.710 | 10005.722 | 3942.579 |
+| pa_b2_t26 | 156098.477 | 63399.571 | 964 | 80348.710 | 10005.722 | 3942.579 |
+| pa_b2_t25p5 | 156098.477 | 63399.571 | 964 | 80348.710 | 10005.722 | 3942.579 |
+| pa_b2_t25 | 156098.477 | 63399.571 | 964 | 80348.710 | 10005.722 | 3942.579 |
 
-## Barrido de FP_CORE_UTIL a 100 ns con la configuración final (sección 3.5)
+## Variantes de signoff de slew y capacitancia sobre la candidata a 100 ns
 
-Corridas final (40 %) y u1_u50 a u1_u90. u1_u80 falla en OpenROAD.CTS ([DPL-0036] Detailed placement failed, asic/logs/u1_u80.log; extracto versionado en asic/rom/resultados/u1_u80/falla.txt) y u1_u90 en el placement global ([GPL-0301] Utilization 100.531 % exceeds 100%, asic/logs/u1_u90.log; extracto en asic/rom/resultados/u1_u90/falla.txt): no tienen métricas finales. Gráfico: docs/figuras/utilizacion.png (asic/graficos.py --util).
+e1_g30_t100: asic/rom/config.yaml más DESIGN_REPAIR_MAX_SLEW_PCT=30 y DESIGN_REPAIR_MAX_CAP_PCT=30 (la variante que el frente C midió dentro del 1 % de área sobre el RTL B2+B5, docs/signoff0.md). e1_full_t100: asic/rom/config_rc.yaml de la rama (LAYERS_RC medidos por el frente C, con EarlyRead=1) más RUN_POST_GRT_DESIGN_REPAIR=true, GRT_DESIGN_REPAIR_MAX_SLEW_PCT=30, GRT_DESIGN_REPAIR_MAX_CAP_PCT=30 y CTS_DISTANCE_BETWEEN_BUFFERS=100. Comparar con pa_b2_t100 (571 pines de slew y 37 de capacitancia, 186.432 µm²).
 
 Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
 
 | corrida | T (ns) | setup WS tt | setup TNS tt | setup WS ss | setup TNS ss | hold WS tt | hold TNS tt | hold WS ss | hold TNS ss | setup WS peor | setup TNS peor | hold WS peor | hold TNS peor | cierra timing | área stdcell (µm²) | utilización | área die (µm²) | antena (nets) | DRC | LVS | cierra todo | slew (peor) | cap (peor) | celdas dly |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| final | 100 | 74.694 | 0 | 65.223 | 0 | 0.450 | 0 | 1.081 | 0 | 65.223 | 0 | 0.178 | 0 | sí | 182265 | 0.480 | 408957 | 0 | 0 | 0 | sí | 546 | 36 | 0 |
-| u1_u50 | 100 | 74.727 | 0 | 67.716 | 0 | 0.448 | 0 | 1.074 | 0 | 67.716 | 0 | 0.177 | 0 | sí | 179135 | 0.592 | 329861 | 0 | 0 | 0 | sí | 438 | 24 | 0 |
-| u1_u60 | 100 | 74.700 | 0 | 63.675 | 0 | 0.434 | 0 | 1.054 | 0 | 63.675 | 0 | 0.166 | 0 | sí | 177115 | 0.701 | 276917 | 0 | 0 | 0 | sí | 378 | 20 | 0 |
-| u1_u70 | 100 | 74.578 | 0 | 64.076 | 0 | 0.414 | 0 | 1.010 | 0 | 64.076 | 0 | 0.156 | 0 | sí | 176044 | 0.809 | 238967 | 0 | 0 | 0 | sí | 392 | 27 | 0 |
-| u1_u80 | incompleta |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| u1_u90 | incompleta |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| pa_b2_t100 | 100 | 74.531 | 0 | 63.191 | 0 | 0.381 | 0 | 0.953 | 0 | 63.191 | 0 | 0.134 | 0 | sí | 186432 | 0.479 | 419131 | 0 | 0 | 0 | sí | 571 | 37 | 0 |
 
 | corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
 |---|---|---|---|---|---|---|
-| final | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
-| u1_u50 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
-| u1_u60 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
-| u1_u70 | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
-
-## Terminales ubicados por el flujo (sin D21), sección 3.5
-
-Corrida u1_auto: asic/rom/config_pines_auto.yaml, idéntica a la final salvo que no define IO_PIN_ORDER_CFG y OpenROAD.IOPlacement ubica los terminales donde acorta los cables. Comparar con final (D21): largo de cables, DRC de ruteo por iteración (route__drc_errors__iter:N en metrics.json), slew y WNS.
-
-Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
-
-| corrida | T (ns) | setup WS tt | setup TNS tt | setup WS ss | setup TNS ss | hold WS tt | hold TNS tt | hold WS ss | hold TNS ss | setup WS peor | setup TNS peor | hold WS peor | hold TNS peor | cierra timing | área stdcell (µm²) | utilización | área die (µm²) | antena (nets) | DRC | LVS | cierra todo | slew (peor) | cap (peor) | celdas dly |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| final | 100 | 74.694 | 0 | 65.223 | 0 | 0.450 | 0 | 1.081 | 0 | 65.223 | 0 | 0.178 | 0 | sí | 182265 | 0.480 | 408957 | 0 | 0 | 0 | sí | 546 | 36 | 0 |
-| u1_auto | 100 | 74.680 | 0 | 65.213 | 0 | 0.417 | 0 | 1.019 | 0 | 65.213 | 0 | 0.157 | 0 | sí | 182204 | 0.480 | 408957 | 0 | 0 | 0 | sí | 569 | 31 | 0 |
-
-| corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
-|---|---|---|---|---|---|---|
-| final | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
-| u1_auto | 152169.069 | 65065.728 | 990 | 73655.546 | 10005.722 | 3942.579 |
+| pa_b2_t100 | 156098.477 | 63399.571 | 964 | 80348.710 | 10005.722 | 3942.579 |

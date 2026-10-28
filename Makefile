@@ -57,7 +57,7 @@ IMG_SIM    := $(BUILD)/game_sim/game_image.vh
 IMG_SIM_R4 := $(BUILD)/game_sim_r4/game_image.vh
 IMG_BTN    := $(BUILD)/buttons_leds/game_image.vh
 
-.PHONY: all image asm asm-all test sim sim1 sim2 check equiv clean post-synth post-synth-control sim-netlist post-synth-final post-pnr-sdf final layout animacion
+.PHONY: all image asm asm-all test sim sim1 sim2 check equiv clean post-synth post-synth-control sim-netlist post-synth-final post-pnr-sdf post-pnr-cvc final layout animacion
 
 # Default target: todo lo verificable sin LibreLane (el flujo de la FPGA se
 # eliminó en el Proyecto 3; ver docs/decisiones.md, D5)
@@ -212,6 +212,13 @@ $(ROM_SIM): $(ASMSRC) $(ASMDEP)
 asic/sim/config.yaml: asic/rom/config.yaml asic/sim/generar_config.py
 	$(PYTHON) asic/sim/generar_config.py --div-bits $(SIM_DIVBITS)
 
+# Configuración COMPLETA (con IO_PIN_ORDER_CFG) para la corrida post-PnR de la
+# simulación con SDF (d1_pnr, objetivo post-pnr-sdf). Se genera igual que
+# config.yaml; la corrida se encola con la cola de LibreLane:
+#   bash asic/encolar.sh build/exp_candidata asic/sim/config_pnr.yaml e1_pnr 100
+asic/sim/config_pnr.yaml: asic/rom/config.yaml asic/sim/generar_config.py
+	$(PYTHON) asic/sim/generar_config.py --div-bits $(SIM_DIVBITS) --pnr
+
 # Síntesis del netlist de simulación (necesita Docker; ~1 minuto).
 $(NETLIST_SIM): asic/sim/config.yaml $(ROM_SIM) $(SRC)
 	$(LIBRELANE) asic/sim/config.yaml --run-tag sim_rom --overwrite --to Yosys.Synthesis
@@ -304,21 +311,72 @@ check: test sim
 final:
 	bash asic/final.sh
 
-# Opcional (3.7): post-PnR con retardos (SDF de la esquina típica de la
-# corrida final) y el mismo testbench. Con -DSDF el testbench llama a
-# $sdf_annotate; los modelos de celdas se compilan con sus bloques specify.
-# El netlist de simulación (sim_rom) no sirve acá porque el SDF es de la
-# corrida final: se corre el mismo escenario que post-synth-final.
-SDF_FINAL ?= asic/rom/runs/final/final/sdf/nom_tt_025C_5v00/asic_top__nom_tt_025C_5v00.sdf
-post-pnr-sdf: $(NETLIST_FINAL)
-	@mkdir -p $(PS)
-	$(IVERILOG) -g2012 -gspecify -ginterconnect -DNETLIST -DSDF=\"$(SDF_FINAL)\" -DESTIMULOS=\"$(EST_FINAL)\" \
-	            -DTRAZA=\"$(PS)/traza_sdf_final.txt\" -DCICLOS=$(PSF_CICLOS) \
-	            -o $(PS)/tb_sdf_final tb/post_synth_tb.v $(NETLIST_FINAL) $(CELDAS_V) 2>&1 | tail -5
-	rm -f $(PS)/traza_sdf_final.txt
-	$(VVP) $(PS)/tb_sdf_final > $(PS)/sdf_vvp.log 2>&1 || { echo "vvp termino con error (ver $(PS)/sdf_vvp.log); Icarus 14.0-devel aborta a veces al anotar el SDF con -ginterconnect"; tail -3 $(PS)/sdf_vvp.log; exit 1; }
-	grep -v "^SDF\|timing check\|Timing violation" $(PS)/sdf_vvp.log | tail -3
-	$(PYTHON) asic/sim/comparar.py $(PS)/traza_rtl_final.txt $(PS)/traza_sdf_final.txt --md asic/sim/resultado_sdf.md
+# Post-PnR con retardos (3.7): el netlist post-PnR y el SDF de una esquina de
+# una corrida COMPLETA del flujo, con el mismo testbench y escenario de
+# post-synth, simulados con el Icarus Verilog 13.0 de la imagen de LibreLane
+# (asic/sim/post_pnr_sdf.sh). Por defecto es la corrida d1_pnr de
+# asic/sim/config_pnr.yaml (configuración final completa con la ROM de
+# simulación y DebounceDivBits=2; generar_config.py --pnr), esquina típica,
+# tres ejecuciones de vvp con el mismo binario (md5 de las tres trazas) y
+# comparación de cada una con la traza del RTL, simulado con el mismo Icarus.
+# Parámetros:
+#   make post-pnr-sdf ESQUINA=max_ss_125C_4v50        (o min_ff_n40C_5v50, ...)
+#   make post-pnr-sdf RUN=asic/sim/runs/<tag>          (otra corrida de config_pnr.yaml)
+#   make post-pnr-sdf REPETIR=1
+#   make post-pnr-sdf RUN=asic/rom/runs/final ESCENARIO=final   (opcional: el netlist
+#       real con asic/sim/estimulos_final.txt, 320.000 ciclos; tarda mucho más)
+#   MUESTREO=50 y ESTIMULO=50: ns después del flanco en que el testbench
+#       muestrea las salidas y aplica las entradas (rst_n y botones). Con
+#       retardos anotados el reloj llega a los flip-flops 0,8 a 2,7 ns después
+#       del flanco externo (latencia del árbol de reloj), así que las entradas
+#       aplicadas a +1 ns, como en post-synth, se capturan un ciclo antes que en
+#       el RTL; a mitad de ciclo las dos simulaciones ven lo mismo.
+# Las salidas quedan en build/post_pnr/<tag>/<esquina>/ (con sufijo _final en el
+# escenario final): netlist y SDF con las instancias renombradas
+# (asic/sim/renombrar_instancias.py), iverilog.log, vvp_<n>.log, traza_<n>.txt,
+# tiempo_<n>.txt, mensajes_sdf.txt y resumen.md; la traza se borra antes de cada
+# ejecución para que un aborto no dé un PASS falso. El resumen cuenta las
+# entradas del SDF por tipo, los mensajes de anotación de vvp y los avisos de
+# timing checks: Icarus NO evalúa $setup/$hold/$width (imprime "Timing checks
+# are not supported" al compilar y "TIMINGCHECK not supported" al anotar), así
+# que el objetivo lo dice y no reporta "0 violaciones".
+# IMAGEN_DOCKER es la imagen con iverilog y vvp (el script corre
+# `docker run --rm --user ... -v $HOME:$HOME -w $PWD <imagen> iverilog|vvp`).
+# El RTL de referencia del escenario sim usa la ROM de simulación
+# (asic/sim/gen/pochoco_rom.v, no versionada), por eso es prerrequisito; el
+# netlist y los SDF de la corrida ya existen (no se corre LibreLane aquí).
+# Resultado documentado en asic/sim/resultado_sdf.md.
+IMAGEN_DOCKER ?= ghcr.io/librelane/librelane:3.0.16
+ESQUINA   ?= nom_tt_025C_5v00
+REPETIR   ?= 3
+ESCENARIO ?= sim
+MUESTREO  ?= 50
+ESTIMULO  ?= 50
+post-pnr-sdf: RUN = asic/sim/runs/e1_pnr
+post-pnr-sdf: $(ROM_SIM)
+	@mkdir -p $(BUILD)/post_pnr
+	IMAGEN_DOCKER='$(IMAGEN_DOCKER)' PDK_ROOT='$(PDK_ROOT)' bash asic/sim/post_pnr_sdf.sh $(RUN) $(ESQUINA) $(REPETIR) $(ESCENARIO) $(MUESTREO) $(ESTIMULO)
+
+# Lo mismo con Open Verilog CVC (asic/sim/cvc_sdf.sh), que sí evalúa los timing
+# checks ($setup, $hold, $width, $recovery, $removal, $period) con los valores
+# del SDF y reporta cada violación. Necesita build/cvc/open-src-cvc/build64/cvc64
+# (instrucciones en el encabezado del script). Mismos parámetros ESQUINA, RUN,
+# ESCENARIO, MUESTREO, ESTIMULO y REPETIR (3 ejecuciones de cvc64 sobre la misma
+# entrada, con el md5 de cada traza, igual que post-pnr-sdf); ETIQUETA es un
+# sufijo del directorio de salida
+# (build/post_pnr/cvc/<tag>/<esquina>[_final]<ETIQUETA>/), para controles:
+#   make post-pnr-cvc ESQUINA=max_ss_125C_4v50
+#   make post-pnr-cvc ESTIMULO=1 ETIQUETA=_control_estimulo1   (control positivo:
+#       entradas a +1 ns, antes de que el reloj llegue a los flip-flops; tiene que
+#       reportar violaciones de setup o hold en los sincronizadores de entrada; la
+#       comparación con el RTL da FAIL a propósito, así que el objetivo falla)
+# Salidas por repetición en build/post_pnr/cvc/<tag>/<esquina>[_final]<ETIQUETA>/:
+# cvcsim_<n>.log, sdf_cvc_<n>.log, tiempo_<n>.txt, traza_<n>.txt, comparacion_<n>.txt,
+# más violaciones_por_tipo.txt, violaciones_por_instancia.txt, mensajes_sdf.txt y resumen.md.
+ETIQUETA ?=
+post-pnr-cvc: RUN = asic/sim/runs/e1_pnr
+post-pnr-cvc: $(ROM_SIM)
+	PDK_ROOT='$(PDK_ROOT)' bash asic/sim/cvc_sdf.sh $(RUN) $(ESQUINA) $(ESCENARIO) $(MUESTREO) $(ESTIMULO) '$(ETIQUETA)' $(REPETIR)
 
 # Figuras anotadas del layout de una corrida (KLayout en la imagen de Docker):
 #   make layout RUN=asic/rom/runs/final

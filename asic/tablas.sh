@@ -1,44 +1,58 @@
 #!/usr/bin/env bash
-# Regenera asic/final.md (tablas de la corrida final y de los barridos con la
-# configuración final) y los gráficos de docs/figuras/ a partir de las corridas
-# que existan en asic/rom/runs. Lo llama asic/final.sh; también se puede correr
-# solo: bash asic/tablas.sh
+# Regenera asic/final.md (tablas de la candidata: corrida base, barrido de
+# período, variantes de signoff, estrategias de memoria y barrido de
+# utilización) y los gráficos de docs/figuras/ a partir de las corridas que
+# existan en asic/rom/runs y asic/ff/runs. Adaptado por el frente E a los tags
+# de la rama exp/candidata: bash asic/tablas.sh
+#
+# Tags de la rama (ver docs/candidata.md):
+#   pa_b2_*  corridas de la configuración base de la candidata, heredadas de
+#            exp/pipeline-b2 (MISMO árbol, commit be50893): enlazadas en
+#            asic/rom/runs/ a build/exp_pipeline_b2. No se repitieron.
+#   e1_*     corridas nuevas del frente E con la estrategia 1 (signoff,
+#            utilización, síntesis jerárquica, PnR de la simulación).
+#   e2_*     corridas nuevas del frente E con la estrategia 2 (asic/ff).
+#   m_*      corridas de main enlazadas para comparar (m_final es la final del
+#            enunciado, m_f1_t24p5 su período mínimo). Solo se leen.
 set -eu
 cd "$(dirname "$0")/.."
 PY=python3
 existen() { for r in "$@"; do [ -f "$r/final/metrics.json" ] && echo "$r"; done; return 0; }
+faltan() { for r in "$@"; do [ -f "$r/final/metrics.json" ] || echo "$r"; done; return 0; }
 rm -f asic/final.md
-$PY asic/recolectar.py --md asic/final.md --titulo "Corrida final (tag final): T = 100 ns, FP_CORE_UTIL = 40 %" \
-  --nota "Configuración: asic/rom/config.yaml (D15, D20, D21). Criterios de cierre: asic/rom/resultados/final/cierre.md. Las tablas de este archivo las genera asic/tablas.sh con asic/recolectar.py." \
-  asic/rom/runs/final > /dev/null
 
-F1=$(existen asic/rom/runs/final asic/rom/runs/f1_t32 asic/rom/runs/f1_t30 asic/rom/runs/f1_t28 asic/rom/runs/f1_t26 asic/rom/runs/f1_t25 asic/rom/runs/f1_t24)
-if [ -n "$F1" ]; then
-  $PY asic/recolectar.py --md asic/final.md --titulo "Barrido de CLOCK_PERIOD con la configuración final (sección 3.4)" \
-    --nota "Corridas f1_* (mismo RTL y configuración que la final, solo cambia CLOCK_PERIOD). Cierra a 100, 32, 30, 26 y 25 ns; 24 ns no cierra por 0,004 ns en max_ss_125C_4v50. f1_t28 se detuvo a los 40 minutos en OpenROAD.ResizerTimingPostCTS (regla de tiempo del grupo) y no se cuenta. f1_t26, f1_t25 y f1_t24 tienen exactamente el mismo layout (celdas, área y largo de cables): con el margen de 10 ns de D20 el resizer llega a su límite y de ahí para abajo solo cambia el slack." \
-    $F1 > /dev/null
-  $HOME/herramientas/librelane/bin/python3 asic/graficos.py --periodo $F1 --salida-periodo docs/figuras/periodo.png > /dev/null
+$PY asic/recolectar.py --md asic/final.md --titulo "Candidata (rama exp/candidata) a 100 ns y 40 %, contra la corrida final de main" \
+  --nota "pa_b2_t100 es la corrida base de la candidata (asic/rom/config.yaml de la rama: la configuración final de main, D15, D20 y D21, más EarlyRead=1 en SYNTH_PARAMETERS); el RTL es el del frente A (lectura del banco y decode en el fetch) más B2 (offset de byte registrado en la LSU). m_final es la corrida final de main (enlace a asic/rom/runs/final del repo principal) y m_f1_t24p5 su período mínimo. Criterios de cierre: asic/rom/resultados/<tag>/cierre.md." \
+  asic/rom/runs/pa_b2_t100 asic/rom/runs/m_final > /dev/null
+
+P=$(existen asic/rom/runs/pa_b2_t100 asic/rom/runs/pa_b2_t26 asic/rom/runs/pa_b2_t25p5 asic/rom/runs/pa_b2_t25)
+if [ -n "$P" ]; then
+  $PY asic/recolectar.py --md asic/final.md --titulo "Barrido de CLOCK_PERIOD de la candidata (configuración base)" \
+    --nota "Corridas pa_b2_* (mismo RTL y configuración, solo cambia CLOCK_PERIOD), medidas por el frente A en build/exp_pipeline_b2 y enlazadas acá. Cierra a 100, 26 y 25,5 ns; 25 ns no cierra (setup en max_ss_125C_4v50, WNS -0,409 ns). Período mínimo 25,5 ns (39,2 MHz) y la brecha con el primero que no cierra es 0,5 ns, lo que cumple la regla de la sesión. Las corridas de 26, 25,5 y 25 ns tienen el mismo layout (9.224 celdas, 194.212 µm², 373.251 µm de cables)." \
+    $P > /dev/null
+  $HOME/herramientas/librelane/bin/python3 asic/graficos.py --periodo $P --salida-periodo docs/figuras/periodo.png > /dev/null 2>&1 || echo "aviso: graficos.py --periodo falló"
 fi
 
-R0=$(existen asic/rom/runs/r0_t100 asic/rom/runs/r0_t26)
-if [ -n "$R0" ]; then
-  $PY asic/recolectar.py --md asic/final.md --titulo "RTL sin pre-decodificación (116fa20) con la configuración final (sección 3.4, efecto de D18)" \
-    --nota "Corridas r0_* del RTL del commit 116fa20 (sin D18) en un worktree (build/ref116, enlazado en asic/rom/runs/r0_*) con la misma asic/rom/config.yaml y pines.cfg de la corrida final, a 100 ns y al período mínimo del diseño final (26 ns, el primer punto que cerró; el final cierra también a 25 ns). Comparar con final y f1_t26." \
-    $R0 > /dev/null
+G=$(existen asic/rom/runs/pa_b2_t100 asic/rom/runs/e1_g30_t100 asic/rom/runs/e1_full_t100)
+if [ -n "$G" ]; then
+  $PY asic/recolectar.py --md asic/final.md --titulo "Variantes de signoff de slew y capacitancia sobre la candidata a 100 ns" \
+    --nota "e1_g30_t100: asic/rom/config.yaml más DESIGN_REPAIR_MAX_SLEW_PCT=30 y DESIGN_REPAIR_MAX_CAP_PCT=30 (la variante que el frente C midió dentro del 1 % de área sobre el RTL B2+B5, docs/signoff0.md). e1_full_t100: asic/rom/config_rc.yaml de la rama (LAYERS_RC medidos por el frente C, con EarlyRead=1) más RUN_POST_GRT_DESIGN_REPAIR=true, GRT_DESIGN_REPAIR_MAX_SLEW_PCT=30, GRT_DESIGN_REPAIR_MAX_CAP_PCT=30 y CTS_DISTANCE_BETWEEN_BUFFERS=100. Comparar con pa_b2_t100 (571 pines de slew y 37 de capacitancia, 186.432 µm²)." \
+    $G > /dev/null
 fi
 
-U1=$(existen asic/rom/runs/final asic/rom/runs/u1_u50 asic/rom/runs/u1_u60 asic/rom/runs/u1_u70)
-if [ -n "$U1" ]; then
-  $PY asic/recolectar.py --md asic/final.md --titulo "Barrido de FP_CORE_UTIL a 100 ns con la configuración final (sección 3.5)" \
-    --nota "Corridas final (40 %) y u1_u50 a u1_u90. u1_u80 falla en OpenROAD.CTS ([DPL-0036] Detailed placement failed, asic/logs/u1_u80.log; extracto versionado en asic/rom/resultados/u1_u80/falla.txt) y u1_u90 en el placement global ([GPL-0301] Utilization 100.531 % exceeds 100%, asic/logs/u1_u90.log; extracto en asic/rom/resultados/u1_u90/falla.txt): no tienen métricas finales. Gráfico: docs/figuras/utilizacion.png (asic/graficos.py --util)." \
-    $U1 asic/rom/runs/u1_u80 asic/rom/runs/u1_u90 > /dev/null 2>&1
-  $HOME/herramientas/librelane/bin/python3 asic/graficos.py --util $U1 asic/rom/runs/u1_u80 asic/rom/runs/u1_u90 --salida-util docs/figuras/utilizacion.png > /dev/null
+E2=$(existen asic/ff/runs/e2_t100 asic/ff/runs/e2_t62 asic/ff/runs/e2_t60 asic/ff/runs/e2_t58)
+if [ -n "$E2" ]; then
+  $PY asic/recolectar.py --md asic/final.md --titulo "Estrategia 2 (memoria en flip-flops) con el RTL de la candidata" \
+    --nota "Corridas e2_* con asic/ff/config.yaml de la rama (MemStrategy=2, EarlyRead en su valor por defecto 0 para esa estrategia, igual que en main: ver docs/candidata.md). Referencia de main con la estrategia 2: período mínimo 62 ns (asic/exploraciones.md)." \
+    $E2 > /dev/null
 fi
 
-UA=$(existen asic/rom/runs/u1_auto)
-if [ -n "$UA" ]; then
-  $PY asic/recolectar.py --md asic/final.md --titulo "Terminales ubicados por el flujo (sin D21), sección 3.5" \
-    --nota "Corrida u1_auto: asic/rom/config_pines_auto.yaml, idéntica a la final salvo que no define IO_PIN_ORDER_CFG y OpenROAD.IOPlacement ubica los terminales donde acorta los cables. Comparar con final (D21): largo de cables, DRC de ruteo por iteración (route__drc_errors__iter:N en metrics.json), slew y WNS." \
-    asic/rom/runs/final $UA > /dev/null
+U=$(existen asic/rom/runs/pa_b2_t100 asic/rom/runs/e1_u50 asic/rom/runs/e1_u60 asic/rom/runs/e1_u70 asic/rom/runs/e1_u72 asic/rom/runs/e1_u75 asic/rom/runs/e1_u78 asic/rom/runs/e1_u80 asic/rom/runs/e1_u90)
+UF=$(faltan asic/rom/runs/e1_u50 asic/rom/runs/e1_u60 asic/rom/runs/e1_u70 asic/rom/runs/e1_u72 asic/rom/runs/e1_u75 asic/rom/runs/e1_u78 asic/rom/runs/e1_u80 asic/rom/runs/e1_u90)
+if [ "$(echo "$U" | wc -w)" -gt 1 ]; then
+  $PY asic/recolectar.py --md asic/final.md --titulo "Barrido de FP_CORE_UTIL a 100 ns sobre la candidata" \
+    --nota "pa_b2_t100 es el 40 %; e1_u50 a e1_u90 cambian solo FP_CORE_UTIL. Las que no tienen métricas finales fallaron: el paso y el mensaje están en asic/rom/resultados/<tag>/falla.txt. Gráfico: docs/figuras/utilizacion.png (asic/graficos.py --util)." \
+    $U $UF > /dev/null 2>&1 || true
+  $HOME/herramientas/librelane/bin/python3 asic/graficos.py --util $U $UF --salida-util docs/figuras/utilizacion.png > /dev/null 2>&1 || echo "aviso: graficos.py --util falló"
 fi
 echo "asic/final.md regenerado"

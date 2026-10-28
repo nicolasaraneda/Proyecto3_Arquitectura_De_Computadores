@@ -1,0 +1,36 @@
+violaciones de max slew de asic/rom/runs/pa_b2_t100/55-openroad-stapostpnr/max_ss_125C_4v50/checks.rpt: 571 pines en 558 celdas
+  3.0 a 3.5 ns: 409 celdas
+  3.5 a 4.0 ns: 102 celdas
+  4.0 a 4.5 ns: 41 celdas
+  4.5 a 5.0 ns: 0 celdas
+  5.0 a 99.0 ns: 6 celdas
+  _4085_ 6.706 ns
+  fanout24 6.706 ns
+  wire25 6.706 ns
+  _3148_ 6.073 ns
+  _3149_ 6.073 ns
+  _3867_ 6.073 ns
+  _3245_ 4.398 ns
+  _3209_ 4.398 ns
+  _3177_ 4.398 ns
+  _3403_ 4.398 ns
+  _3283_ 4.398 ns
+  _4099_ 4.398 ns
+  _3343_ 4.398 ns
+  _2490_ 4.398 ns
+  u_soc.u_core.u_rf/_1858_ 4.398 ns
+  u_soc.u_core.u_rf/_4137_ 4.398 ns
+  _2657_ 4.398 ns
+  _2658_ 4.398 ns
+  _4093_ 4.368 ns
+  _3280_ 4.368 ns
+  _3340_ 4.368 ns
+  _3233_ 4.368 ns
+  _3174_ 4.368 ns
+  _3400_ 4.368 ns
+  _3197_ 4.368 ns
+  _2487_ 4.368 ns
+  u_soc.u_core.u_rf/_1855_ 4.368 ns
+  u_soc.u_core.u_rf/_4134_ 4.368 ns
+  _3825_ 4.051 ns
+  _2019_ 4.051 ns
