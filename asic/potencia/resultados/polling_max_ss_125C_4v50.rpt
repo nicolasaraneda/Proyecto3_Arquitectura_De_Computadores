@@ -1,0 +1,86 @@
+potencia.tcl: esquina max_ss_125C_4v50, modo vcd
+  liberty: /home/nicolasaraneda/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/lib/gf180mcu_fd_sc_mcu7t5v0__ss_125C_4v50.lib
+  netlist: asic/rom/runs/pa_b2_t100/final/nl/asic_top.nl.v
+  sdc:     asic/rom/runs/pa_b2_t100/final/sdc/asic_top.sdc
+  spef:    asic/rom/runs/pa_b2_t100/final/spef/max/asic_top.max.spef
+
+=== clocks ===
+clock clk: periodo 100.000000, propagado 1
+
+MODO vcd: read_vcd -scope potencia_tb/dut build/potencia/polling.vcd
+Annotated 22130 pin activities.
+
+=== report_activity_annotation ===
+vcd         22130
+unannotated     0
+
+=== report_activity_annotation -report_unannotated ===
+vcd         22130
+unannotated     0
+Unannotated pins:
+
+=== report_power -corner max_ss_125C_4v50 ===
+Group                    Internal    Switching      Leakage        Total
+                            Power        Power        Power        Power (Watts)
+------------------------------------------------------------------------
+Sequential           4.298265e-03 1.600455e-04 1.125544e-06 4.459436e-03  43.5%
+Combinational        1.023008e-03 1.904981e-03 3.396309e-06 2.931386e-03  28.6%
+Clock                1.255252e-03 1.605640e-03 8.347146e-06 2.869239e-03  28.0%
+Macro                0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00   0.0%
+Pad                  0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00   0.0%
+------------------------------------------------------------------------
+Total                6.576515e-03 3.670666e-03 1.286887e-05 1.026005e-02 100.0%
+                            64.1%        35.8%         0.1%
+
+=== report_power -highest_power_instances 20 ===
+     Internal    Switching      Leakage        Total
+        Power        Power        Power        Power (Watts)
+----------------------------------------------------
+ 2.566809e-05 7.407871e-05 1.642207e-09 9.974845e-05 clkbuf_0_clk
+ 2.749063e-05 4.012616e-05 1.642207e-09 6.761844e-05 clkbuf_3_4__f_clk
+ 2.753207e-05 3.831703e-05 1.642207e-09 6.585075e-05 clkbuf_3_6__f_clk
+ 2.756521e-05 3.688184e-05 1.642207e-09 6.444869e-05 clkbuf_3_2__f_clk
+ 2.757487e-05 3.596768e-05 1.642207e-09 6.354419e-05 clkbuf_3_5__f_clk
+ 2.757734e-05 3.593866e-05 1.642207e-09 6.351765e-05 clkbuf_3_1__f_clk
+ 2.760012e-05 3.505306e-05 1.642207e-09 6.265482e-05 clkbuf_3_3__f_clk
+ 2.765646e-05 3.208836e-05 1.642207e-09 5.974646e-05 clkbuf_3_0__f_clk
+ 2.771332e-05 2.943892e-05 1.642207e-09 5.715389e-05 clkbuf_3_7__f_clk
+ 1.252755e-05 2.537290e-05 1.089495e-09 3.790153e-05 clkbuf_leaf_42_clk
+ 1.254460e-05 2.410856e-05 1.089495e-09 3.665425e-05 clkbuf_leaf_50_clk
+ 1.250704e-05 2.264627e-05 1.089495e-09 3.515439e-05 clkbuf_leaf_54_clk
+ 1.250736e-05 2.253523e-05 1.089495e-09 3.504369e-05 clkbuf_leaf_39_clk
+ 1.250846e-05 2.253413e-05 1.089495e-09 3.504368e-05 clkbuf_leaf_7_clk
+ 1.250768e-05 2.249644e-05 1.089495e-09 3.500521e-05 clkbuf_leaf_44_clk
+ 1.250977e-05 2.243721e-05 1.089495e-09 3.494806e-05 clkbuf_leaf_56_clk
+ 1.256898e-05 2.227948e-05 1.089495e-09 3.484955e-05 clkbuf_leaf_41_clk
+ 1.257352e-05 2.195198e-05 1.089495e-09 3.452659e-05 clkbuf_leaf_52_clk
+ 1.255251e-05 2.178016e-05 1.089495e-09 3.433376e-05 clkbuf_leaf_26_clk
+ 1.250801e-05 2.154981e-05 1.089495e-09 3.405890e-05 clkbuf_leaf_13_clk
+
+=== sonda: actividad de pines (densidad 1/s, duty, origen) ===
+sonda puerto clk: 2.00000e+07 0.500 clock
+sonda puerto btn[0]: 5.00000e+02 0.975 vcd
+sonda puerto rst_n: 0.00000e+00 1.000 vcd
+sonda pin clkbuf_0_clk/Z: 2.00000e+07 0.500 clock
+sonda pin u_soc.u_periph.u_cycles/_164_/Q: 1.00000e+07 0.500 vcd
+sonda pin u_soc.u_periph.u_cycles/_166_/Q: 2.50000e+06 0.500 vcd
+sonda pin _4418_/Q: 0.00000e+00 0.000 vcd
+sonda pin _4186_/Q: 0.00000e+00 0.000 vcd
+sonda pin u_soc.u_core.u_rf/_3050_/Q: no existe
+sonda pin _4551_/Q: no existe
+sonda pin _2617_/ZN: 0.00000e+00 1.000 vcd
+
+=== sonda: report_power -instances ===
+Warning: potencia.tcl line 1, instance '_4551_' not found.
+     Internal    Switching      Leakage        Total
+        Power        Power        Power        Power (Watts)
+----------------------------------------------------
+ 2.566809e-05 7.407871e-05 1.642207e-09 9.974845e-05 clkbuf_0_clk
+ 8.488426e-06 3.181428e-06 1.284356e-09 1.167114e-05 u_soc.u_periph.u_cycles/_164_
+ 5.529158e-06 7.467591e-07 1.284356e-09 6.277202e-06 u_soc.u_periph.u_cycles/_166_
+ 4.567785e-06 0.000000e+00 1.253205e-09 4.569039e-06 _4418_
+ 4.268899e-06 0.000000e+00 1.143990e-09 4.270043e-06 _4186_
+ 0.000000e+00 0.000000e+00 7.724250e-10 7.724250e-10 u_soc.u_core.u_rf/_3050_
+ 0.000000e+00 0.000000e+00 6.376500e-10 6.376500e-10 _2617_
+
+=== design_power (W): interna 0.006576515268534422 conmutacion 0.0036706659011542797 fuga 1.2868869816884398e-5 total 0.010260050185024738 ===
