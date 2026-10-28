@@ -1,0 +1,70 @@
+# Estrategia 1 de memoria (sección 3.2): ROM combinacional generada por el assembler más una RAM de datos.
+# Mismo RTL para ambas estrategias; la elige MemStrategy (ver docs/memory_map.md).
+DESIGN_NAME: asic_top
+PDK: gf180mcuD
+VERILOG_FILES:
+  - dir::../../rtl/*.v
+  - dir::../../rtl/espino_core/*.v
+  - dir::../../rtl/gen/*.v
+VERILOG_INCLUDE_DIRS:
+  - dir::../../rtl/gen
+SYNTH_PARAMETERS:
+  - MemStrategy=1
+  - DataWords=4
+# Jerarquía conservada para identificar estos bloques en los reportes y en el
+# layout (secciones 3.3, 3.4 y 3.6; docs/decisiones.md, D12).
+SYNTH_KEEP_HIERARCHY_MODULES:
+  - espino_register_file
+  - espino_alu
+  - pochoco_cycle_counter
+# Celdas excluidas de la síntesis y del buffering: las de retardo (D15) y el
+# buffer más chico, buf_1, que explicaba el 68 % de los nets con violación de
+# slew y las cadenas de buffers de la ruta crítica (D20).
+EXTRA_EXCLUDED_CELLS:
+  - gf180mcu_fd_sc_mcu7t5v0__dly*
+  - gf180mcu_fd_sc_mcu7t5v0__buf_1
+# Margen de setup del resizer durante el placement, en ns (D20): el resizer
+# redimensiona hasta dejar 10 ns de holgura, no solo hasta cumplir.
+PL_RESIZER_SETUP_SLACK_MARGIN: 10
+# Ubicación de los terminales por función (D21), en asic/rom/pines.cfg (el
+# formato no admite comentarios): #W, #E, #N y #S abren cada lado y los
+# terminales se reparten a espacios iguales de la coordenada menor a la mayor
+# (de abajo hacia arriba en oeste y este, de izquierda a derecha en norte y
+# sur); "$n" reserva n posiciones vacías. Oeste: btn[0] a btn[3], clk en la
+# quinta de nueve posiciones (el centro del lado), rst_n y tres vacías. Este:
+# seg1[6:0] y seg2[6:0], cada bus contiguo y en orden de bits. Norte: led[3:0].
+# Sur: spi_sclk, spi_mosi, spi_cs_n, spi_miso.
+IO_PIN_ORDER_CFG: dir::pines.cfg
+CLOCK_PORT: clk
+CLOCK_PERIOD: 100
+FP_CORE_UTIL: 40
+# Frente C (exp/signoff0): RC de cable por capa y por esquina para la estimación de
+# parásitos del resizer (repair_design, repair_timing, CTS). Sin esta variable, el
+# resizer usa el promedio del tech LEF de Metal2 a Metal5 (0,275 ohm/µm y 64,3 aF/µm,
+# 14-openroad-dumprcvalues/resizer_values_after.rpt) en las 9 esquinas, y con ese
+# modelo ve 0 violaciones de slew tras el ruteo global; la extracción de OpenRCX
+# del ruteo detallado da 188 / 166 / 148 aF/µm y 0,60 / 0,55 / 0,50 ohm/µm (max /
+# nom / min; regresión capacidad de cable del SPEF contra largo ruteado sobre 2.399
+# nets, asic/signoff_pines.py sobre b5_t100), así que las violaciones aparecen recién
+# en el STA final. Estos valores son el tech LEF escalado por esquina (factores
+# cap 2,93 / 2,59 / 2,30 y R 2,18 / 1,99 / 1,81) para que el promedio que usa el
+# resizer coincida con la pendiente medida. Unidades: ohm/µm y pF/µm.
+LAYERS_RC:
+  "max_*":
+    Metal1: {res: 0.85199, cap: 0.00026941}
+    Metal2: {res: 0.69985, cap: 0.00024598}
+    Metal3: {res: 0.69985, cap: 0.00022958}
+    Metal4: {res: 0.69985, cap: 0.00022712}
+    Metal5: {res: 0.29691, cap: 0.000050766}
+  "nom_*":
+    Metal1: {res: 0.78028, cap: 0.00023788}
+    Metal2: {res: 0.64095, cap: 0.00021719}
+    Metal3: {res: 0.64095, cap: 0.00020271}
+    Metal4: {res: 0.64095, cap: 0.00020054}
+    Metal5: {res: 0.27192, cap: 0.000044824}
+  "min_*":
+    Metal1: {res: 0.70858, cap: 0.00021165}
+    Metal2: {res: 0.58205, cap: 0.00019324}
+    Metal3: {res: 0.58205, cap: 0.00018036}
+    Metal4: {res: 0.58205, cap: 0.00017843}
+    Metal5: {res: 0.24693, cap: 0.000039882}
