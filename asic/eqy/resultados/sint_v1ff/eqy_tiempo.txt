@@ -1,1 +1,2 @@
-tiempo_real_118.71_s;usuario_121.37_s;sistema_5.12_s;memoria_maxima_2640744_KB
+Command exited with non-zero status 2
+tiempo_real_106.32_s;usuario_113.27_s;sistema_10.92_s;memoria_maxima_3301276_KB

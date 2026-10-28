@@ -1,3 +1,9 @@
 | particiones | probadas | por estrategia | no probadas | resultado | tiempo de reloj (s) | tiempo de CPU (s) |
 |---|---|---|---|---|---|---|
-| 21 | 21 | pdr 1, sat 20 | 0 | PASS | 387 | 394 |
+| 30 | 29 | sat 29 | 1 | FAIL | 152 | 168 |
+
+Motivos por estrategia en las no probadas: pdr: partitions not equivalent (1); sat: equivalence unknown (1)
+
+| grupo de particiones no probadas | cuántas | ejemplos |
+|---|---|---|
+| asic_top.led | 1 | asic_top.led.0 |

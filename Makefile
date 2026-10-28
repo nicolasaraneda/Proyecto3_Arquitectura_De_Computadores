@@ -213,9 +213,9 @@ asic/sim/config.yaml: asic/rom/config.yaml asic/sim/generar_config.py
 	$(PYTHON) asic/sim/generar_config.py --div-bits $(SIM_DIVBITS)
 
 # Configuración COMPLETA (con IO_PIN_ORDER_CFG) para la corrida post-PnR de la
-# simulación con SDF (d1_pnr, objetivo post-pnr-sdf). Se genera igual que
+# simulación con SDF (d2_pnr, objetivo post-pnr-sdf; d1_pnr era la de v1). Se genera igual que
 # config.yaml; la corrida se encola con la cola de LibreLane:
-#   bash asic/encolar.sh . asic/sim/config_pnr.yaml d1_pnr 100
+#   bash asic/encolar.sh . asic/sim/config_pnr.yaml d2_pnr 100
 asic/sim/config_pnr.yaml: asic/rom/config.yaml asic/sim/generar_config.py
 	$(PYTHON) asic/sim/generar_config.py --div-bits $(SIM_DIVBITS) --pnr
 
@@ -314,14 +314,14 @@ final:
 # Post-PnR con retardos (3.7): el netlist post-PnR y el SDF de una esquina de
 # una corrida COMPLETA del flujo, con el mismo testbench y escenario de
 # post-synth, simulados con el Icarus Verilog 13.0 de la imagen de LibreLane
-# (asic/sim/post_pnr_sdf.sh). Por defecto es la corrida d1_pnr de
+# (asic/sim/post_pnr_sdf.sh). Por defecto es la corrida d2_pnr de
 # asic/sim/config_pnr.yaml (configuración final completa con la ROM de
 # simulación y DebounceDivBits=2; generar_config.py --pnr), esquina típica,
 # tres ejecuciones de vvp con el mismo binario (md5 de las tres trazas) y
 # comparación de cada una con la traza del RTL, simulado con el mismo Icarus.
 # Parámetros:
 #   make post-pnr-sdf ESQUINA=max_ss_125C_4v50        (o min_ff_n40C_5v50, ...)
-#   make post-pnr-sdf RUN=asic/sim/runs/<tag>          (otra corrida de config_pnr.yaml)
+#   make post-pnr-sdf RUN=asic/sim/runs/<tag>          (otra corrida de config_pnr.yaml; d1_pnr es la de v1)
 #   make post-pnr-sdf REPETIR=1
 #   make post-pnr-sdf RUN=asic/rom/runs/final ESCENARIO=final   (opcional: el netlist
 #       real con asic/sim/estimulos_final.txt, 320.000 ciclos; tarda mucho más)
@@ -356,7 +356,7 @@ ESCENARIO ?= sim
 MUESTREO  ?= 50
 ESTIMULO  ?= 50
 ETIQUETA  ?=
-post-pnr-sdf: RUN = asic/sim/runs/d1_pnr
+post-pnr-sdf: RUN = asic/sim/runs/d2_pnr
 post-pnr-sdf: $(ROM_SIM)
 	@mkdir -p $(BUILD)/post_pnr
 	IMAGEN_DOCKER='$(IMAGEN_DOCKER)' PDK_ROOT='$(PDK_ROOT)' bash asic/sim/post_pnr_sdf.sh $(RUN) $(ESQUINA) $(REPETIR) $(ESCENARIO) $(MUESTREO) $(ESTIMULO) '$(ETIQUETA)'
@@ -377,7 +377,7 @@ post-pnr-sdf: $(ROM_SIM)
 # Salidas por repetición en build/post_pnr/cvc/<tag>/<esquina>[_final]<ETIQUETA>/:
 # cvcsim_<n>.log, sdf_cvc_<n>.log, tiempo_<n>.txt, traza_<n>.txt, comparacion_<n>.txt,
 # más violaciones_por_tipo.txt, violaciones_por_instancia.txt, mensajes_sdf.txt y resumen.md.
-post-pnr-cvc: RUN = asic/sim/runs/d1_pnr
+post-pnr-cvc: RUN = asic/sim/runs/d2_pnr
 post-pnr-cvc: $(ROM_SIM)
 	PDK_ROOT='$(PDK_ROOT)' bash asic/sim/cvc_sdf.sh $(RUN) $(ESQUINA) $(ESCENARIO) $(MUESTREO) $(ESTIMULO) '$(ETIQUETA)' $(REPETIR)
 

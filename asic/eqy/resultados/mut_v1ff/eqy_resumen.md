@@ -1,6 +1,6 @@
 | particiones | probadas | por estrategia | no probadas | resultado | tiempo de reloj (s) | tiempo de CPU (s) |
 |---|---|---|---|---|---|---|
-| 22 | 21 | sat 21 | 1 | FAIL | 111 | 121 |
+| 30 | 29 | sat 29 | 1 | FAIL | 77 | 93 |
 
 Motivos por estrategia en las no probadas: pdr: partitions not equivalent (1); sat: equivalence unknown (1)
 

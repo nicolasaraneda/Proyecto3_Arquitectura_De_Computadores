@@ -1,14 +1,14 @@
-     2614 cells
+     2624 cells
         7   $add
-       23   $adff
-     1055   $and
-       37   $dff
-      108   $eq
+       22   $adff
+     1057   $and
+       38   $dff
+      110   $eq
         3   $logic_and
-       13   $logic_not
+       14   $logic_not
         2   $lt
-     1289   $mux
-       15   $not
+     1293   $mux
+       16   $not
         8   $or
        22   $pmux
         5   $reduce_and

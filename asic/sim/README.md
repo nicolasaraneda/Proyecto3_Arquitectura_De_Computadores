@@ -41,19 +41,25 @@ enciende el LED y dura 60 ciclos.
 
 | ciclo | botones | qué pasa |
 |---|---|---|
-| 300 a 360 | 0001 | pulsación de inicio: siembra el LFSR; 4 LEDs y display 01 en el ciclo 388 y 426 |
-| 801 a 861 | 0010 | ronda 1: LED objetivo 0010 encendido en el ciclo 781; acierto, el display muestra 57 (ciclos medidos) en el ciclo 1574 |
-| 2141 a 2201 | 0010 | ronda 2: LED objetivo 0001 en el ciclo 2121; botón incorrecto: EE en el ciclo 2181, LEDs apagados en 2183, la ronda vuelve a 02 en 2353 |
-| 2719 a 2779 | 0001 | reintento de la ronda 2: LED 0001 en 2699; acierto, 57 en el ciclo 3492; sigue la ronda 03 |
+| 300 a 360 | 0001 | pulsación de inicio: siembra el LFSR; 4 LEDs en el ciclo 383 y display 01 en el 404 |
+| 635 a 695 | 0010 | ronda 1: LED objetivo 0010 encendido en el ciclo 615; acierto, el display muestra 51 (ciclos medidos) en el ciclo 1033 |
+| 1373 a 1433 | 0010 | ronda 2: LED objetivo 0001 en el ciclo 1353; botón incorrecto: EE en el ciclo 1405, LEDs apagados en 1406, la ronda vuelve a 02 en 1507 |
+| 1733 a 1793 | 0001 | reintento de la ronda 2: LED 0001 en 1713; acierto, 51 en el ciclo 2131; sigue la ronda 03 |
 
-El valor 57 es determinista: 20 ciclos hasta la pulsación, 2 del sincronizador, 12 a 15
+Los ciclos son los del core de D23 (lectura del banco y decodificación en el fetch). Con el core
+de v1 el mismo escenario daba 57 ciclos medidos y las pulsaciones caían en 801, 2141 y 2719, porque
+cada instrucción gastaba un ciclo más. El archivo lo regenera `asic/sim/calibrar.py` y la salida de
+la última regeneración está en `docs/verificacion/integracion_15_calibrar.txt`.
+
+El valor 51 es determinista: 20 ciclos hasta la pulsación, 2 del sincronizador, 12 a 15
 del debounce y el resto del lazo de polling y de la lectura de CYCLES del programa.
 
 ## Resultado
 
 `asic/sim/resultado.md`: trazas idénticas (17 cambios de salida en 4.500 ciclos), 0
-valores X en las salidas del netlist, mismo 57 en las dos rondas correctas, EE y
-ronda que no avanza después de la pulsación incorrecta.
+valores X en las salidas del netlist, mismo 51 en las dos rondas correctas, EE en el ciclo 1405 y
+ronda que no avanza después de la pulsación incorrecta. La corrida de la integración de D23 está en
+`docs/verificacion/integracion_13_post_synth.txt`.
 
 ## Control negativo
 
@@ -63,29 +69,34 @@ el netlist con una copia de los estímulos donde la pulsación de la primera ron
 y la compara con la traza del RTL con los estímulos originales. El objetivo termina bien
 solo si `comparar.py` da FAIL. El resultado se agrega como sección "Control negativo" a
 `asic/sim/resultado.md` (`make post-synth` reescribe ese archivo; correr el control
-después). `ATRASO = 6` es el atraso más chico que cambia la traza: el programa lee
-CYCLES en un lazo de polling de 13 ciclos (57, 70, 83, 96 ciclos medidos para atrasos
-de 0, 6 a 20, 30 y 40), así que un atraso de 5 cae en la misma vuelta del lazo y la
-traza queda idéntica (`make post-synth-control ATRASO=5` da PASS y el objetivo falla).
+después). `ATRASO = 8` es el atraso más chico que cambia la traza con el core de D23: el programa
+lee BTN en un lazo de polling de 8 ciclos (`POLL_CICLOS` en el `Makefile`), así que un atraso de 1 a
+7 cae en la misma vuelta del lazo y la traza queda idéntica. Con el core de v1 el lazo era de 13
+ciclos y el atraso mínimo 6. Corrida de la integración:
+`docs/verificacion/integracion_14_post_synth_control.txt`, donde el netlist atrasado da 12 cambios
+de salida y display 59 en vez de los 17 cambios y el 51 del original.
 
 ## Extras
 
 - `make post-synth-final`: el netlist de la corrida final (constantes reales, ROM
   real, `DebounceDivBits = 15`) con una pulsación de inicio real
-  (`asic/sim/estimulos_final.txt`): pantalla de inicio tras el reset y, unos 280.000
+  (`asic/sim/estimulos_final.txt`): pantalla de inicio tras el reset y, unos 262.000
   ciclos después (el debounce real), los cuatro LEDs y el 01 de la primera ronda;
-  comparado con el RTL en `asic/sim/resultado_final.md`.
+  comparado con el RTL en `asic/sim/resultado_final.md`. Con el core de D23 los cuatro LEDs salen
+  en el ciclo 262.151 y el 01 en el 262.172 (con el de v1 eran 262.156 y 262.194). Esos dos ciclos
+  son los que fijan dos de las cuatro ventanas de la medición de potencia
+  (`asic/potencia/correr.sh`).
 - Para rehacer los estímulos tras cambiar el programa: `make asic/sim/estimulos.txt`
   (o `python3 asic/sim/calibrar.py`).
 
 ## Post-PnR con retardos (SDF): `make post-pnr-sdf` y `make post-pnr-cvc`
 
 El mismo testbench y escenario, con el netlist post-PnR y el SDF de una esquina de una
-corrida COMPLETA del flujo. La corrida es `d1_pnr` (`asic/sim/config_pnr.yaml`, generada
+corrida COMPLETA del flujo. La corrida es `d2_pnr` (`asic/sim/config_pnr.yaml`, generada
 por `generar_config.py --pnr`: la configuración final completa, incluido
 `IO_PIN_ORDER_CFG`, con la ROM de simulación y `DebounceDivBits=2`; se encola con
-`bash asic/encolar.sh . asic/sim/config_pnr.yaml d1_pnr 100`; cierre y tablas en
-`asic/sim/resultados/d1_pnr/` y `asic/sim/resultado_sdf.md`). Los dos objetivos tienen como
+`bash asic/encolar.sh . asic/sim/config_pnr.yaml d2_pnr 100`; cierre y tablas en
+`asic/sim/resultados/d2_pnr/` y `asic/sim/resultado_sdf.md`). Los dos objetivos tienen como
 prerrequisito la ROM de simulación `asic/sim/gen/pochoco_rom.v` (no versionada; la genera el
 assembler) y no corren LibreLane: el netlist y los SDF tienen que existir en `RUN`.
 
@@ -102,7 +113,7 @@ assembler) y no corren LibreLane: el netlist y los SDF tienen que existir en `RU
   tipo y los mensajes de anotación de vvp, y dice explícitamente que Icarus NO evalúa los
   timing checks (`warning: Timing checks are not supported.` al compilar, `TIMINGCHECK not
   supported` al anotar): no reporta "0 violaciones". Parámetros: `ESQUINA`
-  (`nom_tt_025C_5v00`), `RUN` (`asic/sim/runs/d1_pnr`), `REPETIR` (3), `ESCENARIO`
+  (`nom_tt_025C_5v00`), `RUN` (`asic/sim/runs/d2_pnr`), `REPETIR` (3), `ESCENARIO`
   (`sim`; `final` corre `asic/sim/estimulos_final.txt`, 320.000 ciclos, con
   `RUN=asic/rom/runs/final`), `MUESTREO` (50), `ESTIMULO` (50) y `ETIQUETA` (sufijo del
   directorio de salida, para controles: `make post-pnr-sdf ESTIMULO=1 ETIQUETA=_control_estimulo1`
