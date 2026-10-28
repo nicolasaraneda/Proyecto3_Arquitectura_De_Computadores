@@ -58,17 +58,26 @@ GRT_DESIGN_REPAIR_MAX_CAP_PCT: 30
 # estima se parecen a los que se extraen, es decir junto con LAYERS_RC.
 RUN_POST_GRT_RESIZER_TIMING: true
 
-# Frente C (exp/signoff0): RC de cable por capa y por esquina para la estimación de
-# parásitos del resizer (repair_design, repair_timing, CTS). Sin esta variable, el
-# resizer usa el promedio del tech LEF de Metal2 a Metal5 (0,275 ohm/µm y 64,3 aF/µm,
-# 14-openroad-dumprcvalues/resizer_values_after.rpt) en las 9 esquinas, y con ese
-# modelo ve 0 violaciones de slew tras el ruteo global; la extracción de OpenRCX
-# del ruteo detallado da 188 / 166 / 148 aF/µm y 0,60 / 0,55 / 0,50 ohm/µm (max /
-# nom / min; regresión capacidad de cable del SPEF contra largo ruteado sobre 2.399
-# nets, asic/signoff_pines.py sobre b5_t100), así que las violaciones aparecen recién
-# en el STA final. Estos valores son el tech LEF escalado por esquina (factores
-# cap 2,93 / 2,59 / 2,30 y R 2,18 / 1,99 / 1,81) para que el promedio que usa el
-# resizer coincida con la pendiente medida. Unidades: ohm/µm y pF/µm.
+# RC de cable por capa y por esquina para la estimación de parásitos del resizer
+# (repair_design, repair_timing, CTS). Sin esta variable, el resizer usa el promedio
+# del tech LEF de las capas de ruteo (0,2752 ohm/µm y 64,3 aF/µm, fila "Signal Avg"
+# de 14-openroad-dumprcvalues/resizer_values_after.rpt) en las 9 esquinas, y con ese
+# modelo ve 0 violaciones de slew tras el ruteo global; la extracción de OpenRCX del
+# ruteo detallado da 188,4 / 166,3 / 148,0 aF/µm y 0,599 / 0,549 / 0,498 ohm/µm
+# (max / nom / min), así que las violaciones aparecen recién en el STA final. Estos
+# valores son los del tech LEF escalados por el factor que falta en cada extracción
+# (cap 2,93 / 2,59 / 2,30 y R 2,18 / 1,99 / 1,81).
+#
+# NINGUNO DE ESTOS NUMEROS ESTA ESCRITO A MANO. Los deriva asic/modelo_cable.py de la
+# extracción de una corrida, y el mismo script verifica que lo que está acá es lo que
+# se deriva. Para reproducirlos y comprobarlos:
+#
+#   python3 asic/modelo_cable.py build/exp_rf_latch/asic/rom/runs/b5_t100 \
+#       --md asic/modelo_cable.md --comparar asic/rom/config.yaml
+#
+# (termina con código 0 solo si coinciden). La explicación de qué estima el resizer,
+# por qué el tech LEF era optimista y cómo se midió está en docs/modelo_cable.md.
+# Unidades: ohm/µm y pF/µm.
 LAYERS_RC:
   "max_*":
     Metal1: {res: 0.85199, cap: 0.00026941}
