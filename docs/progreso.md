@@ -31,3 +31,25 @@ corridas nuevas si `free -m` muestra más de 20000 MB usados.
 | B4 exp/cpi | hecha: área -13,3 %, cierra a 60 ns y no a 55, 50 ni 45; CPI 1,31 en el juego; MIPS 12,7 contra 15,0 | `build/exp_cpi`, commit dbc8018 |
 | B5 exp/rf-latch (opcional) | hecha: b5_t100 y b5_t26 cierran con DRC, LVS y antenas limpios (latches con préstamo de tiempo y chequeos de clock gating en el STA); área -9,3 % a 100 ns y -3,6 % a 26 ns; queda por barrer bajo 26 ns | `build/exp_rf_latch`, commit ba26813 |
 | C1 GIF del chip construyéndose (opcional) | hecha: docs/figuras/construccion.gif (12 etapas) | `make animacion RUN=asic/rom/runs/final` |
+
+## Rama exp/candidata (frente E, 28-10-2026): paquete de la candidata
+
+Documento del frente: `docs/candidata.md`. Las corridas de LibreLane se encolan SOLO con la cola
+de la sesión, desde la raíz del repo principal:
+`bash asic/encolar.sh build/exp_candidata <config> <tag> <T> [VAR=VAL ...]` y
+`bash asic/esperar.sh <tag> ...`; estado en `asic/logs/cola_estado.txt`.
+
+| Tarea | Estado | Cómo retomar / verificar |
+|---|---|---|
+| E0 verificación de la rama | hecha por el frente A con el mismo RTL (commit be50893): make check PASS, make equiv funcional isa_test y hazard_test equivalentes con las dos estrategias, 0 X usados, mutaciones detectadas | `docs/verificacion/*.txt`, `docs/candidata.md` sección 1 |
+| E1 corrida base a 100 ns y 40 % | hecha (reusada, no repetida): `pa_b2_t100` cierra; área de celdas 186.432 µm² = 102,3 % de main (límite 105 %) | `asic/rom/resultados/pa_b2_t100/cierre.md`; enlace en `asic/rom/runs/pa_b2_t100` |
+| E2 barrido de período y ruta crítica | hecha (reusada): cierra a 100, 26 y 25,5; 25 no; mínimo 25,5 ns (39,2 MHz), brecha 0,5 ns. Ruta crítica anotada a 25,5 ns y a 100 ns | `asic/final.md`; `asic/rom/resultados/pa_b2_t25p5/layout/ruta_critica.txt` |
+| E3 barrido de utilización a 100 ns | 70, 75 y 78 % cierran; 50, 60, 72, 80 y 90 % encolados | `bash asic/encolar.sh build/exp_candidata asic/rom/config.yaml e1_uNN 100 FP_CORE_UTIL=NN`; gráfico `docs/figuras/utilizacion.png` |
+| E4 estrategia 2 con este RTL | e2_t100 cierra (área 843.767 µm², die 1.801.610 µm², WNS 30,802 ns); barrido de período en curso (e2_t70, e2_t65) | `asic/ff/resultados/e2_t100/cierre.md`, `asic/final.md` |
+| E5 síntesis jerárquica | hecha: `e1_h100` y `asic/sintesis.md` regenerado | `python3 asic/analisis_sintesis.py --final asic/rom/runs/pa_b2_t100 --jerarquica asic/rom/runs/e1_h100 --md asic/sintesis.md` |
+| E6 figuras del layout | hechas para pa_b2_t100 y pa_b2_t25p5 | `bash asic/layout/anotar.sh asic/rom/runs/<tag>` |
+| E7 post-síntesis y SDF | hechas: post-synth PASS con el netlist `e1_sim_rom` y control negativo FAIL (ATRASO=8); SDF de `e1_pnr` PASS en nom_tt, max_ss y min_ff (3 de 3, mismo md5) | `make post-synth NETLIST_SIM=asic/sim/runs/e1_sim_rom/06-yosys-synthesis/asic_top.nl.v`; `make post-pnr-sdf ESQUINA=<esquina>`; `asic/sim/resultado.md`, `asic/sim/resultado_sdf.md` |
+| E8 DRC de KLayout y control positivo | hechos: 0 marcadores en 684 reglas; el control marca M1.1 y M1.2a | `bash asic/drc_klayout.sh asic/rom/runs/pa_b2_t100`; `bash asic/drc/control_positivo.sh asic/rom/runs/pa_b2_t100` |
+| E9 variantes de signoff del frente C sobre este RTL | hechas: e1_g30_t100 (279/32, +1,27 % de área) y e1_full_t100 (0/0, +12,2 %, fuera del límite de 105 % de main); e1_g30 NO cierra a 25,5 ns, así que el paquete se queda con la configuración base | `asic/final.md` sección de signoff, `docs/candidata.md` sección 7 |
+| E10 potencia | hecha: sin actividad 8,597 mW (nom_tt) y con actividad real de la ventana polling 12,392 mW; método reducido del frente D3 | `SOLO_POLLING=1 bash asic/potencia/correr.sh sim` y `... sta`; `asic/potencia/resultado.md` |
+| E11 tablas, datos del informe y progreso | hechas: `asic/tablas.sh` adaptado a los tags de la rama, `asic/final.md`, `asic/sintesis.md`, `docs/datos_informe.md` con un bloque Candidata por sección | `bash asic/tablas.sh` |
