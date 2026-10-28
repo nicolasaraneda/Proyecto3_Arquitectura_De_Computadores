@@ -257,19 +257,64 @@
     "nota": "214 slew / 1 cap con +0,64 % de área, pero no cierra a 24 ns"
   },
   {
-    "nombre": "exp/candidata (A+B2 con el signoff elegido)",
+    "nombre": "exp/candidata (A+B2, paquete completo)",
     "rama": "exp/candidata",
-    "cambio": "A más B2 más la configuración de signoff del frente C",
-    "verificacion": "ver docs/propuesta_d23.md",
+    "cambio": "A mas B2 con la configuracion final de main y EarlyRead=1",
+    "verificacion": "check PASS, equiv funcional, hazard_test, 0 X, post-synth, SDF en 3 esquinas, DRC de KLayout con control positivo, revision independiente",
     "cpi_isa": 1.969,
     "cpi_juego": 1.665,
-    "corrida_100": "build/exp_candidata/asic/rom/runs/e1_t100",
+    "corrida_100": "build/exp_candidata/asic/rom/runs/pa_b2_t100",
     "corridas_periodo": [
-      "build/exp_candidata/asic/rom/runs/e1_t26",
-      "build/exp_candidata/asic/rom/runs/e1_t25p5",
-      "build/exp_candidata/asic/rom/runs/e1_t25"
+      "build/exp_candidata/asic/rom/runs/pa_b2_t26",
+      "build/exp_candidata/asic/rom/runs/pa_b2_t25p5",
+      "build/exp_candidata/asic/rom/runs/pa_b2_t25"
+    ],
+    "potencia_mw": 12.392,
+    "nota": "corridas base reusadas de exp/pipeline-b2 (mismo arbol); potencia con actividad: ventana de polling en nom_tt"
+  },
+  {
+    "nombre": "exp/candidata, variante de cero slew",
+    "rama": "exp/candidata",
+    "cambio": "la candidata con los RC de cable medidos y reparacion post-GRT (frente C)",
+    "verificacion": "mismo RTL que la candidata",
+    "cpi_isa": 1.969,
+    "cpi_juego": 1.665,
+    "corrida_100": "build/exp_candidata/asic/rom/runs/e1_full_t100",
+    "corridas_periodo": [],
+    "potencia_mw": null,
+    "nota": "0 slew y 0 cap a 100 ns, pero 114,8 por ciento del area de main: fuera del limite de 105 por ciento"
+  },
+  {
+    "nombre": "main con LAYERS_RC (exploracion del coordinador)",
+    "rama": "main",
+    "cambio": "el RTL de main con los RC de cable medidos y reparacion post-GRT",
+    "verificacion": "mismo RTL que main",
+    "cpi_isa": 2.953,
+    "cpi_juego": 2.665,
+    "corrida_100": "build/main_rc/asic/rom/runs/co_rcm_t100",
+    "corridas_periodo": [
+      "build/main_rc/asic/rom/runs/co_rcm_t23",
+      "build/main_rc/asic/rom/runs/co_rcm_t22"
     ],
     "potencia_mw": null,
-    "nota": "paquete completo en la rama"
+    "nota": "110,4 por ciento del area de main: fuera del limite; 0 slew en las 9 esquinas"
+  },
+  {
+    "nombre": "exp/candidata-rc (exploracion del coordinador)",
+    "rama": "exp/candidata-rc",
+    "cambio": "la candidata con los RC de cable medidos y reparacion post-GRT",
+    "verificacion": "mismo RTL que la candidata",
+    "cpi_isa": 1.969,
+    "cpi_juego": 1.665,
+    "corrida_100": "build/exp_candidata_rc/asic/rom/runs/co_rc_t100",
+    "corridas_periodo": [
+      "build/exp_candidata_rc/asic/rom/runs/co_rc_t25",
+      "build/exp_candidata_rc/asic/rom/runs/co_rc_t24",
+      "build/exp_candidata_rc/asic/rom/runs/co_rc_t23",
+      "build/exp_candidata_rc/asic/rom/runs/co_rc_t22",
+      "build/exp_candidata_rc/asic/rom/runs/co_rc_t21"
+    ],
+    "potencia_mw": null,
+    "nota": "114,4 por ciento del area de main: fuera del limite; 0 slew a 100 ns"
   }
 ]

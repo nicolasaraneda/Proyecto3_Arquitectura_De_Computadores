@@ -146,7 +146,74 @@ Los estímulos de la rama se recalibraron con `asic/sim/calibrar.py`.
 
 ## 6. Paquete de la rama candidata
 
-PAQUETE_PENDIENTE
+El frente E le hizo a `exp/candidata` el paquete completo que el informe necesitaría si pasara a
+ser la final, con los mismos nombres de archivo que usa `main`: `asic/final.md`,
+`asic/sintesis.md`, `asic/sim/resultado*.md`, `asic/rom/resultados/<tag>/`, `docs/datos_informe.md`
+(un bloque "Candidata" por sección) y `docs/candidata.md` con las 11 secciones y el origen de cada
+número. Son 14 commits en la rama, empujada a `origin`. Las corridas base (`pa_b2_*`) no se
+repitieron: el árbol de la rama es idéntico al de `exp/pipeline-b2`, así que esas corridas son las
+de la candidata y quedaron enlazadas en `asic/rom/runs/`.
+
+| Paso del paquete | Resultado | Archivo de origen (en la rama) |
+|---|---|---|
+| Corrida a 100 ns y 40 por ciento | cierra: DRC de Magic 0, LVS 0, antenas 0, setup y hold en las 9 esquinas; 186.432 µm², 102,3 por ciento de `main` | `asic/rom/resultados/pa_b2_t100/cierre.md` |
+| Barrido de período con la regla de 0,5 ns | mínimo 25,5 ns (25 ns no cierra por 0,409 ns) | `asic/final.md` |
+| Ruta crítica del período mínimo | del PC a la ROM combinacional y de ahí a la dirección de lectura del banco, 24 celdas: es la ruta que crea la lectura anticipada | `asic/rom/resultados/pa_b2_t25p5/layout/ruta_critica.txt` |
+| Barrido de utilización | 50, 60, 70, 72, 75 y 78 por ciento cierran; 80 falla en el CTS y 90 en el placement global. Área mínima 0,221 mm² a 78 por ciento (`main`: 0,216 mm²) | `asic/final.md`, `falla.txt` de `e1_u80` y `e1_u90` |
+| Las dos estrategias de memoria con el core nuevo | estrategia 2 cierra a 100 ns y su período mínimo empeora a 69,5 ns (`main`: 62 ns), porque el banco write-through alarga también esa ruta, donde la lectura anticipada no se usa | `asic/ff/resultados/e2_*/cierre.md` |
+| Síntesis jerárquica | hecha, `asic/sintesis.md` regenerado | `asic/rom/resultados/e1_h100/sintesis_jerarquica.rpt` |
+| Figuras del layout | bloques, ruta crítica y slew de la corrida base y de la del período mínimo | `asic/rom/resultados/<tag>/layout/` |
+| Simulación post-síntesis | PASS con el netlist propio, control negativo FAIL con `ATRASO = 8`, y `post-synth-final` PASS en 320.000 ciclos con el netlist real | `asic/sim/resultado.md`, `resultado_final.md` |
+| Simulación post-PnR con SDF | corrida completa `e1_pnr` que cierra, y trazas idénticas al RTL en `nom_tt`, `max_ss` y `min_ff` | `asic/sim/resultado_sdf.md`, `asic/sim/resultados/e1_pnr/cierre.md` |
+| DRC de KLayout con control positivo | 0 marcadores en 684 reglas; el control positivo marca las dos violaciones de Metal1 en sus coordenadas | `asic/rom/resultados/pa_b2_t100/drc_klayout/{resumen.md,control_positivo.md}` |
+| Potencia sin actividad (nom_tt) | 8,597 mW, **menos** que los 8,971 mW de `main` | `power.rpt` de la corrida base |
+| Potencia con actividad real (ventana de polling, nom_tt) | 12,392 mW contra 11,504 mW de `main` en la misma ventana | `asic/potencia/resultado.md` de la rama |
+
+Variantes de signoff del frente C medidas sobre la candidata, las dos descartadas para el paquete:
+
+- `e1_g30_t100` (márgenes del repair de placement en 30 por ciento): baja las violaciones de slew
+  de 571 a 279 por 1,27 por ciento de área, pero **ya no cierra al período mínimo** (a 25,5 ns deja
+  -1,422 ns), igual que le pasó al frente C en su rama. Cuesta unos 1,4 MIPS para mejorar un
+  criterio que es solo de desempate.
+- `e1_full_t100` (RC de cable medidos más reparación post-GRT): llega a **0 violaciones de slew y 0
+  de capacitancia** con cierre completo a 100 ns, pero cuesta 209.185 µm², es decir 114,8 por
+  ciento del área de `main`, fuera del límite de 105 por ciento. Es la respuesta medida a si las
+  546 violaciones de slew de `main` se pueden eliminar: sí, y este es el precio.
+
+**El paquete se queda con la configuración base** de la rama, que es la final de `main` más
+`EarlyRead = 1`.
+
+Lo que quedó sin hacer en el paquete, dicho explícitamente: la simulación con Open Verilog CVC de
+la rama (el objetivo está copiado pero no se corrió), la potencia con actividad en las otras tres
+ventanas y las 9 esquinas, la ruta crítica anotada de las dos variantes de signoff, y los
+equivalentes de la corrida con terminales automáticos y del GIF de construcción.
+
+## 6 bis. Por qué la candidata parece 1 ns más lenta: el modelo de cable del resizer
+
+Medición del coordinador, fuera del paquete, para entender la única desventaja de temporización de
+la candidata. El frente C mostró que el resizer de OpenROAD estima la capacidad de los cables con
+2,3 a 2,9 veces menos de la que extrae OpenRCX del ruteo detallado, y que corregirla con
+`LAYERS_RC` (los valores del tech LEF escalados por esquina para que coincidan con la pendiente
+medida sobre 2.399 nets) más la reparación post-GRT cambia el período que alcanza el flujo. Corrí
+esa misma configuración sobre los dos RTL, en ramas aparte (`exp/candidata-rc` y un worktree
+`build/main_rc` de `main`), con los tags `co_rc_*` y `co_rcm_*`:
+
+TABLA_RC
+
+Conclusiones, que valen para el informe aunque esta configuración no pueda ser la final:
+
+1. **La candidata no es intrínsecamente más lenta que `main`.** Con el modelo de cable corregido
+   los dos cierran a 23 ns, y la candidata lo hace con el doble de margen (1,494 contra 0,756 ns).
+   El nanosegundo de diferencia de la configuración base (25,5 contra 24,5 ns) lo produce el
+   resizer, que con parásitos optimistas deja de reparar antes en el diseño con la ruta nueva.
+2. **Esta configuración no puede ser la corrida final**: cuesta 110,4 por ciento del área de
+   `main` sobre el RTL de `main` y 114,4 por ciento sobre el de la candidata, las dos por encima
+   del límite de 105 por ciento de la regla de selección. Por eso ni `main` ni la candidata la
+   usan, y el período mínimo que se reporta sigue siendo el de la configuración del enunciado.
+3. Como efecto secundario, la misma configuración deja 0 violaciones de max slew en las 9 esquinas
+   en los dos diseños, lo que confirma el diagnóstico del frente C: las violaciones de slew de la
+   corrida final no son un problema del diseño sino del modelo con que el flujo decide dónde
+   poner buffers.
 
 ## 7. Qué cambia en el informe si la candidata pasa a ser la final
 
