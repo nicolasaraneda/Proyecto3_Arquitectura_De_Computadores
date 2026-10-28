@@ -229,7 +229,7 @@ Lecturas:
   sus movimientos útiles sobre la ruta crítica, no el margen pedido. Igual que con
   `PL_RESIZER_SETUP_SLACK_MARGIN` 5, 10 o 15 (sección 4).
 - **Ninguna estrategia de síntesis ayuda al límite**, ni las de retardo. La mejor, DELAY 0, queda
-  a -1,534 ns con 12 % más de área; DELAY 3, que daba el mejor slack a 100 ns (68,192 ns), es una
+  a -1,534 ns con 7,1 % más de área que la base al mismo período (184.408 contra 172.185 µm²); DELAY 3, que daba el mejor slack a 100 ns (68,192 ns), es una
   de las peores a 23 ns (-3,089 ns). La razón es la de la sección 4: a 100 ns la peor ruta a
   flip-flop es la escritura de un `sw` a un periférico, una ruta distinta de la que limita el
   período, así que el slack a 100 ns no sirve para elegir candidatas.
@@ -239,7 +239,7 @@ Lecturas:
 
 ### 6.2 Candidatas barridas en período
 
-Dos candidatas llegaron al barrido completo (el brief permitía hasta tres): la base B2 + B5 y la
+Dos candidatas llegaron al barrido completo de período (el plan del frente permitía hasta tres): la base B2 + B5 y la
 base con el repair post-GRT. No se barrió una tercera porque ninguna otra perilla quedó a menos de
 1,5 ns de cerrar a 23 ns, es decir ninguna otra tenía posibilidad de bajar de 23,5 ns. Las dos
 cumplen la regla de 0,5 ns. CPI del juego completo (game_tb, 10 rondas): 2,665 en las dos, igual
@@ -252,14 +252,21 @@ con `make equiv` ciclo a ciclo); MIPS = f_max / 2,665.
 | B: B2 + B5 | 23,5 ns (fb_t23p5) | 23 ns (fb_t23, -0,447) | 42,55 | 15,97 | 165.358 | 172.185 | 340 / 2 | `asic/rom/resultados/fb_t23p5/` |
 | **B + post-GRT** | **23,25 ns (fb_pgrt_t23p25)** | 23 ns (fb_pgrt_t23, -0,211) | **43,01** | **16,14** | **165.358** | **172.211** | **324 / 3** | `asic/rom/resultados/fb_pgrt_t23p25/` |
 
-Las dos candidatas cierran en los nueve rincones con DRC de Magic 0, LVS 0 y 0 nets con violación
+Las dos candidatas cierran en las nueve esquinas con DRC de Magic 0, LVS 0 y 0 nets con violación
 de antena (`cierre.md` de cada corrida), y las dos quedan muy por debajo del límite de área
-(165.358 µm² a 100 ns, 86,3 % de los 191.378 permitidos). Área de die 353.921 µm² en las dos, con
+(165.358 µm² a 100 ns, 86,4 % de los 191.378 permitidos). Área de die 353.921 µm² en las dos, con
 utilización 0,505 a 100 ns y 0,526 al período mínimo.
+
+Segundo signoff de la candidata elegida: `bash asic/drc_klayout.sh asic/rom/runs/fb_pgrt_t23p25`
+(el deck de KLayout de GF180MCU sobre el GDS final, el mismo que usa el paso `KLayout.DRC`, que
+LibreLane salta en gf180mcuD) da **0 marcadores en 0 reglas de las 684 que evalúa el deck**, en
+324 segundos: `asic/rom/resultados/fb_pgrt_t23p25/drc_klayout/resumen.md`, `drc.log` y
+`drc.lyrdb`. Igual que la corrida final de main.
 
 Ganancia de la mejor candidata contra main: período mínimo de 24,5 a 23,25 ns (-5,1 %), f_max de
 40,82 a 43,01 MHz (+5,4 %), MIPS de 15,32 a 16,14 (+5,4 %), área a 100 ns -9,3 %, área al período
-mínimo -9,3 %, violaciones de slew de 532 a 324 (-39 %) y de capacitancia de 36 a 3 (-92 %).
+mínimo -9,3 %, y, al período mínimo de cada una, violaciones de max slew de 532 a 324 (-39 %) y
+de max capacitancia de 36 a 3 (-92 %).
 
 ### 6.3 Ruta crítica del período mínimo (fb_pgrt_t23p25)
 
@@ -295,7 +302,7 @@ completo está en `max_ss_125C_4v50_ruta_ff.rpt` y la ruta del latch, que es la 
 
 ### 6.4 MEJOR BASE DE B (para los frentes C y E)
 
-- **Rama**: `exp/fmax`, commit `COMMIT_MEJOR_BASE` (worktree `build/exp_fmax`).
+- **Rama**: `exp/fmax`, commit `e8eee90` (worktree `build/exp_fmax`).
 - **RTL**: main `50f8a39` más B2 (`f053dec`, offset de byte de la carga registrado en la LSU) y
   B5 (`73f1d72` y `210b6a7`, banco de registros con latches `latq_1` y clock gating `icgtp_1`
   por registro). El RTL no cambió más en el frente B: `210b6a7` es el último commit que toca
@@ -307,8 +314,8 @@ completo está en `max_ss_125C_4v50_ruta_ff.rpt` y la ruta del latch, que es la 
   cambia `SYNTH_STRATEGY` (sigue en el `AREA 0` implícito), ni el margen del resizer (10 ns de
   D20), ni la biblioteca (7 pistas).
 - **Qué da**: cierre completo a 100 ns y 40 % con 165.358 µm² de celdas estándar; período mínimo
-  23,25 ns (43,01 MHz), 16,14 MIPS con el CPI 2,665 del juego; 324 violaciones de max slew y 3 de
-  max capacitancia a 100 ns.
+  23,25 ns (43,01 MHz), 16,14 MIPS con el CPI 2,665 del juego; 326 violaciones de max slew y 2 de
+  max capacitancia a 100 ns (fb_pgrt_t100), 324 y 3 al período mínimo (fb_pgrt_t23p25).
 - **Cuánto cuesta en área**: nada; **ahorra**. 165.358 µm² contra 182.265 de main a 100 ns, es
   decir -16.907 µm² (-9,3 %), y 172.211 contra 189.817 al período mínimo de cada una (-9,3 %).
   El ahorro viene de B5: el área de síntesis del módulo `espino_register_file` baja de
@@ -316,9 +323,11 @@ completo está en `max_ss_125C_4v50_ruta_ff.rpt` y la ruta del latch, que es la 
   (`asic/rom/resultados/fb_t100/sintesis_stat.rpt`), -28,8 %, al cambiar 480 flip-flops por 480
   latches `latq_1` con 15 clock gating `icgtp_1`. En el layout final, las celdas secuenciales
   pasan de 990 celdas y 65.065,7 µm² en main a 1.024 celdas (544 flip-flops más 480 latches) y
-  57.746,9 µm² (`design__instance__*__class:sequential_cell` de cada `metrics.json`). El die no
-  cambia de tamaño
-  (353.921 µm², fijado por `FP_CORE_UTIL` y la utilización resultante). Las dos únicas
+  57.746,9 µm² (`design__instance__*__class:sequential_cell` de cada `metrics.json`). El die mide
+  353.921 µm² en todas las corridas de esta base, con y sin post-GRT y de 100 a 23 ns, contra
+  408.957 de main a 100 ns (-13,5 %): con la
+  misma `FP_CORE_UTIL` del 40 %, menos área de celdas da un die más chico
+  (`design__die__area` de cada `metrics.json`). Las dos únicas
   contrapartidas son de flujo, no de área: el linter necesita `LINTER_ERROR_ON_LATCH: false` y
   cada corrida tarda unos 14 minutos más por el paso post-GRT (27 min a 100 ns contra 16 min).
 - **Advertencia para quien la tome**: con los latches, el WNS de setup de `metrics.json` es
@@ -332,8 +341,9 @@ completo está en `max_ss_125C_4v50_ruta_ff.rpt` y la ruta del latch, que es la 
   no se gastaron corridas en afinar más.
 - Combinación de post-GRT con `SYNTH_STRATEGY`: ninguna estrategia quedó a menos de 1,5 ns de
   cerrar a 23 ns, y el post-GRT da 0,236 ns, así que la combinación no puede cerrar a 23 ns.
-- La 9t con el clock gating de B5 desactivado (dejaría el DRC en 0 pero el área seguiría sobre el
-  límite, sección 4).
+- La 9t sin el clock gating de B5: quitaría del diseño la celda que causa los 30 errores de DRC,
+  pero no se probó, y de todos modos el área de la 9t ya está 8,3 % sobre el límite de la sesión
+  (207.271 contra 191.378 µm²), así que no habría cambiado la decisión (sección 4).
 - Potencia con actividad real de la candidata: es el desempate de la regla de selección y solo se
   usa si dos candidatas empatan en MIPS, slew y capacitancia, lo que no ocurre aquí. El frente de
   potencia (D) la mide sobre main.
