@@ -10,11 +10,12 @@
 #      (se detiene si no cierra)
 #   3. asic/tablas.sh: copia los reportes a asic/rom/resultados/ y escribe asic/final.md
 #      (corrida final y los barridos f1_*, r0_*, u1_* que existan) y los gráficos
-#   4. síntesis jerárquica (h2_t100, solo hasta Yosys.Synthesis) y
+#   4. síntesis jerárquica (h3_t100, solo hasta Yosys.Synthesis) y
 #      asic/analisis_sintesis.py -> asic/sintesis.md          (sección 3.3)
 #   5. asic/layout/anotar.py (KLayout en la imagen de Docker) ->
 #      asic/rom/resultados/final/layout/                      (sección 3.6)
-#   6. asic/drc_klayout.sh: segundo DRC con el deck de KLayout del PDK
+#   6. asic/drc_klayout.sh: segundo DRC con el deck de KLayout del PDK, y
+#      asic/drc/control_positivo.sh: el control positivo de ese DRC
 #   7. make post-synth y make post-synth-final                (sección 3.7)
 #   8. asic/versiones.sh -> asic/versiones.md
 # Los barridos de período y de utilización se lanzan aparte (asic/barridos.sh).
@@ -37,26 +38,34 @@ echo "== 3. reportes y tablas (final y barridos que existan) =="
 bash asic/tablas.sh
 cp asic/rom/runs/final/resolved.json asic/rom/resultados/final/resolved.json
 cp asic/rom/runs/final/warning.log asic/rom/resultados/final/warning.log
+# Los pasos van numerados y el numero cambia con la configuracion (la de D23
+# agrega RepairDesignPostGRT y ResizerTimingPostGRT, asi que stapostpnr pasa de
+# 55 a 57 y checkantennas-1 de 46 a 48): se buscan por nombre, no por numero.
+STA=$(ls -d asic/rom/runs/final/*-openroad-stapostpnr | tail -1)
+ANT=$(ls -d asic/rom/runs/final/*-openroad-checkantennas-1 | tail -1)
 for e in nom_tt_025C_5v00 max_ss_125C_4v50; do
-  cp "asic/rom/runs/final/55-openroad-stapostpnr/$e/checks.rpt" "asic/rom/resultados/final/${e}_checks.rpt"
+  cp "$STA/$e/checks.rpt" "asic/rom/resultados/final/${e}_checks.rpt"
 done
-cp asic/rom/runs/final/46-openroad-checkantennas-1/reports/antenna.rpt asic/rom/resultados/final/antenna.rpt 2>/dev/null || true
+cp "$ANT/reports/antenna.rpt" asic/rom/resultados/final/antenna.rpt 2>/dev/null || true
 
 echo "== 4. síntesis jerárquica y análisis (3.3) =="
-if [ ! -f asic/rom/runs/h2_t100/06-yosys-synthesis/reports/stat.json ]; then
-  $LL asic/rom/config.yaml -c SYNTH_HIERARCHY_MODE=keep --to Yosys.Synthesis --run-tag h2_t100 --overwrite
+if [ -z "$(ls -d asic/rom/runs/h3_t100/*-yosys-synthesis 2>/dev/null)" ]; then
+  $LL asic/rom/config.yaml -c SYNTH_HIERARCHY_MODE=keep --to Yosys.Synthesis --run-tag h3_t100 --overwrite
 fi
-mkdir -p asic/rom/resultados/h2_t100
-cp asic/rom/runs/h2_t100/06-yosys-synthesis/reports/stat.rpt asic/rom/resultados/h2_t100/sintesis_jerarquica.rpt
-cp asic/rom/runs/h2_t100/06-yosys-synthesis/reports/stat.json asic/rom/resultados/h2_t100/sintesis_jerarquica.json
-cp asic/rom/runs/final/06-yosys-synthesis/reports/stat.json asic/rom/resultados/final/sintesis_stat.json
-python3 asic/analisis_sintesis.py --final asic/rom/runs/final --jerarquica asic/rom/runs/h2_t100 --md asic/sintesis.md > /dev/null
+mkdir -p asic/rom/resultados/h3_t100
+SJ=$(ls -d asic/rom/runs/h3_t100/*-yosys-synthesis | tail -1)
+SF=$(ls -d asic/rom/runs/final/*-yosys-synthesis | tail -1)
+cp "$SJ/reports/stat.rpt" asic/rom/resultados/h3_t100/sintesis_jerarquica.rpt
+cp "$SJ/reports/stat.json" asic/rom/resultados/h3_t100/sintesis_jerarquica.json
+cp "$SF/reports/stat.json" asic/rom/resultados/final/sintesis_stat.json
+python3 asic/analisis_sintesis.py --final asic/rom/runs/final --jerarquica asic/rom/runs/h3_t100 --md asic/sintesis.md > /dev/null
 
 echo "== 5. figuras del layout (3.6) =="
 bash asic/layout/anotar.sh asic/rom/runs/final
 
-echo "== 6. DRC de KLayout con el deck del PDK =="
+echo "== 6. DRC de KLayout con el deck del PDK y su control positivo =="
 bash asic/drc_klayout.sh asic/rom/runs/final
+bash asic/drc/control_positivo.sh asic/rom/runs/final
 
 echo "== 7. simulación post-síntesis (3.7) =="
 make post-synth

@@ -26,3 +26,28 @@ PL_RESIZER_SETUP_SLACK_MARGIN: 10
 CLOCK_PORT: clk
 CLOCK_PERIOD: 100
 FP_CORE_UTIL: 40
+
+RUN_POST_GRT_DESIGN_REPAIR: true
+GRT_DESIGN_REPAIR_MAX_SLEW_PCT: 30
+GRT_DESIGN_REPAIR_MAX_CAP_PCT: 30
+RUN_POST_GRT_RESIZER_TIMING: true
+
+LAYERS_RC:
+  "max_*":
+    Metal1: {res: 0.85199, cap: 0.00026941}
+    Metal2: {res: 0.69985, cap: 0.00024598}
+    Metal3: {res: 0.69985, cap: 0.00022958}
+    Metal4: {res: 0.69985, cap: 0.00022712}
+    Metal5: {res: 0.29691, cap: 0.000050766}
+  "nom_*":
+    Metal1: {res: 0.78028, cap: 0.00023788}
+    Metal2: {res: 0.64095, cap: 0.00021719}
+    Metal3: {res: 0.64095, cap: 0.00020271}
+    Metal4: {res: 0.64095, cap: 0.00020054}
+    Metal5: {res: 0.27192, cap: 0.000044824}
+  "min_*":
+    Metal1: {res: 0.70858, cap: 0.00021165}
+    Metal2: {res: 0.58205, cap: 0.00019324}
+    Metal3: {res: 0.58205, cap: 0.00018036}
+    Metal4: {res: 0.58205, cap: 0.00017843}
+    Metal5: {res: 0.24693, cap: 0.000039882}
