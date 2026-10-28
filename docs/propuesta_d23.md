@@ -1,9 +1,16 @@
 # Propuesta: adoptar `exp/candidata` como corrida final (D23)
 
-Este documento compara la corrida final actual (`main`, tag `final`) con la rama `exp/candidata`
+**Estado: resuelto el 28-10-2026. D23 eligió la opción (b) en su variante `exp/candidata-rc`**, es
+decir el RTL de esta propuesta más la configuración del modelo de cable del resizer de la sección
+6 bis. El límite de área de celdas de 105 por ciento que esa sección usaba para descartarla era una
+regla de selección del grupo, no del enunciado, y se levantó: ver D23 en `docs/decisiones.md` y
+`docs/modelo_cable.md`. Este documento se conserva como el análisis que llevó a la decisión; sus
+tablas describen `main` v1 (tag `v1-final`) contra la candidata sin modelo de cable, y los números
+de la corrida final nueva están en `asic/final.md` y en `docs/datos_informe.md`.
+
+Este documento compara la corrida final de v1 (`main`, tag `v1-final`) con la rama `exp/candidata`
 de la sesión del 27 y 28-10-2026, en todos los criterios del enunciado y en las métricas de la
-regla de selección de la sesión. Es una propuesta: nada de esto está adoptado en `main`. La
-decisión queda en D23 de `docs/decisiones.md`, con "Elegida: pendiente (Nicolás)".
+regla de selección de la sesión.
 
 Todos los números salen de los `metrics.json`, los `cierre.md` y los reportes copiados a
 `resultados/` de cada corrida; la ruta de origen va en cada fila o al final de cada tabla. Nada

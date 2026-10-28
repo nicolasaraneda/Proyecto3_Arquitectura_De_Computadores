@@ -161,11 +161,60 @@ Cada decisión registra las opciones, la elegida, la razón y lo que se pierde c
 - Razón: la corrida final ya cumple todos los criterios con margen (setup 65,2 ns y hold 0,18 ns en la peor esquina a T = 100 ns; período mínimo 25 ns). B2 gana 1 ns a cambio de más violaciones de slew (546 a 672); B5 reduce 9,3 % el área de celdas pero agrega latches, clock gating y préstamo de tiempo, y su WNS de setup se reporta en 0,000 por convención; B4 baja el CPI a la mitad pero rinde 15 % menos en MIPS; las variantes de B1 mejoran slew y capacitancia, que no son criterio de cierre, a costa de área. Cada cambio adoptado amplía lo que el grupo debe defender sin cambiar el cumplimiento de ningún criterio.
 - Qué se pierde: el 9,3 % de área de B5 y el nanosegundo de B2. Las exploraciones quedan documentadas en asic/exploraciones.md y en sus ramas exp/*.
 
-## D23. Corrida final: mantener main o adoptar exp/candidata (28-10-2026, en estado de propuesta)
+## D23. Corrida final: mantener main o adoptar exp/candidata (28-10-2026)
 
-**Estado: propuesta. Elegida: pendiente (Nicolás).** Nada de esta decisión está aplicado en `main`.
-El análisis completo, con todas las tablas y los archivos de origen, está en
-`docs/propuesta_d23.md`; los datos de cada rama en `asic/exploraciones.md`.
+**Elegida: (b), variante `exp/candidata-rc`.**
+
+**Razón:** "Representa una ganancia en frecuencia y MIPS considerable, tomando en consideración el
+área sacrificada."
+
+La corrida final del Proyecto 3 pasa a ser el RTL de `exp/candidata` (lectura del banco de registros
+y decodificación durante el fetch con el parámetro `EarlyRead`, banco write-through y el offset de
+byte de la carga registrado en la LSU, B2) **más la configuración del modelo de cable del resizer**
+(`LAYERS_RC` con los RC medidos por extracción) y la reparación post-GRT. El análisis completo, con
+todas las tablas y los archivos de origen, está en `docs/propuesta_d23.md` y en `docs/modelo_cable.md`;
+los datos de cada rama en `asic/exploraciones.md`.
+
+### Nota sobre el límite de área de celdas (105 por ciento)
+
+El límite de 105 por ciento del área de celdas estándar de `main` a 100 ns **era una regla de
+selección que se fijó el grupo para esta sesión, no un criterio del enunciado**: el enunciado pide
+cierre de timing, DRC, LVS y antenas, e informar área, frecuencia y costo, pero no fija un techo de
+área. Ese límite es el único motivo por el que `docs/propuesta_d23.md` y `docs/modelo_cable.md`
+descartaban la configuración del modelo de cable, y se levanta porque lo que el enunciado sí pide no
+empeora:
+
+- el **área del die no cambia**: 419.131 µm² (0,419 mm²), exactamente la misma de la candidata sin
+  modelo de cable (`design__die__area` de `build/exp_candidata_rc/asic/rom/runs/co_rc_t100/final/metrics.json`
+  y de `build/exp_candidata/asic/rom/runs/pa_b2_t100/final/metrics.json`). El die lo fija
+  `FP_CORE_UTIL = 40` sobre el área de la síntesis, no el área que ocupan las celdas después del
+  resizer;
+- el **costo estimado tampoco cambia**: 0,419131 mm² por 23.000 dólares/mm² = 9.640 dólares, el
+  mismo de la candidata (sección 3.5);
+- lo que sube es la **utilización real del core**, de 47,9 a 53,5 por ciento
+  (`design__instance__utilization`: 0,479898 en `asic/rom/resultados/v1_final/metrics.json`,
+  0,478613 en la candidata y 0,535110 en `co_rc_t100`). Sigue muy por debajo del 90,3 por ciento
+  con el que cierra la utilización máxima medida (`u1_u78`), así que el área que gastan los buffers
+  nuevos cabe en el die que ya estaba elegido.
+
+Dicho de otro modo: el área de celdas sube 14,4 por ciento (208.439 contra 182.265 µm²) pero el
+chip que se fabrica y lo que cuesta son los mismos, y a cambio el período mínimo baja de 24,5 a
+21,5 ns y el MIPS sube de 15,3 a 27,9. Esa es la "ganancia en frecuencia y MIPS considerable,
+tomando en consideración el área sacrificada" de la razón de arriba.
+
+### Fecha de corte y vueltas atrás
+
+**Fecha de corte: 1-11-2026 a las 23:59.** Si a esa hora la `candidata-rc` integrada no cumple
+todas las verificaciones y el cierre completo, se vuelve atrás en este orden:
+
+1. **Primera vuelta atrás: `exp/candidata` con la configuración anterior** (el mismo RTL sin
+   `LAYERS_RC` ni reparación post-GRT): período mínimo 25,5 ns, 39,2 MHz, 23,6 MIPS, 186.432 µm².
+   Es un cambio de configuración, no de RTL, así que toda la verificación funcional sigue valiendo.
+2. **Segunda vuelta atrás: `main` v1**, el estado de `main` antes de integrar, marcado con el tag
+   `v1-final` (commit `bcb147b`) y con sus reportes copiados a `asic/rom/resultados/v1_final/`:
+   período mínimo 24,5 ns, 40,8 MHz, 15,3 MIPS, 182.265 µm².
+
+En cualquiera de los dos casos hay que reportarlo explícitamente.
 
 - Contexto: la sesión del 27 y 28-10-2026 reabrió la optimización con una regla de selección fija
   (métrica principal MIPS = f máx / CPI del juego completo; período barrido hasta dejar 0,5 ns o
@@ -221,3 +270,8 @@ Lo que ya está decidido, independiente de esta decisión: las correcciones de l
 mínima 0,216 mm² en la sección 3.5), y los resultados de verificación del frente D que no cambian
 el diseño (simulación post-PnR con SDF en tres esquinas con Icarus y con Open Verilog CVC,
 equivalencia formal entre el RTL y los netlists, y potencia con actividad real).
+
+### Estado de la integración (28-10-2026)
+
+La integración y sus verificaciones se registran en `docs/cambios_informe.md` y en el reporte de la
+sesión. "v1" en todos los documentos quiere decir `main` antes de integrar, tag `v1-final`.
