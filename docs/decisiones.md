@@ -160,3 +160,64 @@ Cada decisión registra las opciones, la elegida, la razón y lo que se pierde c
 - Elegida: (a).
 - Razón: la corrida final ya cumple todos los criterios con margen (setup 65,2 ns y hold 0,18 ns en la peor esquina a T = 100 ns; período mínimo 25 ns). B2 gana 1 ns a cambio de más violaciones de slew (546 a 672); B5 reduce 9,3 % el área de celdas pero agrega latches, clock gating y préstamo de tiempo, y su WNS de setup se reporta en 0,000 por convención; B4 baja el CPI a la mitad pero rinde 15 % menos en MIPS; las variantes de B1 mejoran slew y capacitancia, que no son criterio de cierre, a costa de área. Cada cambio adoptado amplía lo que el grupo debe defender sin cambiar el cumplimiento de ningún criterio.
 - Qué se pierde: el 9,3 % de área de B5 y el nanosegundo de B2. Las exploraciones quedan documentadas en asic/exploraciones.md y en sus ramas exp/*.
+
+## D23. Corrida final: mantener main o adoptar exp/candidata (28-10-2026, en estado de propuesta)
+
+**Estado: propuesta. Elegida: pendiente (Nicolás).** Nada de esta decisión está aplicado en `main`.
+El análisis completo, con todas las tablas y los archivos de origen, está en
+`docs/propuesta_d23.md`; los datos de cada rama en `asic/exploraciones.md`.
+
+- Contexto: la sesión del 27 y 28-10-2026 reabrió la optimización con una regla de selección fija
+  (métrica principal MIPS = f máx / CPI del juego completo; período barrido hasta dejar 0,5 ns o
+  menos entre el último período que cierra y el primero que no; límite de área de celdas estándar
+  a 100 ns de 105 por ciento de la de `main`, y cierre completo a 100 ns y 40 por ciento de
+  utilización; desempate por violaciones de max slew y de max capacitancia, potencia con actividad
+  real y área). También corrigió dos cifras de `main` que valen para cualquier opción: el período
+  mínimo es 24,5 ns y no 25 (`f1_t24p5` cierra con WNS 0,496 ns), es decir 40,8 MHz y 15,3 MIPS, y
+  la utilización máxima que cierra es 78 por ciento, con un die mínimo de 0,216 mm² (`u1_u78`).
+- La candidata (`exp/candidata`, desde `exp/pipeline-b2`, commit `be50893`): lectura del banco de
+  registros y decodificación durante el fetch, con banco write-through y un parámetro del core
+  (`EarlyRead`) que deja la temporización anterior para la estrategia 2 de memoria, más el offset
+  de byte de la carga registrado en la LSU (B2). CPI del juego 1,665 contra 2,665; período mínimo
+  25,5 ns contra 24,5; **23,6 MIPS contra 15,3 (+54 por ciento)**; área de celdas 186.432 µm²
+  contra 182.265 (+2,3 por ciento); die 0,419 contra 0,409 mm²; cierra DRC, LVS, antenas y las 9
+  esquinas de setup y hold a 100 ns y 40 por ciento. Verificación: `make check` PASS, `make equiv`
+  funcional con las dos estrategias, `sw/hazard_test.s` nuevo con trazas equivalentes a las de
+  `main`, dos mutaciones que las pruebas detectan, 0 valores desconocidos usados en 620.217
+  escrituras al banco, `make post-synth` PASS con control negativo y revisión de un agente que no
+  escribió ese código.
+
+Opciones:
+
+- **(a) Mantener `main` como corrida final** y presentar la candidata como la exploración
+  principal de la sección 3.4, igual que D22 hace con el bloque B.
+  - Consecuencias: el informe, las figuras y el banco de preguntas no cambian (salvo las dos
+    cifras corregidas de arriba, que hay que corregir en cualquier caso). Riesgo cero a 14 días de
+    la entrega.
+  - Qué se pierde: el 54 por ciento de rendimiento medido y una sección 3.4 que hoy tendría la
+    Ley de Hierro como eje (CPI, período y MIPS medidos en cuatro variantes del core).
+- **(b) Adoptar la candidata como corrida final.**
+  - Consecuencias: hay que rehacer las secciones 3.3 a 3.7 del informe con los números nuevos,
+    regenerar cuatro figuras y reescribir unas 25 respuestas de `docs/defensa.md` (la lista por
+    pregunta está en `docs/propuesta_d23.md`, sección 8), y agregar al banco las preguntas nuevas
+    sobre el write-through, los riesgos de datos y por qué B5 deja de convenir. El paquete de
+    corridas y simulaciones que el informe necesita ya está hecho en la rama.
+  - Qué se pierde: la frecuencia máxima baja de 40,8 a 39,2 MHz y el margen de hold de 0,178 a
+    0,134 ns; las violaciones de max slew suben de 546 a 571; y se amplía lo que los tres
+    integrantes tienen que poder defender.
+- **(c) Adoptar solo parte.** Dos variantes razonables:
+  - solo B2 (`exp/lsu-offset`, ya verificado en la sesión anterior): período mínimo 24 ns
+    (41,7 MHz), 15,6 MIPS, 181.170 µm² (menos área que `main`), con un cambio de RTL de 16 líneas
+    en la LSU. Toca solo las cifras de timing y de área del informe.
+  - solo la configuración de signoff del frente C que entra en el límite de área
+    (`sc_c30`: reparación post-GRT de diseño con márgenes de 30 por ciento): deja las violaciones
+    de slew casi igual sobre el core actual, así que su efecto solo se nota sobre el RTL B2+B5;
+    sobre `main` no aporta.
+  - Consecuencias: cambios chicos y bien medidos, con poco impacto en el informe.
+  - Qué se pierde: la métrica principal casi no se mueve (15,6 contra 23,6 MIPS de la candidata).
+
+Lo que ya está decidido, independiente de esta decisión: las correcciones de las cifras de `main`
+(período mínimo 24,5 ns y 40,8 MHz en la sección 3.4; utilización máxima 78 por ciento y área
+mínima 0,216 mm² en la sección 3.5), y los resultados de verificación del frente D que no cambian
+el diseño (simulación post-PnR con SDF en tres esquinas con Icarus y con Open Verilog CVC,
+equivalencia formal entre el RTL y los netlists, y potencia con actividad real).

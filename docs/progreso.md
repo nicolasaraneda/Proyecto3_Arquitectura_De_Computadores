@@ -31,3 +31,28 @@ corridas nuevas si `free -m` muestra más de 20000 MB usados.
 | B4 exp/cpi | hecha: área -13,3 %, cierra a 60 ns y no a 55, 50 ni 45; CPI 1,31 en el juego; MIPS 12,7 contra 15,0 | `build/exp_cpi`, commit dbc8018 |
 | B5 exp/rf-latch (opcional) | hecha: b5_t100 y b5_t26 cierran con DRC, LVS y antenas limpios (latches con préstamo de tiempo y chequeos de clock gating en el STA); área -9,3 % a 100 ns y -3,6 % a 26 ns; queda por barrer bajo 26 ns | `build/exp_rf_latch`, commit ba26813 |
 | C1 GIF del chip construyéndose (opcional) | hecha: docs/figuras/construccion.gif (12 etapas) | `make animacion RUN=asic/rom/runs/final` |
+
+## Sesión del 27 y 28-10-2026: reapertura de la optimización y paquete de decisión
+
+La entrega y la defensa se aplazaron al 11-11-2026. Esta sesión reabrió todo lo que se podía
+optimizar o verificar mejor, con una regla de selección fija (métrica principal
+MIPS = f máx / CPI del juego completo, período barrido hasta 0,5 ns de resolución, límite de área
+de 105 por ciento de la de `main` y cierre completo a 100 ns y 40 por ciento), siete frentes en
+paralelo y una cola única de corridas de LibreLane.
+
+Infraestructura nueva: `asic/cola.sh` (daemon que lanza como máximo 3 corridas a la vez, corta a
+los 40 minutos, no lanza con menos de 6 GB de memoria disponible ni menos de 60 GB de disco),
+`asic/encolar.sh` y `asic/esperar.sh`; estado de cada corrida en `asic/logs/cola_estado.txt`.
+Tablas: `asic/tabla_sesion.py` con `asic/ramas_sesion.json`.
+
+| Frente | Estado | Dónde está |
+|---|---|---|
+| A: lectura del banco y decode en el fetch | hecha: `exp/pipeline` (26 ns, 23,1 MIPS), `exp/pipeline-b2` (25,5 ns, 23,6 MIPS, base de la candidata) y `exp/pipeline-b5` (30 ns, 20,0 MIPS). Verificación completa: check, equiv funcional, `sw/hazard_test.s`, mutaciones, monitor de X, post-synth y revisión independiente | ramas `exp/pipeline*`, `docs/pipeline.md` de la rama, `asic/exploraciones.md` |
+| B: frecuencia máxima con el core actual | hecha: `exp/fmax` (B2+B5) cierra a 23,5 ns y, con `RUN_POST_GRT_RESIZER_TIMING`, a 23,25 ns (43,0 MHz), con 9,3 por ciento menos de área; con el CPI actual son 16,1 MIPS. Las estrategias de síntesis y la biblioteca de 9 pistas no aportan | rama `exp/fmax`, `docs/fmax.md` de la rama |
+| C: cero violaciones de slew y capacitancia | hecha: se alcanza 0 slew (`sc_full_t100`) pero cuesta 7,5 por ciento de área; dentro del 1 por ciento la mejor deja 214 slew y pierde período | rama `exp/signoff0`, `docs/signoff0.md` de la rama |
+| D1: simulación post-PnR con SDF | hecha: corrida completa `d1_pnr`, Icarus 13.0 de la imagen (no evalúa los timing checks, se dice explícitamente) y Open Verilog CVC 7.00b (sí los evalúa, con control positivo), tres esquinas, tres repeticiones | `asic/sim/resultado_sdf.md`, `asic/sim/post_pnr_sdf.sh`, `asic/sim/cvc_sdf.sh` |
+| D2: equivalencia formal | hecha: eqy con el liberty típico como modelo de celda, RTL contra el netlist de síntesis y contra el post-PnR sin celdas físicas, con control negativo; el paso `Yosys.EQY` del flujo no sirve para este PDK | `docs/equivalencia.md`, `asic/eqy/` |
+| D3: potencia con actividad real | hecha: VCD del netlist de la corrida final en cuatro ventanas del juego, OpenSTA con SPEF y liberty de las 9 esquinas: 11,5 a 12,8 mW contra los 8,97 mW sin actividad en nom_tt | `asic/potencia/resultado.md`, `asic/potencia/` |
+| D4: barridos finos de `main` | hecha: utilización 72, 75 y 78 por ciento cierran (área mínima 0,216 mm²), 79 por ciento falla en CTS; `DIE_AREA` absoluto 1,6:1 cierra sin ganancia; 24,5 ns cierra, así que el período mínimo de `main` es 24,5 ns (40,8 MHz, 15,3 MIPS) | `asic/final.md`, `docs/datos_informe.md`, commit `b8770c1` |
+| E: paquete de la rama candidata | en curso: `exp/candidata` (A+B2) con corrida a 100 ns, barrido de período, utilización, las dos estrategias de memoria, síntesis jerárquica, figuras, post-synth, SDF y DRC de KLayout | rama `exp/candidata` |
+| Paquete de decisión | hecha: `docs/propuesta_d23.md` y D23 en estado de propuesta, con "Elegida: pendiente (Nicolás)" | `docs/propuesta_d23.md`, `docs/decisiones.md` |

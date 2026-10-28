@@ -32,6 +32,8 @@ asic/**/runs/
 # Las metricas de cada corrida copiada a resultados/ si se versionan, aunque *.json
 # este excluido mas arriba (son la fuente de las tablas de asic/barrido.md).
 !asic/**/resultados/**/metrics.json
+# Lista de ramas y corridas de la sesion del 27-10-2026 (entrada de asic/tabla_sesion.py).
+!asic/ramas_sesion.json
 !asic/p2_original/evidencia/**/metrics.json
 
 # Logs del barrido de LibreLane (asic/barrido.sh)

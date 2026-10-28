@@ -1,41 +1,87 @@
-# Exploraciones en ramas exp/* (bloque B)
+# Exploraciones en ramas exp/*
 
-Cada exploración vive en su rama `exp/<nombre>`, creada desde `main` y no fusionada,
-con sus corridas y sus datos. Acá queda el resumen y el commit de cada rama. Las
-corridas de cada rama se lanzan desde su worktree (`git worktree add build/exp_<nombre> exp/<nombre>`)
-con la misma configuración final (`asic/rom/config.yaml`), y se verifican con
-`make check` (80 tests del assembler y seis testbenches) y `make equiv` (traza de
-`sw/isa_test.s` contra el commit 116fa20: idéntica ciclo a ciclo, o en el modo
-funcional, misma secuencia de escrituras al banco, accesos al bus y salidas).
+Cada exploración vive en su rama `exp/<nombre>`, creada desde `main` y no fusionada, con sus
+corridas y sus datos. Acá queda el resumen y el commit de cada rama. Las corridas de cada rama se
+lanzan desde su worktree (`git worktree add build/exp_<nombre> exp/<nombre>`) con la configuración
+final (`asic/rom/config.yaml`) de esa rama, y se verifican con `make check` (80 pruebas del
+assembler y seis testbenches) y `make equiv` (traza de `sw/isa_test.s` contra el commit 116fa20:
+idéntica ciclo a ciclo, o en el modo funcional, misma secuencia de escrituras al banco, accesos al
+bus y salidas).
 
-Referencia (main, configuración final D20 y D21): período mínimo 25 ns (f1_t25,
-WNS 0,996 ns en max_ss; 24 ns no cierra por 0,004 ns), 40,0 MHz; área de celdas
-estándar 182.265 µm² a 100 ns; CPI 2,953 en `isa_test.s` y 2,665 en el juego
-completo (`game_tb`); 546 violaciones de max slew y 36 de max capacitancia a 100 ns.
+Hay dos bloques de exploraciones:
+
+- **Bloque B (26-10-2026):** B1 a B5, ramas `exp/signoff`, `exp/lsu-offset`, `exp/branch-cmp`,
+  `exp/lsu-branch`, `exp/cpi` y `exp/rf-latch`. Ninguna entró en la corrida final (D22).
+- **Sesión del 27 y 28-10-2026:** ramas `exp/pipeline` (y sus variantes `exp/pipeline-b2` y
+  `exp/pipeline-b5`), `exp/fmax`, `exp/signoff0` y `exp/candidata`, con la regla de selección fija
+  de la sesión: métrica principal MIPS = f máx / CPI del juego completo, período barrido hasta
+  dejar 0,5 ns o menos entre el último período que cierra y el primero que no, límite de área de
+  celdas estándar a 100 ns de 105 por ciento de la de `main` (191.378 µm²) y cierre completo a
+  100 ns y 40 por ciento de utilización. Desempate: violaciones de max slew y de max capacitancia,
+  potencia con actividad real, área. La propuesta de decisión está en `docs/propuesta_d23.md` y en
+  D23 de `docs/decisiones.md`.
+
+Referencia (`main`, configuración final D15, D18, D20 y D21): período mínimo **24,5 ns**
+(`f1_t24p5`, WNS 0,496 ns en max_ss; 24 ns no cierra por 0,004 ns), 40,8 MHz; área de celdas
+estándar 182.265 µm² a 100 ns y 189.817 µm² a 24,5 ns; CPI 2,953 en `isa_test.s` y 2,665 en el
+juego completo (`game_tb`); **15,3 MIPS**; 546 violaciones de max slew y 36 de max capacitancia a
+100 ns; potencia 8,97 mW sin actividad y 12,76 mW con la actividad real del juego en nom_tt
+(`asic/potencia/resultado.md`). Fuentes: `asic/final.md`, `asic/rom/resultados/f1_t24p5/cierre.md`.
 
 ## Tabla resumen
 
-Generada por `asic/exploraciones_tabla.py` a partir de los `metrics.json` de cada rama
-(período mínimo: menor CLOCK_PERIOD que cumple D14 más DRC, LVS y antenas; f máx = 1/T;
-MIPS = f máx / CPI del juego; área y violaciones de la corrida a 100 ns). La columna
-"corridas" da el WNS de setup en max_ss_125C_4v50 de cada período corrido.
+Generada por `python3 asic/tabla_sesion.py asic/ramas_sesion.json --md asic/exploraciones_tabla.md`
+a partir de los `metrics.json` de cada corrida. Cada fila declara sus corridas en
+`asic/ramas_sesion.json`, porque una misma rama tiene corridas con configuraciones distintas y el
+período mínimo es el de una configuración concreta. Período mínimo: menor `CLOCK_PERIOD` que
+cumple D14 más DRC, LVS y antenas; la columna "cota inferior" da el período mayor que NO cierra,
+para que se vea la resolución del barrido. f máx = 1 / T mínimo; MIPS = f máx / CPI del juego
+(Ley de Hierro). Área y violaciones son de la corrida a 100 ns. La columna de potencia con
+actividad real solo está medida para `main` (frente D3).
 
-| rama | commit | cambio | verificación | corridas (T: WNS max_ss) | T mínimo que cierra (ns) | f máx (MHz) | CPI isa_test | CPI juego | MIPS (f/CPI juego) | área stdcell a 100 ns (µm²) | slew / cap a 100 ns |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| main (referencia) | 2dd4e45 | configuración final D20 y D21 | check PASS, equiv ciclo a ciclo | 100: 65.22, 32: 4.39, 30: 5.10, 26: 2.00, 25: 1.00, 24: -0.00 (no cierra) | 25 | 40.0 | 2.953 | 2.665 | 15.0 | 182265 | 546 / 36 |
-| exp/lsu-offset (B2) | eb29650 | offset de byte de la carga registrado en la LSU | check PASS, equiv ciclo a ciclo | 100: 67.04, 26: 4.54, 24: 0.09, 23: -0.91 (no cierra), 22: -1.91 (no cierra) | 24 | 41.7 | 2.953 | 2.665 | 15.6 | 181170 | 672 / 40 |
-| exp/branch-cmp (B3) | 6ef475f | comparador de saltos desde el banco de registros | check PASS, equiv ciclo a ciclo | 100: 67.00, 26: 1.92, 24: -0.08 (no cierra) | 26 | 38.5 | 2.953 | 2.665 | 14.4 | 183962 | 554 / 29 |
-| exp/lsu-branch (B2+B3) | 35b2d5d | B2 y B3 juntos | check PASS, equiv ciclo a ciclo | 100: 69.13, 24: -0.84 (no cierra) | 100 | 10.0 | 2.953 | 2.665 | 3.8 | 183890 | 689 / 39 |
-| exp/cpi (B4) | dbc8018 | ROM y banco combinacionales, decode en el fetch, 1 instrucción por ciclo | check PASS, equiv funcional | 100: 41.73, 60: 1.73, 55: -3.27 (no cierra), 50: -4.19 (no cierra), 45: -1.75 (no cierra) | 60 | 16.7 | 1.004 | 1.312 | 12.7 | 158024 | 358 / 23 |
-| exp/rf-latch (B5) | ba26813 | banco de registros con latches y clock gating | check PASS, equiv ciclo a ciclo | 100: 0.00, 26: 0.00 | 26 | 38.5 | 2.953 | 2.665 | 14.4 | 165369 | 312 / 2 |
-| exp/signoff (B1), variante b1c | a8fd926 | reparación post-GRT con márgenes de 30 % (mejor variante dentro del 1 % de área) | mismo RTL que main | 100: 65.74, 26: 1.47 | 26 | 38.5 | 2.953 | 2.665 | 14.4 | 183091 | 489 / 19 |
-| exp/signoff (B1), variante b1g | a8fd926 | márgenes del repair de placement en 30 % | mismo RTL que main | 100: 65.96, 26: 1.13 | 26 | 38.5 | 2.953 | 2.665 | 14.4 | 184368 | 260 / 22 |
+| rama o variante | commit | cambio | verificación | barrido (T: WNS max_ss) | T mínimo (ns) | cota inferior | f máx (MHz) | CPI isa_test | CPI juego | MIPS | área stdcell a 100 ns (µm²) | área die a 100 ns (µm²) | slew / cap a 100 ns | potencia con actividad (mW) | nota |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| main (referencia) | b8770c1 | configuración final (D15, D18, D20, D21) | check PASS, equiv ciclo a ciclo contra 116fa20 | 32: 4.395, 30: 5.103, 26: 1.996, 25: 0.996, 24.5: 0.496, 24: -0.004 (no cierra) | 24.5 | (no cierra a 24) | 40.8 | 2.953 | 2.665 | 15.3 | 182.265 | 408.957 | 546 / 36 | 12.76 | potencia con actividad: ventana de espera de 3 s en nom_tt (asic/potencia/resultado.md) |
+| exp/lsu-offset (B2) | eb29650 | offset de byte de la carga registrado en la LSU | check PASS, equiv ciclo a ciclo | 26: 4.543, 24: 0.088, 23: -0.912 (no cierra), 22: -1.912 (no cierra) | 24 | (no cierra a 23) | 41.7 | 2.953 | 2.665 | 15.6 | 181.170 | 409.040 | 672 / 40 | n/d | sesión anterior (26-10-2026) |
+| exp/branch-cmp (B3) | 6ef475f | comparador de saltos desde el banco de registros | check PASS, equiv ciclo a ciclo | 26: 1.915, 24: -0.085 (no cierra) | 26 | (no cierra a 24) | 38.5 | 2.953 | 2.665 | 14.4 | 183.962 | 413.568 | 554 / 29 | n/d | sesión anterior (26-10-2026) |
+| exp/lsu-branch (B2+B3) | 35b2d5d | B2 y B3 juntos | check PASS, equiv ciclo a ciclo | b23_t26: incompleta, 24: -0.836 (no cierra) | ninguna cierra | (no cierra a 24) | n/d | 2.953 | 2.665 | n/d | 183.890 | 414.257 | 689 / 39 | n/d | b23_t26 detenida a los 40 min (incompleta); sesión anterior |
+| exp/cpi (B4) | dbc8018 | ROM y banco combinacionales, decode en el fetch, 1 instrucción por ciclo | check PASS, equiv funcional | 60: 1.733, 55: -3.267 (no cierra), 50: -4.190 (no cierra), 45: -1.746 (no cierra) | 60 | (no cierra a 55) | 16.7 | 1.004 | 1.312 | 12.7 | 158.024 | 356.012 | 358 / 23 | n/d | sesión anterior; brecha de 5 ns, no cumple la regla de 0,5 ns |
+| exp/rf-latch (B5) | ba26813 | banco de registros con latches latq_1 y clock gating icgtp_1 | check PASS, equiv ciclo a ciclo | 26: 0.000 | 26 | sin cota | 38.5 | 2.953 | 2.665 | 14.4 | 165.369 | 353.516 | 312 / 2 | n/d | sesión anterior; WNS 0,000 por el préstamo de tiempo de los latches |
+| exp/signoff (B1), variante b1c | a8fd926 | reparación post-GRT con márgenes de 30 % | mismo RTL que main | 26: 1.472 | 26 | sin cota | 38.5 | 2.953 | 2.665 | 14.4 | 183.091 | 408.957 | 489 / 19 | n/d | sesión anterior; no se barrió bajo 26 ns |
+| exp/signoff (B1), variante b1g | a8fd926 | márgenes del repair de placement en 30 % | mismo RTL que main | 26: 1.132 | 26 | sin cota | 38.5 | 2.953 | 2.665 | 14.4 | 184.368 | 408.957 | 260 / 22 | n/d | sesión anterior; no se barrió bajo 26 ns |
+| exp/pipeline (A) | 6e550b1 | lectura del banco y decodificación en el fetch (EarlyRead), banco write-through | check PASS, equiv funcional, hazard_test, mutaciones detectadas, 0 X usados, post-synth PASS | 40: 2.555, 32: 1.591, 26: 0.198, 25.5: -0.302 (no cierra), 25: -0.802 (no cierra), 24.5: -1.302 (no cierra) | 26 | (no cierra a 25.5) | 38.5 | 1.969 | 1.665 | 23.1 | 186.087 | 418.503 | 506 / 32 | n/d | CPI del juego con la estrategia 2 (EarlyRead = 0): 2,665, igual que main |
+| exp/pipeline-b2 (A+B2) | be50893 | A más el offset de byte registrado en la LSU | check PASS, equiv funcional, hazard_test, 0 X usados | 26: 0.591, 25.5: 0.091, 25: -0.409 (no cierra) | 25.5 | (no cierra a 25) | 39.2 | 1.969 | 1.665 | 23.6 | 186.432 | 419.131 | 571 / 37 | n/d | base de exp/candidata |
+| exp/pipeline-b5 (A+B5) | 092ec33 | A más el banco de latches con clock gating | check PASS, equiv funcional, hazard_test, 0 X usados | 34: 0.000, 32: 0.000, 30: 0.000, pa_b5_t29: incompleta, pa_b5_t28: incompleta, 26: -7.102 (no cierra), 25: -8.102 (no cierra) | 30 | (no cierra a 26) | 33.3 | 1.969 | 1.665 | 20.0 | 165.211 | 353.855 | 386 / 3 | n/d | WNS 0,000 por el préstamo de tiempo de los latches |
+| exp/fmax (B2+B5, base) | 94a804c | B2 y B5 juntos, sin cambio en el pipeline | check PASS, equiv ciclo a ciclo | 24: 0.000, 23.5: 0.000, 23: -0.447 (no cierra), 22: -1.670 (no cierra) | 23.5 | (no cierra a 23) | 42.6 | 2.953 | 2.665 | 16.0 | 165.358 | 353.921 | 327 / 1 | n/d | WNS 0,000 por los latches; margen real en max.rpt (asic/margen_latch.py) |
+| exp/fmax con reparación post-GRT | 94a804c | B2+B5 más RUN_POST_GRT_RESIZER_TIMING | check PASS, equiv ciclo a ciclo (mismo RTL que la base) | 23.25: 0.000, 23: -0.211 (no cierra) | 23.25 | (no cierra a 23) | 43.0 | 2.953 | 2.665 | 16.1 | 165.358 | 353.921 | 326 / 2 | n/d | mejor base del frente B |
+| exp/signoff0, c30 (sin costo de período) | cd05aac | B2+B5 con reparación post-GRT de diseño y márgenes de 30 % | mismo RTL que exp/fmax | 24: 0.000, 23.5: 0.000 | 23.5 | sin cota | 42.6 | 2.953 | 2.665 | 16.0 | 165.494 | 353.921 | 323 / 1 | n/d | 323 slew / 1 cap con +0,08 % de área y el mismo período mínimo que la base |
+| exp/signoff0, cero slew | cd05aac | B2+B5 con LAYERS_RC medidos, repair post-GRT 30 % y CTS_DISTANCE_BETWEEN_BUFFERS | mismo RTL que exp/fmax | 24: 0.000, 24: -0.473 (no cierra), 23: -1.221 (no cierra) | 24 | (no cierra a 24) | 41.7 | 2.953 | 2.665 | 15.6 | 177.807 | 353.921 | 0 / 2 | n/d | 0 slew / 2 cap a 100 ns con +7,5 % de área; al período, sc_fullp_t24 (margen 15) cierra a 24 ns con 3 / 1 |
+| exp/signoff0, g30 (mejor slew dentro del 1 %) | cd05aac | B2+B5 con márgenes del repair de placement en 30 % | mismo RTL que exp/fmax | 24: -2.500 (no cierra) | ninguna cierra | (no cierra a 24) | n/d | 2.953 | 2.665 | n/d | 166.423 | 353.921 | 214 / 1 | n/d | 214 slew / 1 cap con +0,64 % de área, pero no cierra a 24 ns |
+| exp/candidata (A+B2 con el signoff elegido) | be50893 | A más B2 más la configuración de signoff del frente C | ver docs/propuesta_d23.md | e1_t26: no corrida, e1_t25p5: no corrida, e1_t25: no corrida | ninguna cierra | sin cota | n/d | 1.969 | 1.665 | n/d | n/d | n/d | n/d | n/d | paquete completo en la rama |
 
-Lectura: B2 es el único cambio que mejora el período mínimo (24 contra 25 ns) y además
-baja el área; B4 reduce el área 13 % y el CPI a la mitad, pero el período sube a 60 ns y
-rinde menos en MIPS; B5 reduce el área 9 % a 100 ns (3,6 % a 26 ns) y las violaciones de
-slew y capacitancia sin tocar el período; B1 no llega a cero violaciones dentro del 1 %
-de área (b1c a 26 ns: WNS 1,47 ns, 439/20; b1g a 26 ns: WNS 1,13 ns, 259/21).
+Lectura de la sesión del 27 y 28-10-2026:
+
+- **La métrica principal la gana `exp/pipeline-b2` (A+B2) con 23,6 MIPS contra 15,3 de `main`, un
+  54 por ciento más.** El pipeline nuevo (lectura del banco de registros y decodificación durante
+  el fetch) baja el CPI del juego de 2,665 a 1,665 y cuesta 1 ns de período (25,5 contra 24,5 ns)
+  y 2,3 por ciento de área a 100 ns, dentro del límite.
+- Las dos variantes del pipeline se comportan distinto: el offset de byte registrado de B2 le gana
+  medio nanosegundo (25,5 contra 26 ns) por 0,2 por ciento de área, mientras que el banco de
+  latches de B5 le quita cuatro nanosegundos y medio (30 contra 25,5 ns) aunque ahorra 11 por
+  ciento de área, porque con la lectura anticipada el camino que pasa por los latches deja de
+  tener medio ciclo de holgura.
+- Sin tocar el pipeline, lo más rápido es `exp/fmax` (B2+B5) con la reparación post-GRT del
+  resizer: 23,25 ns (43,0 MHz), 1,25 ns menos que `main`, con 9,3 por ciento menos de área. Pero
+  con el CPI de 2,665 eso son 16,1 MIPS, muy por debajo de los 23,6 del pipeline: el período no
+  compensa el CPI.
+- `exp/signoff0` llega a **0 violaciones de max slew** (`sc_full_t100`, con los RC de cable
+  medidos del PDK, la reparación post-GRT al 30 por ciento y el espaciado de buffers del CTS),
+  pero cuesta 7,5 por ciento de área, muy por encima del límite de 1 por ciento, y empeora el
+  período mínimo. Dentro del límite y sin costo de período lo mejor es `sc_c30` (323 slew y 1
+  capacitancia contra 327 y 1 de su base, es decir casi sin efecto); la variante que más limpia
+  dentro del límite es `sc_g30` (214 slew) pero ya no cierra a 24 ns. Las violaciones de
+  capacitancia, en cambio, bajan solas de 36 a 1 con el banco de latches de B5, que elimina los
+  480 multiplexores de retención y sus buffers de fanout.
 
 ## B2: exp/lsu-offset
 
@@ -203,3 +249,81 @@ mientras que el STA final usa los extraídos del ruteo detallado en la esquina l
 - Limitación del criterio: el WNS de setup que reporta la corrida es 0,000 porque los
   endpoints de latch quedan en 0 con préstamo; el margen real de las rutas a flip-flops hay
   que leerlo en `max.rpt` (las rutas que no terminan en latch).
+
+---
+
+# Sesión del 27 y 28-10-2026
+
+Las corridas de esta sesión se lanzaron todas desde una cola única (`asic/cola.sh`, con
+`asic/encolar.sh` y `asic/esperar.sh`): un solo proceso con un máximo de 3 corridas simultáneas,
+corte a los 40 minutos, y chequeo de memoria y disco antes de cada lanzamiento. El estado de cada
+corrida queda en `asic/logs/cola_estado.txt` (encolada, lanzada, terminada, fallida, incompleta).
+
+## A: exp/pipeline (lectura del banco y decodificación en el fetch)
+
+- Qué cambia: la ROM de la estrategia 1 es combinacional, así que la instrucción de `pc_q` se
+  conoce un ciclo antes de que se cargue en el registro de instrucción. Con esa salida
+  (`rom_data`) el core pide la lectura sincrónica del banco de registros y registra las salidas
+  del decodificador en el mismo flanco en que se carga la instrucción, de modo que al llegar a la
+  ejecución los operandos y el decode ya están listos y desaparece el ciclo de espera
+  (`ops_valid_q`). El banco de registros sigue con lectura registrada (no se vuelve combinacional
+  como en B4) y gana write-through: la salida registrada toma `wdata` cuando `raddr == waddr` con
+  `we` y la dirección no es x0. Archivos: `rtl/espino_core/espino_id_stage.v`,
+  `espino_if_stage.v`, `espino_register_file.v`, `espino_controller.v`, `rtl/pochoco_soc.v`,
+  `rtl/asic_top.v`. Un parámetro del core (`EarlyRead`) permite volver a la temporización actual,
+  que es lo que usa la estrategia 2, cuya memoria tiene lectura registrada y no puede anticipar.
+- Riesgos de datos y de control resueltos y documentados en `docs/pipeline.md` de la rama:
+  lectura del registro que escribe la instrucción anterior (write-through), carga seguida de uso,
+  `jal` y `jalr` seguidos de uso del link, escrituras a x0, y salto tomado (la lectura anticipada
+  y el decode de la instrucción descartada no tienen efecto).
+- Verificación: `make check` PASS (80 pruebas del assembler y los seis testbenches, con las dos
+  estrategias de memoria); `make equiv MODO=funcional` con `sw/isa_test.s`, secuencias de
+  escrituras al banco (46), accesos al bus (22) y salidas (2) idénticas a las de 116fa20;
+  `sw/hazard_test.s` nuevo (56 comprobaciones, 483 palabras) con trazas equivalentes a las de
+  `main` (`make equiv PROG=hazard_test REF=main MODO=funcional`: 348 eventos de banco, 63 de bus y
+  2 de salida iguales); dos mutaciones (`MUTA_FWD` sin write-through y `MUTA_LOADUSE` con la
+  lectura un flanco antes del commit de la carga) que las pruebas detectan; monitor de valores
+  desconocidos usados con 0 en 620.217 escrituras al banco del juego completo; `make post-synth`
+  PASS con el netlist de la rama y su control negativo.
+- CPI: 1,969 en `isa_test.s` (contra 2,953) y 1,665 en el juego completo (contra 2,665); con la
+  estrategia 2 los valores de `main` sin cambio. El juego ejecuta 60 por ciento más instrucciones
+  en los mismos ciclos: espera por tiempo, no por instrucciones.
+- Corridas: período mínimo 26 ns (38,5 MHz; 25,5 ns no cierra por 0,302 ns), área 186.087 µm² a
+  100 ns (102,1 por ciento de `main`), 506 slew y 32 capacitancia. MIPS 23,1 contra 15,3.
+
+## A + B2: exp/pipeline-b2 (la base de la candidata)
+
+El pipeline más el offset de byte de la carga registrado en la LSU (B2, commit 7ff1d06 de
+`exp/lsu-offset`). Misma verificación completa. Período mínimo 25,5 ns (39,2 MHz; 25 ns no cierra
+por 0,409 ns), área 186.432 µm² a 100 ns (102,3 por ciento de `main`), 571 slew y 37 capacitancia.
+MIPS 23,6, el mejor de la sesión. Es la base de `exp/candidata`.
+
+## A + B5: exp/pipeline-b5
+
+El pipeline más el banco de registros con latches y clock gating (B5), con el write-through
+reimplementado sobre los latches. Misma verificación completa. Área 165.211 µm² a 100 ns (90,6 por
+ciento de `main`, el menor de la sesión) y solo 3 violaciones de capacitancia, pero el período
+mínimo sube a 30 ns (33,3 MHz, 20,0 MIPS): a 26 ns el WNS cae a -7,1 ns. Con la lectura anticipada
+el camino que entra a los latches pierde el medio ciclo de holgura que tenía con el pipeline de
+dos ciclos, así que el ahorro de área se paga con período.
+
+## B: exp/fmax (frecuencia máxima con el core actual)
+
+B2 y B5 juntos sobre el core de `main`, más un barrido de perillas del flujo. Detalle en
+`docs/fmax.md` de la rama. Base a 100 ns: 165.358 µm² (90,7 por ciento de `main`), 327 slew y 1
+capacitancia, período mínimo 23,5 ns. Con `RUN_POST_GRT_RESIZER_TIMING` el período mínimo baja a
+23,25 ns (43,0 MHz), el mejor de la sesión, sin costo de área. Las perillas de `SYNTH_STRATEGY`
+(AREA 1 a 3 y DELAY 0 a 4) y los márgenes del resizer en 5 y 15 no mejoran el período; la
+biblioteca de 9 pistas (`gf180mcu_fd_sc_mcu9t5v0`) existe en el PDK instalado pero su corrida no
+cierra. Con el CPI del core actual (2,665) son 16,1 MIPS, bastante menos que el pipeline.
+
+## C: exp/signoff0 (cero violaciones de slew y de capacitancia)
+
+Sobre la base B2+B5. Detalle, causas y pines restantes en `docs/signoff0.md` de la rama. Cero
+violaciones de max slew se alcanza (`sc_full_t100`: 0 slew y 2 capacitancia) con los RC de cable
+medidos del PDK en `LAYERS_RC`, la reparación post-GRT al 30 por ciento y el espaciado de buffers
+del CTS, pero cuesta 7,5 por ciento de área (177.807 contra 165.358 µm²), muy por encima del
+límite de 1 por ciento de la sesión, y empeora el período mínimo. Dentro del límite: `sc_c30`
+(reparación post-GRT de diseño con márgenes de 30 por ciento) deja 323 slew y 1 capacitancia con
+0,08 por ciento más de área y el mismo período mínimo; `sc_g30` (márgenes del repair de placement
+en 30 por ciento) baja a 214 slew con 0,64 por ciento más de área pero ya no cierra a 24 ns.
