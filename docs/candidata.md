@@ -114,3 +114,35 @@ registros (`asic/rom/resultados/final/layout/ruta_critica.txt`).
 
 La candidata da 1,54 veces los MIPS de `main` con 2,3 % más de área de celdas, dentro del
 límite de 105 % de la regla de selección.
+
+## 5. Signoff: DRC, LVS, antenas y segundo DRC
+
+| chequeo | candidata (pa_b2_t100) | main (final) | archivo de origen |
+|---|---|---|---|
+| DRC de Magic (`magic__drc_error__count`) | 0 | 0 | `asic/rom/resultados/pa_b2_t100/cierre.md` |
+| LVS de Netgen (`design__lvs_error__count`) | 0 | 0 | `cierre.md` |
+| nets con violación de antena | 0 | 0 | `antenna_summary.rpt`, `cierre.md` |
+| DRC de KLayout (684 reglas del deck) | 0 marcadores | 0 marcadores | `asic/rom/resultados/pa_b2_t100/drc_klayout/resumen.md` |
+| control positivo del deck | marca M1.1 y M1.2a en sus coordenadas | igual | `drc_klayout/control_positivo.md` |
+
+El DRC de KLayout se corrió con `bash asic/drc_klayout.sh asic/rom/runs/pa_b2_t100` (el mismo
+comando y las mismas opciones del paso `KLayout.DRC` del flujo, con el deck de `asic/drc/`) y el
+control positivo con `bash asic/drc/control_positivo.sh asic/rom/runs/pa_b2_t100`: inserta dos
+violaciones conocidas de Metal1 en una zona vacía del die y el deck marca exactamente esas dos
+reglas en esas coordenadas, lo que demuestra que el 0 de la corrida no es un deck mudo.
+
+## 6. Potencia sin actividad de conmutación
+
+Valor que calcula el flujo en `55-openroad-stapostpnr/<esquina>/power.rpt` (fila `Total`), con la
+actividad por defecto de OpenSTA. Es un cálculo del flujo sobre el netlist y los parásitos, no una
+medición.
+
+| esquina | candidata (pa_b2_t100) | main (final) |
+|---|---|---|
+| `nom_tt_025C_5v00` | 8,597 mW | 8,971 mW |
+| `max_ss_125C_4v50` | 7,098 mW | 7,399 mW |
+| `min_ff_n40C_5v50` | 10,529 mW | 10,997 mW |
+
+La candidata consume un 4 % menos en las tres esquinas porque tiene 26 flip-flops menos (964
+contra 990): con esta actividad por defecto el consumo es casi todo árbol de reloj y pines CLK de
+los flip-flops (ver `asic/potencia/resultado.md` del frente D3 para el desglose de `main`).

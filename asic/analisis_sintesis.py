@@ -3,7 +3,7 @@
 
 Uso:
     python3 asic/analisis_sintesis.py --final asic/rom/runs/final \\
-        --jerarquica asic/rom/runs/h2_t100 --md asic/sintesis.md
+        --jerarquica asic/rom/runs/e1_h100 --md asic/sintesis.md
 
 Entradas (de cada corrida, el reporte de Yosys 06-yosys-synthesis/reports/stat.json):
   --final       la corrida final: síntesis aplanada salvo los tres módulos de
@@ -193,7 +193,8 @@ def main():
         "(`SYNTH_KEEP_HIERARCHY_MODULES`: register file, ALU y contador de ciclos, D12), así que su reporte "
         "solo separa esos tres bloques del resto. Para repartir el área y las celdas entre todos los módulos se "
         "corrió además la misma configuración con `SYNTH_HIERARCHY_MODE=keep` solo hasta `Yosys.Synthesis` "
-        "(`librelane --dockerized --pdk gf180mcuD asic/rom/config.yaml -c SYNTH_HIERARCHY_MODE=keep --to Yosys.Synthesis --run-tag h2_t100`). "
+        "(en esta rama se encoló con `bash asic/encolar.sh build/exp_candidata asic/rom/config.yaml "
+        + os.path.basename(a.jerarquica) + " 100 SYNTH_HIERARCHY_MODE=keep --to Yosys.Synthesis`). "
         "Esa síntesis conserva todos los módulos y Yosys informa cada uno por separado (`reports/stat.json`). "
         "Las dos síntesis usan el mismo RTL, la misma configuración y las mismas celdas; difieren solo en que la "
         "aplanada optimiza a través de los bordes de módulo, por eso sus totales no son idénticos y la tabla final los compara.\n"
