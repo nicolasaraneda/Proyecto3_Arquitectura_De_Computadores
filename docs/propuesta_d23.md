@@ -59,7 +59,7 @@ bloque B) conserva todo el trabajo hecho y no toca ninguna cifra del informe.
   contador de ciclos (D12), `MemStrategy = 1`, `DataWords = 4` (D9, D17) y `EarlyRead = 1`.
 - **Lo que NO lleva.** El banco de registros con latches y clock gating (B5): con la lectura
   anticipada el camino que entra a los latches pierde el medio ciclo de holgura que tenía, y el
-  período mínimo pasa de 25,5 a 30 ns (`exp/pipeline-b5`), aunque el área baje a 165.211 µm².
+  período mínimo pasa de 25,5 a 29 ns (`exp/pipeline-b5`), aunque el área baje a 165.211 µm².
   Tampoco lleva las configuraciones de signoff del frente C que superan el límite de área.
 
 ## 3. Criterios del enunciado: `main` contra la candidata
@@ -108,7 +108,7 @@ período de cada opción y su archivo de origen, en `asic/exploraciones.md` (gen
 |---|---|---|---|---|---|---|---|
 | **A + B2 (candidata)** | `exp/pipeline-b2` | 25,5 ns | 39,2 MHz | 1,665 | **23,6** | 186.432 µm² | sí (102,3 por ciento) |
 | A solo | `exp/pipeline` | 26 ns | 38,5 MHz | 1,665 | 23,1 | 186.087 µm² | sí (102,1 por ciento) |
-| A + B5 | `exp/pipeline-b5` | 30 ns | 33,3 MHz | 1,665 | 20,0 | 165.211 µm² | sí (90,6 por ciento) |
+| A + B5 | `exp/pipeline-b5` | 29 ns | 34,5 MHz | 1,665 | 20,7 | 165.211 µm² | sí (90,6 por ciento) |
 | B2 + B5 con reparación post-GRT | `exp/fmax` | 23,25 ns | 43,0 MHz | 2,665 | 16,1 | 165.358 µm² | sí (90,7 por ciento) |
 | B2 + B5 | `exp/fmax` | 23,5 ns | 42,6 MHz | 2,665 | 16,0 | 165.358 µm² | sí |
 | B2 solo | `exp/lsu-offset` | 24 ns | 41,7 MHz | 2,665 | 15,6 | 181.170 µm² | sí |
