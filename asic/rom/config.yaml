@@ -38,6 +38,16 @@ IO_PIN_ORDER_CFG: dir::pines.cfg
 # Rama exp/rf-latch (B5): los latches del banco de registros son intencionales;
 # el linter no debe tratarlos como error (el modelo usa always_latch).
 LINTER_ERROR_ON_LATCH: false
+# Mejor combinacion del frente B (docs/fmax.md, seccion 6): agrega el paso
+# OpenROAD.ResizerTimingPostGRT (repair_timing despues del enrutado global, con
+# las capacitancias y resistencias estimadas del enrutado real en vez de las del
+# modelo de placement). Es la unica perilla del flujo que acorta la ruta que
+# limita el periodo: recupera 0,236 ns en max_ss y baja el periodo minimo de
+# 23,5 a 23,25 ns (fb_pgrt_t23p25 cierra, fb_pgrt_t23 no, -0,211 ns) sin costo de
+# area a 100 ns (165.358 um2, igual que sin la perilla). Cuesta unos 14 minutos
+# mas por corrida (de 16 a 27 min a 100 ns) y en el flujo reordena los pasos, asi
+# que el STA final queda en 56-openroad-stapostpnr y no en 55-.
+RUN_POST_GRT_RESIZER_TIMING: true
 CLOCK_PORT: clk
 CLOCK_PERIOD: 100
 FP_CORE_UTIL: 40

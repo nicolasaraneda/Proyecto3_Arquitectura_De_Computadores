@@ -94,3 +94,61 @@ Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "pe
 | fb_m15_t23 | 130954.656 | 36673.011 | 544 | 52425.766 | 10005.722 | 3942.579 |
 | fb_pgrt_t23 | 130954.656 | 36673.011 | 544 | 52425.766 | 10005.722 | 3942.579 |
 | fb_d3_t23 | 138029.786 | 36673.011 | 544 | 52842.854 | 12457.760 | 4555.040 |
+
+## Resto de las perillas al límite de período (23 ns)
+
+Segunda tanda al límite, con la base fb_t23 (-0,447 ns) como referencia: fb_pgrt2_t23 (RUN_POST_GRT_RESIZER_TIMING=true y GRT_RESIZER_SETUP_SLACK_MARGIN=2), fb_d0_t23 a fb_d4_t23 (SYNTH_STRATEGY DELAY 0, 1, 2 y 4), fb_a1_t23 y fb_a2_t23 (AREA 1 y 2), fb_alu_t23 (asic/rom/config_alu.yaml, sin conservar la jerarquía de la ALU) y fb_flat_t23 (asic/rom/config_flat.yaml, todo aplanado).
+
+Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
+
+| corrida | T (ns) | setup WS tt | setup TNS tt | setup WS ss | setup TNS ss | hold WS tt | hold TNS tt | hold WS ss | hold TNS ss | setup WS peor | setup TNS peor | hold WS peor | hold TNS peor | cierra timing | área stdcell (µm²) | utilización | área die (µm²) | antena (nets) | DRC | LVS | cierra todo | slew (peor) | cap (peor) | celdas dly |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| fb_pgrt2_t23 | 23 | 0 | 0 | -0.211 | -1.077 | 0.443 | 0 | 0.152 | 0 | -0.211 | -1.077 | 0.152 | 0 | no | 172211 | 0.526 | 353921 | 0 | 0 | 0 | no | 324 | 3 | 0 |
+| fb_d0_t23 | 23 | 0 | 0 | -1.534 | -25.699 | 0.398 | 0 | 0.292 | 0 | -1.534 | -25.699 | 0.149 | 0 | no | 184408 | 0.533 | 373772 | 0 | 0 | 0 | no | 485 | 3 | 0 |
+| fb_d1_t23 | 23 | 0 | 0 | -3.817 | -129.297 | 0.440 | 0 | 0.320 | 0 | -3.817 | -129.297 | 0.172 | 0 | no | 185764 | 0.529 | 380023 | 0 | 0 | 0 | no | 367 | 2 | 0 |
+| fb_d2_t23 | 23 | 0 | 0 | -2.795 | -97.065 | 0.439 | 0 | 0.198 | 0 | -2.795 | -97.065 | 0.172 | 0 | no | 185650 | 0.528 | 379850 | 0 | 0 | 0 | no | 427 | 5 | 0 |
+| fb_d4_t23 | 23 | 0 | 0 | -2.342 | -174.290 | 0.449 | 0 | 0.158 | 0 | -2.342 | -174.290 | 0.158 | 0 | no | 192326 | 0.495 | 417255 | 1 | 0 | 0 | no | 1102 | 13 | 0 |
+| fb_a1_t23 | 23 | 0 | 0 | -4.401 | -625.951 | 0.394 | 0 | 0.182 | 0 | -4.401 | -625.951 | 0.142 | 0 | no | 167634 | 0.518 | 350869 | 0 | 0 | 0 | no | 402 | 1 | 0 |
+| fb_a2_t23 | 23 | 0 | 0 | -2.141 | -68.150 | 0.439 | 0 | 0.104 | 0 | -2.141 | -68.150 | 0.104 | 0 | no | 167595 | 0.523 | 348061 | 0 | 0 | 0 | no | 349 | 3 | 0 |
+| fb_alu_t23 | 23 | 0 | 0 | -1.522 | -66.123 | 0.441 | 0 | 0.142 | 0 | -1.522 | -66.123 | 0.142 | 0 | no | 171529 | 0.522 | 355947 | 0 | 0 | 0 | no | 346 | 4 | 0 |
+| fb_flat_t23 | 23 | 0 | 0 | -4.388 | -219.112 | 0.380 | 0 | 0.189 | 0 | -4.388 | -219.112 | 0.132 | 0 | no | 171915 | 0.529 | 353332 | 0 | 0 | 0 | no | 400 | 5 | 0 |
+
+| corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
+|---|---|---|---|---|---|---|
+| fb_pgrt2_t23 | 130954.656 | 36673.011 | 544 | 52425.766 | 10005.722 | 3942.579 |
+| fb_d0_t23 | 138600.538 | 36673.011 | 544 | 52948.224 | 12157.018 | 4177.466 |
+| fb_d1_t23 | 141008.672 | 36673.011 | 544 | 55029.274 | 12315.072 | 4311.373 |
+| fb_d2_t23 | 140942.816 | 36673.011 | 544 | 54967.808 | 12200.922 | 4282.835 |
+| fb_d4_t23 | 155374.061 | 36673.011 | 544 | 55944.672 | 14589.299 | 4862.368 |
+| fb_a1_t23 | 129780.224 | 36673.011 | 544 | 51628.909 | 9946.451 | 3845.990 |
+| fb_a2_t23 | 128700.186 | 36673.011 | 544 | 50665.216 | 9854.253 | 3848.186 |
+| fb_alu_t23 | 131733.952 | 37182.298 | 552 | 52425.766 | n/d | 3942.579 |
+| fb_flat_t23 | 130728.550 | n/d | 552 | n/d | n/d | n/d |
+
+## Candidata con post-GRT: período mínimo 23,25 ns
+
+Con RUN_POST_GRT_RESIZER_TIMING=true (paso OpenROAD.ResizerTimingPostGRT) la base baja de 23,5 a 23,25 ns: fb_pgrt_t23p25 cierra y fb_pgrt_t23 no (-0,211 ns), 0,25 ns de separación (regla de 0,5 ns cumplida).
+
+Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
+
+| corrida | T (ns) | setup WS tt | setup TNS tt | setup WS ss | setup TNS ss | hold WS tt | hold TNS tt | hold WS ss | hold TNS ss | setup WS peor | setup TNS peor | hold WS peor | hold TNS peor | cierra timing | área stdcell (µm²) | utilización | área die (µm²) | antena (nets) | DRC | LVS | cierra todo | slew (peor) | cap (peor) | celdas dly |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| fb_pgrt_t23p25 | 23.250 | 0 | 0 | 0 | 0 | 0.443 | 0 | 0.202 | 0 | 0 | 0 | 0.172 | 0 | sí | 172211 | 0.526 | 353921 | 0 | 0 | 0 | sí | 324 | 3 | 0 |
+
+| corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
+|---|---|---|---|---|---|---|
+| fb_pgrt_t23p25 | 130954.656 | 36673.011 | 544 | 52425.766 | 10005.722 | 3942.579 |
+
+## Biblioteca de 9 pistas a 100 ns (gf180mcu_fd_sc_mcu9t5v0)
+
+fb_9tb_t100: segunda prueba de la 9t (asic/rom/config_9t.yaml) después de crear el drc_exclude.cells que le falta al PDK. El flujo llega al final pero LibreLane termina con error diferido por 30 errores de DRC de Magic, así que la 9t no cierra.
+
+Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
+
+| corrida | T (ns) | setup WS tt | setup TNS tt | setup WS ss | setup TNS ss | hold WS tt | hold TNS tt | hold WS ss | hold TNS ss | setup WS peor | setup TNS peor | hold WS peor | hold TNS peor | cierra timing | área stdcell (µm²) | utilización | área die (µm²) | antena (nets) | DRC | LVS | cierra todo | slew (peor) | cap (peor) | celdas dly |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| fb_9tb_t100 | 100 | 0 | 0 | 0 | 0 | 0.347 | 0 | 0.886 | 0 | 0 | 0 | 0.108 | 0 | sí | 207271 | 0.503 | 450624 | 0 | 30 | 0 | no | 186 | 42 | 0 |
+
+| corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
+|---|---|---|---|---|---|---|
+| fb_9tb_t100 | 165934.541 | 45090.662 | 544 | 66701.779 | 13155.206 | 4815.014 |
