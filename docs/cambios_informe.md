@@ -2853,6 +2853,8 @@ lanzó el 29-10 a las 00:32, así que cualquier afirmación de "por medir" hay q
 comprobarla contra `asic/logs/cola_estado.txt` antes de escribirla en el informe.
 
 
+> **Lo que pasó después de la revisión.** Las corridas que la revisión daba por encoladas terminaron: el barrido `pr_*` cerró con `pr_t22p5` (así que B2 vale 1 ns y no 1,5) y el de la estrategia 2 llegó a 35 ns, con el punto de 30 ns cortado dos veces por el límite de 40 minutos de la cola. Esos números ya están corregidos en el cuerpo del documento y en la tabla de cierre.
+
 ## Parte 2, la defensa
 
 

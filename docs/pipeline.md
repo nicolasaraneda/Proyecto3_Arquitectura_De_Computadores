@@ -527,7 +527,8 @@ Lectura de la tabla:
   entre flip-flops a 29 ns es 3,292 ns); y su período mínimo de 29 ns es un límite del
   flujo, no de la lógica: el paso `OpenROAD.ResizerTimingPostCTS` se va iterando sobre los
   endpoints de latch y `pa_b5_t28` se cortó ahí a los 40 minutos, así que 28 ns no está
-  medido y la regla de 0,5 ns queda abierta en esta variante (`pa_b5_t28p5` encolada).
+  medido y la regla de 0,5 ns queda abierta en esta variante: `pa_b5_t28p5` se intentó después y
+  la cortó el mismo límite (`asic/logs/detenidas.txt`, 28-10 07:41 y 08:41).
   Dicho eso, la conclusión no cambia con el dato que falta: incluso si cerrara a 28 ns,
   B5 daría 21,45 MIPS, menos que A (23,10) y que A+B2 (23,55). Es la opción a elegir solo
   si el criterio cambia de rendimiento a área.
