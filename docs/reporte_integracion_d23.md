@@ -123,14 +123,18 @@ Un solo pin, el mismo en las nueve esquinas: **`clkbuf_0_clk/Z`, la raíz del á
 
 ## 7. Qué falló
 
-1. **`u2_u75`, `u2_u78`, `u2_u80` y `u2_u90` no completan el flujo**, y es el resultado esperado del
-   barrido de utilización: a partir de cierto punto no hay espacio para legalizar lo que agregan los
-   pasos de reparación. Los cuatro fallan antes del ruteo, en pasos distintos y por eso vale
-   anotarlo: `u2_u75` en `OpenROAD.RepairDesignPostGRT` (paso 41, el que agrega D23),
-   `u2_u78` en `OpenROAD.CTS` (paso 35), `u2_u80` en `OpenROAD.RepairDesignPostGPL` (paso 32), los
-   tres con `[DPL-0036] Detailed placement failed`, y `u2_u90` en el placement global con
+1. **`u2_u74`, `u2_u75`, `u2_u78`, `u2_u80` y `u2_u90` no completan el flujo**, y es el resultado
+   esperado del barrido de utilización: a partir de cierto punto no hay espacio para legalizar lo
+   que agregan los pasos de reparación. **La utilización máxima que cierra es 73 por ciento**
+   (`u2_u73/cierre.md`: CIERRA, die 235.237 µm²), y como 74 es la primera que falla, la resolución
+   del barrido queda en 1 punto. Las cinco fallan antes del ruteo detallado, en pasos distintos y
+   por eso vale anotarlo: `u2_u74` y `u2_u75` en `OpenROAD.RepairDesignPostGRT` (paso 41, el que
+   agrega D23), con 18 y 77 instancias sin lugar; `u2_u78` en `OpenROAD.CTS` (paso 35) con 36;
+   `u2_u80` en `OpenROAD.RepairDesignPostGPL` (paso 32) con 5, las cuatro con
+   `[DPL-0036] Detailed placement failed`; y `u2_u90` en el placement global con
    `[GPL-0301] Utilization 100.620 % exceeds 100%`. Extractos versionados en
-   `asic/rom/resultados/u2_u*/falla.txt`.
+   `asic/rom/resultados/u2_u*/falla.txt`; el de `u2_u75` se corta en 40 líneas, así que su línea de
+   error está en `asic/logs/u2_u75.log` 18737.
 2. **La equivalencia formal por `eqy` perdió una partición respecto de v1.** Prueba 29 de sus 30
    particiones contra los dos netlists y deja sin decidir la grande (`asic_top.led.0`). La causa está
    medida y es estructural, no un error del diseño: el RTL tiene 44 bits de registro que el netlist
@@ -162,7 +166,7 @@ Un solo pin, el mismo en las nueve esquinas: **`clkbuf_0_clk/Z`, la raíz del á
 ## 8. Corridas incompletas
 
 Ninguna corrida se detuvo por la regla de 40 minutos de la cola en esta sesión
-(`asic/logs/detenidas.txt` no registra ninguna del 28-10 por la tarde). Las cuatro que no
+(`asic/logs/detenidas.txt` no registra ninguna del 28-10 por la tarde). Las cinco que no
 completaron son las del punto 7.1, que fallaron por el diseño y no por tiempo.
 
 ## 9. Disco y memoria

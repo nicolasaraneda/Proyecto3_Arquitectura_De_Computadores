@@ -33,28 +33,34 @@ reporte completo de la sesión en `docs/reporte_integracion_d23.md`.
 
 El informe es un solo archivo LaTeX, `informe/main.tex`, de 441 líneas, sin `\input` ni
 `\include`: una introducción sin numerar (la sección 2 del enunciado, con la Tabla 1) y siete
-secciones numeradas que corresponden a 3.1 a 3.7. Lleva 13 tablas y 4 `\includegraphics` (tres
-figuras distintas). Con la corrida final de D23 (el RTL del pipeline con lectura del banco y
-decodificación en el fetch, `EarlyRead = 1`, banco write-through y el offset de byte de la carga
-registrado en la LSU, B2, más el modelo de cable del resizer, `LAYERS_RC`, y la reparación después
-del ruteo global) cambia al menos una cifra en 10 de las 13 tablas, se rehacen completas 8
-(`tab:cierre`, `tab:estrategias`, `tab:celdas`, `tab:modulos`, `tab:barrido`, `tab:ruta`,
-`tab:util`, `tab:sim`), quedan intactas 3 (`tab:fpga`, `tab:palabras`, `tab:antena`) y hay 12
-párrafos cuyo argumento, no solo su número, deja de ser cierto. De las tres figuras incluidas, dos
-se regeneran y las dos ya están regeneradas (`bloques.png` de la corrida final, del 28-10-2026
-20:22, y `utilizacion.png`, del 28-10-2026 20:57) y una no se regenera (las dos imágenes de la
-antena de la estrategia 2, que son evidencia histórica). `utilizacion.png` hay que volver a
-generarla, pero no porque sea de v1: se generó cuando del barrido `u2_*` solo había terminado
-`u2_u50`.
+secciones numeradas que corresponden a 3.1 a 3.7 (`\section` en las líneas 63, 102, 135, 191, 317,
+365 y 414). Lleva 13 tablas y 4 `\includegraphics` (tres figuras distintas). Con la corrida final de
+D23 (el RTL del pipeline con lectura del banco y decodificación en el fetch, `EarlyRead = 1`, banco
+write-through y el offset de byte de la carga registrado en la LSU, B2, más el modelo de cable del
+resizer, `LAYERS_RC`, y la reparación después del ruteo global) cambia al menos una cifra en 10 de
+las 13 tablas, se rehacen completas 7 (`tab:estrategias`, `tab:celdas`, `tab:modulos`, `tab:barrido`,
+`tab:ruta`, `tab:util`, `tab:sim`), cambian solo dos celdas en 1 (`tab:cierre`), se agregan o
+corrigen filas en 2 (`tab:predeco`, `tab:otros`), quedan intactas 3 (`tab:fpga`, `tab:palabras`,
+`tab:antena`) y hay 13 párrafos cuyo argumento, no solo su número, deja de ser cierto.
+
+De las tres figuras incluidas, dos se regeneran y las dos ya están regeneradas (`bloques.png` de la
+corrida final, del 28-10-2026 20:22, y `utilizacion.png`, del 28-10-2026 20:57) y una no se regenera
+(las dos imágenes de la antena de la estrategia 2, que son evidencia histórica). `utilizacion.png`
+hay que volver a generarla, pero no porque sea de v1: se generó cuando del barrido `u2_*` solo había
+terminado `u2_u50` (`u2_u50` terminó a las 20:55:57 y `u2_u60` a las 20:58:48,
+`asic/logs/cola_estado.txt`).
 
 Conviene separar tres clases de cambio, porque se justifican distinto ante el lector:
 
-- **(a) Correcciones de v1 que valen de todos modos.** Las midió el frente D4 el 27-10-2026 y el
-  `.tex` nunca las recogió: el período mínimo de `main` antes de integrar es **24,5 ns** y no 25
-  (`f1_t24p5` cierra con WNS 0,496 ns), es decir **40,8 MHz y 15,3 MIPS** y no 40 MHz y 15,0 MIPS;
-  y la utilización máxima que cierra es **78 %**, con un die mínimo de **215.545 µm² (0,216 mm²)**,
-  no 70 % y 0,239 mm². Hay que corregirlas incluso si se volviera atrás a v1 (D23, sección "Fecha
-  de corte y vueltas atrás").
+- **(a) Correcciones de v1 que valen de todos modos.** Las midió el frente D4 el 27-10-2026
+  (`docs/progreso.md`, fila "D4: barridos finos de `main`"; `u1_u78` y `f1_t24p5` corrieron ese día,
+  `asic/logs/cola_estado.txt`, entradas 4 y 5) y el `.tex` nunca las recogió: el período mínimo de
+  `main` antes de integrar es **24,5 ns** y no 25 (`f1_t24p5` cierra con WNS 0,496 ns), es decir
+  **40,8 MHz y 15,3 MIPS** y no 40 MHz y 15,0 MIPS; y la utilización máxima que cierra es **78 %**,
+  con un die mínimo de **215.545 µm² (0,216 mm²)**, no 70 % y 0,239 mm². Hay que corregirlas incluso
+  si se volviera atrás a v1 (D23, sección "Fecha de corte y vueltas atrás"). Fuente: `asic/final.md`,
+  secciones "Historia: la corrida final de v1 y su barrido de período" (líneas 63 y 74) e "Historia:
+  barrido de FP_CORE_UTIL de v1 a 100 ns" (línea 105).
 - **(b) Cambios por el RTL nuevo.** Afectan todo lo de síntesis y el CPI, y son independientes del
   flujo: área de síntesis aplanada 152.169 a 156.098 µm², jerárquica 157.980 a 164.605, register
   file 73.656 a 80.349, flip-flops 990 a 964, el orden de las cinco celdas más usadas (`dffq_1`
@@ -69,23 +75,33 @@ El tag de la corrida final sigue siendo `final` y sus reportes siguen en
 cambian de ruta: cambia su contenido. "v1" quiere decir `main` antes de integrar, tag `v1-final`,
 con sus reportes en `asic/rom/resultados/v1_final/`.
 
+Un detalle de redacción que también queda viejo: la línea 40 dice "las decisiones se citan con su
+número en `docs/decisiones.md` (D1 a D22)", y con D23 agregada (`docs/decisiones.md`, línea 164) hay
+que escribir D1 a D23.
+
+**Aviso sobre `asic/final.md`.** Ese archivo se generó el 28-10-2026 a las 20:57 y quedó atrasado:
+su tabla de `f2_*` marca `f2_t30` como "incompleta" (terminó a las 21:03:30) y su tabla de `u2_*`
+solo tiene `final` y `u2_u50`, con `u2_u60` y `u2_u70` como "incompletas". Para las filas nuevas del
+barrido de período y del de utilización hay que citar los `metrics.json` y los `cierre.md` de cada
+corrida, o `docs/datos_informe.md` (regenerado el 29-10-2026 a las 00:38), no `asic/final.md`.
+
 ## Resumen: qué se rehace y qué no
 
 | tabla o figura | líneas del `.tex` | qué le pasa | archivo de origen del valor nuevo |
 |---|---|---|---|
-| Tabla 1 `tab:cierre` (criterios de cierre) | 44-60 | **se rehace completa** (4 de 6 filas cambian de cifra o de esquina) | `asic/rom/resultados/final/cierre.md` y `drc_klayout/resumen.md` |
+| Tabla 1 `tab:cierre` (criterios de cierre) | 44-60 | **cambian 2 de las 6 filas**: setup WNS 65,22 a 65,725 ns y hold WNS 0,18 a 0,173 ns. Las cuatro de DRC de Magic, DRC de KLayout, LVS y antenas siguen en 0, y la peor esquina no cambia: setup en `max_ss_125C_4v50` y hold en `min_ff_n40C_5v50` (0,173 ns, empatada con `nom_ff_n40C_5v50`) | `asic/rom/resultados/final/cierre.md` y `drc_klayout/resumen.md` ("0 marcadores en 0 reglas, de 684 reglas evaluadas") |
 | Tabla 2 `tab:fpga` (construcciones de FPGA) | 71-90 | **intacta**: evidencia histórica de c0a, c0b y c0c sobre el RTL del Proyecto 2 (commit `1227fa5`) | `asic/p2_original/evidencia/` (sin cambios) |
-| Tabla 3 `tab:estrategias` (estrategia 1 contra 2) | 112-130 | **se rehace completa**; las 8 filas son de corridas `s1_t100`/`s2_t100` que hay que repetir con el core nuevo. Por medir: `s3_t100` (estrategia 1) y `s4_t100` (estrategia 2, `asic/ff/config_final.yaml`), las dos encoladas | `asic/ff/config_final.yaml`; hoy solo `asic/barrido.md` (v1) |
-| Tabla 4 `tab:celdas` (cinco celdas más usadas) | 141-160 | **se rehace completa**: cambian las cinco filas, el orden y el pie | `asic/sintesis.md`, sección "Las 5 celdas más usadas de la corrida final" |
-| Tabla 5 `tab:modulos` (área por módulo) | 162-184 | **se rehace completa**: cambian 3 áreas y los 10 porcentajes, y el tag del pie | `asic/sintesis.md`, sección "Área por módulo (síntesis jerárquica)" |
-| Tabla 6 `tab:barrido` (barrido de período) | 199-219 | **se rehace completa**: cambian los puntos del barrido (100, 30, 25, 24, 23, 22, 21,5 y 21 ns, ocho filas) y las 10 columnas. Las ocho corridas `f2_*` ya terminaron y están versionadas | `asic/rom/resultados/{final,f2_t30,f2_t25,f2_t24,f2_t23,f2_t22,f2_t21p5,f2_t21}/metrics.json` |
-| Tabla 7 `tab:ruta` (ruta crítica por tramos) | 229-244 | **se rehace completa**: es otra ruta, con otros tramos y otro endpoint | `asic/rutas.md`, sección "Corrida final nueva al periodo minimo (f2_t21p5, 21,5 ns)"; `asic/rom/resultados/f2_t21p5/layout/ruta_critica.txt` |
-| Tabla 8 `tab:predeco` (efecto de la pre-decodificación) | 252-267 | las 4 filas de historia **no cambian**; hay que **agregar dos filas** (el pipeline nuevo y el pipeline con el modelo de cable) y corregir el T mínimo de la última | `asic/exploraciones.md` (tabla resumen), `docs/modelo_cable.md` sección 4 |
-| Tabla 9 `tab:otros` (otros cambios de RTL) | 273-287 | **se rehace**: la fila de la corrida final cambia, B2 pasa a estar dentro de la final y conviene agregar las filas de la sesión del 27 y 28-10 | `asic/exploraciones.md`, tabla resumen (20 filas, `asic/tabla_sesion.py`) |
-| Tabla 10 `tab:palabras` (palabras de la ROM) | 300-314 | **intacta**: las cuatro palabras y sus direcciones son las mismas; solo revisar el commit del pie | `rtl/gen/pochoco_rom.v` (líneas 101, 102, 122, 123) |
-| Tabla 11 `tab:util` (barrido de utilización) | 325-341 | **se rehace completa**: la fila de 40 % sale de la corrida final nueva y las de 50, 60, 70, 72 y 73 % ya están medidas (`u2_u50` a `u2_u73`); 75, 78, 80 y 90 % fallan y tienen su `falla.txt`; falta `u2_u74` | `asic/rom/resultados/final/metrics.json` y `asic/rom/resultados/u2_*/{metrics.json,falla.txt}` |
-| Tabla 12 `tab:antena` (antena de la estrategia 2) | 385-398 | **intacta**: corridas históricas `s2_t100`, `s2_t100_diodos` y `s2_t100_antrep` con el RTL viejo; solo agregar un matiz en el texto | `asic/ff/resultados/s2_t100*/metrics.json` (sin cambios) |
-| Tabla 13 `tab:sim` (escenario simulado) | 422-437 | **se rehace completa**: cambian los 4 ciclos de estímulo, los 5 ciclos de resultado y el valor del display | `asic/sim/resultado.md`, `asic/sim/estimulos.txt`, `docs/verificacion/b2_make_post_synth.txt` |
+| Tabla 3 `tab:estrategias` (estrategia 1 contra 2) | 112-130 | **se rehace completa**; las 8 filas salen de corridas `s1_*`/`s2_*` con el RTL viejo. Las corridas nuevas **ya están hechas**: `s3_t100` (estrategia 1, terminada con código 0 el 28-10-2026 21:55) y `s4_t100`, `s4_t65`, `s4_t60`, `s4_t55`, `s4_t50` (estrategia 2 con `asic/ff/config_final.yaml`, todas código 0 entre 22:12 y 22:41). Por medir: el período mínimo de la estrategia 2, porque `s4_t50` todavía cierra con WNS 6,939 ns y `s4_t45`, `s4_t42` y `s4_t40` quedaron encoladas el 29-10-2026 a las 00:32 (entradas 156 a 158) | `asic/rom/resultados/s3_t100/{metrics.json,cierre.md,sintesis_stat.rpt}` y `asic/ff/resultados/s4_*/{metrics.json,cierre.md,sintesis_stat.rpt}`; `asic/ff/resultados/LEEME.md` dice por qué la fuente de la estrategia 2 son las `s4_*` y no `e2_t100` |
+| Tabla 4 `tab:celdas` (cinco celdas más usadas) | 141-160 | **se rehace completa**: cambian las cinco filas, el orden y el pie (la quinta celda ya no es `clkinv_1` sino `aoi21_1`; el total pasa de 5.118 celdas de 34 tipos a 5.577 de 36, y el reparto por módulo de `h2_t100` a `h3_t100`) | `asic/sintesis.md`, sección "Las 5 celdas más usadas de la corrida final" |
+| Tabla 5 `tab:modulos` (área por módulo) | 162-184 | **se rehace completa**: cambian 3 áreas de módulo (register file 73.656 a 80.349, `espino_id_stage` 29.765 a 29.589, LSU 2.711 a 2.819), el total (157.980 a 164.605) y 8 de los 10 porcentajes; la LSU queda en 1,7 % y la fila de bus, sincronizador de reset y control no cambia ni en área (1.470 µm²) ni en porcentaje (0,9 %). También cambia el tag del pie, de `h2_t100` a `h3_t100` | `asic/sintesis.md`, sección "Área por módulo (síntesis jerárquica)" |
+| Tabla 6 `tab:barrido` (barrido de período) | 199-219 | **se rehace completa**: los puntos pasan a ser 100, 30, 25, 24, 23, 22, 21,5 y 21 ns (ocho filas, de **siete** corridas `f2_*` más la corrida `final` a 100 ns, todas terminadas y versionadas). De las 10 columnas de datos cambian las 6 de WNS y la de área; las 4 de TNS siguen en 0 salvo la fila que no cierra (`f2_t21`: TNS de setup -0,291 ns en `max_ss_125C_4v50`) | `asic/rom/resultados/{final,f2_t30,f2_t25,f2_t24,f2_t23,f2_t22,f2_t21p5,f2_t21}/metrics.json` |
+| Tabla 7 `tab:ruta` (ruta crítica por tramos) | 229-244 | **se rehace completa**: es otra ruta, con otros tramos y otro endpoint | `asic/rutas.md`, sección "Corrida final nueva al periodo minimo (f2_t21p5, 21,5 ns)" (línea 44); `asic/rom/resultados/f2_t21p5/layout/ruta_critica.txt` y `max_ss_125C_4v50_ruta_critica.rpt` |
+| Tabla 8 `tab:predeco` (efecto de la pre-decodificación) | 252-267 | las 4 filas de historia **no cambian**; hay que **agregar dos filas** (el pipeline nuevo y el pipeline con el modelo de cable) y corregir el T mínimo de la última, que pasa de 25 a 24,5 ns | `asic/exploraciones.md`, tabla resumen (líneas 68 a 89); `docs/modelo_cable.md` sección 4 (tabla de `co_rcm_*` y `co_rc_*`) |
+| Tabla 9 `tab:otros` (otros cambios de RTL) | 273-287 | **se rehace**: la fila de la corrida final cambia, B2 pasa a estar dentro de la final y conviene agregar las filas de la sesión del 27 y 28-10 | `asic/exploraciones.md`, tabla resumen (generada por `python3 asic/tabla_sesion.py asic/ramas_sesion.json`, 20 filas de datos desde la línea 70 a la 89) |
+| Tabla 10 `tab:palabras` (palabras de la ROM) | 300-314 | **intacta**: las cuatro palabras y sus direcciones son las mismas; solo revisar el commit del pie | `rtl/gen/pochoco_rom.v` (líneas 101, 102, 122 y 123: `lui x12, 0xf4` y `addi x12, x12, 576` dos veces) |
+| Tabla 11 `tab:util` (barrido de utilización) | 325-341 | **se rehace completa**: la fila de 40 % sale de la corrida final nueva y las de 50, 60, 70, 72 y 73 % ya están medidas (`u2_u50` a `u2_u73`, todas CIERRAN); **cinco** fallan, no cuatro: 74, 75, 78, 80 y 90 %, y las cinco tienen su `falla.txt` versionado | `asic/rom/resultados/final/metrics.json` y `asic/rom/resultados/u2_*/{metrics.json,cierre.md,falla.txt}`; tabla ya armada en `docs/datos_informe.md` sección 3.5 |
+| Tabla 12 `tab:antena` (antena de la estrategia 2) | 385-398 | **intacta**: corridas históricas `s2_t100`, `s2_t100_diodos` y `s2_t100_antrep` con el RTL viejo; el matiz que hay que agregar al texto ya tiene cifra: con el core nuevo y la configuración final la estrategia 2 da **0 nets con violación de antena** (`antenna__violating__nets = 0` en `asic/ff/resultados/s4_t100/metrics.json`), así que la violación es de las corridas históricas y no reaparece | `asic/ff/resultados/s2_t100*/metrics.json` (sin cambios) y `asic/ff/resultados/s4_t100/metrics.json` para el matiz |
+| Tabla 13 `tab:sim` (escenario simulado) | 422-437 | **se rehace completa**: cambian 3 de los 4 ciclos de estímulo (el primero, 300 a 360, no cambia), los 5 ciclos de resultado y el valor del display (57 a 51) | `asic/sim/estimulos.txt` (ciclos 300/360, 635/695, 1373/1433, 1733/1793), `asic/sim/resultado.md` (ciclos 1033, 1405, 1507 y 2131) y `asic/sim/resultado_sdf.md` sección 2.2 para el ciclo en que empieza la ronda 01 (4 LEDs en el 383 y display 01 en el **404**, el que en el `.tex` es 426); salida completa en `docs/verificacion/integracion_13_post_synth.txt` |
 | Figura 1 `fig:util` `../docs/figuras/utilizacion.png` | 345 | **se regenera, y ya está regenerada** (28-10-2026 20:57, por `bash asic/tablas.sh`, con `final` y `u2_*`), pero hay que repetirla porque entonces solo había terminado `u2_u50` | `$HOME/herramientas/librelane/bin/python3 asic/graficos.py --util <corridas> --salida-util docs/figuras/utilizacion.png` (`asic/tablas.sh`, líneas 32 a 38) |
 | Figura 2 `fig:antena` `../asic/ff/resultados/s2_t100/layout/antena_antes.png` y `_zoom.png` | 377-378 | **no se regenera**: corrida histórica con el RTL viejo | sin cambios |
 | Figura 3 `fig:bloques` `../asic/rom/resultados/final/layout/bloques.png` | 406 | **se regenera y ya está regenerada** (28-10-2026 20:22, con la corrida final nueva); la misma ruta, otro contenido | `bash asic/layout/anotar.sh asic/rom/runs/final`; datos en `asic/rom/resultados/final/layout/bloques.txt` |
@@ -93,16 +109,16 @@ con sus reportes en `asic/rom/resultados/v1_final/`.
 Figuras que se regeneran pero hoy **no** están en el `.tex`, y que con los cambios nuevos pasan a
 ser buenas candidatas: `docs/figuras/periodo.png` (el barrido ahora tiene ocho puntos y el área de
 celdas crece en todos; ya está regenerada el 28-10-2026 20:57, pero con siete puntos, porque
-`f2_t30` terminó a las 21:03), `asic/rom/resultados/final/layout/slew.png` (en v1 marcaba 546 pines
-en 520 celdas, en la final nueva queda vacía) y
+`f2_t30` terminó a las 21:03:30), `asic/rom/resultados/final/layout/slew.png` (en v1 marcaba 546
+pines en 520 celdas, en la final nueva queda vacía: `slew.txt` dice "0 pines en 0 celdas") y
 `asic/rom/resultados/f2_t21p5/layout/ruta_critica.png`. `docs/figuras/construccion.gif` también se
-regenera y tampoco está incluida.
+regenera, **y ya está regenerado** (28-10-2026 21:28), y tampoco está incluido.
 
 ## Párrafos cuyo argumento cambia, no solo el número
 
 El mapa `etapa1_4.json` identifica cinco (líneas 221, 223, 250, 269 y 289). Los cinco se verifican
-en el `.tex` de hoy y están abajo; se agregan siete más que también dejan de ser ciertos, con lo
-que son doce en total.
+en el `.tex` de hoy y están abajo; se agregan ocho más que también dejan de ser ciertos, con lo
+que son trece en total: 188, 197, 221, 223, 227, 246, 250, 269, 289, 323, 350, 411 y 439.
 
 ### 1. Línea 221: "de 26 ns para abajo el layout es idéntico"
 
@@ -115,9 +131,11 @@ período y el área crece en los ocho puntos del barrido, de 208.439 µm² a 100
 21,5 ns y 231.638 a 21 ns, sin ningún punto en que el layout se repita (comparar
 `design__instance__area__stdcell` y `design__instance__count__stdcell` de
 `asic/rom/resultados/{final,f2_t30,f2_t25,f2_t24,f2_t23,f2_t22,f2_t21p5,f2_t21}/metrics.json`:
-9.928, 9.929, 9.926, 9.928, 9.925, 9.927, 9.946 y 9.947 celdas; en v1 las cuatro corridas de 26 a
-24 ns tenían exactamente 8.708 celdas, 189.817 µm² y 354.897 µm de cables, según `asic/final.md`,
-sección "Historia: la corrida final de v1 y su barrido de período").
+áreas 208.439, 219.059, 219.531, 220.655, 222.714, 224.767, 231.229 y 231.638 µm², y 9.928, 9.929,
+9.926, 9.928, 9.925, 9.927, 9.946 y 9.947 celdas; en v1 las cuatro corridas de 26 a 24 ns
+(`f1_t26`, `f1_t25`, `f1_t24p5` y `f1_t24`) tenían exactamente 8.708 celdas, 189.817 µm² y
+354.897 µm de cables, según `asic/final.md`, sección "Historia: la corrida final de v1 y su barrido
+de período", línea 63).
 
 Qué decir en su lugar: que cada `CLOCK_PERIOD` reoptimiza el circuito y que, con un modelo de
 cable realista, la reoptimización no se agota: el área de celdas sube un 10,9 % de 100 a 21,5 ns
@@ -134,27 +152,31 @@ lenta) está dentro de los 7\,ns que admite la biblioteca en esa esquina."
 Por qué deja de ser cierto: la configuración nueva deja **0 violaciones de max slew en las nueve
 esquinas** (`design__max_slew_violation__count = 0` en `asic/rom/resultados/final/metrics.json`;
 `asic/rom/resultados/final/layout/slew.txt`: "0 pines en 0 celdas"; `avisos.md` lo confirma esquina
-por esquina), así que el argumento de que eran inevitables y toleradas se cae. El peor valor de
+por esquina: "la corrida nueva tiene 0 violaciones de max slew en las nueve esquinas ... contra 546
+en v1"), así que el argumento de que eran inevitables y toleradas se cae. El peor valor de
 5,414 ns es verificable, pero es de v1 (`asic/rom/resultados/v1_final/layout/slew.txt`, líneas 7 y
 8, pines `u_soc.u_core.u_rf/fanout35` y `fanout34`). Queda **1** violación de max capacitancia, que
 es la raíz del árbol de reloj (`clkbuf_0_clk/Z`), un pin que `repair_design` no toca
-(`asic/rom/resultados/final/avisos.md`, aviso 4; `docs/modelo_cable.md`, sección 4, punto 3).
+(`asic/rom/resultados/final/avisos.md`, aviso 4: 0,428234 pF contra un límite de 0,2 pF en
+`max_ss_125C_4v50`, mientras el liberty admite 3,93 pF en ese pin; `docs/modelo_cable.md`,
+sección 4, punto 3).
 
 Qué decir en su lugar: el diagnóstico del frente C, que es el aporte técnico más fuerte de la
 sesión y hoy no está en el informe. El resizer estima los parásitos con un solo par de números, el
 promedio de las capas de ruteo del tech LEF: **0,2752 ohm/µm y 64,3 aF/µm**, igual en las nueve
-esquinas (`14-openroad-dumprcvalues/resizer_values_after.rpt`, fila `Signal Avg`;
-`asic/modelo_cable.md`, sección 1). OpenRCX, extrayendo del ruteo detallado, mide por regresión
-lineal sobre **2.399 nets** de más de 20 µm: **188,4 / 166,3 / 148,0 aF/µm** y **0,599 / 0,549 /
-0,498 ohm/µm** (max / nom / min), o sea factores **2,93 / 2,59 / 2,30** en capacidad y **2,18 /
-1,99 / 1,81** en resistencia (`asic/modelo_cable.md`, sección 2). Con parásitos de menos el resizer
-cree haber terminado antes de tiempo y no pone el buffer; la violación aparece recién en el STA
-final con el SPEF de verdad. `LAYERS_RC` reemplaza la tabla del tech LEF capa por capa y esquina
-por esquina con esos valores escalados, y entonces los dos pasos post-GRT
-(`RUN_POST_GRT_DESIGN_REPAIR` con márgenes de 30 % y `RUN_POST_GRT_RESIZER_TIMING`) pasan a servir
-de algo. Ninguno de los valores de `LAYERS_RC` está escrito a mano: los deriva
-`asic/modelo_cable.py` y el mismo script verifica que la configuración coincide con lo derivado
-(`asic/modelo_cable.md`, sección 4: "Coincide").
+esquinas (`build/exp_rf_latch/asic/rom/runs/b5_t100/14-openroad-dumprcvalues/resizer_values_after.rpt`,
+fila `Signal Avg`: 2.751623e-01 y 6.4324e-05; `asic/modelo_cable.md`, sección 1). OpenRCX,
+extrayendo del ruteo detallado, mide por regresión lineal sobre **2.399 nets** de más de 20 µm:
+**188,4 / 166,3 / 148,0 aF/µm** y **0,599 / 0,549 / 0,498 ohm/µm** (max / nom / min), o sea factores
+**2,93 / 2,59 / 2,30** en capacidad y **2,18 / 1,99 / 1,81** en resistencia (`asic/modelo_cable.md`,
+sección 2). Con parásitos de menos el resizer cree haber terminado antes de tiempo y no pone el
+buffer; la violación aparece recién en el STA final con el SPEF de verdad. `LAYERS_RC` reemplaza la
+tabla del tech LEF capa por capa y esquina por esquina con esos valores escalados, y entonces los
+dos pasos post-GRT (`RUN_POST_GRT_DESIGN_REPAIR` con `GRT_DESIGN_REPAIR_MAX_SLEW_PCT` y
+`GRT_DESIGN_REPAIR_MAX_CAP_PCT` en 30, y `RUN_POST_GRT_RESIZER_TIMING`; `asic/rom/config.yaml`,
+líneas 54 a 59) pasan a servir de algo. Ninguno de los valores de `LAYERS_RC` está escrito a mano:
+los deriva `asic/modelo_cable.py` y el mismo script verifica que la configuración coincide con lo
+derivado (`asic/modelo_cable.md`, sección 4: "Coincide", los 15 pares capa por extracción).
 
 ### 3. Línea 250: "toda instrucción pasa un ciclo esperando la lectura sincrónica del banco"
 
@@ -164,24 +186,30 @@ salidas del decodificador (82 bits...) ... y en el ciclo de ejecución el decode
 ruta. Ninguna instrucción cambia su número de ciclos."
 
 Por qué deja de ser cierto: `EarlyRead = 1` **elimina ese ciclo**. La ROM de la estrategia 1 es
-combinacional, así que su salida `a_next_o` ya tiene la instrucción de la dirección que pide la
-etapa IF un ciclo antes de que se cargue en el registro de instrucción; con ella se piden las
-lecturas del banco (rs1 y rs2) y se registra el decode en el mismo flanco. `ops_valid_q` desaparece
-y el conteo pasa de dos ciclos por instrucción (tres las cargas y los saltos tomados) a **uno, dos
-las cargas y dos los saltos tomados** (`docs/pipeline.md`, sección 1, tabla "Temporización nueva",
-línea 41 en adelante). El CPI del juego completo baja de **2,665 a 1,665** y el de `isa_test.s` de
+combinacional, así que su salida (`rom_data` dentro de `rtl/pochoco_mem_rom.v`, que sale por el
+puerto `a_next_o`, línea 37 y `assign` de la línea 55) ya tiene la instrucción de la dirección que
+pide la etapa IF un ciclo antes de que se cargue en el registro de instrucción; con ella se piden
+las lecturas del banco (rs1 y rs2) y se registra el decode en el mismo flanco. `ops_valid_q` deja de
+instanciarse (queda solo en la rama `g_wait` del `generate`, la de `EarlyRead = 0`:
+`rtl/espino_core/espino_id_stage.v`, líneas 149 a 162) y el conteo pasa de dos ciclos por
+instrucción (tres las cargas y los saltos tomados) a **uno, dos las cargas y dos los saltos
+tomados** (`docs/pipeline.md`, sección 1, tabla "Temporización nueva", línea 41 en adelante, y la
+frase de la línea 49). El CPI del juego completo baja de **2,665 a 1,665** y el de `isa_test.s` de
 2,953 a 1,969 (`docs/verificacion/integracion.md`, sección "CPI medido en la integración":
 1.595.814 ciclos / 958.358 instrucciones retiradas).
 
 Qué decir en su lugar: que D18 y D19 (la pre-decodificación) quedan **contenidas** en un cambio
 mayor, y que el eje de la subsección pasa a ser la Ley de Hierro. Hay que mantener los 82 bits de
-decode registrado, que siguen siendo 82 (`asic/sintesis.md`, desglose de `dffq_1`), y agregar que
-el banco de registros gana write-through (si `we_i`, `waddr_i != 0` y `raddr == waddr`, la salida
-registrada toma `wdata_i`) y un habilitador de lectura `rd_en_i`, y que la LSU registra
-`addr_i[1:0]` (B2, 2 flip-flops más). También que la estrategia 2 usa `EarlyRead = 0` y por eso
-reproduce exactamente el CPI de v1, 2,665, que es lo que hace que `make check` siga ejercitando el
-camino antiguo del core (`docs/pipeline.md`, sección 1, "Estrategia 2";
-`docs/verificacion/integracion.md`, filas de estrategia 2 de la tabla de CPI).
+decode registrado, que siguen siendo 82 (`asic/sintesis.md`, desglose de `dffq_1`: 82 en
+`espino_id_stage`, con el detalle bit por bit), y agregar que el banco de registros gana
+write-through (`wr = we_i & (waddr_i != 0)` y `fwd_a = wr & (raddr_a_i == waddr_i)`, con lo que la
+salida registrada toma `wdata_i`: `rtl/espino_core/espino_register_file.v`, líneas 62 a 74) y un
+habilitador de lectura `rd_en_i` (línea 50), y que la LSU registra `addr_i[1:0]` (B2, 2 flip-flops
+más: `asic/sintesis.md`, desglose de `dffq_1`, fila `espino_load_store_unit`). También que la
+estrategia 2 usa `EarlyRead = 0` y por eso reproduce exactamente el CPI de v1, 2,665, que es lo que
+hace que `make check` siga ejercitando el camino antiguo del core (`docs/pipeline.md`, sección 1,
+"Estrategia 2"; `docs/verificacion/integracion.md`, filas de estrategia 2 de la tabla de CPI:
+1.599.759 / 600.218).
 
 ### 4. Línea 269: "trazas idénticas ciclo a ciclo con el RTL anterior"
 
@@ -192,7 +220,9 @@ al banco, accesos al bus y salidas, con las dos estrategias de memoria."
 Por qué deja de ser cierto: la equivalencia ciclo a ciclo es imposible por construcción, porque el
 core nuevo retira las instrucciones antes. Pasa a ser **equivalencia funcional**: la misma
 secuencia de escrituras al banco, de accesos al bus y de salidas. Las 15 comprobaciones de la
-integración están en `docs/verificacion/integracion.md` y todas dan verde.
+integración están en `docs/verificacion/integracion.md` y todas dieron el resultado que se les
+pedía (las 13 que tienen que dar verde dan verde; la 6 difiere a propósito en el banco y la 14 es un
+control negativo que tiene que fallar la comparación, y falla).
 
 Qué decir en su lugar, con las cifras de ese archivo: `make equiv MODO=funcional` contra el RTL de
 referencia histórico (116fa20) y contra v1 con `sw/isa_test.s` da 46 eventos de banco, 22 de bus y
@@ -203,7 +233,7 @@ commit de la carga, `MUTA_LOADUSE`) **se detectan** (con `hazard_test` la primer
 desconocidos; con `hazard_review` son 63 la primera y 679 la segunda); y el monitor de X cuenta
 **0 valores desconocidos usados en 620.217 escrituras al banco** del juego completo. Una sola
 comparación difiere a propósito: `sw/hazard_cycles.s` lee el contador de ciclos, que depende del
-ciclo, y el core nuevo llega antes; lo comparable (bus y salidas) sí es idéntico.
+ciclo, y el core nuevo llega antes; lo comparable (bus 10 y salidas 2) sí es idéntico.
 
 ### 5. Línea 289: "ninguno se incorporó a la corrida final (D22)"
 
@@ -217,14 +247,18 @@ adelante, D23).
 
 Qué decir en su lugar: que la métrica de selección de la sesión fue MIPS = f máxima / CPI del juego
 completo, con el período barrido hasta dejar 0,5 ns o menos entre el último que cierra y el primero
-que no; que A + B2 gana con 23,6 MIPS contra 15,3 de v1 con la configuración anterior, y 27,9 con
-el modelo de cable; que B3, B4 y B5 siguen fuera, y por qué (B4 baja el CPI pero sube el período
-2,45 veces respecto del v1 corregido; B5 ahorra 11 % de área pero con la lectura anticipada le
-quita 3,5 ns al período: `exp/pipeline-b5` cierra a 29 ns contra 25,5 de `exp/pipeline-b2`,
-`asic/exploraciones.md`). Y que el límite de área de celdas de 105 % que la sesión se había fijado
-**se levanta**, porque no es un criterio del enunciado y porque lo que el enunciado sí pide no
-empeora: el die y el costo son los mismos (`docs/decisiones.md`, D23, "Nota sobre el límite de área
-de celdas").
+que no (`docs/decisiones.md`, D23, viñeta "Contexto"); que A + B2 gana con 23,6 MIPS contra 15,3 de
+v1 con la configuración anterior, y 27,9 con el modelo de cable (`asic/exploraciones.md`, tabla
+resumen, filas `main (referencia)`, `exp/candidata` y `exp/candidata-rc`); que B3, B4 y B5 siguen
+fuera, y por qué (B4 baja el CPI a 1,312 pero su período mínimo, 60 ns, es 2,45 veces el del v1
+corregido de 24,5 ns; B5 ahorra 11 % de área de celdas pero con la lectura anticipada le **cuesta**
+3,5 ns de período: `exp/pipeline-b5` cierra a 29 ns con 165.211 µm² contra 25,5 ns y 186.432 µm² de
+`exp/pipeline-b2`, `asic/exploraciones.md`, filas 79 y 80). Y que el límite de área de celdas de
+105 % que la sesión se había fijado **se levanta**, porque no es un criterio del enunciado y porque
+lo que el enunciado sí pide no empeora: el die y el costo son los mismos, 419.131 µm² y
+9.640 dólares (`docs/decisiones.md`, D23, "Nota sobre el límite de área de celdas"). El reparto del
+salto de MIPS está medido: de los 12,6 MIPS de diferencia, 8,2 los pone el RTL, 1,7 el flujo y 2,6
+son de la interacción (`asic/evolucion.md`, citado en `asic/exploraciones.md`).
 
 ### 6. Línea 188: "se esperaba que los flip-flops fueran la celda más numerosa ... Las dos cosas se cumplen"
 
@@ -234,21 +268,22 @@ Tampoco se esperaba que \sig{nand2\_1} quedara a la par de \sig{mux2\_2}."
 
 Por qué deja de ser cierto: con el RTL nuevo `nand2_1` es la **primera** celda (934, 16,7 %),
 `mux2_2` la segunda (889, 15,9 %) y `dffq_1` cae a **tercera** (779, 14,0 %)
-(`asic/rom/resultados/final/sintesis_stat.rpt`, bloque "design hierarchy", líneas 203, 201 y 199; y
+(`asic/rom/resultados/final/sintesis_stat.rpt`, bloque "design hierarchy" que empieza en la línea
+166: `nand2_1` 934 en la línea 203, `mux2_2` 889 en la 201 y `dffq_1` 779 en la 199; y
 `asic/sintesis.md`). Ya no se cumple lo esperado de que el flip-flop fuera la celda más numerosa, y
 la frase de que `nand2_1` queda "a la par" pasa a ser "la supera".
 
-Ojo con la fuente: la última sección de `asic/sintesis.md` ("Comparación con lo esperado antes de
-sintetizar") dice todavía lo contrario, "La tabla anterior lo confirma; la novedad es que `nand2_1`
-queda casi a la par de `mux2_2`", y se contradice con su propia tabla de celdas (934 contra 779).
-Lo que sostiene el cambio es la tabla, no ese párrafo, y ese párrafo de `asic/sintesis.md` conviene
-corregirlo también.
+La fuente está al día y no hay que corregirla: `asic/sintesis.md` se regeneró el 28-10-2026 a las
+21:16 y su última sección ("Comparación con lo esperado antes de sintetizar") ya dice lo contrario
+de lo que dice el `.tex`: "Se esperaba que los flip-flops fueran la celda más numerosa y los
+multiplexores la segunda ... **No se cumplió**: la celda más usada es `nand2_1`, y el flip-flop
+queda tercero". No hay contradicción entre ese párrafo y su propia tabla de celdas.
 
 Qué decir en su lugar: que la expectativa se cumple a medias, que el banco de registros sigue
-dominando el área (49 % en la jerárquica) y que la razón de que `nand2_1` pase al primer lugar es
-que la lógica combinacional del banco creció: **265 `nand2_1` en el register file contra 88 en v1**
-(`asic/rom/resultados/h3_t100/sintesis_jerarquica.rpt` contra
-`asic/rom/resultados/h2_t100/sintesis_jerarquica.rpt`, línea 461; también
+dominando el área (48,8 % en la jerárquica, que `asic/sintesis.md` redondea a 49 %) y que la razón
+de que `nand2_1` pase al primer lugar es que la lógica combinacional del banco creció: **265
+`nand2_1` en el register file contra 88 en v1** (`asic/rom/resultados/h3_t100/sintesis_jerarquica.rpt`,
+línea 462, contra `asic/rom/resultados/h2_t100/sintesis_jerarquica.rpt`, línea 461; también
 `v1_final/sintesis_stat.rpt`, línea 120), por los muxes del write-through y del habilitador de
 lectura. El conteo nuevo contra el RTL es: **820 sin reset y 185 con reset (1.005)**; la jerárquica
 da 820 + 185 y la aplanada 779 + 185 = **964** (`asic/sintesis.md`, "Comparación con lo esperado
@@ -266,7 +301,9 @@ línea 425) y en el diseño nuevo tiene **85** (`h3_t100/sintesis_jerarquica.rpt
 conteo **baja**, no sube. El 6 que aparecía citado es el de `pochoco_cycle_counter`
 (`asic/rom/resultados/v1_final/sintesis_stat.rpt`, línea 152, que es el bloque del contador de
 ciclos, no el de la LSU: la corrida final aplana la LSU y su reporte no la separa). Lo que sí sube
-en la LSU es el área, 2.711 a 2.819 µm², por los 2 flip-flops de B2 y su lógica.
+en la LSU es el área, 2.711 a 2.819 µm², por los 2 flip-flops de B2 y su lógica
+(`h2_t100/sintesis_jerarquica.rpt`, línea 435: "Chip area for module '\espino_load_store_unit':
+2711.072000", contra `asic/sintesis.md`, fila de la LSU: 2.819).
 
 ### 7. Línea 227 y línea 246: la ruta crítica ya no es la de una carga, y B2 ya no es una propuesta
 
@@ -277,32 +314,41 @@ saca de la ruta sin cambiar el comportamiento (cambio B2 de la Tabla~\ref{tab:ot
 
 Por qué dejan de ser ciertos: B2 **ya está dentro de la corrida final**, así que la alineación de
 la carga salió de la ruta, y la ruta crítica al período mínimo es otra. A 21,5 ns va del
-flip-flop de pre-decodificación `_4136_` (`dffq_4`, `u_soc.u_core.u_id.alu_op_a_sel[2]`) por el mux
-del operando A, la ALU hasta `u_soc.u_core.lsu_addr[31]`, y de ahí por lógica aplanada hasta
-`_4440_` (`dffrnq_1`). Ese flip-flop es **`u_soc.u_periph.digit_q[4]`**, un bit del registro del
-display: en el netlist, `gf180mcu_fd_sc_mcu7t5v0__dffrnq_1 _4440_ (.D(_0357_), .RN(net848),
-.CLK(clknet_leaf_79_clk), .Q(\u_soc.u_periph.digit_q[4]))`
-(`asic/rom/runs/f2_t21p5/final/nl/asic_top.nl.v`, línea 29924). La cadena pasa por
-`_4079_`, una `nand3_4` cuyas entradas son `u_soc.u_core.lsu_we`, el decode de la dirección
-(`_1838_`, que viene de `lsu_addr[31]` invertido) y `_0467_` (línea 28693 del mismo netlist), y
-termina en `_4094_`, una `oai21_2` que produce `_0357_`, el pin D de `_4440_` (línea 28751). Es
-decir: **la ruta crítica nueva es un store al display**: ejecución (la ALU calcula la dirección),
-decodificación de la dirección del bus combinada con la señal de escritura, y habilitación del
-registro DISP del periférico. Esto corrige la hipótesis del mapa `etapa1_4.json`, que en su sección
-"pendientes" suponía que el endpoint era el control de la detención del pipeline. La misma
-suposición está en el `.tex`, línea 289, pero ahí es sobre la corrida de B2 solo
-(`exp/lsu-offset`, 24 ns) y queda como historia.
+flip-flop de pre-decodificación `_4136_` (`dffq_4`, netlist línea 28905;
+`u_soc.u_core.u_id.alu_op_a_sel[2]`) por el mux del operando A, la ALU hasta
+`u_soc.u_core.lsu_addr[31]`, y de ahí por lógica aplanada hasta `_4440_` (`dffrnq_1`). Ese
+flip-flop es **`u_soc.u_periph.digit_q[4]`**, un bit del registro del display: en el netlist,
+`gf180mcu_fd_sc_mcu7t5v0__dffrnq_1 _4440_ (.D(_0357_), .RN(net848), .CLK(clknet_leaf_79_clk),
+.Q(\u_soc.u_periph.digit_q[4]))` (`asic/rom/runs/f2_t21p5/final/nl/asic_top.nl.v`, línea 29924). La
+cadena pasa por `_4079_`, una `nand3_4` cuyas tres entradas son `u_soc.u_core.lsu_we`, el decode de
+la dirección (`_1838_`) y `_0467_`, y entrega `_1980_` (línea 28693 del mismo netlist), y termina en
+`_4094_`, una `oai21_2` que produce `_0357_`, el pin D de `_4440_` (línea 28751). El decode de la
+dirección sí viene de `lsu_addr[31]`, pero en dos pasos: `_1838_` es la salida de un `nor2_4`
+(`_3825_`, línea 27823) entre `net194` y `_0384_`, y `_0384_` es `lsu_addr[31]` invertido
+(`clkinv_16 _2014_`, línea 21097, sobre `net117`, que es el `buf_8 max_cap117` de
+`u_soc.u_core.lsu_addr[31]`, línea 31118). Es decir: **la ruta crítica nueva es un store al
+display**: ejecución (la ALU calcula la dirección), decodificación de la dirección del bus combinada
+con la señal de escritura, y habilitación del registro DISP del periférico. Esto corrige la
+hipótesis del mapa `etapa1_4.json`, que en su sección "pendientes" suponía que el endpoint era el
+control de la detención del pipeline. La misma suposición está en el `.tex`, línea 289, pero ahí es
+sobre la corrida de B2 solo (`exp/lsu-offset`, 24 ns) y queda como historia.
 
 Qué decir en su lugar: que la ruta crítica depende del período, porque el resizer optimiza distinto
 en cada punto. A 100 ns la crítica es la que crea `EarlyRead`: del flip-flop `_4287_`
-(`dffrnq_1`, cuya Q es `u_soc.g_mem_rom.u_mem.a_addr_i[2]`, un bit del PC que direcciona la ROM;
-netlist de la final, línea 30522) por la ROM combinacional hasta
-`u_soc.g_mem_rom.u_mem.a_next_o[17]` y de ahí por el árbol de lectura del banco hasta
-`u_soc.u_core.u_rf/_4123_`, que es `u_soc.u_core.rf_rdata_a[25]`, la salida registrada del puerto
-de lectura A (netlist de la final, línea 43537). Al período mínimo la crítica vuelve a la ALU, pero
-termina en el periférico y no en el banco. Y que B2 pasa de propuesta a parte del diseño: la frase
-"registrar los dos bits bajos de la dirección al emitir la carga la saca de la ruta" se escribe en
-pasado y se cita como lo que explica que la ruta de la carga ya no aparezca.
+(`dffrnq_1`, cuya Q es `u_soc.g_mem_rom.u_mem.a_addr_i[2]`, un bit del PC que direcciona la ROM)
+por la ROM combinacional hasta `u_soc.g_mem_rom.u_mem.a_next_o[17]` y de ahí por el árbol de lectura
+del banco hasta `u_soc.u_core.u_rf/_4123_`, la salida registrada del puerto de lectura A
+(`asic/rutas.md`, sección "Corrida final nueva a 100 ns (tag final)", línea 17: startpoint `_4287_`,
+endpoint `u_soc.u_core.u_rf/_4123_`, con 13 celdas de lógica aplanada por 12,355 ns y 19 celdas
+dentro del banco por 19,154 ns, llegada total 36,033 ns). Al período mínimo la crítica vuelve a la
+ALU, pero termina en el periférico y no en el banco. Y que B2 pasa de propuesta a parte del diseño:
+la frase "registrar los dos bits bajos de la dirección al emitir la carga la saca de la ruta" se
+escribe en pasado y se cita como lo que explica que la ruta de la carga ya no aparezca.
+
+Nota sobre los nombres de instancia: los netlists de dos corridas distintas no comparten
+numeración, así que `_4123_` y `_4287_` son del netlist de `final` y `_4136_`, `_4440_`, `_4079_` y
+`_4094_` del de `f2_t21p5`. Las dos rutas completas, con sus tramos y sus nets del RTL, están en
+`asic/rutas.md` (secciones de las líneas 17 y 44), que genera `bash asic/rutas.sh`.
 
 ### 8. Línea 323: "La utilización real queda 8 a 11 puntos sobre la pedida"
 
@@ -311,21 +357,52 @@ los criterios es la de 70\,\%: un die de $480{,}0 \times 497{,}9$\um, 0,239\mmd 
 real queda 8 a 11 puntos sobre la pedida porque el core se dimensiona con el área de síntesis y
 después se agregan celdas de tap, buffers y el árbol de reloj."
 
-Por qué deja de ser cierto, por dos motivos acumulados. Primero, la corrección de v1: la
-utilización máxima que cierra es **78 %** (die 455,4 x 473,3 µm = 215.545 µm², real 90,3 %, WNS
-59,602 ns, hold 0,182 ns), y es **79 %** el primero que falla, no 80
-(`asic/final.md`, sección "Historia: barrido de FP_CORE_UTIL de v1 a 100 ns";
-`asic/rom/resultados/u1_u78/metrics.json` y `u1_u79/falla.txt`, que muestra 6 instancias del banco
-sin lugar al legalizar tras el CTS). Segundo, la brecha entre la pedida y la real ya no es de 8 a
-11 puntos: en la corrida final nueva, con 40 % pedida, la real es **53,5 %**, o sea 13,5 puntos
-(`design__instance__utilization = 0,53511`), y con el barrido nuevo la brecha llega a **19,7
-puntos** a 72 % pedida (real 91,7 %, `asic/rom/resultados/u2_u72/metrics.json`).
+Por qué deja de ser cierto, por dos motivos acumulados. Primero, la corrección de v1: con la
+configuración de v1 la utilización máxima que cierra es **78 %** (`u1_u78`: die 455,4 x 473,3 µm =
+215.545 µm², real 90,3 %, WNS de setup 59,602 ns, hold 0,182 ns, "Resultado: CIERRA"), y es **79 %**
+el primero que falla, no 80 (`asic/final.md`, sección "Historia: barrido de FP_CORE_UTIL de v1 a
+100 ns", línea 105; `asic/rom/resultados/u1_u78/{metrics.json,cierre.md}` y `u1_u79/falla.txt`, que
+muestra `[INFO DPL-0034] Detailed placement failed on the following 6 instances` del banco de
+registros al legalizar dentro de `OpenROAD.CTS`, `Error: cts.tcl, 102 DPL-0036`).
+
+Segundo, con la configuración nueva el barrido entero se corre de nuevo y la utilización máxima que
+cierra **baja a 73 %**, con un die de 235.237 µm² (0,235 mm²), un 43,9 % menos que el de la corrida
+final (`asic/rom/resultados/u2_u73/{metrics.json,cierre.md}`, "Resultado: CIERRA";
+`docs/datos_informe.md`, sección 3.5). El diseño nuevo tiene 14 % más área de celdas, así que el
+core se llena antes que en v1.
+
+Y la brecha entre la pedida y la real ya no es de 8 a 11 puntos: en la corrida final nueva, con
+40 % pedida, la real es **53,5 %**, o sea 13,5 puntos (`design__instance__utilization = 0,53511`), y
+con el barrido nuevo llega a **19,7 puntos** a 72 % pedida (real 91,7 %,
+`asic/rom/resultados/u2_u72/metrics.json`: 0,9166). La serie completa de la brecha es 13,5 (40 %),
+15,3 (50), 16,9 (60), 18,7 (70), 19,7 (72) y 18,8 (73) puntos.
 
 Qué decir en su lugar: que la brecha tiene dos componentes, las celdas físicas (tap, relleno,
 borde) y lo que agrega el resizer, y que la segunda crece con un modelo de cable realista, porque
 el resizer agranda celdas y pone buffers que antes no ponía. Las cifras del barrido nuevo ya están
-medidas para 40, 50, 60, 70, 72 y 73 % (ver la Tabla 11 más abajo); falta `u2_u74`, que está
-encolada (`asic/logs/cola_estado.txt`, entrada 154).
+medidas para 40, 50, 60, 70, 72 y 73 % (ver la Tabla 11 más arriba) y **las cinco que fallan ya
+fallaron**: no queda nada encolado de este barrido.
+
+**Corrección importante respecto de la versión anterior de este documento:** `u2_u74` no está
+encolada ni falta. Corrió y **falló** con código 2 el 28-10-2026 a las 21:50:40
+(`asic/logs/cola_estado.txt`, entrada 154), en `OpenROAD.RepairDesignPostGRT` (paso 41, el que
+agrega D23) con `[DPL-0036] Detailed placement failed` desde `repair_design_postgrt.tcl:48` y 18
+instancias sin lugar; el extracto está versionado en `asic/rom/resultados/u2_u74/falla.txt`. Con eso
+la regla de resolución del barrido queda cerrada a 1 punto de utilización: 73 % cierra y 74 no. Las
+cinco fallas, con su paso y su cuenta de instancias sin lugar tal como la informa OpenROAD:
+
+- **74 %**: `OpenROAD.RepairDesignPostGRT` (paso 41), 18 instancias;
+- **75 %**: el mismo paso (`repair_design_postgrt.tcl:48`), 77 instancias;
+- **78 %**: `OpenROAD.CTS` (paso 35, `cts.tcl:102`), 36 instancias, 19 de ellas del banco de
+  registros;
+- **80 %**: `OpenROAD.RepairDesignPostGPL` (paso 32, `repair_design.tcl:68`), 5 instancias;
+- **90 %**: antes que todas, en el placement global, `[GPL-0301] Utilization 100.620 % exceeds
+  100%` con 169.186,876 µm² de instancias movibles (en v1 era 100,531 %).
+
+Cuidado con una cifra de `docs/datos_informe.md` sección 3.5: dice "40 instancias sin lugar" para
+el 75 %, que son las líneas `[INFO DPL-0035]` que alcanzó a copiar el extracto, no las que informa
+la herramienta; `u2_u75/falla.txt` dice "on the following 77 instances". Si el informe cita ese
+número, conviene citar el 77 y decir que el extracto lista 40 de ellas.
 
 ### 9. Línea 350: la serie de violaciones de slew contra la utilización
 
@@ -334,30 +411,44 @@ porque los cables se acortan (de 352 a 317 y 318\,mm en el ruteo detallado). Las
 al inicio del ruteo detallado no siguen una tendencia (1\,546, 2, 5 y 2\,149), pero el router las
 lleva a cero en todas las corridas que terminan."
 
-Las cuatro cifras de slew y las tres de largo de cables se verifican en v1 (`u1_u60`: 378
+Las tres cifras de slew y las tres de largo de cables se verifican en v1 (`u1_u60`: 378
 violaciones y 316.543 µm; `u1_u70`: 392 y 318.333; `v1_final`: 546 y 352.253). El problema es
 que con el modelo de cable a 40 % ya hay **0** violaciones de slew, así que la serie no se puede
 contar como una tendencia que baja: con el barrido `u2_*` la serie nueva es **0 (40 %), 8 (50), 0
-(60), 20 (70), 92 (72) y 99 (73)**, es decir **sube** con la utilización en vez de bajar
+(60), 20 (70), 92 (72) y 99 (73)**, es decir **no baja**, y a partir de 70 % sube con fuerza (la
+serie no es monótona: entre 50 y 60 % vuelve a 0)
 (`design__max_slew_violation__count` de `asic/rom/resultados/{final,u2_u50,u2_u60,u2_u70,u2_u72,u2_u73}/metrics.json`).
 Y el largo de cables tampoco se acorta en todo el rango: 377.509 µm a 40 %, 361.730 a 50, 352.225 a
 60, y después **sube** a 407.376 a 70, 447.720 a 72 y 449.400 a 73 (`route__wirelength` de los
-mismos archivos). La serie de DRC también cambia: a 40 % con el modelo de cable la iteración 0 ya
-no parte con 1.546 sino con **2** (ver el párrafo siguiente).
+mismos archivos). La capacitancia hace lo mismo, de 1 a 5 (72 %) y 6 (73 %). La serie de DRC también
+cambia: a 40 % con el modelo de cable la iteración 0 ya no parte con 1.546 sino con **2** (ver el
+párrafo siguiente).
 
-### 10. Líneas 350 y 371: el DRC del ruteo detallado por iteración
+Un dato que conviene decir y que hoy no está: el mínimo de área del die y el mínimo de cables no
+caen en la misma utilización. El die más chico que cierra es el de 73 % (0,235 mm²), pero ahí los
+cables son los más largos del barrido; el mínimo de cables está en 60 % (0,284 mm² de die)
+(`docs/datos_informe.md`, sección 3.5).
+
+### 10. Línea 350: el DRC del ruteo detallado por iteración
+
+Aclaración de rutas respecto de la versión anterior de este documento: el 1.546 aparece **una sola
+vez** en `informe/main.tex`, en la línea 350. La línea 371 no lo menciona: habla del DRC de Magic y
+del deck de KLayout (684 reglas) y no de las iteraciones del ruteo detallado. El segundo lugar donde
+está el 1.546 es `docs/datos_informe.md` sección 3.6 (líneas 442, 444 y 470), que es un documento de
+origen y no el informe.
 
 En v1 la serie por iteración de la corrida final es **1.546, 501, 379, 0** y en la final nueva es
 **2, 0, 430, 3, 0** (`route__drc_errors__iter:N` de
 `asic/rom/resultados/v1_final/metrics.json` y de `asic/rom/resultados/final/metrics.json`). Es un
-cambio llamativo, porque el informe usa el 1.546 en dos lugares: en 3.5 como el punto de partida de
-la serie contra la utilización y en 3.6 (`docs/datos_informe.md`, sección 3.6) como la "violación
-que se resolvió sola" que D21 provoca. Con la configuración nueva el ruteo detallado parte casi
-limpio, sube en la tercera iteración y termina en cero igual. Al período mínimo vuelve a partir
-alto: `f2_t21p5` da **1.685, 414, 331, 0**. Y al subir la utilización parte mucho más alto:
-2.219 a 50 %, 2.189 a 60, 2.793 a 70, 3.252 a 72 y 3.144 a 73, y en todos termina en 0. Conviene
-decir las dos cosas y no generalizar: lo que se sostiene es que el router termina en cero en todas
-las corridas que completan.
+cambio llamativo, porque el informe usa el 1.546 como punto de partida de la serie contra la
+utilización (línea 350) y `docs/datos_informe.md` lo usa además, en su sección 3.6, como la
+"violación que se resolvió sola" que D21 provoca. Con la configuración nueva el ruteo detallado
+parte casi limpio, sube en la tercera iteración y termina en cero igual. Al período mínimo vuelve a
+partir alto: `f2_t21p5` da **1.685, 414, 331, 0**. Y al subir la utilización parte mucho más alto y
+necesita más iteraciones: 2.219, 716, 552, 2, 0 a 50 %; 2.189, 842, 746, 9, 2, 2, 0 a 60; 2.793,
+1.159, 1.031, 16, 0 a 70; 3.252, 1.449, 1.220, 12, 0 a 72; y 3.144, 1.305, 1.229, 71, 0 a 73. En
+todas termina en 0. Conviene decir las dos cosas y no generalizar: lo que se sostiene es que el
+router termina en cero en todas las corridas que completan.
 
 ### 11. Línea 411: "El register file ocupa casi la mitad oeste del core"
 
@@ -369,10 +460,12 @@ son sobre 170\,060\umd de celdas lógicas."
 Por qué deja de ser cierto: en la corrida final nueva el banco de registros se extiende por casi
 todo el core, con envolvente de (7,84; 50,96) a (492,8; 638,96) µm sobre un core que va de
 (6,72; 15,68) a (631,68; 638,96) (`asic/rom/resultados/final/layout/bloques.txt` y
-`design__core__bbox` de `metrics.json`). Ya no es "la mitad oeste": ocupa casi toda la altura y
-tres cuartos del ancho, y la ALU queda embebida dentro de esa zona, con envolvente de (197,12;
-235,2) a (533,12; 411,6). Y las cifras de la comparación cambian: **96.936 contra 80.349 µm²** en
-el register file, con porcentajes sobre **196.080 µm²** de celdas lógicas sin relleno.
+`design__core__bbox` de `metrics.json`). Ya no es "la mitad oeste": ocupa el 94 % de la altura del
+core y el 78 % de su ancho, y la ALU queda embebida dentro de esa zona, con envolvente de
+(197,12; 235,2) a (533,12; 411,6). El contador de ciclos sigue cerca del borde este, con envolvente
+de (499,52; 266,56) a (630,56; 497,84). Y las cifras de la comparación cambian: **96.936 contra
+80.349 µm²** en el register file (49,44 % del layout), con porcentajes sobre **196.080 µm²** de
+celdas lógicas sin relleno.
 
 ### 12. Línea 439: la simulación post-PnR con SDF "no se considera un resultado reproducible"
 
@@ -380,34 +473,90 @@ Dice hoy: "La simulación opcional con SDF de la esquina típica completó una v
 pero Icarus 14.0 aborta al anotar el SDF en las corridas siguientes, así que no se considera un
 resultado reproducible."
 
-Por qué deja de ser cierto: el frente D1 la cerró. Sobre el netlist de v1, la corrida `d1_pnr`
-(flujo completo con `asic/sim/config_pnr.yaml`) se simuló en tres esquinas (`nom_tt_025C_5v00`,
-`max_ss_125C_4v50` y `min_ff_n40C_5v50`), más una cuarta, `nom_ss_125C_4v50`, como prueba de punta
-a punta de los objetivos del Makefile, con tres ejecuciones por esquina y por simulador (doce
-trazas por simulador), y todas las trazas son idénticas a la del RTL (md5
-`4f14ec05462e4789a3d873d2ba50fd97`), sin valores X, con Icarus Verilog 13.0 de la imagen de
-LibreLane (que anota los retardos pero no evalúa los timing checks) y con Open Verilog CVC 7.00b
-(que sí evalúa `$setup`, `$hold`, `$width`, `$recovery`, `$removal` y `$period`, no reporta ninguna
-violación en los 7.358 checks de los 977 bloques TIMINGCHECK y tiene control positivo). El aborto
-de `vvp` era el nombre jerárquico de las instancias del banco de registros y lo arregla
-`asic/sim/renombrar_instancias.py`, que renombra 2.828 instancias
-(`asic/sim/resultado_sdf.md`).
+Por qué deja de ser cierto: el frente D1 la cerró sobre el netlist de v1, y **sobre el netlist nuevo
+ya está repetida**. El aborto de `vvp` era el nombre jerárquico de las instancias del banco de
+registros, en Icarus 13.0 y en 14.0, y lo arregla `asic/sim/renombrar_instancias.py`.
 
-Con el netlist de la corrida final nueva hay que repetirlo, porque el SDF y el buffering son otros.
-La corrida de place and route ya está hecha: es **`d2_pnr`**, terminada con código 0 el 28-10-2026
-a las 21:04 (`asic/logs/cola_estado.txt`, entrada 152) y con sus reportes versionados en
-`asic/sim/resultados/d2_pnr/`, cuyo `cierre.md` dice **CIERRA** (setup WNS 59,174 ns en
-`max_ss_125C_4v50`, hold 0,082 ns en la peor esquina, DRC 0, LVS 0, antenas 0, die 414.282 µm²,
-utilización 0,540, slew 5 y capacitancia 1). `docs/datos_informe.md` sección 3.7 ya la nombra como
-la corrida de referencia y el Makefile ya apunta a ella (commit `50b1929`). Lo que falta es la
-simulación con SDF sobre ese netlist (`make post-pnr-sdf` y `make post-pnr-cvc`):
-`asic/sim/resultado_sdf.md` todavía documenta `d1_pnr` y no menciona `d2_pnr`.
+**Corrección importante respecto de la versión anterior de este documento:** no falta la simulación
+con SDF sobre el netlist nuevo. `asic/sim/resultado_sdf.md` **ya documenta `d2_pnr`** y no `d1_pnr`,
+y lo que hay medido es esto:
 
-> **Nota de procedencia.** Todo lo anterior (el resumen de tablas y figuras y los doce párrafos cuyo
-> argumento cambia) pasó por una revisión adversaria que reabrió cada archivo citado. Lo que sigue,
-> de la sección 2 en adelante, es la redacción original con sus cifras verificadas contra su archivo
-> por quien la escribió, pero sin esa segunda pasada: la revisión se cortó antes de llegar acá. Donde
-> una cifra diga "por medir", vale la tabla de cierre de este documento, que está al final.
+- la corrida de place and route es **`d2_pnr`** (`asic/sim/config_pnr.yaml`, la configuración final
+  completa de D23 con la ROM de simulación y `DebounceDivBits = 2`), terminada con código 0 el
+  28-10-2026 a las 21:04:20 en 5 min 31 s (`asic/logs/cola_estado.txt`, entrada 152), con sus
+  reportes en `asic/sim/resultados/d2_pnr/`, cuyo `cierre.md` dice **CIERRA** (setup WNS 59,174 ns y
+  hold 0,082 ns en la peor esquina, DRC 0, LVS 0, antenas 0, die 414.282 µm², utilización 0,540,
+  slew 5 y capacitancia 1). Difiere de la corrida final (207.624 contra 208.439 µm² de celdas y 951
+  contra 964 flip-flops) solo por la ROM de 113 palabras y el debounce de 2 bits;
+- **Icarus Verilog 13.0** de la imagen de LibreLane, que anota los retardos pero no evalúa los
+  timing checks: tres esquinas (`nom_tt_025C_5v00`, `max_ss_125C_4v50`, `min_ff_n40C_5v50`) por tres
+  ejecuciones, nueve trazas, todas idénticas a la del RTL, con 16 cambios de salida y 0 valores X, y
+  un solo md5, **`5b6cebfb898a90a258b592fb29e64651`**;
+- **Open Verilog CVC 7.00b**, que sí evalúa `$setup`, `$hold`, `$width`, `$recovery`, `$removal` y
+  `$period`: las mismas tres esquinas por tres ejecuciones, el mismo md5, y **0 violaciones de
+  timing** con los **7.173 checks** de los **951 bloques TIMINGCHECK** activos (1.902 SETUP, 1.902
+  HOLD, 2.074 WIDTH, 172 RECOVERY, 172 REMOVAL, 951 PERIOD). El control positivo con `ESTIMULO = 1`
+  reporta **8 violaciones en 4 instancias** (4 `$setup`, 2 `$removal`, 2 `$recovery`), que son
+  exactamente los dos flip-flops del sincronizador de reset y los dos primeros del sincronizador de
+  botones, y la traza se cae a X;
+- el renombrado creció con el diseño nuevo: `asic/sim/renombrar_instancias.py` renombra **3.787
+  instancias** y **20.939 referencias del SDF**, no 2.828;
+- y además hay un escenario que el informe hoy no tiene: el **netlist real de la corrida final** con
+  su SDF de `nom_tt_025C_5v00` corrido **320.000 ciclos** (32 ms simulados, 42 min 36 s), con la
+  misma traza que el RTL (md5 `347f1d2dd76675023fb51edb9b8c2878`), los cuatro LEDs en el ciclo
+  262.151 y el 01 en el 262.172, exactamente los mismos ciclos que sin retardos (con el core de v1
+  caían en 262.156 y 262.194).
+
+Todo eso está en `asic/sim/resultado_sdf.md` (secciones 1 a 5). Los números de `d1_pnr` (cuatro
+esquinas, `nom_tt_025C_5v00`, `max_ss_125C_4v50`, `min_ff_n40C_5v50` y `nom_ss_125C_4v50`, doce
+trazas por simulador, md5 `4f14ec05462e4789a3d873d2ba50fd97`, 57 ciclos medidos, 7.358 checks de
+977 bloques TIMINGCHECK y 2.828 instancias renombradas) son correctos, pero **su archivo de origen
+ya no es `asic/sim/resultado_sdf.md`**: están en el historial de git de ese archivo (commit
+`c7833b9`, recuperable con `git show c7833b9:asic/sim/resultado_sdf.md` o
+`git log -p asic/sim/resultado_sdf.md`) y los reportes de la corrida en
+`asic/sim/resultados/d1_pnr/`. Si el informe cita cifras de la simulación con SDF, tienen que ser
+las de `d2_pnr`.
+
+### 13. Línea 439: las otras cuatro cifras del párrafo del control negativo
+
+El mismo párrafo 439 tiene cuatro cifras más que cambian, y ninguna es un detalle:
+
+- "la ronda correcta mide 57 ciclos en las dos simulaciones" pasa a **51** (`asic/sim/resultado.md`;
+  `docs/verificacion/integracion_13_post_synth.txt`);
+- "atrasa 6 ciclos la pulsación de la ronda 01" pasa a **8**, y "el display muestra 70 en vez de 57"
+  pasa a **59 en vez de 51**, con 12 cambios de salida contra 17 líneas (`asic/sim/resultado.md`,
+  sección "Control negativo"; `docs/verificacion/integracion.md`, comprobación 14);
+- "Con 5 ciclos de atraso la traza no cambia, porque el programa lee los botones en un lazo de
+  13 ciclos" pasa a: 8 es el atraso más chico que cambia la traza y el lazo de polling es de
+  **8 ciclos** (con 7 la traza no cambia) (`asic/sim/resultado.md`, sección "Control negativo").
+
+Y hay una ambigüedad que conviene resolver al reescribir: "17 cambios de salida en 4.500 ciclos".
+El testbench informa **16 cambios** (`docs/verificacion/integracion_13_post_synth.txt`:
+"post_synth_tb: 4500 ciclos, 16 cambios de salida (0 con X)") y la traza tiene **17 líneas**, la
+inicial más los 16 cambios, que es lo que `asic/sim/resultado.md` cuenta como 17 y lo que
+`asic/sim/resultado_sdf.md` aclara explícitamente ("17 líneas: la inicial y 16 cambios"). Lo
+correcto es escribir 16 cambios de salida, o 17 líneas de traza, pero no "17 cambios".
+
+### Nota sobre la línea 197, que el mapa marcaba como cambio de número y es de argumento
+
+Dice hoy: "El diseño cierra hasta 25\,ns y no a 24\,ns, donde falla por 0,004\,ns en la esquina
+lenta. La frecuencia máxima es 40\,MHz. La corrida de 28\,ns se detuvo a los 40 minutos y no tiene
+resultado, lo que no cambia el límite porque 26 y 25\,ns cierran."
+
+No cambian solo los números (25 a 21,5 ns, 40 a 46,5 MHz, 0,004 a 0,129 ns): cambia el argumento,
+porque la excusa de la corrida que no terminó desaparece. En el barrido nuevo las ocho corridas
+terminaron, no hay ninguna detenida por la regla de 40 minutos, y el límite queda cerrado por la
+regla de 0,5 ns de la sesión: `f2_t21p5` cierra con WNS 0,876 ns y TNS 0, y `f2_t21` no cierra por
+0,129 ns con TNS -0,291 ns (`asic/rom/resultados/f2_t21p5/cierre.md` y `f2_t21/cierre.md`). La
+`f1_t28` detenida a los 40 minutos en `OpenROAD.ResizerTimingPostCTS` pasa a ser historia de v1
+(`asic/final.md`, línea 63).
+
+> **Nota de procedencia.** Todo lo anterior (el resumen de tablas y figuras y los trece párrafos
+> cuyo argumento cambia) pasó por una revisión adversaria el 29-10-2026 que reabrió cada archivo
+> citado y cada línea de `informe/main.tex`; lo que corrigió está anotado en el apéndice de este
+> documento. Lo que sigue, de la sección 2 en adelante, es la redacción original, con sus cifras
+> verificadas contra su archivo por quien la escribió pero sin esa segunda pasada. Donde una cifra
+> diga "por medir", vale la tabla de cierre, que está más abajo.
 
 ## Sección 2. Corrida final y reproducibilidad (líneas 40 a 60)
 
@@ -477,36 +626,38 @@ No hay tabla de cifras que cambie en esta sección.
 | Descripción de la estrategia 1 | 110 | "la ROM entrega la instrucción a través de un registro que conserva la lectura registrada de la RAM del Proyecto 2" | hay que agregar que la memoria expone además `a_next_o`, la palabra de `a_addr_i` **sin registrar**, y que con `EarlyRead = 1` es esa salida combinacional la que alimenta las direcciones de lectura del banco y el decodificador | `docs/pipeline.md`, sección 1 (`rtl/pochoco_mem_rom.v` y `rtl/pochoco_mem_ff.v`: "salida `a_next_o`") |
 | Descripción de la estrategia 2 | 110 | igual | agregar que usa `EarlyRead = 0` (valor por omisión con `MemStrategy = 2`) y por eso reproduce la temporización y el CPI de v1 | `docs/pipeline.md`, sección 1, "Estrategia 2"; `docs/verificacion/integracion.md`, tabla de CPI |
 | Argumento nuevo para D17 | 132 | "Por área, frecuencia y antenas se eligió la estrategia 1" | la ROM combinacional pasa de ser una ventaja de área a ser **condición** del pipeline: es lo que permite conocer la instrucción un ciclo antes y pedir la lectura del banco en el fetch. Con la memoria unificada en flip-flops la lectura es registrada y no se puede anticipar; si se forzara `EarlyRead = 1` ahí, la crítica sería el mux de 119 palabras hacia rs y el banco | `docs/pipeline.md`, sección 1, "Estrategia 2" |
-| Argumento de las antenas | 132 | la estrategia 2 tenía 1 net con violación de antena | **por medir** con el core nuevo: la corrida de la estrategia 2 con la configuración final es `s4_t100` (`asic/ff/config_final.yaml`), encolada. En `main` hoy la única estrategia 2 versionada es `asic/ff/resultados/e2_t100/`, de una corrida del 25-10-2026 con el RTL y la configuración viejos (1 net en violación, 906.413 µm² de celdas, 19.332 pines de slew, 209 de capacitancia), que no sirve de comparación | `asic/ff/config_final.yaml`; `asic/logs/cola_estado.txt`, entradas 147 a 151 |
+| Argumento de las antenas | 132 | la estrategia 2 tenía 1 net con violación de antena | **la violación desaparece**: `s4_t100` (el core nuevo con `EarlyRead = 0` y el modelo de cable) cierra con **0 nets en violación** y 6 diodos que insertó el propio flujo, contra 0 nets y 1 diodo de la estrategia 1. Con eso el argumento de D17 ya no se puede apoyar en las antenas, y hay que apoyarlo en el área, la frecuencia y el CPI. **Cuidado al citar**: la corrida `e2_t100` que está en `asic/ff/resultados/` es del 25-10-2026, con el RTL y la configuración de v1, y sí tiene 1 net en violación (906.413 µm² de celdas, 19.332 pines de slew, 209 de capacitancia); no sirve de comparación | `asic/ff/resultados/s4_t100/metrics.json` (`antenna__violating__nets` 0, `antenna_diodes_count` 6) y `asic/ff/resultados/LEEME.md` |
 
 ### Tabla 3 (`tab:estrategias`)
 
 Las 8 filas viejas se verifican una por una en `asic/barrido.md`, sección "Comparación de
 estrategias (sección 3.2)", líneas 103 y 104 (corridas `s1_t100` y `s2_t100`, configuración de
-D15). El valor nuevo de cada fila está por medir: `s3_t100` para la estrategia 1 y `s4_t100` para
-la estrategia 2, las dos encoladas (`asic/logs/cola_estado.txt`, entradas 146 y 147). Lo que sí
-está medido de la estrategia 1 con la configuración final de D23 es la corrida `final` misma.
+D15). Las dos corridas de referencia **ya están hechas**: `s3_t100` para la estrategia 1 (reproduce la
+corrida `final` métrica por métrica: mismo área, mismos 964 flip-flops, mismo die, mismo WNS) y
+`s4_t100` para la estrategia 2 (`asic/ff/resultados/s4_t100/`). La tabla armada está en
+`docs/datos_informe.md`, sección 3.2. Lo único que falta es el período mínimo de la estrategia 2:
+`s4_t50` cierra con 6,939 ns de holgura y el barrido sigue bajando (`s4_t45`, `s4_t42`, `s4_t40`).
 
 | dato | línea del `.tex` | valor viejo (estrategia 1 / estrategia 2) | valor nuevo | archivo de origen |
 |---|---|---|---|---|
-| Área de celdas de síntesis | 118 | 146.400 / 693.901 µmﯱ | estrategia 1: **156.098,48 µm²**; estrategia 2: **por medir** (`s4_t100`) | `asic/rom/resultados/final/sintesis_stat.rpt`, línea 232: "Chip area for top module '\asic_top': 156098.476800"; viejo: `asic/barrido.md` línea 103 (146400.083) y `asic/ff/resultados/s2_t100/sintesis_stat.rpt` línea 231 (693900.524800) |
-| Área de celdas tras place and route | 119 | 173.568 / 838.173 µm² | estrategia 1: **208.439 µm²**; estrategia 2: **por medir** (`s4_t100`) | `asic/rom/resultados/final/metrics.json`, `design__instance__area__stdcell`; viejo: `asic/rom/resultados/s1_t100/metrics.json` (173568) y `asic/ff/resultados/s2_t100/metrics.json` (838173) |
-| Flip-flops | 120 | 921 / 4.602 | estrategia 1: **964**; estrategia 2: **por medir** (`s4_t100`) | `asic/rom/resultados/final/metrics.json`, `design__instance__count__class:sequential_cell = 964`; viejo: `s1_t100` 921 y `s2_t100` 4602 |
-| Utilización real (pedida 40 %) | 121 | 47,5 % / 48,5 % | estrategia 1: **53,5 %** (`0,53511`); estrategia 2: **por medir** | `asic/rom/resultados/final/metrics.json`, `design__instance__utilization`; viejo: `s1_t100` 0,475391 y `s2_t100` 0,4848 |
-| Área del die | 122 | 0,394 / 1,794 mm² | estrategia 1: **0,419 mm²** (419.131 µm², die 638,505 x 656,425 µm); estrategia 2: **por medir** | `asic/rom/resultados/final/metrics.json`, `design__die__area` y `design__die__bbox`; viejo: `s1_t100` 393525 y `s2_t100` 1794180 |
+| Área de celdas de síntesis | 118 | 146.400 / 693.901 µm² | estrategia 1: **156.098,48 µm²**; estrategia 2: **696.640,13 µm²** (4,5 veces) | `asic/rom/resultados/final/sintesis_stat.rpt` línea 232 y `asic/rom/resultados/s3_t100/sintesis_stat.rpt` línea 232 ("Chip area for top module '\asic_top': 156098.476800") y `asic/ff/resultados/s4_t100/sintesis_stat.rpt` línea 235 (696640.134400); viejo: `asic/barrido.md` línea 103 (146400.083) y `asic/ff/resultados/s2_t100/sintesis_stat.rpt` línea 231 (693900.524800) |
+| Área de celdas tras place and route | 119 | 173.568 / 838.173 µm² | estrategia 1: **208.439 µm²**; estrategia 2: **977.015 µm²** (4,7 veces) | `design__instance__area__stdcell` de `asic/rom/resultados/final/metrics.json` (208439) y de `asic/ff/resultados/s4_t100/metrics.json` (977015); viejo: `asic/rom/resultados/s1_t100/metrics.json` (173568) y `asic/ff/resultados/s2_t100/metrics.json` (838173) |
+| Flip-flops | 120 | 921 / 4.602 | estrategia 1: **964**; estrategia 2: **4.673** | `design__instance__count__class:sequential_cell` de `final` (964) y de `asic/ff/resultados/s4_t100/metrics.json` (4673); viejo: `s1_t100` 921 y `s2_t100` 4602 |
+| Utilización real (pedida 40 %) | 121 | 47,5 % / 48,5 % | estrategia 1: **53,5 %** (`0,53511`); estrategia 2: **56,2 %** (`0,562228`) | `design__instance__utilization` de `final` (0,53511) y de `s4_t100` (0,562228); viejo: `s1_t100` 0,475391 y `s2_t100` 0,4848 |
+| Área del die | 122 | 0,394 / 1,794 mm² | estrategia 1: **0,419 mm²** (419.131 µm², die 638,505 x 656,425 µm); estrategia 2: **1,802 mm²** (1.801.610 µm², die 1.333,31 x 1.351,23 µm), **4,3 veces** el de la 1 | `design__die__area` y `design__die__bbox` de `final` (419131) y de `asic/ff/resultados/s4_t100/metrics.json` (1801610, bbox 0 0 1333.31 1351.23); viejo: `s1_t100` 393525 y `s2_t100` 1794180 |
 | Período mínimo que cierra timing | 123 | 55 / 62 ns | estrategia 1: **21,5 ns**; estrategia 2: **por medir** (barrido `s4_t100`, `s4_t65`, `s4_t60`, `s4_t55`, `s4_t50`) | `asic/rom/resultados/f2_t21p5/cierre.md` (CIERRA, WNS 0,876 ns) y `asic/rom/resultados/co_rc_t21/metrics.json` (no cierra, WNS -0,129 ns); viejo: `asic/barrido.md` línea 103 y 104 |
 | Frecuencia máxima | 124 | 18,2 / 16,1 MHz | estrategia 1: **46,51 MHz** (1 / 21,5 ns); estrategia 2: **por medir** | cálculo sobre el período mínimo de arriba; `docs/decisiones.md`, D23 ("el período mínimo baja de 24,5 a 21,5 ns") |
-| Nets con violación de antena | 125 | 0 / 1 | estrategia 1: **0**; estrategia 2: **por medir** | `asic/rom/resultados/final/metrics.json`, `antenna__violating__nets = 0` |
+| Nets con violación de antena | 125 | 0 / 1 | estrategia 1: **0** (1 diodo); estrategia 2: **0** (6 diodos): la violación de la estrategia 2 desaparece con la configuración nueva | `asic/rom/resultados/final/metrics.json`, `antenna__violating__nets = 0` |
 | Pie: la regla del barrido | 128 | "barrer `CLOCK_PERIOD` hasta dejar 2\,ns entre el último que cierra y el primero que no" | la regla de la sesión es **dejar 0,5 ns o menos**, y el barrido nuevo usa pasos de 0,5 ns (21, 21,5, 22, 23, 24, 25 ns) | `asic/exploraciones.md`, encabezado de la sesión del 27 y 28-10-2026: "período barrido hasta dejar 0,5 ns o menos entre el último período que cierra y el primero que no"; `docs/decisiones.md`, D23, viñeta "Contexto" |
-| Pie: fuente | 128 | `asic/barrido.md` | `asic/barrido.md` (historia) más los reportes de `s3_t100` y `s4_*` cuando existan | |
+| Pie: fuente | 128 | `asic/barrido.md` | `asic/barrido.md` (historia) más `asic/rom/resultados/s3_t100/` y `asic/ff/resultados/s4_*/`, con la tabla ya armada en `docs/datos_informe.md` sección 3.2 | |
 
 ### Párrafo de cierre de 3.2 (línea 132)
 
 | dato | línea | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|---|
-| Diferencia de flip-flops entre estrategias | 132 | 3.681 más (los $119 \times 32 = 3.808$ bits de la memoria unificada menos los 128 de la RAM de datos) | **por medir** el total (`s4_t100`); la cuenta de 3.808 menos 128 sigue explicando el grueso, pero el ajuste cambia porque la estrategia 1 pasa a 964 flip-flops y la 2 arranca de otro RTL | `asic/rom/resultados/final/metrics.json` (964) |
+| Diferencia de flip-flops entre estrategias | 132 | 3.681 más (los $119 \times 32 = 3.808$ bits de la memoria unificada menos los 128 de la RAM de datos) | **3.709 flip-flops más** (4.673 contra 964); la cuenta de 3.808 menos 128 sigue explicando el grueso, pero el ajuste cambia porque la estrategia 1 pasa a 964 flip-flops y la 2 arranca de otro RTL | `asic/rom/resultados/final/metrics.json` (964) |
 | Área de la ROM y su porcentaje | 132 | 7.448 µm², el 4,7 % del diseño | **7.448 µm²** (igual), el **4,5 %** de la síntesis jerárquica nueva | `asic/sintesis.md`, fila `pochoco_rom`: 7.448 µm², 4,5 % de 164.605 |
-| Cuántas veces más grande es el die de la estrategia 2 | 132 | 4,6 veces | **por medir** (hay que recalcularlo con `s4_t100`); con el die de `s2_t100` contra el die de la final nueva son 4,3 veces (1.794.180 / 419.131) | `asic/ff/resultados/s2_t100/metrics.json` y `asic/rom/resultados/final/metrics.json` |
+| Cuántas veces más grande es el die de la estrategia 2 | 132 | 4,6 veces | **4,3 veces** (1.801.610 / 419.131), igual que antes por casualidad: los dos dies crecieron. Con el die de `s2_t100` contra el de la final nueva también salen 4,3 (1.794.180 / 419.131) | `asic/ff/resultados/s2_t100/metrics.json` y `asic/rom/resultados/final/metrics.json` |
 | Área de celdas y de die de la estrategia 1 con la configuración final | 132 | 182.265 µm² de celdas y 0,409 mm² de die | **208.439 µm²** de celdas y **0,419 mm²** de die | `asic/rom/resultados/final/metrics.json` |
 | Ruta crítica de la estrategia 2 | 132 | "es igual a la de la 1 hasta la dirección que calcula la ALU, pero sigue por la decodificación de esa dirección sobre las 119 palabras" | hay que revisarlo: la ruta crítica de la estrategia 1 ya no es la de la carga, así que la comparación con la 2 pierde su punto de partida. **Por medir** con `s4_t100` | `asic/rom/resultados/f2_t21p5/layout/ruta_critica.txt` para el lado de la estrategia 1 |
 
@@ -595,9 +746,11 @@ para los mismos puntos: los tags `co_rc_*` (la exploración de `exp/candidata-rc
 y la misma configuración, reportes versionados en `asic/rom/resultados/co_rc_*/`) y los tags `f2_*`
 (las corridas de reproducción en `main`). `f2_t21p5` ya está versionada y da **exactamente** los
 mismos números que `co_rc_t21p5`; `f2_t21` y `f2_t22` terminaron con código 0 y reproducen
-`co_rc_t21` y `co_rc_t22` al dígito; `f2_t23`, `f2_t24`, `f2_t25` y `f2_t30` están **por medir**
-(`asic/logs/cola_estado.txt`, entradas 126 a 131). Recomendación: armar la tabla con los `f2_*`
-cuando terminen y citar `asic/rom/resultados/f2_*/metrics.json`.
+`co_rc_t21` y `co_rc_t22` al dígito. **El barrido `f2_*` está completo**: los siete puntos (100,
+30, 25, 24, 23, 22, 21,5 y 21 ns, que son ocho contando el de 100 ns) tienen sus reportes en
+`asic/rom/resultados/f2_*/`, así que la tabla se arma con ellos y se cita
+`asic/rom/resultados/f2_*/metrics.json`; los `co_rc_*` quedan como la exploración que los
+anticipó.
 
 Columnas, en el orden del `.tex` (líneas 209 a 214): T, setup WNS y TNS en `nom_tt_025C_5v00`,
 setup WNS y TNS en `max_ss_125C_4v50`, hold WNS y TNS en `nom_tt`, hold WNS y TNS en `max_ss`,
@@ -607,11 +760,11 @@ setup WNS y TNS en `max_ss_125C_4v50`, hold WNS y TNS en `nom_tt`, hold WNS y TN
 |---|---|---|---|---|
 | 100 ns | 209 | 74,694 / 0 / 65,223 / 0 / 0,450 / 0 / 1,081 / 0 / 182.265 / sí | **74,404 / 0 / 65,725 / 0 / 0,442 / 0 / 1,065 / 0 / 208.439 / sí** | `asic/rom/resultados/final/metrics.json` y `cierre.md` |
 | 32 ns | 210 | 17,409 / 0 / 4,395 / 0 / 0,450 / 0 / 1,081 / 0 / 183.725 / sí | **la fila desaparece**: con el modelo de cable no hay corrida de 32 ns (el barrido nuevo salta de 100 a 30 y 25 ns). `f2_t30` está encolada | `asic/final.md` para el valor viejo (`f1_t32`); `asic/logs/cola_estado.txt`, entrada 131 |
-| 30 ns | 211 | 16,758 / 0 / 5,103 / 0 / 0,450 / 0 / 1,081 / 0 / 186.320 / sí | **por medir**: `f2_t30`, encolada | `asic/final.md` (`f1_t30`) para el valor viejo |
+| 30 ns | 211 | 16,758 / 0 / 5,103 / 0 / 0,450 / 0 / 1,081 / 0 / 186.320 / sí | **16,460 / 0 / 4,924 / 0 / 0,442 / 0 / 1,065 / 0 / 219.059 / sí** | `asic/rom/resultados/f2_t30/metrics.json` y su `cierre.md`; `asic/final.md` (`f1_t30`) para el valor viejo |
 | 26 ns | 212 | 13,160 / 0 / 1,996 / 0 / 0,450 / 0 / 1,081 / 0 / 189.817 / sí | **la fila desaparece**: el barrido nuevo no tiene punto en 26 ns | `asic/final.md` (`f1_t26`) |
-| 25 ns | 213 | 12,160 / 0 / 0,996 / 0 / 0,450 / 0 / 1,081 / 0 / 189.817 / sí | **12,306 / 0 / 1,579 / 0 / 0,442 / 0 / 1,065 / 0 / 219.531 / sí** (medido como `co_rc_t25`; `f2_t25` por terminar) | `asic/rom/resultados/co_rc_t25/metrics.json` |
-| 24 ns | 214 | 11,160 / 0 / $-0{,}004$ / $-0{,}004$ / 0,450 / 0 / 1,081 / 0 / 189.817 / **no** | **11,931 / 0 / 1,755 / 0 / 0,442 / 0 / 1,065 / 0 / 220.655 / sí** (medido como `co_rc_t24`; `f2_t24` por terminar) | `asic/rom/resultados/co_rc_t24/metrics.json` |
-| 23 ns (fila nueva) | tras 214 | no existe | **11,272 / 0 / 1,494 / 0 / 0,442 / 0 / 1,065 / 0 / 222.714 / sí** (medido como `co_rc_t23`; `f2_t23` por terminar) | `asic/rom/resultados/co_rc_t23/metrics.json` |
+| 25 ns | 213 | 12,160 / 0 / 0,996 / 0 / 0,450 / 0 / 1,081 / 0 / 189.817 / sí | **12,306 / 0 / 1,579 / 0 / 0,442 / 0 / 1,065 / 0 / 219.531 / sí** (reproducido por `f2_t25` al dígito) | `asic/rom/resultados/co_rc_t25/metrics.json` |
+| 24 ns | 214 | 11,160 / 0 / $-0{,}004$ / $-0{,}004$ / 0,450 / 0 / 1,081 / 0 / 189.817 / **no** | **11,931 / 0 / 1,755 / 0 / 0,442 / 0 / 1,065 / 0 / 220.655 / sí** (reproducido por `f2_t24` al dígito) por terminar) | `asic/rom/resultados/co_rc_t24/metrics.json` |
+| 23 ns (fila nueva) | tras 214 | no existe | **11,272 / 0 / 1,494 / 0 / 0,442 / 0 / 1,065 / 0 / 222.714 / sí** (reproducido por `f2_t23` al dígito) | `asic/rom/resultados/co_rc_t23/metrics.json` |
 | 22 ns (fila nueva) | tras 214 | no existe | **10,358 / 0 / 0,656 / 0 / 0,442 / 0 / 1,065 / 0 / 224.767 / sí** | `asic/rom/resultados/co_rc_t22/metrics.json`; reproducido por `f2_t22` (`asic/rom/runs/f2_t22/final/metrics.json`, código 0) |
 | 21,5 ns (fila nueva, el período mínimo) | tras 214 | no existe | **10,257 / 0 / 0,876 / 0 / 0,442 / 0 / 1,065 / 0 / 231.229 / sí** | `asic/rom/resultados/f2_t21p5/metrics.json` y `cierre.md` |
 | 21 ns (fila nueva, la que no cierra) | tras 214 | no existe | **9,614 / 0 / $-0{,}129$ / $-0{,}291$ / 0,442 / 0 / 1,065 / 0 / 231.638 / no** | `asic/rom/resultados/co_rc_t21/metrics.json`; reproducido por `f2_t21` (`asic/rom/runs/f2_t21/final/metrics.json`, código 0) |
@@ -762,43 +915,59 @@ cuarta y agregar dos filas.
 
 | dato | línea | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|---|
-| Utilización que da el área mínima y ese die | 323 | 70 %, die de 480,0 x 497,9 µm, 0,239 mm² | **corrección de v1: 78 %**, die 455,4 x 473,3 µm = 215.545 µm² (0,216 mm²), utilización real 90,3 %, WNS 59,602 ns, hold 0,182 ns. Con la configuración nueva, **por medir** (`u2_u78` y los puntos finos del máximo) | `asic/final.md`, sección del barrido de `FP_CORE_UTIL`; `asic/rom/resultados/u1_u78/metrics.json` (`design__die__bbox` 0 0 455.395 473.315, `design__die__area` 215545, `design__instance__utilization` 0,903302) |
-| Primera utilización que falla y en qué paso | 323 y 335 a 336 | 80 % falla en el placement detallado durante el CTS; 90 % no cabe en el core | **corrección de v1: 79 % ya falla en el CTS** (`[DPL-0036]`, con 6 instancias del banco de registros sin lugar al legalizar tras insertar los buffers del reloj) y 80 % también (22 instancias); 90 % falla en el placement global (`[GPL-0301] Utilization 100.531 % exceeds 100%`). Con la configuración nueva, **por medir** (`u2_u80` y `u2_u90` encoladas) | `asic/rom/resultados/u1_u79/falla.txt` (líneas 5 a 8: `[INFO DPL-0034] Detailed placement failed on the following 6 instances`, `u_soc.u_core.u_rf/_2001_`), `u1_u80/falla.txt` y `u1_u90/falla.txt` |
-| Cuántos puntos queda la utilización real sobre la pedida | 323 | 8 a 11 puntos | **por recalcular**: con v1 corregido van de 8 a 12 puntos (40 a 48,0; 78 a 90,3) y con la configuración nueva a 40 % la real es 53,5, o sea 13,5 puntos | `asic/final.md`, columna "utilización"; `asic/rom/resultados/final/metrics.json` |
-| Mensaje de falla del placement global | 339 | `[GPL-0301] Utilization 100.531 % exceeds 100%` | **por medir**: el porcentaje del mensaje cambia con el área de síntesis nueva (`u2_u90`) | `asic/rom/resultados/u1_u90/falla.txt`, línea 12, para el valor viejo |
-| Mensaje de falla del CTS | 339 | `[DPL-0036] Detailed placement failed` | **por medir** con la configuración nueva; además hay que decidir si se cita `u1_u79` o `u1_u80` | `asic/rom/resultados/u1_u79/falla.txt` |
+| Utilización que da el área mínima y ese die | 323 | 70 %, die de 480,0 x 497,9 µm, 0,239 mm² | **corrección de v1: 78 %**, die 455,4 x 473,3 µm = 215.545 µm² (0,216 mm²), utilización real 90,3 %, WNS 59,602 ns, hold 0,182 ns. Con la configuración nueva la máxima que cierra es **73 %**, con die 476,1 x 494,1 µm = 235.237 µm² (0,235 mm²), utilización real 91,8 % y WNS 59,531 ns (`u2_u73/metrics.json` y su `cierre.md`): baja de 78 a 73 porque el diseño nuevo tiene 14 % más área de celdas | `asic/final.md`, sección del barrido de `FP_CORE_UTIL`; `asic/rom/resultados/u1_u78/metrics.json` (`design__die__bbox` 0 0 455.395 473.315, `design__die__area` 215545, `design__instance__utilization` 0,903302) |
+| Primera utilización que falla y en qué paso | 323 y 335 a 336 | 80 % falla en el placement detallado durante el CTS; 90 % no cabe en el core | **corrección de v1: 79 % ya falla en el CTS** (`[DPL-0036]`, con 6 instancias del banco de registros sin lugar al legalizar tras insertar los buffers del reloj) y 80 % también (22 instancias); 90 % falla en el placement global (`[GPL-0301] Utilization 100.531 % exceeds 100%`). Con la configuración nueva **la primera que falla es 74 %**, y no en el CTS sino en `OpenROAD.RepairDesignPostGRT` (paso 41, el que agrega D23), con 18 instancias sin lugar; 78 % es la que falla en el CTS (36 instancias) y 80 % cae todavía antes, en `OpenROAD.RepairDesignPostGPL` (paso 32, 5 instancias) | `asic/rom/resultados/u2_u74/falla.txt`, `u2_u78/falla.txt` y `u2_u80/falla.txt`; v1 en `asic/rom/resultados/u1_u79/falla.txt` (líneas 5 a 8: `[INFO DPL-0034] Detailed placement failed on the following 6 instances`, `u_soc.u_core.u_rf/_2001_`), `u1_u80/falla.txt` y `u1_u90/falla.txt` |
+| Cuántos puntos queda la utilización real sobre la pedida | 323 | 8 a 11 puntos | con v1 corregido van de 8 a 12 puntos (40 a 48,0; 78 a 90,3); con la configuración nueva van de **13,5 a 19,7 puntos** (40 a 53,5; 50 a 65,3; 60 a 76,9; 70 a 88,7; 72 a 91,7; 73 a 91,8), porque el resizer agrega celdas después del floorplan | `asic/final.md`, columna "utilización"; `asic/rom/resultados/final/metrics.json` |
+| Mensaje de falla del placement global | 339 | `[GPL-0301] Utilization 100.531 % exceeds 100%` | **`[GPL-0301] Utilization 100.620 % exceeds 100%`** (169.186,876 µm² de instancias movibles sobre un core más chico) | `asic/rom/resultados/u2_u90/falla.txt`; `u1_u90/falla.txt` línea 12 para el valor viejo |
+| Mensaje de falla del CTS | 339 | `[DPL-0036] Detailed placement failed` | sigue siendo `[DPL-0036] Detailed placement failed`, pero con la configuración nueva hay que citar **`u2_u78`** para el caso del CTS (`cts.tcl:102`, 36 instancias) y **`u2_u74`** para el límite real del barrido (`repair_design_postgrt.tcl:48`, 18 instancias) | `asic/rom/resultados/u2_u78/falla.txt` línea 44 y `u2_u74/falla.txt` línea 26 |
 | Texto nuevo que explica el crecimiento del die | 321 a 323 | no está | el die crece de 408.957 a 419.131 µm² (+2,5 %) porque `FP_CORE_UTIL = 40` lo dimensiona sobre el **área de síntesis**, que sube de 152.169 a 156.098 µm² (+2,6 %); el core pasa de 379.800 µm² en 157 filas de 1.102 sitios a **389.525 µm² en 159 filas de 1.116 sitios**. El área que agregan los buffers del resizer cabe dentro y solo sube la utilización real | `asic/rom/resultados/final/metrics.json` (`design__core__area` 389525, `design__core__bbox` 6.72 15.68 631.68 638.96); `docs/datos_informe.md`, línea 55 (mensajes IFP-0001 e IFP-0102 de `13-openroad-floorplan`) |
 
 ### Tabla 11 (`tab:util`)
 
 Columnas: pedida, die en µm, die en mm², utilización real, WNS de setup en `max_ss_125C_4v50` y
-resultado. Solo la fila de 40 % está medida con la configuración nueva, porque es la corrida final.
-El resto sale del barrido `u2_u50` a `u2_u90`, encolado (`asic/logs/cola_estado.txt`, entradas 132
-a 139). Los valores viejos se verifican todos en `metrics.json` de las corridas `u1_*`.
+resultado. **El barrido `u2_*` ya está corrido completo** (entradas 132 a 139 y 153 a 154 de
+`asic/logs/cola_estado.txt`): cierran 40, 50, 60, 70, 72 y 73 por ciento, y fallan 74, 75, 78, 80 y
+90. La tabla del informe hay que rehacerla entera, con dos filas nuevas (72 y 73 %) y sin la de
+79 %, que era de v1. Los valores viejos se verifican todos en `metrics.json` de las corridas `u1_*`.
 
 | fila | línea del `.tex` | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|---|
-| 40 % | 331 | 630,6 x 648,5 / 0,409 / 48,0 % / 65,22 | **638,5 x 656,4 / 0,419 / 53,5 % / 65,725** | `asic/rom/resultados/final/metrics.json` (`design__die__bbox` 0 0 638.505 656.425, `design__die__area` 419131, `design__instance__utilization` 0,53511) y `cierre.md` |
-| 50 % | 332 | 565,4 x 583,4 / 0,330 / 59,2 % / 67,72 | **por medir** (`u2_u50`) | viejo: `asic/rom/resultados/u1_u50/metrics.json` (bbox 565.445 583.365, área 329861, util 0,591755, WNS 67,716) |
-| 60 % | 333 | 517,3 x 535,3 / 0,277 / 70,1 % / 63,68 | **por medir** (`u2_u60`) | viejo: `u1_u60/metrics.json` (517.345 535.265, 276917, 0,701152, 63,675) |
-| 70 % | 334 | 480,0 x 497,9 / 0,239 / 80,9 % / 64,08 | **por medir** (`u2_u70`) | viejo: `u1_u70/metrics.json` (479.965 497.885, 238967, 0,809013, 64,076) |
-| 72 % (fila nueva) | tras 334 | no existe | **por medir** (`u2_u72`); v1: 473,4 x 491,4 / 0,233 / 83,4 % / 65,72 | `u1_u72/metrics.json` (473.44 491.36, 232629, 0,834286, 65,715) |
-| 75 % (fila nueva) | tras 334 | no existe | **por medir** (`u2_u75`); v1: 464,2 x 482,1 / 0,224 / 87,3 % / 65,79 | `u1_u75/metrics.json` (464.15 482.07, 223753, 0,87284, 65,786) |
-| 78 % (fila nueva, la de área mínima en v1) | tras 334 | no existe | **por medir** (`u2_u78`); v1: 455,4 x 473,3 / 0,216 / 90,3 % / 59,60 (slew 880, capacitancia 49, cables 425.175 µm) | `u1_u78/metrics.json` |
-| 79 % (fila nueva) | tras 334 | no existe | v1: falla en CTS (`[DPL-0036]`, 6 instancias); con la configuración nueva, por medir | `u1_u79/falla.txt` |
-| 80 % | 335 | falla en CTS (`DPL-0036`) | **por medir** (`u2_u80`); en v1 falla con 22 instancias | `u1_u80/falla.txt` |
-| 90 % | 336 | falla en placement global (`GPL-0301`) | **por medir** (`u2_u90`) | `u1_u90/falla.txt` |
-| Pie: corridas y fuente | 339 | corridas `final` y `u1_*`; fuente `asic/final.md` y los `falla.txt` | corridas `final` y **`u2_*`**; fuente `asic/rom/resultados/u2_*/metrics.json` y sus `falla.txt`. Ojo: `asic/final.md` **no** está regenerado y su fila "final" todavía trae los números de v1 (182.265 µm², 408.957 µm², 546 slew), así que no sirve como fuente del valor nuevo | `asic/final.md`, línea 10 |
+| 40 % | 331 | 630,6 x 648,5 / 0,409 / 48,0 % / 65,22 | **638,5 x 656,4 / 0,419 / 53,5 % / 65,725** | `asic/rom/resultados/final/metrics.json` (`design__die__bbox` 0 0 638.505 656.425, `design__die__area` 419131, `design__instance__utilization` 0,535110) y `cierre.md` |
+| 50 % | 332 | 565,4 x 583,4 / 0,330 / 59,2 % / 67,72 | **572,5 x 590,4 / 0,338 / 65,3 % / 63,697** | `u2_u50/metrics.json` (bbox 572.515 590.435, área 338033, util 0,653222); viejo: `u1_u50/metrics.json` (565.445 583.365, 329861, 0,591755, 67,716) |
+| 60 % | 333 | 517,3 x 535,3 / 0,277 / 70,1 % / 63,68 | **523,8 x 541,7 / 0,284 / 76,9 % / 65,117** | `u2_u60/metrics.json` (523.805 541.725, 283758, 0,768834); viejo: `u1_u60/metrics.json` (517.345 535.265, 276917, 0,701152, 63,675) |
+| 70 % | 334 | 480,0 x 497,9 / 0,239 / 80,9 % / 64,08 | **485,9 x 503,9 / 0,245 / 88,7 % / 60,805** | `u2_u70/metrics.json` (485.945 503.865, 244851, 0,886704); viejo: `u1_u70/metrics.json` (479.965 497.885, 238967, 0,809013, 64,076) |
+| 72 % (fila nueva) | tras 334 | no existe | **479,3 x 497,3 / 0,238 / 91,7 % / 61,351** | `u2_u72/metrics.json` (479.335 497.255, 238352, 0,916600); v1: `u1_u72/metrics.json` (473.44 491.36, 232629, 0,834286, 65,715) |
+| 73 % (fila nueva, **la del die mínimo que cierra**) | tras 334 | no existe | **476,1 x 494,1 / 0,235 / 91,8 % / 59,531** | `u2_u73/metrics.json` (476.135 494.055, 235237, 0,917614) y `u2_u73/cierre.md`: CIERRA |
+| 74 % (fila nueva) | tras 334 | no existe | **falla** en `OpenROAD.RepairDesignPostGRT` (paso 41, el que agrega D23) con `[DPL-0036]` y 18 instancias sin lugar. Es el primer punto que no cierra, así que la resolución del barrido queda en 1 punto de utilización | `u2_u74/falla.txt`, líneas 6 y 26 |
+| 75 % | tras 334 | no existe | **falla** en el mismo paso con 77 instancias sin lugar | `u2_u75/falla.txt`, línea 6; la línea del error está en `asic/logs/u2_u75.log` 18737 porque el extracto se corta en 40 líneas |
+| 78 % (en v1 era la de área mínima) | tras 334 | no existe | **falla** en `OpenROAD.CTS` (paso 35) con 36 instancias sin lugar, 19 del banco de registros; v1: 455,4 x 473,3 / 0,216 / 90,3 % / 59,60 | `u2_u78/falla.txt`, líneas 6 y 44; v1 en `u1_u78/metrics.json` |
+| 79 % | fila de v1, **se quita** | v1: falla en CTS con 6 instancias | no se corrió con la configuración nueva, porque 74 ya falla; la fila deja de tener sentido | `u1_u79/falla.txt` (historia) |
+| 80 % | 335 | falla en CTS (`DPL-0036`) | **falla antes**, en `OpenROAD.RepairDesignPostGPL` (paso 32), con 5 instancias sin lugar; en v1 fallaba en el CTS con 22 | `u2_u80/falla.txt`, líneas 6 y 13; `u1_u80/falla.txt` |
+| 90 % | 336 | falla en placement global (`GPL-0301`, 100,531 %) | **falla igual**, con `[GPL-0301] Utilization 100.620 % exceeds 100%` (169.186,876 µm² de instancias movibles) | `u2_u90/falla.txt`; `u1_u90/falla.txt` línea 12 para el valor viejo |
+| Pie: corridas y fuente | 339 | corridas `final` y `u1_*`; fuente `asic/final.md` y los `falla.txt` | corridas `final` y **`u2_*`**; fuente `asic/rom/resultados/u2_*/metrics.json` y sus `falla.txt`, con la tabla ya armada en `docs/datos_informe.md` sección 3.5 | |
+
+Dos lecturas que conviene poner en el texto, porque no se leen de la tabla:
+
+- **El die mínimo que cierra y el mínimo de cables no están en la misma utilización.** El die más
+  chico que cierra es el de 73 % (0,235 mm²), pero ahí los cables son los más largos del barrido
+  (449.400 µm) y quedan 99 pines con violación de slew; el mínimo de cables está en 60 %
+  (352.225 µm, die 0,284 mm²). Si el criterio es el costo gana 73 %, si es la calidad del signoff
+  gana 60 %.
+- **La utilización real queda cada vez más por encima de la pedida**: 13,5 puntos a 40 %, 15,3 a
+  50 %, 16,9 a 60 %, 18,7 a 70 %, 19,7 a 72 % y 18,8 a 73 %. Con el modelo de cable el resizer
+  agrega celdas después del floorplan, así que la diferencia es mayor que los 8 a 12 puntos de v1.
 
 ### Párrafo de slew, cables y DRC (línea 350)
 
 | dato | línea | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|---|
-| Violaciones de max slew contra la utilización | 350 | 546 a 40 %, 378 a 60 % y 392 a 70 % | **la serie hay que rehacerla**: con el modelo de cable a 40 % hay **0**. v1 completo: 546 (40), 438 (50), 378 (60), 392 (70), 388 (72), 424 (75), 880 (78) | `design__max_slew_violation__count` de `asic/rom/resultados/{v1_final,u1_u50,u1_u60,u1_u70,u1_u72,u1_u75,u1_u78}/metrics.json` y de `final/metrics.json` (0) |
-| Largo de cables del ruteo detallado | 350 | de 352 a 317 y 318 mm | a 40 % con la configuración nueva son **377.509 µm (377,5 mm)**, +7,2 % respecto de v1; el resto del barrido, por medir | `route__wirelength` de `final/metrics.json` (377509) y de `v1_final` (352253), `u1_u60` (316543), `u1_u70` (318333) |
-| Violaciones de DRC al inicio del ruteo detallado | 350 | 1.546, 2, 5 y 2.149 (40, 50, 60 y 70 %), "pero el router las lleva a cero" | a 40 % con la configuración nueva la serie por iteración es **2, 0, 430, 3, 0**: ya no parte con 1.546 y termina en cero igual. El resto del barrido, por medir | `route__drc_errors__iter:N` de `final/metrics.json`; viejo verificado en `v1_final` (1546, 501, 379, 0), `u1_u50` (2, 0, 585, 3, 0), `u1_u60` (5, 0, 666, 4, 0) y `u1_u70` (2149, 745, 690, 32, 0) |
-| Cable más largo (dato que se podría agregar) | 350 | 1.409,36 µm en v1 | **1.713,94 µm** en la corrida final nueva | `route__wirelength__max` de `final` y `v1_final` |
-| Señal de congestión que decide el límite | 350 | "a 80 % el placement detallado ya no encuentra lugar para las celdas" | corregir a **79 %** para v1; con la configuración nueva, por medir | `asic/rom/resultados/u1_u79/falla.txt` |
+| Violaciones de max slew contra la utilización | 350 | 546 a 40 %, 378 a 60 % y 392 a 70 % | **la serie hay que rehacerla entera**: con la configuración nueva son **0** (40 %), 8 (50), 0 (60), 20 (70), 92 (72) y 99 (73). v1 completo: 546 (40), 438 (50), 378 (60), 392 (70), 388 (72), 424 (75), 880 (78) | `design__max_slew_violation__count` de `final` y `u2_u*/metrics.json`; v1 en `u1_u*` |
+| Violaciones de max capacitancia contra la utilización | 350 | no está | **1** a 40, 50, 60 y 70 %, **5** a 72 % y **6** a 73 %: con el core casi lleno vuelven a aparecer, y deja de ser cierto que la única violación sea la raíz del árbol de reloj | `design__max_cap_violation__count` de las mismas corridas |
+| Largo de cables del ruteo detallado | 350 | de 352 a 317 y 318 mm | **377.509 µm a 40 %** (+7,2 % respecto de v1) y después 361.730 (50 %), 352.225 (60 %), 407.376 (70 %), 447.720 (72 %) y 449.400 (73 %): tiene un mínimo en 60 % y de ahí sube | `route__wirelength` de `final` y de `u2_u*/metrics.json` |
+| Violaciones de DRC al inicio del ruteo detallado | 350 | 1.546, 2, 5 y 2.149 (40, 50, 60 y 70 %), "pero el router las lleva a cero" | a 40 % con la configuración nueva la serie por iteración es **2, 0, 430, 3, 0**: ya no parte con 1.546 y termina en cero igual. La serie de cada `u2_*` se lee del log de su paso de ruteo detallado, como se hizo en `docs/hechos_flujo.md` | `asic/rom/runs/final/*-openroad-detailedrouting/` y `docs/hechos_flujo.md` |
+| Cable más largo (dato que se podría agregar) | 350 | 1.409,36 µm en v1 | **1.713,94 µm** en la corrida final nueva, y baja con la utilización: 1.548,84 (50 %), 1.517,64 (60 %), 1.333,50 (70 %), 1.287,78 (72 %), 1.352,76 (73 %) | `route__wirelength__max` de `final`, `u2_u*` y `v1_final` |
+| Señal de congestión que decide el límite | 350 | "a 80 % el placement detallado ya no encuentra lugar para las celdas" | con la configuración nueva el límite lo pone **74 %**, y no en el CTS sino en el paso de reparación después del ruteo global, que es el que agrega D23: el mismo paso que compró las 0 violaciones de slew es el que gasta el espacio | `u2_u74/falla.txt` |
+
 
 ## Sección 3.5.2. Terminales del macro (líneas 352 a 356)
 
@@ -815,10 +984,10 @@ a 139). Los valores viejos se verifican todos en `metrics.json` de las corridas 
 |---|---|---|---|---|
 | Precio por mm² y el modelo lineal | 360 | US$23.000 por mm², costo proporcional al área del die | **no cambia**, ni las cuatro limitaciones del modelo | `docs/datos_informe.md`, sección 3.5 (costo) |
 | Costo de la corrida final | 360 | 0,409 mm², US$9.406 | **0,419 mm² (419.131 µm²), US$9.640** (0,419131 x 23.000) | `docs/decisiones.md`, D23: "0,419131 mm² por 23.000 dólares/mm² = 9.640 dólares"; `asic/rom/resultados/final/metrics.json` |
-| Costo de la corrida de área mínima | 360 | 70 %, 0,239 mm², US$5.496 | **corrección de v1: 78 %, 0,216 mm², US$4.958** (0,215545 x 23.000). Con la configuración nueva, por medir (`u2_*`) | `docs/datos_informe.md`, línea 270; `asic/rom/resultados/u1_u78/metrics.json` |
-| Costo de la estrategia 2 | 360 | 1,794 mm², US$41.266 | **por medir** (`s4_t100`); la cifra de 1,794 mm² y US$41.266 sigue siendo correcta como historia de `s2_t100` | `asic/ff/resultados/s2_t100/metrics.json` (`design__die__area` 1794180) |
-| Cuántas veces más die necesita la estrategia 2 | 362 | 4,6 veces | **por medir** con `s4_t100`; contra el die nuevo y el `s2_t100` viejo son 4,3 veces | `asic/ff/resultados/s2_t100/metrics.json` y `asic/rom/resultados/final/metrics.json` |
-| Reducción del die al subir la utilización | 362 | de 40 a 70 % reduce el die en 42 % | **corrección de v1: de 40 a 78 % lo reduce 47 %** (408.957 a 215.545 µm²); de 40 a 70 % son 42 %. Con la configuración nueva, por medir | `asic/rom/resultados/{v1_final,u1_u70,u1_u78}/metrics.json`; `docs/datos_informe.md`, línea 278 |
+| Costo de la corrida de área mínima | 360 | 70 %, 0,239 mm², US$5.496 | **corrección de v1: 78 %, 0,216 mm², US$4.958** (0,215545 x 23.000). **Con la configuración nueva es 73 %, 0,235 mm² y US$5.410** (0,235237 x 23.000) | `docs/datos_informe.md`, línea 270; `asic/rom/resultados/u1_u78/metrics.json` |
+| Costo de la estrategia 2 | 360 | 1,794 mm², US$41.266 | **1,802 mm² (1.801.610 µm²), US$41.437** (1,801610 x 23.000); la cifra de 1,794 mm² y US$41.266 queda como historia de `s2_t100` | `asic/ff/resultados/s2_t100/metrics.json` (`design__die__area` 1794180) |
+| Cuántas veces más die necesita la estrategia 2 | 362 | 4,6 veces | **4,3 veces** (1.801.610 / 419.131 = 4,298); contra el die nuevo y el `s2_t100` viejo también salen 4,3 | `asic/ff/resultados/s2_t100/metrics.json` y `asic/rom/resultados/final/metrics.json` |
+| Reducción del die al subir la utilización | 362 | de 40 a 70 % reduce el die en 42 % | **corrección de v1: de 40 a 78 % lo reduce 47 %** (408.957 a 215.545 µm²); de 40 a 70 % son 42 %. **Con la configuración nueva, de 40 a 73 % lo reduce 43,9 %** (419.131 a 235.237 µm²), y de 40 a 70 % un 41,6 % | `asic/rom/resultados/{v1_final,u1_u70,u1_u78}/metrics.json`; `docs/datos_informe.md`, línea 278 |
 | "La pre-decodificación y la configuración del flujo suman 5 % de área" | 362 | 182.265 contra 173.568 µm², +5,0 % | **hay que reescribirla con la distinción de D23**: el pipeline nuevo suma **2,3 %** de área de celdas (182.265 a 186.432 µm²) y el modelo de cable otro **11,8 %** (186.432 a 208.439), **14,4 % en total**; pero el **die y el costo no cambian** respecto de la candidata sin modelo de cable, porque el die lo fija `FP_CORE_UTIL` sobre el área de síntesis y no el área que ocupan las celdas después del resizer. Lo único que sube es la utilización real del core, de 47,9 a **53,5 %** | `docs/decisiones.md`, D23, "Nota sobre el límite de área de celdas"; `asic/exploraciones.md`, fila `exp/candidata (A+B2, paquete completo)` (186.432 µm², die 419.131); `asic/rom/resultados/final/metrics.json` |
 
 Este es el argumento que conviene destacar en 3.5.3, porque es el eje de D23 y responde por
@@ -897,7 +1066,7 @@ contador 117 celdas y 3.995,3 µm² (1,83 %).
 | Control negativo: atraso y valor | 439 | 6 ciclos de atraso; el display muestra 70 en vez de 57 y la comparación da FAIL | **8 ciclos de atraso; el display muestra 59 en vez de 51** y la comparación da FAIL, con 12 líneas de traza del netlist contra 17 del RTL | `asic/sim/resultado.md`, sección "Control negativo"; `Makefile`, línea 261 (`ATRASO ?= 8`); `docs/verificacion/integracion.md`, comprobación 14. El valor viejo se verifica con `git show v1-final:asic/sim/resultado.md` (display 70 en el ciclo 1748, 11 líneas) |
 | Atraso que todavía no cambia la traza y el lazo de polling | 439 | con 5 ciclos no cambia, porque el programa lee los botones en un lazo de 13 ciclos | **con 7 ciclos no cambia, porque el lazo de polling pasa a 8 ciclos** | `asic/sim/resultado.md`, sección "Control negativo"; `Makefile`, línea 262 (`POLL_CICLOS ?= 8`) |
 | `make post-synth-final` | 439 | "coincide con el RTL durante 320.000 ciclos, hasta los cuatro LEDs y el 01 de la primera ronda" | el escenario y los 320.000 ciclos **no cambian** (`PSF_CICLOS := 320000`), y el resultado sigue siendo PASS con 3 cambios de salida y 0 valores X. Los dos ciclos exactos (en v1, LEDs 1111 en el 262.156 y display 01 en el 262.194) están **por medir**: `asic/sim/resultado_final.md` no los registra y hay que leerlos de `build/post_synth/traza_rtl_final.txt` después de `make post-synth-final` | `asic/sim/resultado_final.md`; `Makefile`, líneas 285 a 302; valor viejo en `docs/datos_informe.md`, línea 335 |
-| Simulación post-PnR con SDF | 439 | "no se considera un resultado reproducible" | **se cae**: ver el párrafo 12 de la sección de argumentos. Con el netlist nuevo hay que repetirlo: corrida **`d2_pnr`**, encolada | `asic/sim/resultado_sdf.md` (corrida `d1_pnr`, netlist de v1); `asic/logs/cola_estado.txt`, entrada 152 |
+| Simulación post-PnR con SDF | 439 | "no se considera un resultado reproducible" | **se cae, y ya está rehecho**: la corrida `d2_pnr` cerró y la simulación con SDF sobre su netlist da traza idéntica a la del RTL en tres esquinas, un solo md5 `5b6cebfb898a90a258b592fb29e64651` en las nueve ejecuciones, 0 valores X y, con CVC, 0 violaciones de los 7.173 checks de los 951 bloques TIMINGCHECK | `asic/sim/resultado_sdf.md` (secciones 1 a 4, corrida `d2_pnr`) |
 
 ### Tabla 13 (`tab:sim`)
 
@@ -927,9 +1096,9 @@ por cada una y una tabla de cuatro filas.
 
 | verificación | qué dice hoy el repositorio | estado para la corrida final nueva | archivo de origen |
 |---|---|---|---|
-| Simulación post-PnR con retardos (SDF), frente D1 | corrida `d1_pnr` (flujo completo con `asic/sim/config_pnr.yaml`), netlist post-PnR y SDF simulados con el mismo testbench y escenario de `make post-synth` en cuatro esquinas (`nom_tt_025C_5v00`, `max_ss_125C_4v50`, `min_ff_n40C_5v50` y `nom_ss_125C_4v50`), tres ejecuciones por esquina y por simulador: todas las trazas idénticas a la del RTL (md5 `4f14ec05462e4789a3d873d2ba50fd97`), 0 valores X; Icarus 13.0 de la imagen anota retardos pero no evalúa timing checks, y Open Verilog CVC 7.00b sí los evalúa y no reporta ninguna violación, con control positivo | **por medir** con el netlist nuevo: corrida `d2_pnr`, encolada | `asic/sim/resultado_sdf.md`; `asic/sim/resultados/d1_pnr/cierre.md`; `asic/logs/cola_estado.txt`, entrada 152 |
-| Equivalencia formal RTL contra netlist, frente D2 | `eqy` 0.68 con las funciones del liberty típico como modelo de celda: RTL contra el netlist de síntesis (22 particiones, PASS) y contra el post-PnR sin celdas físicas (21 particiones, PASS); control negativo (una `nand2_1` cambiada por `nor2_1` en la ALU) **FAIL como corresponde**; BMC desde reset con `sby` (24 y 100 pasos) y el flujo clásico de Yosys (`equiv_make`, `equiv_simple -seq 2`, `equiv_induct -seq 4`), los dos PASS; y por qué el paso `Yosys.EQY` del flujo no sirve con este PDK | **por medir** con el RTL y los netlists nuevos: los resultados versionados (`asic/eqy/resultados_v1/`, tags `sint_v1`, `pnr_v1`, `sint_v1ff`, `pnr_v1ff`, `mut_v1ff`) son de v1, y la corrida nueva se lanza con `bash asic/eqy/correr.sh` | `docs/equivalencia.md`, sección 1; `asic/eqy/` |
-| Potencia con actividad real, frente D3 | VCD de la simulación del netlist post-PnR ejecutando el juego, leído por OpenSTA con el SPEF y el liberty de las nueve esquinas, en cuatro ventanas (lazo de polling, espera de tres segundos, escritura al display y ráfaga de inicio de ronda): en `nom_tt_025C_5v00`, 8,971 mW sin actividad, 9,084 solo reloj, 11,504 en polling, 12,755 en la espera, 12,379 alrededor del 01 y 12,172 en la ráfaga; el reloj es el 70 a 78 % del total | **por medir** con el netlist nuevo: `asic/potencia/resultado.md` todavía es el de v1 (habla de 990 flip-flops), y su copia está en `asic/potencia/resultado_v1.md`; se rehace con `bash asic/potencia/correr.sh` | `asic/potencia/resultado.md`, sección 1 |
+| Simulación post-PnR con retardos (SDF), frente D1 | corrida `d1_pnr` (flujo completo con `asic/sim/config_pnr.yaml`), netlist post-PnR y SDF simulados con el mismo testbench y escenario de `make post-synth` en cuatro esquinas (`nom_tt_025C_5v00`, `max_ss_125C_4v50`, `min_ff_n40C_5v50` y `nom_ss_125C_4v50`), tres ejecuciones por esquina y por simulador: todas las trazas idénticas a la del RTL (md5 `4f14ec05462e4789a3d873d2ba50fd97`), 0 valores X; Icarus 13.0 de la imagen anota retardos pero no evalúa timing checks, y Open Verilog CVC 7.00b sí los evalúa y no reporta ninguna violación, con control positivo | **medido** con el netlist nuevo (corrida `d2_pnr`, CIERRA): tres esquinas en vez de cuatro (`nom_tt_025C_5v00`, `max_ss_125C_4v50` y `min_ff_n40C_5v50`), tres ejecuciones por esquina y por simulador, las nueve trazas idénticas a la del RTL con md5 `5b6cebfb898a90a258b592fb29e64651` y 0 valores X; CVC evalúa los 7.173 checks de los 951 bloques TIMINGCHECK y no reporta ninguna violación, con control positivo de 8 violaciones en los sincronizadores de entrada. El md5 de v1 era `4f14ec05462e4789a3d873d2ba50fd97` | `asic/sim/resultado_sdf.md`; `asic/sim/resultados/d2_pnr/cierre.md` |
+| Equivalencia formal RTL contra netlist, frente D2 | `eqy` 0.68 con las funciones del liberty típico como modelo de celda: RTL contra el netlist de síntesis (22 particiones, PASS) y contra el post-PnR sin celdas físicas (21 particiones, PASS); control negativo (una `nand2_1` cambiada por `nor2_1` en la ALU) **FAIL como corresponde**; BMC desde reset con `sby` (24 y 100 pasos) y el flujo clásico de Yosys (`equiv_make`, `equiv_simple -seq 2`, `equiv_induct -seq 4`), los dos PASS; y por qué el paso `Yosys.EQY` del flujo no sirve con este PDK | **medido** con el RTL y los netlists nuevos (`asic/eqy/resultados/`): `eqy` prueba 29 de sus 30 particiones y deja sin decidir la grande, porque el RTL tiene 44 bits de registro que el netlist no tiene y `pdr` encuentra un estado inicial inalcanzable; la prueba la da el flujo clásico de Yosys, **976 de 976 celdas `$equiv` contra el netlist de síntesis y 968 de 968 contra el post-PnR**, más el miter desde reset, que pasa a 24 y a 100 pasos. El control negativo de la mutación de una celda de la ALU lo discrimina el flujo clásico (776 de 976 celdas probadas, 200 sin probar). Los resultados de v1 quedan en `asic/eqy/resultados_v1/` | `docs/equivalencia.md`, secciones 1, 4.5, 5.2, 5.5 y 6 |
+| Potencia con actividad real, frente D3 | VCD de la simulación del netlist post-PnR ejecutando el juego, leído por OpenSTA con el SPEF y el liberty de las nueve esquinas, en cuatro ventanas (lazo de polling, espera de tres segundos, escritura al display y ráfaga de inicio de ronda): en `nom_tt_025C_5v00`, 8,971 mW sin actividad, 9,084 solo reloj, 11,504 en polling, 12,755 en la espera, 12,379 alrededor del 01 y 12,172 en la ráfaga; el reloj es el 70 a 78 % del total | **medido** con el netlist nuevo: en `nom_tt_025C_5v00` la potencia va de **9,620 mW sin actividad** a 13,936 mW en el lazo de polling (+44,9 %), 16,615 en la espera de tres segundos (+72,7 %) y 15,9 en las dos ventanas del cambio de display; el reloj más los registros son el 70,6 % del total en polling contra el 79,8 % de v1. En v1 eran 8,971 y 11,504 mW. Las dos ventanas que dependen del 01 del display se corrieron 22 ciclos, porque con el core nuevo ese evento cae en el ciclo 262.172. El documento de v1 queda en `asic/potencia/resultado_v1.md` | `asic/potencia/resultado.md`, secciones 1 a 3 |
 | Potencia sin actividad de la corrida final nueva (esta sí está medida) | el flujo la estima en `nom_tt_025C_5v00` | **9,620 mW** a 10 MHz (interna 7,555 mW, conmutación 2,062 mW, fuga 0,002 mW), contra 8,971 mW en v1. Los 12,100 mW de `power__total` de `metrics.json` son de `max_ff`, la última esquina que procesa el flujo (v1: 11,280 mW) | `docs/datos_informe.md`, líneas 60 a 63; `asic/rom/resultados/final/metrics.json` (`power__total` 0,0121) y `v1_final/metrics.json` (0,011280) |
 | Verificación funcional del pipeline nuevo (sección propia o citada desde 3.4) | las 15 comprobaciones de la integración, todas en verde: `make check` PASS (80 pruebas del assembler y seis testbenches), equivalencia funcional con 116fa20 y con v1 en cuatro programas, dos mutaciones detectadas, `make post-synth` PASS con control negativo, y recalibración de estímulos sin cambios. Más el monitor de valores desconocidos: **0 X usados en 620.217 escrituras al banco** del juego completo | **medido y cerrado** | `docs/verificacion/integracion.md` y los 16 archivos `docs/verificacion/integracion_*.txt` |
 
@@ -941,7 +1110,7 @@ que reescribir.
 
 | figura y ruta en el `.tex` | línea | qué muestra | se regenera | comando | cambia lo que muestra |
 |---|---|---|---|---|---|
-| Figura 1, `../docs/figuras/utilizacion.png` | 345 | utilización pedida contra violaciones de DRC del ruteo detallado, largo de cables, violaciones de slew, capacitancia y antena, área del die y WNS; líneas punteadas para las corridas que no terminan | **sí**, y hoy está vieja (27-10-2026 15:57, antes de la corrida final nueva) | `python3 asic/graficos.py --util asic/rom/runs/final asic/rom/runs/u2_u50 ... --salida-util docs/figuras/utilizacion.png` (ver el encabezado de `asic/graficos.py`, líneas 5 y 6) | **sí, mucho**: la serie de slew arranca en 0 en lugar de 546, la de DRC por iteración arranca en 2 en lugar de 1.546 y el eje de área del die se corre. Depende del barrido `u2_*`, **por medir** |
+| Figura 1, `../docs/figuras/utilizacion.png` | 345 | utilización pedida contra violaciones de DRC del ruteo detallado, largo de cables, violaciones de slew, capacitancia y antena, área del die y WNS; líneas punteadas para las corridas que no terminan | **sí**, y hay que regenerarla al final del barrido: la versión del 28-10-2026 20:57 se armó cuando del barrido `u2_*` solo habían terminado dos puntos. La regenera `bash asic/tablas.sh` (que llama a `asic/graficos.py --util`) | `python3 asic/graficos.py --util asic/rom/runs/final asic/rom/runs/u2_u50 ... --salida-util docs/figuras/utilizacion.png` (ver el encabezado de `asic/graficos.py`, líneas 5 y 6) | **sí, mucho**: la serie de slew arranca en 0 en lugar de 546, la de DRC por iteración arranca en 2 en lugar de 1.546 y el eje de área del die se corre. Depende del barrido `u2_*`, **por medir** |
 | Figura 2, `../asic/ff/resultados/s2_t100/layout/antena_antes.png` y `antena_antes_zoom.png` | 377 y 378 | `net3342` de `s2_t100` en rojo sobre el layout de la estrategia 2, completo y en acercamiento, con los cinco buffers en azul | **no**: corrida histórica con el RTL viejo | `bash asic/layout/anotar.sh asic/ff/runs/s2_t100 -rd net=net3342 -rd nombre=antena_antes` (no hace falta correrlo) | no |
 | Figura 3, `../asic/rom/resultados/final/layout/bloques.png` | 406 | layout de la corrida final con el register file (azul), la ALU (rojo) y el contador de ciclos (verde), cada uno con su envolvente, y los terminales en el borde | **sí, y ya está regenerada** (28-10-2026 20:22, con la corrida final nueva) | `bash asic/layout/anotar.sh asic/rom/runs/final` | **sí**: el die es más grande (638,50 x 656,42 µm), el register file se extiende por casi todo el core y el pie de la figura y el párrafo que la describe cambian. La ruta del archivo **no** cambia |
 | Candidata nueva, `docs/figuras/periodo.png` | no incluida hoy | el barrido de período | **sí**, y hoy está vieja (27-10-2026) | `python3 asic/graficos.py --periodo asic/rom/runs/final asic/rom/runs/f2_t30 ... --salida-periodo docs/figuras/periodo.png` | encajaría bien en 3.4.1, porque el barrido nuevo tiene siete puntos y el área crece en todos |
@@ -1009,10 +1178,15 @@ Tres avisos de método antes de la lista. Primero, todas las cifras nuevas de pl
 de corridas de `main` ya integrado, con sus reportes versionados en `asic/rom/resultados/`:
 `final/` (100 ns, la corrida final), el barrido de período `f2_t30`, `f2_t25`, `f2_t24`, `f2_t23`,
 `f2_t22`, `f2_t21p5` (el período mínimo, 21,5 ns) y `f2_t21` (21 ns, el que no cierra), y el barrido
-de utilización `u2_u50` a `u2_u90`. Los siete tags del barrido de período y los nueve del de
-utilización están seguidos por git: lo que falta no son los reportes, es volver a correr
-`asic/tablas.sh` para que las tablas de `asic/final.md` incorporen `f2_t30` y los puntos `u2_u60` a
-`u2_u73`, que todavía figuran como "incompleta" porque la tabla se generó antes de que terminaran.
+de utilización `u2_u50` a `u2_u90`. Los siete tags del barrido de período y los **diez** del de
+utilización están seguidos por git (`git ls-files asic/rom/resultados/`: `u2_u50`, `u2_u60`,
+`u2_u70`, `u2_u72`, `u2_u73`, `u2_u74`, `u2_u75`, `u2_u78`, `u2_u80` y `u2_u90`; el `u2_u74` es el
+punto fino que acotó el máximo y se agregó después de que se escribió el mapa de la etapa 1). Lo que
+falta no son los reportes, es volver a correr `asic/tablas.sh`: la tabla de período de `asic/final.md`
+marca `f2_t30` como "incompleta" (línea 31) y la de utilización solo trae `final` y `u2_u50`, con
+`u2_u60` y `u2_u70` como "incompleta" (líneas 53 y 54) y sin ninguna fila para `u2_u72`, `u2_u73`,
+`u2_u74` ni para los puntos que fallan; falta además la sección "Estrategia 2 de memoria con la
+configuración final" que `asic/ff/resultados/LEEME.md` ya anuncia para las corridas `s4_*`.
 Segundo, `asic/final.md`, `docs/datos_informe.md` y `docs/hechos_flujo.md` **sí están regenerados**
 con la corrida nueva (`asic/final.md` trae la fila `final` con 208.439 µm², 0,535 y 419.131;
 `docs/datos_informe.md` trae 53,5 por ciento, 9.640 dólares y las 5.577 celdas de 36 tipos;
@@ -1031,14 +1205,14 @@ medir" y de qué corrida o comando sale; no interpolé ni redondeé nada de memo
 | ruta crítica y su desglose | 40, 41, 42, 43, 45, 61 | otra ruta: decode registrado, mux de operandos, ALU y decodificación de dirección; llegada 22,235 ns, slack 0,876 ns; a 100 ns la peor es PC, ROM y mux de lectura del banco |
 | área de celdas y conteos del layout | 37, 39, 73, 82, 83, 97 | 208.439 µm² de celdas estándar (14,4 por ciento más), 9.928 celdas, 2.497 de tap y 318 de borde, 1.335 buffers de reparación de timing |
 | slew, capacitancia y fanout | 55, 56, 58, 59, 68, 87 | 0 violaciones de max slew en las nueve esquinas (antes 546), 1 de capacitancia (la raíz del árbol de reloj) y 21 de fanout |
-| síntesis: celdas y área por módulo | 31, 32, 33, 34, 35 | `nand2_1` pasa a ser la más usada (934); banco de registros 80.349 µm² (51,5 por ciento); 5.577 celdas de 36 tipos |
+| síntesis: celdas y área por módulo | 31, 32, 33, 34, 35 | `nand2_1` pasa a ser la más usada (934); banco de registros 80.349 µm² (51,5 por ciento); 5.577 celdas de 36 tipos a la salida de Yosys |
 | cierre y signoff | 3, 13, 88, 90, 98 | setup 65,725 ns y hold 0,173 ns en la peor esquina; DRC de Magic, LVS y antenas en 0; DRC de KLayout 0 marcadores con 684 reglas evaluadas sobre el GDS nuevo |
 | potencia e IR drop | 13, 81, 84, 85 | 9,620 mW sin actividad en nom_tt y 0,611 mV de caída en VDD; la potencia con actividad real del diseño nuevo **ya está medida**: 13,936 a 16,615 mW en nom_tt |
-| floorplan, utilización y costo | 72, 73, 74, 75, 76, 78, 80, 81, 130 | utilización real 53,5 por ciento, 159 filas de 1.116 sitios, die 419.131 µm² y 9.640 dólares; el barrido de utilización del diseño nuevo **ya está medido**: cierra hasta 73 por ciento |
-| estrategias de memoria | 24, 25, 26, 27, 30 | la ROM combinacional deja de ser un detalle y pasa a ser condición del pipeline; la comparación de las dos estrategias con el RTL nuevo está por medir (faltan `s3_t100` y `s4_*`) |
+| floorplan, utilización y costo | 72, 73, 74, 75, 76, 78, 80, 81, 130 | utilización real 53,5 por ciento, 159 filas de 1.116 sitios, die 419.131 µm² y 9.640 dólares; el barrido de utilización del diseño nuevo **ya está medido**: cierra hasta 73 por ciento y 74 ya falla |
+| estrategias de memoria | 24, 25, 26, 27, 30 | la ROM combinacional deja de ser un detalle y pasa a ser condición del pipeline; la comparación de las dos estrategias con el RTL nuevo **ya está medida** (`s3_t100` y `s4_t100`, en `docs/datos_informe.md` sección 3.2); del barrido de período de la estrategia 2 falta el tramo por debajo de 50 ns |
 | simulación post-síntesis y con SDF | 101, 102, 103, 104, 106 | display 51 en el ciclo 1033, lazo de polling de 8 ciclos, atraso de control 8; el SDF del netlist nuevo **ya está medido** (corrida `d2_pnr`, tres esquinas) |
 | verificación funcional y riesgos de datos | 53, 105, 111, 114, 115 | `hazard_test` (56 comprobaciones), `hazard_review` (48), dos mutaciones detectadas y 0 valores X usados en 620.217 escrituras al banco |
-| exploraciones y decisiones | 48, 49, 51, 65, 67, 68, 132 | el pipeline y B2 están adoptados (D23, no D22); B5 sube el período a 29 ns con este pipeline |
+| exploraciones y decisiones | 48, 49, 51, 65, 67, 68, 132 | el pipeline y B2 están adoptados (D23, no D22); el aporte de B2 **ya está medido** con el barrido `pr_*` (1,5 ns de período); B5 sube el período a 29 ns con este pipeline |
 | el flujo por dentro | 8, 11, 87 | 78 pasos (dos nuevos de reparación después del ruteo global, no consecutivos), 3 min 40 s, densidad objetivo 53,2942 por ciento |
 
 ## Pregunta por pregunta
@@ -1059,8 +1233,8 @@ Lo demás de la respuesta (DRC, LVS, 0 nets de antena, las nueve esquinas, D14) 
 |---|---|---|---|
 | pasos del flujo | 76 | 78 | listado de `asic/rom/runs/final/` (78 carpetas numeradas) contra `asic/rom/runs/v1_final_run/` (76); `docs/hechos_flujo.md`, sección 12 ("Son 78 pasos con carpeta, no 76") |
 | pasos nuevos | no existían | `41-openroad-repairdesignpostgrt` y `44-openroad-resizertimingpostgrt` (no son consecutivos: entre ellos van `42-odb-diodesonports` y `43-openroad-repairantennas`) | `asic/rom/resultados/final/avisos.md`, encabezado; listado de `asic/rom/runs/final/`; `asic/rom/config.yaml`, líneas 54 y 59 (`RUN_POST_GRT_DESIGN_REPAIR: true`, `RUN_POST_GRT_RESIZER_TIMING: true`) |
-| duración de la corrida | unos 3 minutos | 3 min 40 s (23:15:42 a 23:19:22) | `asic/logs/final.log`, primera y última marca de tiempo |
-| paso más largo | ruteo detallado 23 s | ruteo detallado 37,1 s | `asic/rom/runs/final/46-openroad-detailedrouting/runtime.txt` (00:00:37.079); el 23 s de v1 es `v1_final_run/46-openroad-detailedrouting/runtime.txt` (00:00:22.864) |
+| duración de la corrida | unos 3 minutos | 3 min 40 s (23:15:42 a 23:19:22) | `asic/logs/final.log`, primera y última marca de tiempo del flujo |
+| paso más largo | ruteo detallado 23 s | ruteo detallado 37,1 s | `asic/rom/runs/final/46-openroad-detailedrouting/runtime.txt` (00:00:37.079); el 23 s de v1 es `v1_final_run/44-openroad-detailedrouting/runtime.txt` (00:00:22.864), porque en v1 el ruteo detallado es el paso **44** y no el 46 |
 | segundo y tercero | DRC de Magic 22 s, CTS 14 s | DRC de Magic 18,9 s, reparación de diseño post-GRT 15,8 s, CTS 14,7 s | `runtime.txt` de `66-magic-drc` (18.875), `41-openroad-repairdesignpostgrt` (15.769) y `35-openroad-cts` (14.661); los de v1 son `64-magic-drc` (21.902) y `35-openroad-cts` (14.058) |
 
 **Cómo queda la respuesta.** La lista de etapas es la misma, con dos agregados: después del ruteo
@@ -1104,53 +1278,72 @@ de la RAM del P2. Hay que agregar que la salida combinacional de la ROM se usa *
 directamente**, por el puerto `a_next_o` de `pochoco_mem_rom`: con ella el core le pide al banco de
 registros la lectura de rs1 y rs2 y registra el decode un ciclo antes, que es lo que permite una
 instrucción por ciclo. La ROM combinacional deja de ser un detalle de implementación y pasa a ser
-condición del pipeline, y por eso la estrategia 2 no puede hacer lo mismo (pregunta nueva 135). Dato:
-`docs/pipeline.md`, sección 1; `rtl/pochoco_mem_rom.v`, líneas 37 y 55 (`a_next_o`).
+condición del pipeline (pregunta nueva 135). El matiz exacto, que conviene decir bien porque es una
+pregunta fácil de repreguntar: la memoria unificada en flip-flops **también** expone ese puerto
+(`a_next_o` en `rtl/pochoco_mem_ff.v`), así que estructuralmente se podría anticipar con ella, pero
+el mux de 119 palabras quedaría en el camino y la haría impracticable; por eso `pochoco_soc` fija
+`EarlyRead = (MemStrategy == 1) ? 1 : 0`. Dato: `docs/pipeline.md`, sección 1;
+`rtl/pochoco_mem_rom.v`, líneas 37 y 55 (`a_next_o`); `docs/datos_informe.md`, sección 3.2, punto 1.
 
 ### Pregunta 25 (línea 180): qué dio la comparación de las dos estrategias
 
+La comparación con el RTL nuevo y la configuración final **ya está medida**: es la corrida `s3_t100`
+(estrategia 1, que reproduce la final exactamente) contra `s4_t100` (estrategia 2 con
+`asic/ff/config_final.yaml`), y la tabla completa está en `docs/datos_informe.md`, sección 3.2.
+
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
-| área de celdas de síntesis, estrategia 1 contra 2 | 146.400 contra 693.901 µm² (4,7 veces) | estrategia 1: 156.098 µm²; estrategia 2 con el RTL nuevo: **por medir** | viejo en `asic/barrido.md`, tabla de síntesis (146400.083 y 693900.525); nuevo en `asic/rom/resultados/final/sintesis_stat.rpt` (156098.4768) y `asic/sintesis.md` |
-| flip-flops, estrategia 1 contra 2 | 921 contra 4.602 | estrategia 1: 964; estrategia 2: **por medir** | `asic/barrido.md`; `asic/sintesis.md`, comparación final (779 + 185 = 964) |
-| área del die, estrategia 1 contra 2 | 0,394 contra 1,794 mm² | estrategia 1: 0,419 mm²; estrategia 2: **por medir** | `asic/rom/resultados/final/metrics.json` (`design__die__area` = 419131); viejo en `asic/barrido.md` (393525 y 1794180) |
-| período mínimo, estrategia 1 contra 2 | 55 contra 62 ns (18,2 contra 16,1 MHz) | estrategia 1: 21,5 ns (46,5 MHz); estrategia 2: **por medir** | `asic/rom/resultados/f2_t21p5/cierre.md`; viejo en `asic/barrido.md` |
-| nets con violación de antena | 0 contra 1 | estrategia 1: 0 (no cambia); estrategia 2: sigue en 1 en la corrida de la rama que hay en `main` | `asic/rom/resultados/final/metrics.json` y `asic/ff/resultados/e2_t100/metrics.json` (`antenna__violating__nets` = 1) |
+| área de celdas de síntesis, estrategia 1 contra 2 | 146.400 contra 693.901 µm² (4,7 veces) | 156.098 contra **696.640 µm²** (4,5 veces) | viejo en `asic/barrido.md`, tabla de síntesis (146400.083 y 693900.525); nuevo en `asic/rom/resultados/final/sintesis_stat.rpt` (156098.4768) y `asic/ff/resultados/s4_t100/sintesis_stat.rpt` (696640.1344), los dos en la línea "Chip area for top module"; tabla en `docs/datos_informe.md`, sección 3.2 |
+| área de celdas tras place and route | no citada | 208.439 contra **977.015 µm²** (4,7 veces) | `design__instance__area__stdcell` de `asic/rom/resultados/final/metrics.json` y de `asic/ff/resultados/s4_t100/metrics.json` |
+| flip-flops, estrategia 1 contra 2 | 921 contra 4.602 | 964 contra **4.673** (3.709 más) | `asic/barrido.md`; `asic/sintesis.md`, comparación final (779 + 185 = 964); `design__instance__count__class:sequential_cell` de `s4_t100` |
+| celdas estándar | no citadas | 9.928 contra **43.960** | `design__instance__count__stdcell` de las dos corridas |
+| área del die, estrategia 1 contra 2 | 0,394 contra 1,794 mm² | 0,419131 contra **1,801610 mm²** (4,3 veces) | `asic/rom/resultados/final/metrics.json` (`design__die__area` = 419131) y `asic/ff/resultados/s4_t100/metrics.json` (1801610); viejo en `asic/barrido.md` (393525 y 1794180) |
+| largo de cables | no citado | 377.509 contra **2.242.954 µm** (5,9 veces) | `route__wirelength` de las dos corridas |
+| período mínimo, estrategia 1 contra 2 | 55 contra 62 ns (18,2 contra 16,1 MHz) | estrategia 1: 21,5 ns (46,5 MHz); estrategia 2: **por medir por debajo de 50 ns**, donde todavía cierra con 6,939 ns de margen (el barrido `s4_*` bajó de 100 a 65, 60, 55 y 50 ns y los puntos de 45 y 42 ns están corriendo: `asic/ff/runs/s4_t45` y `s4_t42` sin `final/metrics.json`) | `asic/rom/resultados/f2_t21p5/cierre.md`; `asic/ff/resultados/s4_t50/{cierre.md,metrics.json}`; viejo en `asic/barrido.md` |
+| nets con violación de antena | 0 contra 1 | **0 contra 0**: la estrategia 1 sigue en 0 (con 1 diodo) y la estrategia 2 con la configuración final cierra con 0 nets y 6 diodos que insertó el flujo | `antenna__violating__nets` y `antenna_diodes_count` de `asic/rom/resultados/final/metrics.json` y de `asic/ff/resultados/s4_t100/metrics.json`; `docs/datos_informe.md`, sección 3.2, punto 3 |
+| violaciones de max slew y de max capacitancia | no citadas | 0 / 1 contra **62 / 14** | `design__max_slew_violation__count` y `design__max_cap_violation__count` de las dos corridas; `s4_t100/cierre.md` |
+| CPI del juego completo | no citado | 1,665 contra **2,665** | `docs/verificacion/integracion.md`, tabla de CPI (la estrategia 2 corre con `EarlyRead = 0` y reproduce el CPI de v1) |
 
-**Cómo queda la respuesta.** La comparación que decidió D17 es la de `s1_t100` contra `s2_t100` con la
-configuración de D15, y lo honesto es presentarla así, con su fuente (`asic/barrido.md`), sin
-mezclarla con las cifras de la corrida final: a 100 ns y con el mismo RTL, 146.400 contra 693.901 µm²
-de celdas de síntesis (4,7 veces), 921 contra 4.602 flip-flops, die de 0,394 contra 1,794 mm², período
-mínimo 55 contra 62 ns, y 0 contra 1 net con violación de antena. Para dar la comparación con el RTL
-nuevo hay que repetir las dos corridas con la configuración final: solo el lado de la estrategia 1
-está medido (156.098 µm² de síntesis, 964 flip-flops, 0,419 mm² de die, 21,5 ns). **Ojo con el mapa de
-la etapa 1**: dice que con el core nuevo la estrategia 2 pasa a 0 nets en violación de antena citando
-`e2_t100`; la corrida `e2_t100` que hay en `main` (`asic/ff/resultados/e2_t100/metrics.json`) informa
-`antenna__violating__nets = 1`, 153 celdas de antena y 93 diodos, así que ese dato **no reproduce** y
-no hay que usarlo.
+**Cómo queda la respuesta.** Hay dos comparaciones y conviene no mezclarlas. La que decidió D17 es
+`s1_t100` contra `s2_t100` con la configuración de D15: a 100 ns y con el mismo RTL, 146.400 contra
+693.901 µm² de celdas de síntesis (4,7 veces), 921 contra 4.602 flip-flops, die de 0,394 contra
+1,794 mm², período mínimo 55 contra 62 ns, y 0 contra 1 net con violación de antena
+(`asic/barrido.md`). La comparación de hoy, con el RTL y la configuración de la corrida final, es
+`s3_t100` contra `s4_t100`: 156.098 contra 696.640 µm² de síntesis, 964 contra 4.673 flip-flops, die
+0,419 contra 1,802 mm² (4,3 veces), 377.509 contra 2.242.954 µm de cable, y las dos con 0 nets en
+violación de antena. Y ahora la diferencia no es solo de área y de frecuencia: el CPI pasa a ser
+1,665 contra 2,665, porque la estrategia 2 corre con `EarlyRead = 0`. **Ojo con el mapa de la
+etapa 1**: dice que con el core nuevo la estrategia 2 pasa a 0 nets en violación de antena citando
+`e2_t100`. La conclusión es correcta y la confirma `s4_t100`, pero la cita no sirve: el `e2_t100` que
+hay en `main` (`asic/ff/resultados/e2_t100/metrics.json`) es una corrida temprana con el RTL de v1 e
+informa `antenna__violating__nets = 1`, 153 celdas de antena y 93 diodos. El aviso de colisión de
+tags está en `asic/ff/resultados/LEEME.md`: para el informe la fuente de la estrategia 2 son las
+`s4_*`.
 
 ### Pregunta 26 (línea 186): por qué la ROM es tan barata comparada con los flip-flops
 
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
 | tamaño y área de la ROM | 115 x 32 = 3.680 bits en 7.448 µm², unos 2 µm² por bit | igual (7.448 µm²) | `asic/sintesis.md`, fila `pochoco_rom`; las 115 palabras están en `rtl/gen/pochoco_rom.v`, línea 8 |
-| costo por bit extra en la estrategia 2 | 149 µm² ((693.901 - 146.400) / 3.681) | **por medir** (hace falta la síntesis de la estrategia 2 con el RTL nuevo) | la cuenta vieja se reproduce con `asic/barrido.md` |
-| diferencia por bit entre ROM y flip-flops | unas 70 veces | **por medir** (sale de la fila anterior) | idem |
+| costo por bit extra en la estrategia 2 | 149 µm² ((693.901 - 146.400) / 3.681) | **146,8 µm²** ((696.640 - 156.098) / 3.681) | la cuenta vieja se reproduce con `asic/barrido.md`; la nueva con `asic/rom/resultados/final/sintesis_stat.rpt` (156098.4768) y `asic/ff/resultados/s4_t100/sintesis_stat.rpt` (696640.1344) |
+| diferencia por bit entre ROM y flip-flops | unas 70 veces | **unas 73 veces** (146,8 contra los 2,02 µm²/bit de la ROM: 7.448 / 3.680) | idem, más `asic/sintesis.md`, fila `pochoco_rom` |
 
-Si se prefiere no dejar nada por medir, la salida es presentar la cuenta como lo que es: una medición
-de las corridas `s1_t100` y `s2_t100` con la configuración de D15 (`asic/barrido.md`).
+La cuenta vieja sigue siendo válida como medición de `s1_t100` y `s2_t100` con la configuración de
+D15 (`asic/barrido.md`), y da el mismo orden de magnitud; la nueva es la de la configuración final.
+Cualquiera de las dos sirve, pero hay que decir de cuál se habla.
 
 ### Pregunta 27 (línea 193): por qué la estrategia 2 además es más lenta
 
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
-| cuántas veces más grande es el die de la estrategia 2 | 4,6 veces | **por medir** con el RTL nuevo (con el die nuevo de la estrategia 1, 1.794.180 / 419.131 = 4,3 veces si la estrategia 2 no cambiara) | `asic/barrido.md` (1794180) y `asic/rom/resultados/final/metrics.json` (419131) |
-| período mínimo de la estrategia 2 | 62 ns | **por medir** con el RTL nuevo y la configuración final | `asic/barrido.md` |
+| cuántas veces más grande es el die de la estrategia 2 | 4,6 veces | **4,3 veces** medidas con el RTL nuevo (1.801.610 / 419.131 = 4,30) | `asic/ff/resultados/s4_t100/metrics.json` (`design__die__area` = 1801610) y `asic/rom/resultados/final/metrics.json` (419131); `docs/datos_informe.md`, sección 3.2 |
+| período mínimo de la estrategia 2 | 62 ns | **por medir por debajo de 50 ns**: `s4_t50` todavía cierra con WNS 6,939 ns en max_ss, y los puntos de 45 y 42 ns están corriendo | `asic/ff/resultados/s4_t50/{cierre.md,metrics.json}`; `asic/ff/runs/s4_t45` y `s4_t42` (sin `final/metrics.json`); el 62 ns de v1 en `asic/barrido.md` |
 
 El mecanismo no cambia: la ruta es igual a la de la estrategia 1 hasta la dirección que calcula la
 ALU y después decodifica esa dirección sobre 119 palabras en vez de 4. Hay que agregar que con el core
 nuevo la estrategia 2 corre con `EarlyRead = 0` (pregunta nueva 134), así que no gana nada del
-pipeline y sí paga el área del write-through.
+pipeline y sí paga el área del write-through: su CPI es 2,665 contra 1,665
+(`docs/verificacion/integracion.md`, tabla de CPI).
 
 ### Pregunta 30 (línea 213): una ROM "de verdad" no sería mejor que lógica
 
@@ -1168,14 +1361,15 @@ pipeline y sí paga el área del write-through.
 | cuarta | `oai21_1` 309 | `aoi21_1` 437 (7,8 por ciento) | idem |
 | quinta | `clkinv_1` 284 | `oai21_1` 348 (6,2 por ciento) | idem |
 | desglose de `dffq_1` | banco 544, memoria 192, pre-decodificación 82, menos 14 que elimina la aplanada | banco 544, memoria 192, decode registrado 82, LSU 2 (B2), menos 41 que elimina la aplanada | `asic/sintesis.md`, sección 3 (desglose de `dffq_1`) |
-| total de celdas de la corrida final | no citado en la pregunta (5.118 de 34 tipos) | 5.577 celdas de 36 tipos | `asic/sintesis.md`, encabezado de la sección de celdas más usadas; el de v1 en `git show v1-final:asic/sintesis.md`, línea 41 |
+| total de celdas de la síntesis | no citado en la pregunta (5.118 de 34 tipos) | 5.577 celdas de 36 tipos **a la salida de Yosys**; el layout termina con 9.928 | `asic/sintesis.md`, encabezado de la sección de celdas más usadas, que lo dice con esas palabras ("Son las celdas que salen de Yosys, no las del layout... el diseño final llega a 9.928"); el de v1 en `git show v1-final:asic/sintesis.md`, línea 41 |
 
 **Cómo queda la respuesta.** `nand2_1` 934 (lógica aleatoria de la ROM, el decodificador, la ALU y
 ahora también el banco, donde pasa de 88 a 265 en la síntesis jerárquica), `mux2_2` 889 (muxes de
 retención y árboles de lectura del banco, más el write-through), `dffq_1` 779 (banco 544, memoria 192,
 los 82 registros de decode y los 2 bits del offset de byte de la carga en la LSU, menos 41 que la
-síntesis aplanada elimina al propagar constantes), `aoi21_1` 437 y `oai21_1` 348. Dato:
-`asic/sintesis.md`.
+síntesis aplanada elimina al propagar constantes), `aoi21_1` 437 y `oai21_1` 348. Conviene decir que
+esos conteos son de la síntesis (5.577 celdas de 36 tipos) y no del layout, que llega a 9.928 celdas
+estándar. Dato: `asic/sintesis.md`.
 
 ### Pregunta 32 (línea 229): por qué tantos `mux2_2`
 
@@ -1185,7 +1379,7 @@ síntesis aplanada elimina al propagar constantes), `aoi21_1` 437 y `oai21_1` 34
 | `mux2_2` en la síntesis jerárquica | 968 | 1.139 | idem, columna jerárquica |
 | `mux2_2` del banco de registros | 480 de retención más los árboles de lectura (622 en total) | 796 en total: 480 de retención y 316 funcionales (árboles de lectura y write-through) | `asic/sintesis.md`, desglose de `mux2_2` por módulo; el 622 de v1 en `git show v1-final:asic/sintesis.md`, línea 65 |
 | `mux2_2` de la memoria | 160 | 160 (no cambia) | idem |
-| `mux2_2` de la etapa ID | 82 de pre-decodificación (116 en el id_stage) | 117 en el id_stage: 82 de retención del decode y 35 funcionales | idem; el 116 de v1 lo confirma `docs/datos_informe.md` ("Los 117 de la etapa ID (116 en v1)") |
+| `mux2_2` de la etapa ID | 82 de pre-decodificación (116 en el id_stage) | 117 en el id_stage: 82 de retención del decode y 35 funcionales | idem; el 116 de v1 está en `git show v1-final:asic/sintesis.md`, línea 67, y lo confirma `docs/datos_informe.md` ("Los 117 de la etapa ID (116 en v1)") |
 
 El mecanismo no cambia (la biblioteca no tiene flip-flops con habilitación, así que cada bit escrito
 bajo condición lleva un mux de retención), y hay que agregar una causa nueva: el write-through pone un
@@ -1221,9 +1415,11 @@ resto.
 | porcentaje de área del banco | 47 por ciento | 49 por ciento | `asic/sintesis.md`, línea "Resultó el 49 % del área" (v1: 47 %) |
 | la sorpresa de `nand2_1` | quedó "a la par" de `mux2_2` | pasa a ser la celda más usada (934 contra 889); en el banco pasa de 88 a 265 (177 más), no son 265 nuevas | `asic/sintesis.md`, tabla de celdas y desglose de `nand2_1` (265); `git show v1-final:asic/sintesis.md`, línea 81 (88) |
 
-Aviso: `asic/sintesis.md` (línea 129, texto generado) todavía dice que `nand2_1` "queda casi a la par
-de `mux2_2`", mientras su propia tabla la pone primera. En la defensa hay que decirlo como lo dice la
-tabla.
+Aviso de redacción, con la fuente corregida: el "a la par" que hay que cambiar está en la respuesta
+de **`docs/defensa.md`, línea 250** ("ni que `nand2_1` quedara a la par de `mux2_2`"). El archivo
+generado `asic/sintesis.md` ya dice lo contrario en su línea 129: "**No se cumplió**: la celda más
+usada es `nand2_1`, y el flip-flop queda tercero". O sea que el texto generado y la tabla están de
+acuerdo, y el que quedó viejo es el banco de preguntas.
 
 ### Pregunta 37 (línea 260): por qué el área pasa de síntesis a layout
 
@@ -1235,7 +1431,7 @@ tabla.
 | celdas de borde y su área | 314 celdas, 1.379 µm² | 318 celdas, 1.396 µm² | idem, `class:endcap_cell` (1396,15) |
 | buffers de reparación de timing | 636 | 1.335 (30.838 µm² contra 11.349) | idem, `class:timing_repair_buffer` |
 | árbol de reloj | 110 buffers y 26 inversores, con 61 cargas ficticias | 172 buffers y 28 inversores; el CTS crea 122 buffers y 78 cargas ficticias | `metrics.json`, `class:clock_buffer` y `class:clock_inverter`; `asic/rom/runs/final/35-openroad-cts/openroad-cts.log` (CTS-0018 "Created 122 clock buffers" y CTS-0207 "Dummy loads inserted 78") |
-| área de celdas lógicas sin tap ni borde | 170.060 µm² | 196.080 µm² | `asic/rom/resultados/final/layout/bloques.txt` (196.079,7 µm²) |
+| área de celdas lógicas sin tap ni borde | 170.060 µm² | 196.080 µm² (208.439 - 10.963 - 1.396) | `asic/rom/resultados/final/layout/bloques.txt`, encabezado (196.079,7 µm²) |
 
 **Cómo queda la respuesta.** El layout agrega 2.497 celdas de tap (10.963 µm²) y 318 de borde
 (1.396 µm²), 1.335 buffers de reparación de timing (30.838 µm², más del doble que en v1 porque la
@@ -1247,15 +1443,15 @@ lentas. Sin las de tap ni las de borde son 196.080 µm² de celdas lógicas.
 
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
-| frecuencia máxima | 40 MHz (en `main` ya estaba corregida a 40,8 MHz) | 46,5 MHz (1 / 21,5 ns = 46,51 MHz) | `asic/rom/resultados/f2_t21p5/cierre.md`; `docs/decisiones.md`, D23 (que trae las dos correcciones de v1: 24,5 ns, 40,8 MHz y 15,3 MIPS) |
+| frecuencia máxima | 40 MHz (la pregunta sigue diciendo 40 MHz en `main`; la cifra corregida de v1, 40,8 MHz, está en `asic/final.md` y en D23) | 46,5 MHz (1 / 21,5 ns = 46,51 MHz) | `asic/rom/resultados/f2_t21p5/cierre.md`; `asic/final.md`, sección "Historia" ("Cerraba a 24,5 ns (40,8 MHz, 15,3 MIPS)"); `docs/decisiones.md`, D23 (que trae las dos correcciones de v1: 24,5 ns, 40,8 MHz y 15,3 MIPS) |
 | período mínimo que cierra | 25 ns (24,5 ns en `main` corregido) | 21,5 ns, con WNS 0,876 ns en max_ss y TNS 0 en las nueve esquinas | `asic/rom/resultados/f2_t21p5/cierre.md`; `metrics.json`, `timing__setup__ws` = 0,876 |
 | primer período que no cierra | 24 ns, por 0,004 ns | 21 ns, por 0,129 ns (TNS -0,291) | `asic/rom/resultados/f2_t21/metrics.json` (reportes versionados) |
-| períodos barridos | 100, 32, 30, 26, 25 y 24 ns | **el barrido completo ya está medido en `main`**: 100, 30, 25, 24, 23, 22, 21,5 y 21 ns | `asic/rom/resultados/final`, `f2_t30`, `f2_t25`, `f2_t24`, `f2_t23`, `f2_t22`, `f2_t21p5` y `f2_t21`; tabla en `asic/final.md`, sección "Barrido de CLOCK_PERIOD con la configuración final" |
+| períodos barridos | 100, 32, 30, 26, 25 y 24 ns | **el barrido completo ya está medido en `main`**: 100, 30, 25, 24, 23, 22, 21,5 y 21 ns | `asic/rom/resultados/final`, `f2_t30`, `f2_t25`, `f2_t24`, `f2_t23`, `f2_t22`, `f2_t21p5` y `f2_t21`; tabla en `asic/final.md`, sección "Barrido de CLOCK_PERIOD con la configuración final" (que todavía marca `f2_t30` como "incompleta") |
 
 WNS de setup en `max_ss_125C_4v50` de cada punto, de los `metrics.json` de las siete corridas `f2_*`:
 30 ns 4,924; 25 ns 1,579; 24 ns 1,755; 23 ns 1,494; 22 ns 0,656; 21,5 ns 0,876; 21 ns -0,129
 (el único que no cierra). Las de 30, 25, 24, 23 y 22 ns cierran también DRC, LVS y antenas
-(`cierre.md` de cada tag).
+(`cierre.md` de cada tag: las cinco dicen "Resultado: CIERRA").
 
 **Cómo queda la respuesta.** 46,5 MHz: el diseño cierra a 21,5 ns con 0,876 ns de margen en la esquina
 lenta y no cierra a 21 ns (falla por 0,129 ns, con TNS -0,291). Se barrió `CLOCK_PERIOD` con el mismo
@@ -1288,19 +1484,20 @@ mal (preguntas nuevas 141 y 142).
 |---|---|---|---|
 | punto de partida | `_4189_`, flip-flop de pre-decodificación de `alu_operator[1]` (la pregunta lo da a 25 ns, f1_t25) | `_4136_` (`dffq_4`), el registro de decode que guarda `alu_op_a_sel[2]` | `asic/rutas.md`, sección del período mínimo; `asic/rom/resultados/f2_t21p5/layout/ruta_critica.txt`, entrada 1 |
 | por dónde pasa | ALU, alineación del dato cargado y mux de write-back | mux de operandos (9 celdas) hasta `operand_a[26]`, ALU (18 celdas) hasta `lsu_addr[31]` y decodificación de dirección (10 celdas) | `asic/rutas.md`; `asic/rom/resultados/f2_t21p5/layout/ruta_critica.txt` |
-| punto de llegada | `u_soc.u_core.u_rf/_2933_`, un bit del banco | `_4440_`, un flip-flop con reset (`dffrnq_1`) de la lógica aplanada; su módulo **queda por identificar** | `asic/rom/resultados/f2_t21p5/layout/ruta_critica.txt` (entrada 39, sin nombre jerárquico) |
+| punto de llegada | `u_soc.u_core.u_rf/_2933_`, un bit del banco | `_4440_`, un flip-flop con reset (`dffrnq_1`) que el reporte da aplanado y que en el netlist es **`u_soc.u_periph.digit_q[4]`**, el bit 4 del registro del display del periférico | `asic/rom/resultados/f2_t21p5/layout/ruta_critica.txt` (entrada 39, sin nombre jerárquico); `asic/rutas.md`, líneas 17 a 25, que lo resuelve con `grep -A3 "dffrnq_1 _4440_" asic/rom/runs/f2_t21p5/final/nl/asic_top.nl.v` |
 | celdas de la ruta | no citado | 39 celdas numeradas, más 3 del camino de reloj | `asic/rom/resultados/f2_t21p5/layout/ruta_critica.txt`, encabezado ("39 celdas numeradas; 3 celdas del camino de reloj") |
 | la ruta a 100 ns | la pregunta **no la describe**; la de v1 a 100 ns no es la de la carga: va de `_4191_` (`alu_op_a_sel[2]`) por la ALU a `lsu_addr[31]` y termina en `_4309_`, con llegada 36,485 ns | otra: `_4287_` (`dffrnq_1`, el bit 2 de la dirección que pide el fetch, `a_addr_i[2]`), ROM combinacional, `a_next_o[17]` y mux de lectura del banco hasta `u_soc.u_core.u_rf/_4123_` (`dffq_1`), 34 celdas y 36,033 ns de llegada | `asic/rutas.md`, secciones "Corrida final nueva a 100 ns" y "Corrida final de v1 a 100 ns (historia)"; `asic/rom/resultados/final/layout/ruta_critica.txt` |
 
 **Cómo queda la respuesta.** Hay que distinguir dos rutas, porque ya no son la misma. Al período
 mínimo (21,5 ns, esquina max_ss) la ruta crítica empieza en `_4136_`, el registro de decode que guarda
 `alu_op_a_sel[2]`, pasa por los buffers y el mux de operandos hasta `operand_a[26]`, cruza la ALU
-hasta `lsu_addr[31]` y termina, después de la decodificación de dirección, en `_4440_`, un flip-flop
-con reset: funciones de decode registrado, ejecución y acceso a memoria, en un solo ciclo de verdad.
-En la corrida final a 100 ns la peor ruta es la otra, la que crea el pipeline nuevo: del bit 2 de la
-dirección del fetch por la ROM combinacional, de ahí al bit de rs1 (`a_next_o[17]`) y por el mux de
-lectura de 16 a 1 hasta un registro de salida del banco. Esa segunda es la que limita el período
-cuando el resizer trabaja con holgura. Dato: `asic/rutas.md`.
+hasta `lsu_addr[31]` y termina, después de la decodificación de dirección, en `_4440_`, que es el
+bit 4 del registro del display del periférico (`u_soc.u_periph.digit_q[4]`): funciones de decode
+registrado, ejecución y escritura a un periférico, en un solo ciclo de verdad. En la corrida final a
+100 ns la peor ruta es la otra, la que crea el pipeline nuevo: del bit 2 de la dirección del fetch
+por la ROM combinacional, de ahí al bit de rs1 (`a_next_o[17]`) y por el mux de lectura de 16 a 1
+hasta un registro de salida del banco. Esa segunda es la que limita el período cuando el resizer
+trabaja con holgura. Dato: `asic/rutas.md`.
 
 ### Pregunta 41 (línea 288): cómo se reparte el tiempo en esa ruta
 
@@ -1366,7 +1563,7 @@ La explicación física no cambia.
 
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
-| hold igual en todo el barrido | 0,18 ns | 0,173 ns (igual en los siete puntos: 100, 30, 25, 24, 23, 22, 21,5 y 21 ns) | `timing__hold__ws` de los `metrics.json` de `asic/rom/resultados/final` y de las siete corridas `f2_*` (0,17272 a 0,17276) |
+| hold igual en todo el barrido | 0,18 ns | 0,173 ns, igual en los **ocho** puntos medidos (la final a 100 ns más los siete del barrido: 30, 25, 24, 23, 22, 21,5 y 21 ns) | `timing__hold__ws` de los `metrics.json` de `asic/rom/resultados/final` y de las siete corridas `f2_*` (0,17272 a 0,17276) |
 | buffers de hold de la corrida final | 5 | **0** | `asic/rom/resultados/final/metrics.json`, `design__instance__count__hold_buffer` = 0 (v1: 5) |
 
 El argumento central queda mejor que antes (el hold es idéntico en todas las corridas del barrido),
@@ -1377,7 +1574,12 @@ pero la última frase hay que cambiarla: la corrida nueva no necesita ningún bu
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
 | qué lograba B2 | registrar `addr[1:0]` saca la ruta y el período baja a 24 ns | B2 está adoptado; el período mínimo de la corrida final es 21,5 ns | `docs/decisiones.md`, D23; `asic/rom/resultados/f2_t21p5/cierre.md`; el 24 ns de B2 sobre el RTL de v1 sigue en `asic/exploraciones.md` (fila `exp/lsu-offset`) |
-| cuánto aporta B2 sobre este pipeline | no existía la pregunta | medido solo a 100 ns: sin B2 (`pr_t100`, rama `exp/pipeline` con la configuración final) 208.390 µm², WNS 65,710 ns, 0 slew, die 418.503 µm²; con B2 (la corrida final) 208.439 µm², 65,725 ns, 0 slew, die 419.131. El **barrido de período de `pr_*` está por medir** | `build/exp_pipeline/asic/rom/resultados/pr_t100/metrics.json`; `asic/rom/resultados/final/metrics.json` |
+| cuánto aporta B2 sobre este pipeline | no existía la pregunta | **medido, y son 1,5 ns de período**: sin B2 (`pr_*`, rama `exp/pipeline` con la configuración final) el mínimo que cierra es 23 ns (WNS 0,463 ns) y 22 ns no cierra (-0,597 ns, TNS -3,869); con B2 cierra a 21,5 ns. A 100 ns la diferencia es casi nula: 208.390 contra 208.439 µm² de celdas, WNS 65,710 contra 65,725 ns, 0 slew en las dos, die 418.503 contra 419.131 µm² | `build/exp_pipeline/asic/rom/resultados/pr_t24`, `pr_t23`, `pr_t22`, `pr_t21p5`, `pr_t21` y `pr_t100` (`metrics.json` y `cierre.md`); `asic/rom/resultados/f2_t21p5/cierre.md`; tramos de `pr_t24` a `pr_t21` en `asic/rutas.md` |
+
+Barrido `pr_*` completo en `max_ss_125C_4v50`, de los `metrics.json`: 100 ns 65,710 (cierra);
+24 ns 1,556 (cierra); 23 ns 0,463 (cierra); 22 ns -0,597 (no cierra, TNS -3,869); 21,5 ns -0,938
+(no cierra); 21 ns -1,634 (no cierra). Lo único que falta de ese barrido es el punto de 22,5 ns, para
+cumplir la regla de la sesión de dejar 0,5 ns o menos entre el último que cierra y el primero que no.
 
 **Cómo queda la respuesta.** La pregunta sigue sirviendo, pero en pasado. En v1 la peor ruta era la del
 write-back de una carga: para el STA era de un ciclo, pero en la práctica el dato de memoria llega un
@@ -1385,7 +1587,9 @@ ciclo después de emitir la carga, con el pipeline detenido y la dirección esta
 ciclos. Ese argumento ya no hace falta para defender el cierre, porque la ruta desapareció: B2
 registra los dos bits bajos de la dirección al emitir la carga y la alineación salió del camino. La
 ruta crítica de hoy (decode registrado, mux de operandos, ALU y decodificación de dirección) es
-genuinamente de un ciclo. Dato: `asic/rutas.md`, `docs/decisiones.md` D23.
+genuinamente de un ciclo. Y ahora se puede decir cuánto aporta B2 sobre este pipeline: 1,5 ns de
+período (de 23 a 21,5 ns, o de 43,5 a 46,5 MHz) por dos flip-flops en la LSU. Dato: `asic/rutas.md`,
+`docs/decisiones.md` D23, `build/exp_pipeline/asic/rom/resultados/pr_*`.
 
 ### Pregunta 49 (línea 335): por qué no declarar esa ruta como multiciclo en la SDC
 
@@ -1417,8 +1621,8 @@ No cambia ninguna cifra: en `s1_t55` el decode era el tramo más largo (19,1 de 
 las rutas de ejecución. Lo que hay que agregar es que ese argumento fue el primer paso: primero se
 registró el decode (D18) y después, al ver que la ROM combinacional permitía hacerlo un ciclo antes,
 se sacó también el ciclo de espera (D23). Dato: el desglose de los 19,1 de 55,1 ns está en
-`docs/decisiones.md`, D18 (no en `asic/final.md`, que solo trae la tabla del barrido `s1_*`), con el
-reporte en `asic/rom/resultados/s1_t55/max_ss_125C_4v50_ruta_critica.rpt`; el resto en
+`docs/decisiones.md`, D18, línea 129 (no en `asic/final.md`, que solo trae la tabla del barrido
+`s1_*`), con el reporte en `asic/rom/resultados/s1_t55/max_ss_125C_4v50_ruta_critica.rpt`; el resto en
 `docs/pipeline.md`.
 
 ### Pregunta 52 (línea 352): cuánto rindió y cuánto costó la pre-decodificación
@@ -1435,7 +1639,7 @@ reporte en `asic/rom/resultados/s1_t55/max_ss_125C_4v50_ruta_critica.rpt`; el re
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
 | equivalencia con `isa_test` | 1.018 eventos por estrategia, ciclo a ciclo contra 116fa20 | modo funcional: 46 escrituras al banco, 22 accesos al bus y 2 salidas iguales, con las dos estrategias, contra 116fa20 y contra v1 | `docs/verificacion/integracion.md`, filas 2 y 3 |
-| programa de riesgos de datos | no existía | `sw/hazard_test.s`, 56 comprobaciones: 348 eventos de banco, 63 de bus y 2 de salida iguales; `sw/hazard_review.s`, 48 comprobaciones: 271, 66 y 2 | `docs/verificacion/integracion.md`, filas 4 y 5; `sw/hazard_test.s` línea 31 (`TOTAL, 56`) y `sw/hazard_review.s` línea 51 (`TOTAL, 48`) |
+| programa de riesgos de datos | no existía | `sw/hazard_test.s`, 56 comprobaciones: 348 eventos de banco, 63 de bus y 2 de salida iguales; `sw/hazard_review.s`, 48 comprobaciones: 271, 66 y 2 | `docs/verificacion/integracion.md`, filas 4 y 5; `sw/hazard_test.s` línea 31 (`.equ TOTAL, 56`) y `sw/hazard_review.s` línea 51 (`.equ TOTAL, 48`) |
 | pruebas de mutación | no existían | 2 mutaciones propias más 2 del revisor, todas detectadas | `docs/verificacion/integracion.md`, filas 7 a 12 |
 | escrituras al banco sin valores X usados | 388.411 | 620.217 (estrategia 1, 10 rondas); la estrategia 2 sigue dando 388.411 | `docs/verificacion/integracion.md`, tabla del monitor de X |
 | los tres testbenches con los mismos 101 checks | 101 checks | `make check` PASS: 80 pruebas del assembler y los **seis** testbenches, con las dos estrategias | `docs/verificacion/integracion.md`, fila 1 |
@@ -1464,9 +1668,11 @@ bloques `g_early` y `g_wait`.
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
 | período mínimo después de D20 | 25 ns | 24,5 ns en v1; 21,5 ns en la corrida final nueva (otro RTL y otra configuración) | `asic/final.md`, fila f1_t24p5 (WNS 0,496 ns); `asic/rom/resultados/f2_t21p5/cierre.md` |
-| violaciones de slew | de 2.201 a 546 | de 2.201 a 546 con D20 y de 546 a **0** con el modelo de cable | `docs/decisiones.md` D20; `asic/rom/resultados/final/metrics.json`, `design__max_slew_violation__count` = 0 |
+| violaciones de slew | de 2.201 a 546 | de 2.201 a 546 con D20 y de 546 a **0** con el modelo de cable | el 2.201 está en `docs/decisiones.md`, D20, línea 147, que para su propia corrida (32 ns) da 541; el 546 que cita la pregunta es el de la corrida final de v1 (`asic/rom/resultados/v1_final/metrics.json`, `design__max_slew_violation__count`); el 0 está en `asic/rom/resultados/final/metrics.json` |
 
-La historia de D15 y D20 se mantiene tal cual; lo que cambia es el punto de llegada.
+La historia de D15 y D20 se mantiene tal cual; lo que cambia es el punto de llegada. Si alguien
+repregunta por el 541 de D20, la respuesta es que es la corrida de 32 ns con la que se decidió D20 y
+el 546 es la corrida final de v1.
 
 ### Pregunta 56 (línea 377): qué hace `PL_RESIZER_SETUP_SLACK_MARGIN`
 
@@ -1476,7 +1682,8 @@ diciendo "Es una explicación, no una medición: el repo no tiene un reporte que
 medido: el resizer estima la capacidad de los cables entre 2,3 y 2,9 veces menor que la que OpenRCX
 extrae del ruteo detallado, y darle los valores por capa con `LAYERS_RC` baja el período mínimo y
 deja 0 violaciones de max slew. La hipótesis quedó confirmada y con archivo de origen. Dato:
-`docs/modelo_cable.md`, secciones 1 y 2; `asic/modelo_cable.md`, sección 2.
+`docs/modelo_cable.md`, secciones 1 y 2 (los factores 2,93 / 2,59 / 2,30 están en la tabla de la
+sección 2); `asic/modelo_cable.md`, sección 2.
 
 ### Pregunta 58 (línea 390): por qué `buf_1` causaba violaciones de slew
 
@@ -1509,7 +1716,7 @@ nueve esquinas, 21 violaciones de fanout y una sola de capacitancia, la raíz de
 
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
-| medidas y tiempos de biblioteca del `dffq_1` | 16,24 x 3,92 µm (63,66 µm²); setup 0,21 a 0,23 ns y reloj a Q 1,0 a 1,3 ns en la típica, setup 0,44 a 0,47 ns y reloj a Q 1,8 a 2,3 ns en la lenta | no cambian | `docs/hechos_flujo.md`, sección 11 |
+| medidas y tiempos de biblioteca del `dffq_1` | 16,24 x 3,92 µm (63,66 µm²); setup 0,21 a 0,23 ns y reloj a Q 1,0 a 1,3 ns en la típica, setup 0,44 a 0,47 ns y reloj a Q 1,8 a 2,3 ns en la lenta | no cambian (la SDC no cambió, así que el punto elegido de la grilla tampoco) | `docs/hechos_flujo.md`, sección 11 (y 11.2 para el punto elegido) |
 | setup del flip-flop de la ruta crítica | 0,40 ns | 0,640 ns (`dffrnq_1`) al período mínimo y 0,519 ns a 100 ns (`dffq_1` del banco) | `asic/rutas.md`, cálculos del tiempo requerido de f2_t21p5 y de la final |
 | reloj a Q del flip-flop de la ruta crítica | 2,34 ns | 1,830 ns (`dffq_4`) al período mínimo y 1,877 ns a 100 ns | idem, tablas de tramos |
 
@@ -1522,7 +1729,7 @@ sino un `dffq_4`, y el de llegada al período mínimo es un `dffrnq_1`.
 |---|---|---|---|
 | frecuencia de la pregunta | 40 MHz | 46,5 MHz (1 / 21,5 ns) | `asic/rom/resultados/f2_t21p5/cierre.md` |
 | `CYCLES_PER_TENTH` | 4.000.000 = 0x3D0900, `lui 0x3D1` y `addi -1792` | 4.651.162 = 0x46F89A, `lui 0x470` y `addi -1894` | cálculo con el período medido de `f2_t21p5/cierre.md` y el algoritmo de `li` de `sw/asm.py` (pregunta 119): 0,1 / 21,5 ns = 4.651.162,79, hi = (4.651.162 + 0x800) >> 12 = 0x470, lo = 4.651.162 - (0x470 << 12) = -1894 |
-| período de muestreo del debounce | 0,82 ms | 0,70 ms (2^15 / 46,51 MHz) | cálculo con `DebounceDivBits = 15` (`rtl/debounce.v`) y el período medido |
+| período de muestreo del debounce | 0,82 ms | 0,70 ms (2^15 / 46,51 MHz) | cálculo con `DebounceDivBits = 15`, que está en `rtl/asic_top.v` línea 24, `rtl/pochoco_soc.v` línea 20 y `rtl/pochoco_periph.v` línea 13 (en `rtl/debounce.v` el parámetro se llama `DivBits`, línea 17), y el período medido |
 | vuelta de CYCLES | 107 s | 92 s (2^32 / 46,51 MHz) | cálculo con el período medido |
 
 El mecanismo se conserva entero y el ejemplo sigue funcionando: los 12 bits bajos (0x89A) tienen el
@@ -1552,7 +1759,7 @@ nueva 140). Dato: `asic/exploraciones.md`, `docs/decisiones.md` D23.
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
 | MIPS de la corrida final | 40 MHz / 2,665 = 15,0 | 46,5 MHz / 1,665 = **27,9** | `docs/decisiones.md`, D23; `asic/rom/resultados/f2_t21p5/cierre.md`; `docs/verificacion/integracion.md` (CPI 1,665) |
-| MIPS de v1 | 15,0 | 40,8 MHz / 2,665 = 15,3 (cifra ya corregida en `main`) | `asic/exploraciones.md`, fila "main (referencia)" |
+| MIPS de v1 | 15,0 | 40,8 MHz / 2,665 = 15,3 (cifra ya corregida en `asic/final.md` y en D23) | `asic/exploraciones.md`, fila "main (referencia)" |
 | MIPS de B4 | 16,7 MHz / 1,312 = 12,7 | no cambia | `asic/exploraciones.md`, fila `exp/cpi` |
 
 Conviene agregar la comparación con v1 para que se vea el salto: 27,9 contra 15,3 MIPS, un 82 por
@@ -1565,14 +1772,15 @@ ciento más, con el mismo programa y el mismo enunciado.
 | premisa | B2 no se incorporó (D22) | B2 **está incorporado** (D23) | `docs/decisiones.md`, D23 |
 | costo de slew de B2 | 546 a 672 violaciones | la corrida final tiene 0 violaciones de slew | `asic/rom/resultados/final/metrics.json`; el 672 de v1 en `asic/exploraciones.md`, fila `exp/lsu-offset` |
 | costo de área de B2 | 0,6 por ciento menos de área sobre v1 | dos flip-flops en la LSU (`espino_load_store_unit` pasa de 1 a 3 flip-flops locales) | `asic/sintesis.md`, tabla de área por módulo (3) y desglose de `dffq_1` (`addr_q[1:0]`); `git show v1-final:asic/sintesis.md`, línea 28 (1) |
-| aporte de B2 sobre este pipeline | no existía | a 100 ns, 49 µm² de celdas y 15 ps de WNS entre `pr_t100` (sin B2) y la corrida final; el **barrido de período de `pr_*` está por medir** | `build/exp_pipeline/asic/rom/resultados/pr_t100/metrics.json` (208.390 µm², 65,710 ns) contra `asic/rom/resultados/final/metrics.json` (208.439 µm², 65,725 ns) |
+| aporte de B2 sobre este pipeline | no existía | **medido**: 1,5 ns de período (sin B2 el mínimo que cierra es 23 ns, con B2 21,5 ns), y a 100 ns 49 µm² de celdas y 15 ps de WNS | `build/exp_pipeline/asic/rom/resultados/pr_t23/cierre.md` (0,463 ns, cierra) y `pr_t22/cierre.md` (-0,597 ns, no cierra); `pr_t100/metrics.json` (208.390 µm², 65,710 ns) contra `asic/rom/resultados/final/metrics.json` (208.439 µm², 65,725 ns) |
 
 **Cómo queda la respuesta.** Hay que darla vuelta: "¿por qué **sí** incorporaron B2?". Porque la ALU
 estaba en el camino de alineación y write-back de la carga: registrar `addr[1:0]` al emitir la carga
-saca ese camino de la ruta crítica, cuesta dos flip-flops en la LSU y se verificó con las
-20 comprobaciones de la sección 3 de `sw/hazard_test.s` (c14 a c33: lb, lbu, lh, lhu y lw con offsets
-0 a 3, con y sin signo, desde la RAM y desde el periférico). El argumento viejo de que B2 empeoraba el
-slew tampoco se sostiene: la corrida final tiene 0 violaciones.
+saca ese camino de la ruta crítica, cuesta dos flip-flops en la LSU y vale 1,5 ns de período sobre
+este mismo pipeline (23 ns sin B2 contra 21,5 ns con B2, barrido `pr_*` contra barrido `f2_*`). Se
+verificó con las 20 comprobaciones de la sección 3 de `sw/hazard_test.s` (c14 a c33: lb, lbu, lh, lhu
+y lw con offsets 0 a 3, con y sin signo, desde la RAM y desde el periférico). El argumento viejo de
+que B2 empeoraba el slew tampoco se sostiene: la corrida final tiene 0 violaciones.
 
 ### Pregunta 68 (línea 446): qué era B5 y por qué reporta WNS 0,000
 
@@ -1608,7 +1816,7 @@ porque la lectura se pide un ciclo antes con la salida combinacional de la ROM. 
 | duración del lazo `wait_press` | 13 ciclos, 1,3 µs | 8 ciclos, 0,8 µs a 10 MHz | `docs/pipeline.md`, sección 3.6; `asic/sim/resultado.md`, sección Control negativo ("un lazo de polling de 8 ciclos") |
 | atraso que no cambia la traza | 5 ciclos | 7 ciclos | `asic/sim/resultado.md`, sección Control negativo |
 | atraso que sí la cambia | 6 ciclos, 13 ciclos de diferencia (57 a 70) | 8 ciclos, 8 ciclos de diferencia (51 a 59) | idem |
-| debounce | tick cada 2^15 ciclos (3,28 ms), latencia 10 a 13 ms | no cambia | `rtl/debounce.v` |
+| debounce | tick cada 2^15 ciclos (3,28 ms), latencia 10 a 13 ms | no cambia | `rtl/debounce.v` (el filtro y el divisor `DivBits`) con `DebounceDivBits = 15` de `rtl/asic_top.v`, línea 24 |
 
 ### Pregunta 72 (línea 476): qué utilización usaron y cuál es el área mínima
 
@@ -1617,24 +1825,25 @@ porque la lectura se pide un ciclo antes con la salida combinacional de la ROM. 
 | utilización pedida | 40 por ciento | 40 por ciento (no cambia, lo fija el enunciado) | `asic/rom/config.yaml`, línea 41; `resolved.json` |
 | utilización real | 48 por ciento | 53,5 por ciento (0,535110) | `asic/rom/resultados/final/metrics.json`, `design__instance__utilization` |
 | utilizaciones que cierran | 50, 60 y 70 por ciento | en v1: 50, 60, 70, 72, 75 y 78; **con el diseño nuevo: 50, 60, 70, 72 y 73** | `asic/final.md`, sección "Historia: barrido de FP_CORE_UTIL de v1"; `cierre.md` y `metrics.json` de `asic/rom/resultados/u2_u50`, `u2_u60`, `u2_u70`, `u2_u72` y `u2_u73` (los cinco con **Resultado: CIERRA**) |
-| dónde falla | 80 por ciento en el placement detallado del CTS (DPL-0036) y 90 por ciento en el global (GPL-0301) | en v1 fallan 79 y 80 en el CTS y 90 en el global; **con el diseño nuevo**: 75 por ciento en la reparación de diseño después del ruteo global (paso 41, DPL-0036 con 77 instancias sin sitio), 78 en el CTS (paso 35, 36 instancias), 80 en la reparación post-placement global (paso 32, 5 instancias) y 90 en el placement global | `asic/rom/resultados/u2_u75/falla.txt`, `u2_u78/falla.txt`, `u2_u80/falla.txt` y `u2_u90/falla.txt`; los de v1 en `u1_u79/falla.txt`, `u1_u80/falla.txt` y `u1_u90/falla.txt` |
+| dónde falla | 80 por ciento en el placement detallado del CTS (DPL-0036) y 90 por ciento en el global (GPL-0301) | en v1 fallan 79 y 80 en el CTS y 90 en el global; **con el diseño nuevo**: 74 y 75 por ciento en la reparación de diseño después del ruteo global (paso 41, DPL-0036 con 18 y 77 instancias sin sitio), 78 en el CTS (paso 35, 36 instancias), 80 en la reparación post-placement global (paso 32, 5 instancias) y 90 en el placement global | `asic/rom/resultados/u2_u74/falla.txt`, `u2_u75/falla.txt`, `u2_u78/falla.txt`, `u2_u80/falla.txt` y `u2_u90/falla.txt`; los de v1 en `u1_u79/falla.txt`, `u1_u80/falla.txt` y `u1_u90/falla.txt` |
 | área mínima | 70 por ciento, 480,0 x 497,9 µm, 0,239 mm² | en v1: 78 por ciento, 455,4 x 473,3 µm, 215.545 µm² (0,216 mm²), utilización real 90,3 por ciento; **con el diseño nuevo: 73 por ciento, 476,135 x 494,055 µm, 235.237 µm² (0,235 mm²), utilización real 91,8 por ciento** | `asic/final.md` (u1_u78); `asic/rom/resultados/u2_u73/metrics.json` (`design__die__area` = 235237, `design__die__bbox` = 0 0 476.135 494.055, `design__instance__utilization` = 0,917614) y `u2_u73/cierre.md` |
 
 **Cómo queda la respuesta.** 40 por ciento en la final, que lo fija el enunciado, con utilización real
-53,5 por ciento. El área mínima sale del barrido de `FP_CORE_UTIL`: con el diseño nuevo cierran hasta
+53,5 por ciento. El área mínima sale del barrido de `FP_CORE_UTIL`: con el diseño nuevo cierra hasta
 el 73 por ciento, con un die de 476,1 x 494,1 µm (0,235 mm²) y utilización real del 91,8 por ciento, y
-el 75 por ciento ya falla. En v1 cerraba hasta el 78 por ciento, con 0,216 mm². Hay que decir también
-la resolución del barrido nuevo: entre 73 y 75 por ciento no hay punto medido, así que el máximo que
-cierra está acotado entre esos dos valores. Dato: `asic/rom/resultados/u2_u73/cierre.md`,
-`u2_u75/falla.txt`. Pendiente de forma, no de medición: volver a correr `asic/tablas.sh` para que la
-tabla de `asic/final.md` deje de marcar `u2_u60` a `u2_u73` como "incompleta".
+el 74 por ciento ya falla, así que el límite queda acotado sin hueco: **73 cierra y 74 no**
+(`asic/rom/resultados/u2_u74/falla.txt`, 18 instancias sin sitio en el paso 41). En v1 cerraba hasta
+el 78 por ciento, con 0,216 mm². Dato: `asic/rom/resultados/u2_u73/cierre.md`, `u2_u74/falla.txt`.
+Pendiente de forma, no de medición: volver a correr `asic/tablas.sh` para que la tabla de utilización
+de `asic/final.md` deje de tener solo `final` y `u2_u50` (con `u2_u60` y `u2_u70` como "incompleta") e
+incorpore `u2_u72`, `u2_u73` y `u2_u74`.
 
 ### Pregunta 73 (línea 481): por qué la utilización real es mayor que la pedida
 
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
 | cuenta de dimensionado del core | 152.169 / 0,40 = unos 380.000 µm² | 156.098 / 0,40 = 390.245 µm² (el core medido es 389.525) | `asic/rom/resultados/final/sintesis_stat.rpt`; `metrics.json`, `design__core__area` |
-| cuánto sube la utilización real | 8 a 11 puntos | 13,5 puntos a 40 por ciento (40 a 53,5); en el barrido nuevo sube entre 15,3 puntos (50 a 65,3) y 19,8 puntos (72 a 91,7) | `asic/rom/resultados/final/metrics.json`; `design__instance__utilization` de `u2_u50` (0,653222), `u2_u60` (0,768834), `u2_u70` (0,886704), `u2_u72` (0,916600) y `u2_u73` (0,917614) |
+| cuánto sube la utilización real | 8 a 11 puntos | 13,5 puntos a 40 por ciento (40 a 53,5); en el barrido nuevo sube entre 15,3 puntos (50 a 65,3) y 19,7 puntos (72 a 91,7) | `asic/rom/resultados/final/metrics.json`; `design__instance__utilization` de `u2_u50` (0,653222), `u2_u60` (0,768834), `u2_u70` (0,886704), `u2_u72` (0,916600) y `u2_u73` (0,917614) |
 
 El mecanismo no cambia, pero el margen que se agrega es mayor porque los buffers de reparación pasan
 de 636 a 1.335.
@@ -1643,9 +1852,9 @@ de 636 a 1.335.
 
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
-| primera utilización que falla | 80 por ciento | 79 por ciento en v1; **75 por ciento con el diseño nuevo** | `asic/final.md`, barrido de `FP_CORE_UTIL`; `asic/rom/resultados/u1_u79/falla.txt`; `asic/rom/resultados/u2_u75/falla.txt` |
-| causa del fallo | el placement detallado no encuentra sitios legales | igual, pero el paso cambia: en v1 era el CTS (u1_u79 con 6 instancias, u1_u80 con 22); con el diseño nuevo el primero que se queda sin sitios es el paso 41, la reparación de diseño después del ruteo global, con 77 instancias (u2_u75), casi todas del banco de registros | `asic/final.md`; `u1_u79/falla.txt`, `u1_u80/falla.txt`; `u2_u75/falla.txt` ("Error: repair_design_postgrt.tcl, 48 DPL-0036", "Classic - Stage 41 - Repair Design (Post-Global Routing)") |
-| área de celdas móviles a 90 por ciento | 163.776 µm² (152.353 de síntesis más 11.422 de ajuste por densidad de pines) | **169.186,876 µm²** con el diseño nuevo; a 40 por ciento el global placement informa 156.282,874 µm² de móviles y 12.904,003 µm² de ajuste | `asic/rom/resultados/u2_u90/falla.txt` (GPL-0018); `asic/rom/runs/final/28-openroad-globalplacement/openroad-globalplacement.log` (GPL-0036 y GPL-0035); el dato de v1 en `docs/hechos_flujo.md`, sección 5 |
+| primera utilización que falla | 80 por ciento | 79 por ciento en v1; **74 por ciento con el diseño nuevo** | `asic/final.md`, barrido de `FP_CORE_UTIL`; `asic/rom/resultados/u1_u79/falla.txt`; `asic/rom/resultados/u2_u74/falla.txt` |
+| causa del fallo | el placement detallado no encuentra sitios legales | igual, pero el paso cambia: en v1 era el CTS (u1_u79 con 6 instancias, u1_u80 con 22); con el diseño nuevo el primero que se queda sin sitios es el paso 41, la reparación de diseño después del ruteo global, con 18 instancias en u2_u74 y 77 en u2_u75, casi todas del banco de registros | `asic/final.md`; `u1_u79/falla.txt`, `u1_u80/falla.txt` (`asic/logs/u1_u80.log`, línea 17914, para el conteo de 22); `u2_u74/falla.txt` (líneas 6, 26 y 27: "18 instances", "Error: repair_design_postgrt.tcl, 48 DPL-0036", "Classic - Stage 41 - Repair Design (Post-Global Routing)") y `u2_u75/falla.txt` (77 instancias; las dos líneas del paso y del guion están en `asic/logs/u2_u75.log`, líneas 18737 y 18738, no en el extracto versionado) |
+| área de celdas móviles a 90 por ciento | 163.776 µm² (152.353 de síntesis más 11.422 de ajuste por densidad de pines) | **169.186,876 µm²** con el diseño nuevo; a 40 por ciento el global placement informa 156.282,874 µm² de móviles y 12.904,003 µm² de ajuste | `asic/rom/resultados/u2_u90/falla.txt` (GPL-0018); `asic/rom/runs/final/28-openroad-globalplacement/openroad-globalplacement.log`, líneas 19 y 21 (GPL-0036 y GPL-0035); el dato de v1 en `docs/hechos_flujo.md`, sección 5 |
 | mensaje de fallo a 90 por ciento | `GPL-0301 Utilization 100.531 % exceeds 100%` | `GPL-0301 Utilization 100.620 % exceeds 100%` | `asic/rom/resultados/u2_u90/falla.txt` |
 
 El mecanismo se conserva con la base de área nueva: a 90 por ciento las celdas móviles más el ajuste
@@ -1660,7 +1869,7 @@ posterior al ruteo global, que es uno de los dos pasos que agrega D23.
 |---|---|---|---|
 | métricas graficadas | DRC al inicio del ruteo detallado, largo de cables, slew, capacitancia, antenas, área del die y WNS | no cambia la lista; la figura ya está regenerada | `asic/graficos.py --util`; `docs/figuras/utilizacion.png` (regenerada el 28-10-2026) |
 | violaciones de ruteo iniciales del barrido | 1.546, 2, 5 y 2.149 | con el diseño nuevo: 2 a 40 por ciento, 2.219 a 50, 2.189 a 60, 2.793 a 70, 3.252 a 72 y 3.144 a 73 | `route__drc_errors__iter:0` de `asic/rom/resultados/final` y de `u2_u50`, `u2_u60`, `u2_u70`, `u2_u72` y `u2_u73` |
-| utilización donde se acaba el lugar | 80 por ciento | 79 por ciento en v1; **75 por ciento con el diseño nuevo** | `asic/final.md`; `asic/rom/resultados/u2_u75/falla.txt` |
+| utilización donde se acaba el lugar | 80 por ciento | 79 por ciento en v1; **74 por ciento con el diseño nuevo** | `asic/final.md`; `asic/rom/resultados/u2_u74/falla.txt` |
 
 Dato que conviene decir: con el diseño nuevo las violaciones iniciales del ruteo detallado sí siguen
 tendencia creciente con la utilización (2.219, 2.189, 2.793, 3.252, 3.144), al contrario que en v1,
@@ -1672,7 +1881,7 @@ ciento, contra 0 a 40 por ciento), lo que da un segundo argumento para no subir 
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
 | reparto por función | entradas al oeste, displays al este, LEDs al norte, SPI al sur | no cambia, y el layout nuevo lo confirma pin por pin | `asic/rom/pines.cfg`; `asic/rom/resultados/final/layout/bloques.txt`, lista de terminales (btn y clk y rst_n en Metal3 al oeste, led en Metal2 al norte, seg1 y seg2 en Metal3 al este, spi en Metal2 al sur) |
-| comparación con los terminales automáticos | más 0,4 por ciento de cable, mismo WNS | **por medir** (hay que repetir la corrida de `asic/rom/config_pines_auto.yaml` con el RTL y la configuración nuevos) | `asic/final.md`, sección "Historia: terminales ubicados por el flujo (sin D21)" (u1_auto, de v1) |
+| comparación con los terminales automáticos | más 0,4 por ciento de cable, mismo WNS | **por medir** (hay que repetir la corrida de `asic/rom/config_pines_auto.yaml` con el RTL y la configuración nuevos; `asic/final.md` lo dice con esas palabras: "No se repitió con la configuración nueva") | `asic/final.md`, sección "Historia: terminales ubicados por el flujo (sin D21)" (u1_auto, de v1: 182.204 µm² de celdas y WNS 65,213 contra 65,223) |
 
 ### Pregunta 78 (línea 513): cuánto costaría y qué limita esa estimación
 
@@ -1680,20 +1889,21 @@ ciento, contra 0 a 40 por ciento), lo que da un segundo argumento para no subir 
 |---|---|---|---|
 | die y costo de la corrida final | 0,409 mm², 9.406 dólares | 0,419131 mm², **9.640 dólares** | `asic/rom/resultados/final/metrics.json` (`design__die__area` = 419131); `docs/decisiones.md`, D23; `docs/datos_informe.md` |
 | costo al área mínima | 70 por ciento, 5.496 dólares | en v1: 78 por ciento, 0,215545 mm², unos 4.958 dólares; **con el diseño nuevo: 73 por ciento, 0,235237 mm², unos 5.410 dólares** | `asic/final.md` (u1_u78: die 215.545 µm²); `asic/rom/resultados/u2_u73/metrics.json` (235.237 µm²); cuenta a 23.000 dólares/mm² |
-| costo de la estrategia 2 | 41.266 dólares (s2_t100, configuración de D15) | sigue valiendo para esa corrida (1,794180 mm² por 23.000 = 41.266 dólares); con el RTL nuevo **por medir** | `asic/barrido.md` (die 1794180) |
+| costo de la estrategia 2 | 41.266 dólares (s2_t100, configuración de D15) | sigue valiendo para esa corrida (1,794180 mm² por 23.000 = 41.266 dólares); con el RTL y la configuración nuevos son **41.437 dólares** (1,801610 mm², `s4_t100`), 4,3 veces el de la estrategia 1 | `asic/barrido.md` (die 1794180); `asic/ff/resultados/s4_t100/metrics.json` (1801610); `docs/datos_informe.md`, sección 3.2 |
 | lo que el modelo lineal ignora | cupo de la oblea, pads, anillo de sello, encapsulado, máscaras, volumen y rendimiento | no cambia | la respuesta actual |
 
 **Cómo queda la respuesta.** A 23.000 dólares/mm²: la final 0,419 mm² da 9.640 dólares, y el área
-mínima medida con el diseño nuevo (73 por ciento de utilización) 0,235 mm², unos 5.410 dólares. El
-dato que conviene agregar para la defensa es que el área de celdas sube 14,4 por ciento con D23 pero
-el costo sube solo 2,5 por ciento, porque el die lo fija `FP_CORE_UTIL` sobre el área de la síntesis y
-no el área que ocupan las celdas después del resizer (pregunta nueva 143).
+mínima medida con el diseño nuevo (73 por ciento de utilización) 0,235 mm², unos 5.410 dólares; la
+estrategia 2 con la misma configuración, 1,802 mm² y 41.437 dólares. El dato que conviene agregar para
+la defensa es que el área de celdas sube 14,4 por ciento con D23 pero el costo sube solo 2,5 por
+ciento, porque el die lo fija `FP_CORE_UTIL` sobre el área de la síntesis y no el área que ocupan las
+celdas después del resizer (pregunta nueva 143).
 
 ### Pregunta 80 (línea 525): qué decisión pesó más en área y costo
 
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
-| cuántas veces más grande es el die de la estrategia 2 | 4,6 veces | **por medir** con el RTL nuevo (1.794.180 / 419.131 = 4,3 veces si la estrategia 2 no cambiara) | `asic/barrido.md`; `asic/rom/resultados/final/metrics.json` |
+| cuántas veces más grande es el die de la estrategia 2 | 4,6 veces | **4,3 veces** medidas con el RTL y la configuración nuevos (1.801.610 / 419.131) | `asic/ff/resultados/s4_t100/metrics.json`; `asic/rom/resultados/final/metrics.json`; `docs/datos_informe.md`, sección 3.2 |
 | cuánto baja el die al subir la utilización | de 40 a 70 por ciento baja 42 por ciento | en v1: de 40 a 78 por ciento baja 47,3 por ciento (408.957 a 215.545 µm²); **con el diseño nuevo: de 40 a 73 por ciento baja 43,9 por ciento (419.131 a 235.237 µm²)** | `asic/final.md` (final y u1_u78); `asic/rom/resultados/u2_u73/metrics.json` |
 | aporte del RTL y de la configuración | pre-decodificación más configuración del flujo: 5 por ciento de celdas (3,9 por ciento de die) | pipeline más modelo de cable: 14,4 por ciento de celdas y **2,5 por ciento de die** (408.957 a 419.131 µm²) | `docs/decisiones.md`, D23 |
 
@@ -1751,8 +1961,8 @@ La fórmula (potencia dinámica proporcional a alfa por C por V al cuadrado por 
 
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
-| reparto de la estimación sin actividad | flip-flops 58,6 por ciento y árbol de reloj 41,3 por ciento, combinacional 3 µW | secuencial 52,2 por ciento y reloj 47,7 por ciento, combinacional 3,56 µW (0,0 por ciento) | `asic/rom/runs/final/57-openroad-stapostpnr/nom_tt_025C_5v00/power.rpt`, columna de porcentajes; tabla repetida en `docs/hechos_flujo.md`, sección 10 |
-| "para un número real habría que simular el juego" | pendiente | **ya está medido en los dos diseños**. En v1: 11,504 mW en la ventana de polling y 12,755 mW en la espera de 3 s, contra 8,971 mW de la estimación del flujo (nom_tt). En la corrida final nueva: 9,734 mW solo reloj, 13,936 mW en polling (+44,9 por ciento), 16,615 mW en la espera de 3 s (+72,7 por ciento), 15,906 mW alrededor del 01 del display y 15,912 mW en la ráfaga, todo en nom_tt, contra 9,620 mW del flujo | `asic/potencia/resultado.md`, sección 1 (corrida nueva, `bash asic/potencia/correr.sh todo`, reportes en `asic/potencia/resultados/`); `asic/potencia/resultado_v1.md`, sección 1 (v1, reportes en `asic/potencia/resultados_v1/`) |
+| reparto de la estimación sin actividad | flip-flops 58,6 por ciento y árbol de reloj 41,3 por ciento, combinacional 3 µW | secuencial 52,2 por ciento y reloj 47,7 por ciento, combinacional 3,56 µW (0,0 por ciento) | `asic/rom/runs/final/57-openroad-stapostpnr/nom_tt_025C_5v00/power.rpt`, columna de porcentajes; tabla repetida en `docs/hechos_flujo.md`, sección 10, y en `asic/potencia/resultado.md`, sección 3 |
+| "para un número real habría que simular el juego" | pendiente | **ya está medido en los dos diseños**. En v1: 11,504 mW en la ventana de polling y 12,755 mW en la espera de 3 s, contra 8,971 mW de la estimación del flujo (nom_tt). En la corrida final nueva: 9,734 mW solo reloj, 13,936 mW en polling (+44,9 por ciento), 16,615 mW en la espera de 3 s (+72,7 por ciento), 15,906 mW alrededor del 01 del display y 15,912 mW en la ráfaga, todo en nom_tt, contra 9,620 mW del flujo | `asic/potencia/resultado.md`, secciones 1 a 3 (corrida nueva, `bash asic/potencia/correr.sh todo`, reportes en `asic/potencia/resultados/`); `asic/potencia/resultado_v1.md`, sección 1 (v1, reportes en `asic/potencia/resultados_v1/`) |
 | fuga por temperatura | 1,9 µW a 25 °C y 12,3 µW en la esquina lenta | 2,05 µW a 25 °C y 13,1 µW en max_ss | `power.rpt` de `nom_tt_025C_5v00` (2.051293e-06) y de `max_ss_125C_4v50` (1.310728e-05) de la corrida final |
 
 **Cómo queda la respuesta.** Es una cota inferior, y ahora se sabe por cuánto. El flujo no recibe
@@ -1771,7 +1981,7 @@ con 21,279 mW en la ventana de espera. La fuga sí cambia con la temperatura: 2,
 
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
-| buffers del árbol | 75 en 3 niveles (66 `clkbuf_8` y 9 `clkbuf_16`) | el CTS crea 122 buffers de reloj (121 `clkbuf_8` y 1 `clkbuf_16`); el layout termina con 172 buffers de reloj y 28 inversores | `asic/rom/runs/final/35-openroad-cts/openroad-cts.log` (CTS-0018); `docs/hechos_flujo.md`, sección 6.2; `asic/rom/resultados/final/metrics.json`, `class:clock_buffer` y `class:clock_inverter` |
+| buffers del árbol | 75 en 3 niveles (66 `clkbuf_8` y 9 `clkbuf_16`) | el CTS crea 122 buffers de reloj (121 `clkbuf_8` y 1 `clkbuf_16`); el layout termina con 172 buffers de reloj y 28 inversores | `asic/rom/runs/final/35-openroad-cts/openroad-cts.log` (CTS-0018) y `cts.rpt` (121 y 1); `docs/hechos_flujo.md`, sección 6.2; `asic/rom/resultados/final/metrics.json`, `class:clock_buffer` y `class:clock_inverter` |
 | cargas ficticias | 61 | 78 | `openroad-cts.log` (CTS-0207 "Dummy loads inserted 78"); v1: 61 en el mismo mensaje de `v1_final_run` |
 | flip-flops que alimenta | 990 | 964 sumideros, agrupados en 105 | `openroad-cts.log` (CTS-0010 "has 964 sinks" y CTS-0019 "Total number of sinks after clustering: 105"); v1: 990 y 66 |
 | niveles del H-Tree | 3 | **4** (nivel 1 horizontal con 53 sumideros por subregión, 2 vertical con 27, 3 horizontal con 14, 4 vertical con 7) | `docs/hechos_flujo.md`, sección 6.4 ("cuatro niveles, no tres como en v1"); `openroad-cts.log`, CTS-0034, líneas 62 a 81 |
@@ -1780,8 +1990,9 @@ con 21,279 mW en la ventana de espera. La fuga sí cambia con la temperatura: 2,
 
 Ojo con la respuesta vieja: decía "75 buffers en 3 niveles". Los dos números cambian, pero por motivos
 distintos: los buffers suben a 122 porque con los RC medidos el largo máximo de cable sin buffer baja
-de 11.309 a 4.491 µm (`openroad-cts.log`, RSZ-0058; `docs/hechos_flujo.md` sección 6.4), y los niveles
-del H-Tree pasan de 3 a 4 porque hay más sumideros agrupados que repartir.
+de 11.309 a 4.491 µm (`openroad-cts.log`, RSZ-0058, en `v1_final_run` y en `final`;
+`docs/hechos_flujo.md` sección 6.4), y los niveles del H-Tree pasan de 3 a 4 porque hay más sumideros
+agrupados que repartir.
 
 ### Pregunta 87 (línea 570): cómo se obtienen los parásitos que usa el STA
 
@@ -1792,7 +2003,8 @@ hizo: por omisión usa un solo par de valores, el promedio de las capas de ruteo
 extrae del ruteo detallado; la configuración final le da los valores por capa y por esquina con
 `LAYERS_RC`, para que el resizer y el CTS decidan con parásitos parecidos a los finales. Es la antesala
 natural de las preguntas nuevas 141 y 142. Dato: `asic/modelo_cable.md`, secciones 1 y 2;
-`docs/modelo_cable.md`, secciones 1 y 2.
+`docs/modelo_cable.md`, secciones 1 y 2 (la tabla de la sección 2 trae los factores 2,93 / 2,59 / 2,30
+de capacidad y 2,18 / 1,99 / 1,81 de resistencia).
 
 ### Pregunta 88 (línea 580): qué resultados de signoff tienen
 
@@ -1821,18 +2033,21 @@ las coordenadas donde debía caer, y 0 marcadores sobre el GDS sin modificar. Da
 
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
-| el caso de la antena | 1 net en s2_t100 (net3342, pin `fanout3341/I`, razón 449,1 contra el máximo de 400, 1,12 veces) | sigue siendo cierto y hay que decir explícitamente de qué corrida sale: la estrategia 2 de v1 | `asic/ff/resultados/s2_t100/antenna_summary.rpt`; `docs/datos_informe.md`, sección 3.6 |
+| el caso de la antena | 1 net en s2_t100 (net3342, pin `fanout3341/I`, razón 449,1 contra el máximo de 400, 1,12 veces) | sigue siendo cierto y hay que decir explícitamente de qué corrida sale: la estrategia 2 de v1, con la configuración de D15 | `asic/ff/resultados/s2_t100/antenna_summary.rpt`; `docs/datos_informe.md`, sección 3.6 |
 | celdas de antena de la corrida final | 0 | 1 (con 0 nets en violación) | `asic/rom/resultados/final/metrics.json`, `design__instance__count__class:antenna_cell` = 1 y `antenna_diodes_count` = 1 (en v1 la clave de celdas de antena no existe y `antenna_diodes_count` es 0) |
+| la estrategia 2 con la configuración final | no existía | **0 nets en violación** y 6 diodos insertados por el flujo (7 celdas de antena) | `asic/ff/resultados/s4_t100/metrics.json`; `docs/datos_informe.md`, sección 3.2, punto 3 |
 
 **Cómo queda la respuesta.** Hay que presentarla como un hallazgo de v1, con su corrida: una violación
 de antena en la estrategia 2 (`s2_t100`), donde el net `net3342` reparte una señal de alto fanout
 entre cinco buffers sobre 666 x 364 µm y en el pin `fanout3341/I` la razón entre el área lateral del
 Metal2 conectado y el área de compuerta es 449,1, es decir 1,12 veces el máximo de 400. La estrategia 1
 no la tuvo nunca, con un matiz nuevo que conviene decir: la corrida final nueva inserta una celda de
-antena donde v1 no insertaba ninguna, y sigue con 0 nets en violación. **Ojo**: el mapa de la etapa 1
-afirma que con el core nuevo la violación desaparece (citando `e2_t100` con 0 nets); en `main`,
-`asic/ff/resultados/e2_t100/metrics.json` informa `antenna__violating__nets = 1`, 153 celdas de antena
-y 93 diodos, así que ese dato no reproduce y no hay que usarlo.
+antena donde v1 no insertaba ninguna, y sigue con 0 nets en violación. **Y la violación desapareció
+también del lado de la estrategia 2**: con el core y la configuración de D23, `s4_t100` cierra con
+0 nets en violación y 6 diodos. El mapa de la etapa 1 acertaba en eso, pero citaba mal: el `e2_t100`
+de `main` (`asic/ff/resultados/e2_t100/metrics.json`) es una corrida temprana con el RTL de v1 e
+informa `antenna__violating__nets = 1`, 153 celdas de antena y 93 diodos, así que esa cita no sirve;
+la buena es `s4_t100` (aviso de colisión de tags en `asic/ff/resultados/LEEME.md`).
 
 ### Pregunta 93 (línea 609): cómo resolvieron la violación de antena
 
@@ -1841,6 +2056,7 @@ y 93 diodos, así que ese dato no reproduce y no hay que usarlo.
 | diodos heurísticos | 0 violaciones, 36.385 celdas de antena, 18 por ciento más de área, 16 ns menos de slack | sigue valiendo como medición de v1 (área 838.173 a 992.171 µm², WNS 39,65 a 23,65 ns) | `docs/datos_informe.md`, sección 3.6; `asic/ff/resultados/s2_t100_diodos/` |
 | más iteraciones y margen en el ruteo global | 0 violaciones con 258 celdas de antena en vez de 150, sin más área | sigue valiendo como medición de v1 (833.559 µm², WNS 30,03 ns) | idem; `asic/ff/resultados/s2_t100_antrep/` |
 | "la estrategia 1 nunca la tuvo" | cierto | cierto, con el matiz de que la corrida final nueva inserta 1 celda de antena | `asic/rom/resultados/final/metrics.json` |
+| hace falta todavía alguna de las dos soluciones | sí, para la estrategia 2 | **no con la configuración final**: `s4_t100` cierra con 0 nets y 6 diodos, sin las perillas de antena | `asic/ff/resultados/s4_t100/metrics.json`; `asic/ff/config_final.yaml` (no define `GRT_ANTENNA_REPAIR_*`) |
 
 ### Pregunta 96 (línea 628): cómo marcaron el register file, la ALU y el contador
 
@@ -1848,11 +2064,14 @@ No cambia ninguna cifra (la pregunta no cita números): el método es el mismo, 
 sobreviven en el DEF y `asic/layout/anotar.py` los colorea. Lo que hay que decir es que las figuras y
 sus archivos de datos se regeneraron a partir de la corrida final nueva:
 `asic/rom/resultados/final/layout/bloques.png`, `bloques.lyrdb`, `bloques.txt`, `ruta_critica.png`,
-`ruta_critica.txt`, `slew.png` y `slew.txt`, más los siete equivalentes de `f2_t21p5`. Lo único que
-sigue abierto es a qué módulo pertenece el flip-flop de llegada de la ruta crítica del período mínimo
-(pregunta 40): el `ruta_critica.txt` numerado de `f2_t21p5` ya existe y lista las 39 celdas, pero la
-entrada 39 (`_4440_`, un `dffrnq_1`) aparece como "logica aplanada sin nombre jerarquico", así que hay
-que correr el anotador sobre el netlist jerárquico para ponerle módulo.
+`ruta_critica.txt`, `slew.png` y `slew.txt`, más los siete equivalentes de `f2_t21p5`. Lo que el mapa
+de la etapa 1 daba por abierto (a qué módulo pertenece el flip-flop de llegada de la ruta crítica del
+período mínimo, pregunta 40) **ya está resuelto**: `asic/rutas.md`, líneas 17 a 25, lo busca en el
+netlist de la corrida (`grep -A3 "dffrnq_1 _4440_" asic/rom/runs/f2_t21p5/final/nl/asic_top.nl.v`) y
+devuelve `.Q(\u_soc.u_periph.digit_q[4] )`, es decir el bit 4 del registro del display del periférico.
+El `ruta_critica.txt` de `f2_t21p5` sigue mostrando esa entrada 39 como "logica aplanada sin nombre
+jerarquico", así que lo que queda es de forma: correr el anotador sobre el netlist jerárquico para que
+la figura también lo nombre.
 
 ### Pregunta 97 (línea 634): por qué el register file mide distinto en la figura y en la síntesis
 
@@ -1883,6 +2102,8 @@ hace dos subcorridas (`drt-run-0` y `drt-run-1`) y en v1 hacía una (`docs/hecho
 
 ### Pregunta 101 (línea 660): cómo sabe el testbench qué botón apretar
 
+La pregunta no cita ciclos, pero su respuesta se apoya en los estímulos versionados, y esos sí cambian.
+
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
 | ciclo en que se enciende el LED objetivo de la ronda 1 | 781 | 615 | `asic/sim/estimulos.txt`, comentario de la ronda 1; el 781 en `git show v1-final:asic/sim/estimulos.txt`; `docs/pipeline.md`, sección 3.6 |
@@ -1904,7 +2125,7 @@ hace dos subcorridas (`drt-run-0` y `drt-run-1`) y en v1 hacía una (`docs/hecho
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
 | atraso del control negativo | 6 ciclos | 8 ciclos | `asic/sim/resultado.md`, sección Control negativo; `docs/verificacion/integracion.md`, fila 14 |
-| qué muestra el display con el atraso | 70 en vez de 57 | 59 en vez de 51, en el ciclo 1.089 | `asic/sim/resultado.md`, sección Control negativo ("primera diferencia en la linea 5: RTL=(1033, '0010', '51') netlist=(1089, '0010', '59')") |
+| qué muestra el display con el atraso | 70 en vez de 57 | 59 en vez de 51, en el ciclo 1.089 | `asic/sim/resultado.md`, línea 40 ("primera diferencia en la linea 5: RTL=(1033, '0010', '51') netlist=(1089, '0010', '59')") |
 | atraso más grande que no cambia la traza | 5 ciclos | 7 ciclos | idem |
 | duración del lazo de polling | 13 ciclos | 8 ciclos | idem; `docs/pipeline.md`, sección 3.6 |
 
@@ -1919,8 +2140,8 @@ netlists de los dos diseños, y los dos resultados ya están escritos:
 |---|---|---|
 | eqy contra el netlist de síntesis | PASS, 22 de 22 particiones (21 por `sat`, 1 por `pdr`) | **29 de 30 particiones**; la grande, `asic_top.led.0` (807 salidas), queda sin decidir: `sat` agota sus 5 pasos y `pdr` da un contraejemplo desde un estado inicial inalcanzable |
 | eqy contra el netlist post-PnR | PASS, 21 de 21 particiones | 29 de 30, con la misma partición grande (799 salidas) sin decidir |
-| flujo clásico de Yosys (`equiv_make`, `equiv_simple -seq 2`, `equiv_induct -seq 4`) | PASS: 1.002 celdas `$equiv` contra la síntesis (3 + 999) y 994 contra el post-PnR (3 + 991) | **PASS, y es la prueba que cierra el caso**: 976 celdas `$equiv`, 5 por `equiv_simple` y 971 por `equiv_induct`, 0 sin probar |
-| miter completo desde reset (sby, `smtbmc yices`) | PASS a 24 pasos contra los dos netlists y a 100 pasos contra el de síntesis | PASS a 24 pasos contra el de síntesis |
+| flujo clásico de Yosys (`equiv_make`, `equiv_simple -seq 2`, `equiv_induct -seq 4`) | PASS: 1.002 celdas `$equiv` contra la síntesis (3 + 999) y 994 contra el post-PnR (3 + 991) | **PASS, y es la prueba que cierra el caso**: 976 celdas `$equiv` contra la síntesis (5 por `equiv_simple` y 971 por `equiv_induct`, 0 sin probar) y **968 contra el post-PnR** (5 + 963, 0 sin probar) |
+| miter completo desde reset (sby, `smtbmc yices`) | PASS a 24 pasos contra los dos netlists y a 100 pasos contra el de síntesis | **PASS a 24 pasos y a 100 pasos** contra el netlist de síntesis (`asic/eqy/resultados/sint_v1ff/bmc_24_resumen.txt` y `asic/eqy/resultados/sint_v1/bmc_100_resumen.txt`, los dos con "DONE (PASS, rc=0)") |
 | control negativo (una celda cambiada en la ALU) | eqy FAIL, como corresponde | eqy **no discrimina** (la partición que contiene la ALU es la que queda sin decidir) y el BMC de 24 pasos tampoco; el que sí discrimina es el flujo clásico: prueba 776 de 976 celdas y deja 200 sin probar |
 | paso `Yosys.EQY` del flujo | falla: con el guion genérico no encuentra `game_image.vh`; con guion propio, la imagen de LibreLane no trae `make`, que eqy necesita | igual, no depende del diseño |
 
@@ -1984,7 +2205,7 @@ si esa instrucción lee el registro que la actual acaba de escribir. Un ciclo, s
 |---|---|---|---|
 | ciclos de un `lw` | 3 | 2 | `docs/pipeline.md`, sección 1, tabla de temporización |
 | de dónde sale el offset de alineación | `addr[1:0]` de la salida de la ALU en el mismo ciclo | la copia registrada de `addr_i[1:0]` que la LSU guardó al emitir la carga (B2) | `rtl/espino_core/espino_load_store_unit.v`; `asic/sintesis.md`, desglose de `dffq_1` (`addr_q[1:0]`, 2 flip-flops en la LSU) |
-| qué hace el banco durante el stall | leía igual | no vuelve a leer (`rf_rd_en_o = ~stall_i`, el `advance` del bloque `g_early`) y conserva los operandos de la carga | `docs/pipeline.md`, sección 2 (riesgo 2); `rtl/espino_core/espino_id_stage.v`, líneas 123 y 147 |
+| qué hace el banco durante el stall | leía igual | no vuelve a leer (`rf_rd_en_o = ~stall_i`, el `advance` del bloque `g_early`) y conserva los operandos de la carga | `docs/pipeline.md`, sección 2 (riesgo 2); `rtl/espino_core/espino_id_stage.v`, líneas 122 (`wire advance = ~stall_i;`) y 147 (`assign rf_rd_en_o = advance;`) |
 
 **Cómo queda la respuesta.** Igual que un `add` hasta la ejecución. En el ciclo 1 la ALU calcula la
 dirección, la LSU emite la lectura y registra los dos bits bajos de la dirección, y `busy` detiene el
@@ -2037,7 +2258,8 @@ palabra con `addr[1:0]` del ciclo, sino con la copia registrada de `addr_i[1:0]`
 la carga (B2). Vale decirlo porque es la razón por la que la alineación salió de la ruta crítica y por
 la que la LSU tiene dos flip-flops nuevos (pasa de 1 a 3). Dato:
 `rtl/espino_core/espino_load_store_unit.v`; `asic/sintesis.md`, tabla de área por módulo
-(`espino_load_store_unit`, 3 flip-flops locales), contra `git show v1-final:asic/sintesis.md` (1).
+(`espino_load_store_unit`, 3 flip-flops locales), contra `git show v1-final:asic/sintesis.md`, línea 28
+(1).
 
 ### Pregunta 115 (línea 742): qué pasa con una instrucción ilegal
 
@@ -2074,35 +2296,40 @@ igual a 3,92 µm de alto de fila) no cambia.
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
 | frecuencia que aguanta por timing | 40 MHz | 46,5 MHz | `asic/rom/resultados/f2_t21p5/cierre.md` |
-| lo que respalda el "sí" | DRC, LVS y antenas limpios, timing en 9 esquinas, netlist simulado | igual, y ahora además con **equivalencia formal y simulación con SDF sobre el netlist nuevo**: el RTL y los dos netlists de la corrida final son equivalentes por el flujo clásico de Yosys (976 de 976 celdas `$equiv`) y la traza con retardos anotados es idéntica a la del RTL en tres esquinas, reproducible en nueve corridas | `asic/rom/resultados/final/cierre.md`; `docs/equivalencia.md`; `asic/sim/resultado_sdf.md` |
+| lo que respalda el "sí" | DRC, LVS y antenas limpios, timing en 9 esquinas, netlist simulado | igual, y ahora además con **equivalencia formal y simulación con SDF sobre el netlist nuevo**: el RTL y los dos netlists de la corrida final son equivalentes por el flujo clásico de Yosys (976 de 976 celdas `$equiv` contra el de síntesis y 968 de 968 contra el post-PnR) y la traza con retardos anotados es idéntica a la del RTL en tres esquinas, reproducible en nueve corridas | `asic/rom/resultados/final/cierre.md`; `docs/equivalencia.md`, sección 1; `asic/sim/resultado_sdf.md` |
 
 Lo demás no cambia: faltan pads de I/O, anillo de sello, encapsulado y plan de pruebas, y con estas
 constantes el reloj tiene que ser de 10 MHz exactos.
 
 ### Pregunta 132 (línea 850): qué harían con una semana más
 
-No cambia ninguna cifra porque la respuesta es una lista de pendientes, pero de las cuatro cosas que
-lista **tres ya están hechas** y la cuarta (B5) quedó descartada con una razón medida, así que hay que
-reescribirla entera.
+No cambia ninguna cifra porque la respuesta es una lista de pendientes, pero de las **cinco** cosas que
+lista (B2, B5, el slew, la simulación con SDF y la equivalencia formal) **cuatro ya están hechas** y la
+quinta (B5) quedó descartada con una razón medida, así que hay que reescribirla entera.
 
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
 | integrar B2 (24 ns) | pendiente | **hecho**: B2 está en la corrida final (D23) | `docs/decisiones.md`, D23 |
 | integrar B5 (-9 por ciento de área) | pendiente | **descartado con razón medida**: con este pipeline sube el período a 29 ns | `asic/exploraciones.md`, fila `exp/pipeline-b5`; `docs/pipeline.md`, sección 5.1 |
-| cerrar las violaciones de slew sin pasar el 1 por ciento de área | pendiente | **hecho**, pero no con ese presupuesto: 0 violaciones al precio de 14,4 por ciento de área de celdas, con el die y el costo sin cambio | `asic/rom/resultados/final/metrics.json`; `docs/decisiones.md`, D23 |
+| cerrar las violaciones de slew sin pasar el 1 por ciento de área | pendiente | **hecho**, pero no con ese presupuesto: 0 violaciones al precio de 14,4 por ciento de área de celdas, con el die y el costo casi sin cambio (2,5 por ciento de die) | `asic/rom/resultados/final/metrics.json`; `docs/decisiones.md`, D23 |
 | simulación con SDF reproducible | pendiente | **hecha con el netlist nuevo** (corrida `d2_pnr`, tres esquinas, Icarus 13.0 y CVC 7.00b, nueve trazas con un solo md5) | `asic/sim/resultado_sdf.md` |
-| verificación formal de equivalencia | pendiente | **hecha con el netlist nuevo** (eqy 0.68 prueba 29 de 30 particiones; la prueba la cierra el flujo clásico de Yosys con 976 de 976 celdas `$equiv`) | `docs/equivalencia.md` |
+| verificación formal de equivalencia | pendiente | **hecha con el netlist nuevo** (eqy 0.68 prueba 29 de 30 particiones; la prueba la cierra el flujo clásico de Yosys con 976 de 976 celdas `$equiv` contra la síntesis y 968 de 968 contra el post-PnR) | `docs/equivalencia.md` |
 
 **Cómo queda la respuesta.** De la lista vieja no queda nada abierto: B2 entró, B5 se descartó con
 medición, el slew quedó en 0 y la equivalencia formal y la simulación con SDF están hechas sobre el
-netlist nuevo. Lo que queda, dicho con nombre y apellido: registrar `illegal_insn_o` para que no
-quede desfasada (observación O3, hoy solo documentada en el RTL); repetir con la configuración final
-las dos corridas de la comparación de estrategias de memoria (`s3_t100` y `s4_*`) y la de terminales
-automáticos, que son los dos huecos reales que quedan en el informe; barrer el período de `pr_*` para
-cuantificar el aporte de B2 sobre este pipeline (hoy solo está el punto de 100 ns); cerrar la
-partición grande que eqy deja sin decidir, o dejar explicado por qué la prueba la da el flujo clásico;
-y evaluar si el banco de latches vuelve a convenir con alguna variante del pipeline que le devuelva la
-holgura que perdió.
+netlist nuevo. Tampoco siguen abiertos los dos huecos que el mapa de la etapa 1 daba por pendientes:
+la comparación de las dos estrategias de memoria con la configuración final ya se corrió (`s3_t100` y
+`s4_t100`, en `docs/datos_informe.md` sección 3.2) y el aporte de B2 sobre este pipeline ya está
+medido con el barrido `pr_*` (1,5 ns de período). Lo que queda, dicho con nombre y apellido:
+registrar `illegal_insn_o` para que no quede desfasada (observación O3, hoy solo documentada en el
+RTL); terminar el barrido de período de la estrategia 2 por debajo de 50 ns (`s4_t45` y `s4_t42` están
+corriendo) y agregar el punto de 22,5 ns del barrido `pr_*`, que son los dos tramos de resolución que
+faltan para cumplir la regla de los 0,5 ns; repetir la corrida de terminales automáticos con la
+configuración nueva, que es el hueco real que queda en la sección 3.5; volver a correr
+`asic/tablas.sh` para que `asic/final.md` incorpore los puntos nuevos y la sección de la estrategia 2;
+cerrar la partición grande que eqy deja sin decidir, o dejar explicado por qué la prueba la da el
+flujo clásico; y evaluar si el banco de latches vuelve a convenir con alguna variante del pipeline que
+le devuelva la holgura que perdió.
 
 ## Preguntas cuya respuesta deja de ser válida aunque no citen números
 
@@ -2145,14 +2372,18 @@ explicar es el matiz: eqy deja una partición sin decidir con el diseño nuevo y
 flujo clásico de Yosys. Fuente: `docs/equivalencia.md`, `asic/sim/resultado_sdf.md`.
 
 **7. Que la ROM combinacional es solo la opción más barata de guardar el programa.** Preguntas 24, 26,
-27 y 30. Pasa a ser condición del pipeline: sin salida combinacional no se puede pedir la lectura del
-banco un ciclo antes, y por eso la estrategia 2 corre con la temporización vieja. Es un argumento más a
-favor de D17. Fuente: `docs/pipeline.md`, sección 1 y su subsección de estrategia 2.
+27 y 30. Pasa a ser condición del pipeline: la lectura del banco un ciclo antes se pide con su salida
+combinacional, y por eso la estrategia 2 corre con la temporización vieja (`EarlyRead = 0`, CPI 2,665
+contra 1,665). El matiz hay que decirlo bien: la memoria unificada en flip-flops también expone un
+puerto `a_next_o`, así que estructuralmente podría anticipar, pero el mux de 119 palabras en el camino
+la haría impracticable, y por eso `pochoco_soc` fija `EarlyRead = (MemStrategy == 1) ? 1 : 0`. Es un
+argumento más a favor de D17. Fuente: `docs/pipeline.md`, sección 1 y su subsección de estrategia 2;
+`docs/datos_informe.md`, sección 3.2, punto 1.
 
 > **Nota de procedencia.** Todo lo anterior (el resumen por tema, las 81 preguntas afectadas y las
-> respuestas que dejan de ser válidas) pasó por una revisión adversaria que reabrió `docs/defensa.md`
-> y cada archivo citado. Lo que sigue, las preguntas nuevas, es la redacción original: la revisión se
-> cortó antes de llegar acá.
+> respuestas que dejan de ser válidas) pasó por la misma revisión adversaria, que reabrió
+> `docs/defensa.md` y cada archivo citado; sus correcciones están en el apéndice. Lo que sigue, las
+> 15 preguntas nuevas, es la redacción original sin esa segunda pasada.
 
 ## Preguntas nuevas
 
@@ -2308,8 +2539,6 @@ préstamo de tiempo, así que el WNS de setup que informa (0,000 exacto en las n
 margen; y su banco de latches nunca pasó por una simulación con retardos anotados. Dato:
 `asic/exploraciones.md`, filas `exp/rf-latch` y `exp/pipeline-b5`; `docs/pipeline.md`, sección 5.1;
 `docs/revision_frente_a.md`, O2.
-FINDELBLOQUE
-echo OK
 ### 141. [B] Qué es el modelo de cable del resizer y por qué lo cambiaron
 
 El resizer es el paso que arregla el timing cambiando tamaños de celdas y agregando buffers, y trabaja
@@ -2477,8 +2706,7 @@ violaciones de max slew desaparecen. Dato: `docs/revision_frente_a.md`, O3; `doc
 | el módulo al que pertenece el flip-flop de llegada de la ruta crítica del período mínimo | `bash asic/layout/anotar.sh asic/rom/runs/f2_t21p5` sobre el netlist jerárquico | 40 |
 | el número y el paso de las franjas de la red de alimentación, y el rango completo de latencia del reloj | pasos `21-openroad-generatepdn` y `35-openroad-cts` de la corrida final, como se hizo para `docs/hechos_flujo.md` | 81, 86 |
 | el desglose de la estimación de potencia sin actividad por fuente (pines CLK contra árbol de reloj) | `asic/potencia/resultados/` con el netlist nuevo | 85 |
-FINDELBLOQUE
-echo OK; wc -l '/tmp/claude-1000/-home-nicolasaraneda-proyectos-Proyecto3-Arquitectura-De-Computadores/eee45f6f-ddb9-49f9-b6c1-6e6ce091e288/scratchpad/cambios_informe_parte2.md'
+
 ---
 
 # Cierre: lo que decía "por medir" y ya está medido
@@ -2508,3 +2736,251 @@ el detalle, con el archivo de origen de cada cifra, está en `docs/datos_informe
 el experimento de sensibilidad al estado inicial de los flip-flops sin reset, la potencia de la
 estrategia 2, y las dos mediciones de la sección 3.5 que no se repitieron con la configuración nueva
 (el die de aspecto 1,6:1 y los terminales ubicados por el flujo, que siguen comparando contra v1).
+
+
+---
+
+# Apéndice: qué corrigió la revisión adversaria
+
+Las dos partes de arriba se escribieron primero y se revisaron después, reabriendo cada archivo
+citado. Esta es la lista de lo que la revisión cambió: sirve para auditarla y para no volver a citar
+una cifra ya corregida. El alcance llega hasta donde lo dice cada "Nota de procedencia".
+
+## Parte 1, el informe
+
+
+Revisión adversaria hecha el 29-10-2026 contra los archivos del repositorio, reabriendo cada archivo
+de origen y cada línea citada de `informe/main.tex`.
+
+**Alcance: 187 cifras, nombres de archivo, números de línea y afirmaciones de estado revisados; 14
+estaban mal.** Lo que se corrigió, en orden de gravedad:
+
+1. **Tabla 1 `tab:cierre`**: decía "se rehace completa (4 de 6 filas cambian de cifra o de esquina)".
+   Solo cambian **2 de las 6** filas (setup y hold). Las de DRC de Magic, DRC de KLayout, LVS y
+   antenas están en 0 en las dos corridas y la peor esquina no cambia en ninguno de los dos casos
+   (`asic/rom/resultados/final/cierre.md` y `v1_final/cierre.md`). Por arrastre se corrigió el conteo
+   del encabezado: se rehacen completas **7** tablas, no 8.
+2. **Tabla 3 `tab:estrategias`**: decía que `s3_t100` y `s4_t100` estaban "por medir, las dos
+   encoladas". Las dos **ya corrieron** con código 0 el 28-10-2026 (`s3_t100` a las 21:55, `s4_t100`
+   a las 22:12), más `s4_t65`, `s4_t60`, `s4_t55` y `s4_t50`, y están versionadas. Lo único por
+   medir es el período mínimo de la estrategia 2 (`s4_t45`, `s4_t42` y `s4_t40`, encoladas el
+   29-10-2026 a las 00:32).
+3. **Tabla 11 `tab:util` y párrafo 8**: decían que faltaba `u2_u74` y que "está encolada
+   (`asic/logs/cola_estado.txt`, entrada 154)". `u2_u74` **falló** con código 2 el 28-10-2026 a las
+   21:50:40 en `OpenROAD.RepairDesignPostGRT` (paso 41) con 18 instancias sin lugar, y su
+   `falla.txt` está versionado. Son **cinco** las corridas que fallan (74, 75, 78, 80 y 90 %), no
+   cuatro, y la utilización máxima que cierra con la configuración nueva es **73 %** (die
+   235.237 µm², 0,235 mm²), dato que el documento no decía en ninguna parte.
+4. **Párrafo 12 (línea 439, SDF)**: decía "Lo que falta es la simulación con SDF sobre ese netlist
+   ...: `asic/sim/resultado_sdf.md` todavía documenta `d1_pnr` y no menciona `d2_pnr`". Es falso:
+   ese archivo documenta `d2_pnr` en tres esquinas con los dos simuladores, 18 ejecuciones con un
+   solo md5 `5b6cebfb898a90a258b592fb29e64651`, **0 violaciones de timing** con 7.173 checks activos
+   y control positivo, más una corrida de 320.000 ciclos sobre el netlist real de la corrida final.
+5. **Párrafo 12, cifras de `d1_pnr`**: las cifras (cuatro esquinas, doce trazas, md5
+   `4f14ec05462e4789a3d873d2ba50fd97`, 7.358 checks, 977 bloques TIMINGCHECK, 2.828 instancias
+   renombradas) son correctas pero estaban citadas a `asic/sim/resultado_sdf.md`, que ya no las
+   tiene. Están en el historial de git de ese archivo (commit `c7833b9`). Y el renombrado en el
+   diseño nuevo es de **3.787** instancias y 20.939 referencias del SDF, no 2.828.
+6. **Párrafo 6, "Ojo con la fuente"**: decía que la última sección de `asic/sintesis.md` "dice
+   todavía lo contrario, 'La tabla anterior lo confirma; la novedad es que `nand2_1` queda casi a la
+   par de `mux2_2`'", y que había que corregirla. Esa frase **no está** en el archivo:
+   `asic/sintesis.md` se regeneró el 28-10-2026 a las 21:16 y dice "**No se cumplió**: la celda más
+   usada es `nand2_1`, y el flip-flop queda tercero". El párrafo entero se reemplazó.
+7. **Tabla 5 `tab:modulos`**: decía "cambian 3 áreas y los 10 porcentajes". Cambian 3 áreas de
+   módulo **y el total** (157.980 a 164.605 µm²), y de los 10 porcentajes cambian **8**: la LSU
+   queda en 1,7 % y la fila de bus, sincronizador y control no cambia ni en área (1.470 µm²) ni en
+   porcentaje (0,9 %).
+8. **Tabla 6 `tab:barrido`**: decía "Las ocho corridas `f2_*`". Son **siete** corridas `f2_*` más la
+   corrida `final` a 100 ns (ocho puntos). Y "las 10 columnas" no cambian todas: cambian las 6 de
+   WNS y la de área; las 4 de TNS siguen en 0 salvo la fila que no cierra.
+9. **Párrafo 10, encabezado**: decía "Líneas 350 y 371". El 1.546 aparece **solo en la línea 350**;
+   la 371 es sobre el DRC de Magic y el deck de KLayout. El segundo lugar donde se usa es
+   `docs/datos_informe.md` sección 3.6, que no es el informe. La frase "el informe usa el 1.546 en
+   dos lugares" se reescribió.
+10. **Párrafo 9**: decía "Las cuatro cifras de slew". Son **tres** (546, 378 y 392). Y "sube con la
+    utilización en vez de bajar" se precisó: la serie 0, 8, 0, 20, 92, 99 no baja y sube con fuerza
+    desde 70 %, pero no es monótona.
+11. **Párrafo 7**: decía que `_1838_` "viene de `lsu_addr[31]` invertido". `_1838_` es la salida de
+    un `nor2_4` (`_3825_`, línea 27823) entre `net194` y `_0384_`; el que es `lsu_addr[31]`
+    invertido es `_0384_` (`clkinv_16 _2014_`, línea 21097). Se agregó la cadena completa.
+12. **Párrafo 5**: decía que B5 "le quita 3,5 ns al período". Se lo **cuesta**: `exp/pipeline-b5`
+    cierra a 29 ns y `exp/pipeline-b2` a 25,5 ns. Y el ahorro de área de B5 se dejó anclado a sus
+    dos cifras (165.211 contra 186.432 µm²).
+13. **Tabla 13 `tab:sim`**: decía "cambian los 4 ciclos de estímulo". Cambian **3 de los 4**: el
+    primero (300 a 360) es igual en `asic/sim/estimulos.txt`. Los 5 ciclos de resultado sí cambian
+    los cinco, pero el que en el `.tex` es 426 no sale de `asic/sim/resultado.md`: sale de
+    `asic/sim/resultado_sdf.md` sección 2.2 (display 01 en el ciclo **404**). Se corrigió además la
+    cita de `docs/verificacion/b2_make_post_synth.txt`, que es de la rama `exp/pipeline-b2`: para el
+    diseño integrado el archivo es `docs/verificacion/integracion_13_post_synth.txt`.
+14. **Párrafo 4**: decía que las 15 comprobaciones de la integración "todas dan verde". Dos no dan
+    verde por diseño: la 6 difiere a propósito en las escrituras al banco y la 14 es un control
+    negativo que tiene que fallar la comparación. Se reescribió como "todas dieron el resultado que
+    se les pedía".
+
+**Lo que se agregó porque faltaba** (no es corrección de un error, pero sin esto el documento deja
+cifras sin archivo de origen o párrafos sin marcar): la línea 197 como decimotercer párrafo cuyo
+argumento cambia; las cuatro cifras del control negativo de la línea 439 (51, 8, 59 y el lazo de
+8 ciclos) y la ambigüedad entre 16 cambios y 17 líneas de traza; la corrección de "D1 a D22" a
+"D1 a D23" en la línea 40; el aviso de que `asic/final.md` quedó atrasado a las 20:57 del 28-10 y no
+sirve como fuente de las filas nuevas de `f2_t30` ni del barrido `u2_*`; el matiz de `tab:antena`
+con su cifra (0 nets en violación con el core nuevo, `s4_t100`); la serie completa de DRC por
+iteración de cada corrida `u2_*`; la serie de la brecha de utilización punto por punto; y el aviso
+de que los nombres de instancia de dos netlists distintos no se pueden mezclar.
+
+**Lo que se verificó y estaba bien** (lista no exhaustiva de los bloques más densos): las 4 columnas
+de `hechos_nuevos.md` contra `metrics.json` de `final`, `v1_final`, `f2_t21p5` y `f2_t21`; las ocho
+áreas y los ocho conteos de celdas del barrido de período; las seis filas del barrido de utilización
+nuevo (die, utilización real, WNS, hold, cables, slew y capacitancia) y las siete de v1; las tres
+series de DRC por iteración de v1, de `final` y de `f2_t21p5`; los números de línea 199, 201 y 203
+de `final/sintesis_stat.rpt`, 120 y 152 de `v1_final/sintesis_stat.rpt`, 425 y 461 de
+`h2_t100/sintesis_jerarquica.rpt` y 428 de `h3_t100/sintesis_jerarquica.rpt` (el 265 de `h3_t100`
+está en la 462 y el documento no lo decía, se agregó); las trece cantidades del desglose de
+`nand2_1` y su total de 785; los cuatro valores del modelo de cable del tech LEF y los seis de la
+extracción, con sus seis factores; las cuatro líneas del netlist de `f2_t21p5` (28693, 28751, 28905
+y 29924) con el texto exacto de las instancias; las dos envolventes y las dos áreas de
+`bloques.txt`, con el `design__core__bbox`; los diez números de equivalencia y mutación de
+`integracion.md`; las cuatro líneas de `pochoco_rom.v`; los cinco sellos de tiempo de figuras; y las
+líneas 188, 197, 221, 223, 227, 246, 250, 269, 289, 323, 350, 411 y 439 de `informe/main.tex`, que
+contienen de verdad las frases que este documento les atribuye.
+
+**Dos notas de procedencia.** (1) Este documento es, línea por línea, el bloque de las líneas 32 a
+404 de `docs/cambios_informe.md` del repositorio, así que los 14 errores de arriba también están
+ahí y conviene arreglarlos en ese archivo cuando se lo toque. (2) El repositorio está vivo mientras
+se lo revisa: `u2_u74/falla.txt` apareció entre dos lecturas de este mismo trabajo y `pr_t22p5` se
+lanzó el 29-10 a las 00:32, así que cualquier afirmación de "por medir" hay que volver a
+comprobarla contra `asic/logs/cola_estado.txt` antes de escribirla en el informe.
+
+
+## Parte 2, la defensa
+
+
+Revisé una por una las **250 filas de datos** de las tablas de este documento (cada una con su valor
+viejo, su valor nuevo y su archivo de origen) y las **cifras del texto corrido** de las 81 entradas,
+abriendo en cada caso el archivo citado: los `metrics.json`, `cierre.md`, `avisos.md`,
+`sintesis_stat.rpt`, `layout/*.txt` y `falla.txt` de `asic/rom/resultados/`, los `runtime.txt`,
+`flow.log`, `power.rpt`, `cts.rpt` y logs de OpenROAD de `asic/rom/runs/`, `asic/final.md`,
+`asic/sintesis.md`, `asic/rutas.md`, `asic/barrido.md`, `asic/exploraciones.md`, `asic/modelo_cable.md`,
+`asic/ff/resultados/`, `asic/potencia/resultado*.md`, `asic/sim/{resultado.md,resultado_sdf.md,estimulos.txt}`,
+`asic/eqy/resultados/`, `docs/{decisiones.md,datos_informe.md,hechos_flujo.md,pipeline.md,modelo_cable.md,equivalencia.md,equivalencia_v1.md,revision_frente_a.md}`,
+`docs/verificacion/integracion.md`, el RTL (`rtl/espino_core/*.v`, `rtl/pochoco_mem_rom.v`,
+`rtl/gen/pochoco_rom.v`, `rtl/debounce.v`, `rtl/asic_top.v`), `sw/hazard_*.s` y, para cada valor
+"viejo", la línea exacta de `docs/defensa.md`. También comprobé los **81 números de línea** de
+`docs/defensa.md`: los 81 son correctos. No hay ningún carácter de raya larga en el documento y todo
+el texto está en español.
+
+**Encontré 29 errores y los corregí.** Ocho son cifras o estados presentados como pendientes que ya
+están medidos, cinco son cifras equivocadas, nueve son archivos o líneas de origen mal citados y siete
+son conteos o afirmaciones de alcance que no se sostienen:
+
+Cosas dadas por medir que ya están medidas (el documento se escribió antes de que terminaran esas
+corridas):
+
+1. **Resumen por tema, pregunta 25, 26, 27, 78 y 80**: la comparación de las dos estrategias de
+   memoria con el RTL y la configuración nuevos no está "por medir": está en
+   `docs/datos_informe.md` sección 3.2, con `s3_t100` (que reproduce la final exactamente,
+   `asic/rom/runs/s3_t100/final/metrics.json`) y `s4_t100` (`asic/ff/resultados/s4_t100/`). Agregué
+   las cifras: síntesis 696.640 µm², PnR 977.015 µm², 4.673 flip-flops, 43.960 celdas, die
+   1.801.610 µm², 2.242.954 µm de cable, 62/14 de slew/cap, setup WNS 55,558 ns, CPI 2,665.
+2. **Pregunta 26**: el costo por bit extra de la estrategia 2 pasa de "por medir" a 146,8 µm²/bit
+   ((696.640 - 156.098) / 3.681) y la diferencia con la ROM a unas 73 veces.
+3. **Pregunta 27 y 80**: el die de la estrategia 2 ya no es una hipótesis ("4,3 veces si no
+   cambiara") sino una medición: 1.801.610 / 419.131 = 4,3 veces.
+4. **Pregunta 78**: el costo de la estrategia 2 con la configuración nueva es 41.437 dólares, no
+   "por medir".
+5. **Pregunta 48, 67 y 132**: el barrido de período de `pr_*` (sin B2) ya está medido:
+   `pr_t24` 1,556 y `pr_t23` 0,463 cierran, `pr_t22` -0,597, `pr_t21p5` -0,938 y `pr_t21` -1,634 no.
+   Sin B2 el mínimo que cierra es 23 ns, así que **B2 vale 1,5 ns de período** sobre este pipeline.
+   Lo único que falta de ese barrido es el punto de 22,5 ns.
+6. **Pregunta 40 y 96**: el flip-flop de llegada de la ruta crítica del período mínimo ya está
+   identificado: `asic/rutas.md`, líneas 17 a 25, resuelve `_4440_` en el netlist como
+   `u_soc.u_periph.digit_q[4]`, el bit 4 del registro del display del periférico.
+7. **Pregunta 72, 74 y 75**: la afirmación "entre 73 y 75 por ciento no hay punto medido, así que el
+   máximo que cierra está acotado entre esos dos valores" es falsa: `u2_u74` existe, está seguido por
+   git y **falla** en el paso 41 con 18 instancias sin sitio
+   (`asic/rom/resultados/u2_u74/falla.txt`). El máximo que cierra es 73 y la primera que falla es
+   **74**, no 75.
+8. **Pregunta 91 y 93**: la violación de antena de la estrategia 2 sí desaparece con el core y la
+   configuración nuevos (`s4_t100`: 0 nets y 6 diodos), así que el mapa de la etapa 1 acertaba en la
+   conclusión y erraba solo en la cita. El documento decía que "ese dato no reproduce y no hay que
+   usarlo", que es demasiado: lo que no reproduce es el `e2_t100` de `main`.
+
+Cifras equivocadas:
+
+9. **Pregunta 73**: "19,8 puntos (72 a 91,7)" está mal; `u2_u72` tiene utilización real 0,9166, o sea
+   **19,7 puntos** sobre el 72 pedido.
+10. **Pregunta 47**: "igual en los siete puntos: 100, 30, 25, 24, 23, 22, 21,5 y 21 ns" enumera
+    **ocho** puntos (la final más los siete del barrido).
+11. **Intro**: "los nueve del de utilización están seguidos por git" son **diez**
+    (`git ls-files asic/rom/resultados/` lista también `u2_u74`).
+12. **Pregunta 132**: "de las cuatro cosas que lista tres ya están hechas y la cuarta (B5) quedó
+    descartada" no cuadra con la respuesta, que lista **cinco** cosas (B2, B5, el slew, la SDF y la
+    equivalencia formal): cuatro están hechas y B5 se descartó.
+13. **Pregunta 104, 131 y 132**: "976 de 976 celdas `$equiv`" vale para el netlist de síntesis; contra
+    el post-PnR el flujo clásico da **968** (5 + 963). Decir "los dos netlists ... 976 de 976" es
+    inexacto.
+
+Archivos o líneas de origen mal citados:
+
+14. **Pregunta 8**: el ruteo detallado de v1 no es `v1_final_run/46-openroad-detailedrouting` (esa
+    carpeta no existe en v1, que tiene 76 pasos) sino **`44-openroad-detailedrouting`**
+    (00:00:22.864).
+15. **Pregunta 35**: el aviso estaba al revés. `asic/sintesis.md` línea 129 **no** dice que `nand2_1`
+    "queda casi a la par de `mux2_2`": dice "**No se cumplió**: la celda más usada es `nand2_1`, y el
+    flip-flop queda tercero". La frase vieja está en **`docs/defensa.md`, línea 250**, la respuesta de
+    la propia pregunta 35.
+16. **Pregunta 74**: las dos líneas citadas ("Error: repair_design_postgrt.tcl, 48 DPL-0036" y
+    "Classic - Stage 41 - Repair Design (Post-Global Routing)") **no están** en
+    `u2_u75/falla.txt`, cuyo extracto termina en la lista de instancias; están en
+    `asic/logs/u2_u75.log`, líneas 18737 y 18738, y en `asic/rom/resultados/u2_u74/falla.txt`,
+    líneas 26 y 27.
+17. **Pregunta 74**: el conteo de 22 instancias de `u1_u80` no está en su `falla.txt` (el extracto
+    empieza después de esa línea) sino en `asic/logs/u1_u80.log`, línea 17914.
+18. **Pregunta 63 y 71**: `DebounceDivBits = 15` **no está** en `rtl/debounce.v` (ahí el parámetro se
+    llama `DivBits`, línea 17); está en `rtl/asic_top.v` línea 24, `rtl/pochoco_soc.v` línea 20 y
+    `rtl/pochoco_periph.v` línea 13.
+19. **Pregunta 108**: `wire advance = ~stall_i;` está en la línea **122** de
+    `rtl/espino_core/espino_id_stage.v`, no en la 123 (la 123 es `wire dec_load;`).
+20. **Pregunta 55**: `docs/decisiones.md` D20 (línea 147) dice "de 2201 a **541**", no a 546; el 546
+    es el de la corrida final de v1 (`v1_final/metrics.json`), que es el que cita la pregunta.
+    Separé las dos fuentes.
+21. **Pregunta 104**: el miter desde reset contra el netlist de síntesis pasa a 24 **y a 100** pasos
+    (`asic/eqy/resultados/sint_v1/bmc_100_resumen.txt`, "DONE (PASS, rc=0)"), no solo a 24.
+22. **Pregunta 51**: agregué la línea exacta del desglose de los 19,1 de 55,1 ns
+    (`docs/decisiones.md`, línea 129), que el documento daba solo como "D18".
+
+Conteos y afirmaciones de alcance que no se sostienen:
+
+23. **Intro**: "incorporen f2_t30 y los puntos u2_u60 a u2_u73, que todavía figuran como
+    'incompleta'". En `asic/final.md` solo `f2_t30` (línea 31), `u2_u60` (53) y `u2_u70` (54) figuran
+    como "incompleta"; `u2_u72`, `u2_u73`, `u2_u74` y los puntos que fallan **no figuran en ninguna
+    fila**, y falta además la sección de la estrategia 2 que `asic/ff/resultados/LEEME.md` ya
+    anuncia.
+24. **Pregunta 25**: el período mínimo de la estrategia 2 no es un "por medir" a secas: el barrido
+    `s4_*` cierra a 100, 65, 60, 55 y 50 ns (a 50 ns con 6,939 ns de margen) y los puntos de 45 y
+    42 ns están corriendo, así que el mínimo está por debajo de 50 ns y todavía sin acotar.
+25. **Pregunta 31**: "total de celdas de la corrida final: 5.577 celdas de 36 tipos" es ambiguo.
+    `asic/sintesis.md` ahora lo dice explícitamente: son las celdas que **salen de Yosys**, no las del
+    layout, que llega a 9.928 (`design__instance__count__stdcell`).
+26. **Pregunta 24 y supuesto 7**: "por eso la estrategia 2 no puede hacer lo mismo" es más fuerte de
+    lo que dicen los archivos. `docs/datos_informe.md` sección 3.2 punto 1 aclara que
+    `pochoco_mem_ff` también expone `a_next_o` y que lo impracticable es el mux de 119 palabras en el
+    camino; por eso `pochoco_soc` fija `EarlyRead = (MemStrategy == 1) ? 1 : 0`.
+27. **Pregunta 38**: "40 MHz (en `main` ya estaba corregida a 40,8 MHz)" se lee como si `docs/defensa.md`
+    ya tuviera la corrección. No la tiene: su línea 271 sigue diciendo 40 MHz; la cifra corregida está
+    en `asic/final.md` (sección "Historia") y en D23.
+28. **Pregunta 76**: agregué la frase con la que `asic/final.md` lo dice ("No se repitió con la
+    configuración nueva") y las cifras de `u1_auto` (182.204 µm², WNS 65,213 contra 65,223), para que
+    el "por medir" tenga su archivo.
+29. **Pregunta 93**: agregué la fila que faltaba para cerrar el tema: con la configuración final la
+    estrategia 2 ya no necesita ni los diodos heurísticos ni las perillas de antena, porque `s4_t100`
+    cierra con 0 nets y 6 diodos y `asic/ff/config_final.yaml` no define `GRT_ANTENNA_REPAIR_*`.
+
+Lo que **no** encontré mal, y conviene dejar dicho porque es lo que más revisé: los 81 números de
+línea de `docs/defensa.md`; todas las cifras de place and route de la corrida final, de `f2_t21p5` y
+de `f2_t21` contra `hechos_nuevos.md` y contra los `metrics.json`; los siete WNS del barrido de
+período y las siete áreas; las cinco utilizaciones que cierran y sus die y utilización real; los
+desgloses de celdas de `asic/sintesis.md` (934 / 889 / 779 / 437 / 348 y los cuatro desgloses por
+módulo); los tramos y los cálculos de tiempo requerido de `asic/rutas.md` (2,673 / 1,830 / 4,267 /
+9,048 / 4,417 / 22,235 y 21,5 + 2,385 + 0,116 - 0,25 - 0,640 = 23,111); las cifras de potencia con
+actividad real; las de la equivalencia formal y la simulación con SDF; y todos los valores "viejos",
+que están en la línea de `docs/defensa.md` que el documento indica.

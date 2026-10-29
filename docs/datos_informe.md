@@ -385,9 +385,10 @@ de comparación de esa tabla es v1 y está rotulada como tal.
     `[DPL-0036] Detailed placement failed`, con 18 instancias sin lugar. Es el primer punto que no
     cierra, así que **la regla de resolución queda cerrada a 1 punto de utilización**: 73 por ciento
     cierra y 74 no;
-  - **75 %**: falla en el mismo paso con
-    `[DPL-0036] Detailed placement failed` desde `repair_design_postgrt.tcl:48`, con 40 instancias
-    sin lugar;
+  - **75 %**: falla en el mismo paso con `[DPL-0036] Detailed placement failed`, con **77
+    instancias sin lugar** (`[INFO DPL-0034]` de `u2_u75/falla.txt`). El extracto versionado se
+    corta en 40 líneas, así que la línea del error hay que leerla en `asic/logs/u2_u75.log` 18737
+    (`Error: repair_design_postgrt.tcl, 48 DPL-0036`, etapa 41);
   - **78 %**: falla en `OpenROAD.CTS` (paso 35) con el mismo error desde `cts.tcl:102`, con 36
     instancias sin lugar, 19 de ellas del banco de registros;
   - **80 %**: falla en `OpenROAD.RepairDesignPostGPL` (paso 32) desde `repair_design.tcl:68`, con 5
