@@ -217,10 +217,13 @@ las mismas que daría la candidata sin modelo de cable.
   231.229 a 21,5 ns y 231.638 a 21 ns; celdas estándar 9.928 a 100 ns y 9.946 a 21,5 ns;
   cables 377.509 µm a 100 ns y 386.712 a 21,5 ns; WNS en `max_ss` 0,656 ns a 22 ns y
   0,876 ns a 21,5 ns, es decir **mejor a 21,5 que a 22**.
-- **Las 0 violaciones de max slew no valen en todo el barrido.** A 100 ns, a 22 ns y a
-  21,5 ns son 0 (`design__max_slew_violation__count` de cada `metrics.json`), y a 21 ns son
-  6. La violación de max capacitancia es 1 en todas las corridas y es siempre el mismo pin
-  (ver 3.6).
+- **Las 0 violaciones de max slew no valen en todo el barrido.** La serie completa
+  (`design__max_slew_violation__count` de cada `metrics.json`) es **0** a 100 ns, **4** a 30,
+  **0** a 25, **4** a 24, **4** a 23, **0** a 22, **0** a 21,5 y **6** a 21 ns: sube y baja, sin
+  relación monótona con el período, porque cada corrida tiene su propio layout. Lo que sí se puede
+  afirmar es que la corrida final y la del período mínimo, que son las dos que el informe reporta,
+  tienen 0 en las nueve esquinas. La violación de max capacitancia es 1 en todas las corridas del
+  barrido y es siempre el mismo pin (ver 3.6).
 
 ### Comparación diseño contra diseño con la misma configuración
 
