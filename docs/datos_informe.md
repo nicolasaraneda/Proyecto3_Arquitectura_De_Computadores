@@ -17,13 +17,18 @@ global. Dos consecuencias que valen para todo el documento:
   cifra y su clave) y su corrida en disco en `asic/rom/runs/v1_final_run/`. Donde este
   documento compara contra v1, el valor viejo sale de ahí y no de `resultados/final/`,
   que es la corrida nueva.
-- **Los pasos del flujo cambiaron de número**: la configuración agrega
-  `OpenROAD.RepairDesignPostGRT` (41) y `OpenROAD.ResizerTimingPostGRT` (44), así que
-  todo lo posterior se corre dos lugares. El STA final pasa de `55-openroad-stapostpnr` a
-  `57-openroad-stapostpnr`, el segundo chequeo de antenas de 46 a 48, el informe de caída
-  de tensión de 56 a 58, `magic-writelef` de 60 a 62 y el chequeo de antenas del LEF de 61
-  a 63. Los scripts del repositorio buscan los pasos por nombre y no por número
-  (`asic/recolectar.py`, `asic/final.sh`, `asic/modelo_cable.py`, `asic/layout/anotar.py`).
+- **Los pasos del flujo cambiaron de número, y no todos lo mismo**: la configuración de D23 agrega dos pasos, pero no seguidos:
+`OpenROAD.RepairDesignPostGRT` entra como paso **41** (justo después del primer chequeo de antenas)
+y `OpenROAD.ResizerTimingPostGRT` como paso **44** (después de la reparación de antenas). Por eso el
+corrimiento no es uniforme: `odb-diodesonports` y `openroad-repairantennas` se corren **un** lugar
+(de 41 y 42 a 42 y 43) y todo lo que viene desde `openroad-stamidpnr-3` se corre **dos** (el tercer
+STA intermedio de 43 a 45, el ruteo detallado de 44 a 46, el segundo chequeo de antenas de 46 a 48,
+el informe de largo de cables de 50 a 52, el STA final de 55 a **57**, el informe de caída de
+tensión de 56 a 58, `magic-writelef` de 60 a 62 y el chequeo de antenas del LEF de 61 a 63).
+  El flujo pasa de 76 a 78 pasos. Los scripts del repositorio buscan los pasos por nombre y
+  no por número (`asic/recolectar.py`, `asic/final.sh`, `asic/modelo_cable.py`,
+  `asic/layout/anotar.py`), y `docs/hechos_flujo.md` sección 12 tiene la tabla completa de
+  los 78 con su tiempo.
 
 ## 2. Corrida final y reproducibilidad
 

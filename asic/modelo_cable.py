@@ -63,8 +63,9 @@ def paso(run, nombre):
     """El directorio del paso <nombre> de la corrida, sin depender de su número.
 
     El número cambia con la configuración: la final de D23 agrega
-    RepairDesignPostGRT y ResizerTimingPostGRT, así que todos los pasos
-    posteriores se corren dos lugares.
+    RepairDesignPostGRT (paso 41) y ResizerTimingPostGRT (paso 44), que no van
+    seguidos, así que el corrimiento es de un lugar para los dos pasos que
+    quedan entre ellos y de dos para todo lo que viene después.
     """
     c = sorted(glob.glob(os.path.join(run, f"*-{nombre}")))
     return c[-1] if c else None

@@ -10,11 +10,14 @@ OpenSTA al cargar los liberty. Para comparar: la corrida final de v1 tenía 51 l
 `Max Slew violations found in the following corners:`**: la corrida nueva tiene 0 violaciones de
 max slew en las nueve esquinas (`design__max_slew_violation__count = 0` en `metrics.json`,
 `max slew violation count 0` en `max_ss_125C_4v50_checks.rpt`), contra 546 en v1. Ningún aviso
-nuevo apareció. Los números de paso sí cambian: la configuración de D23 agrega
-`OpenROAD.RepairDesignPostGRT` (paso 41) y `OpenROAD.ResizerTimingPostGRT` (paso 44), así que todo
-lo que viene después se corre dos lugares (el STA final pasa de 55 a 57,
-`checkantennas-1` de 46 a 48, el informe de caída de tensión de 56 a 58, `magic-writelef` de 60 a
-62 y el chequeo de antenas del LEF de 61 a 63).
+nuevo apareció. Los números de paso sí cambian: la configuración de D23 agrega dos pasos, pero no seguidos:
+`OpenROAD.RepairDesignPostGRT` entra como paso **41** (justo después del primer chequeo de antenas)
+y `OpenROAD.ResizerTimingPostGRT` como paso **44** (después de la reparación de antenas). Por eso el
+corrimiento no es uniforme: `odb-diodesonports` y `openroad-repairantennas` se corren **un** lugar
+(de 41 y 42 a 42 y 43) y todo lo que viene desde `openroad-stamidpnr-3` se corre **dos** (el tercer
+STA intermedio de 43 a 45, el ruteo detallado de 44 a 46, el segundo chequeo de antenas de 46 a 48,
+el informe de largo de cables de 50 a 52, el STA final de 55 a **57**, el informe de caída de
+tensión de 56 a 58, `magic-writelef` de 60 a 62 y el chequeo de antenas del LEF de 61 a 63).
 
 ## 1. `Cell 'asic_top' has (3) input pin(s) without antenna gate information. They might not be connected to a gate.`
 

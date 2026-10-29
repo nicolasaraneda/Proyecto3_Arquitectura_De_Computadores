@@ -39,8 +39,9 @@ bash asic/tablas.sh
 cp asic/rom/runs/final/resolved.json asic/rom/resultados/final/resolved.json
 cp asic/rom/runs/final/warning.log asic/rom/resultados/final/warning.log
 # Los pasos van numerados y el numero cambia con la configuracion (la de D23
-# agrega RepairDesignPostGRT y ResizerTimingPostGRT, asi que stapostpnr pasa de
-# 55 a 57 y checkantennas-1 de 46 a 48): se buscan por nombre, no por numero.
+# agrega RepairDesignPostGRT en el 41 y ResizerTimingPostGRT en el 44, que no van
+# seguidos: stapostpnr pasa de 55 a 57 y checkantennas-1 de 46 a 48, pero
+# diodesonports y repairantennas se corren solo un lugar): se buscan por nombre.
 STA=$(ls -d asic/rom/runs/final/*-openroad-stapostpnr | tail -1)
 ANT=$(ls -d asic/rom/runs/final/*-openroad-checkantennas-1 | tail -1)
 for e in nom_tt_025C_5v00 max_ss_125C_4v50; do
