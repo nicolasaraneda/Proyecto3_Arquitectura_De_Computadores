@@ -362,9 +362,62 @@ de comparación de esa tabla es v1 y está rotulada como tal.
 
 ## 3.6. Signoff y layout
 
-- DRC de Magic 0, LVS 0, antena 0 (final; `cierre.md`). Segundo DRC con el deck de
-  KLayout de GlobalFoundries: 0 marcadores (`drc_klayout/resumen.md`); por qué el flujo
-  lo salta: `asic/drc/ORIGEN.md`.
+- DRC de Magic 0, LVS 0, antena 0 nets (`asic/rom/resultados/final/cierre.md`). Segundo
+  DRC con el deck de KLayout de GlobalFoundries: **0 marcadores en 684 reglas**
+  (`drc_klayout/resumen.md`), con su **control positivo**: el deck marca las dos
+  violaciones de Metal1 inyectadas (ancho mínimo M1.1 y espaciado mínimo M1.2a) en sus
+  coordenadas exactas (`drc_klayout/control_positivo.md`). Por qué el flujo salta su propio
+  paso de KLayout: `asic/drc/ORIGEN.md`.
+- **Las violaciones de max slew pasan de 546 a 0** y las de max capacitancia de 36 a 1
+  (`design__max_slew_violation__count` y `__max_cap_violation__count` de
+  `resultados/{v1_final,final}/metrics.json`; el detalle por pin, en
+  `max_ss_125C_4v50_checks.rpt`). Es el efecto del modelo de cable: el resizer ve el cable
+  que después se extrae y repara de verdad (`docs/modelo_cable.md`). El `slew.txt` de la
+  corrida nueva dice "0 pines en 0 celdas" y su histograma queda en cero en los cinco
+  tramos.
+- **La violación de max capacitancia que queda: el pin, la causa y si se puede quitar sin
+  costo.** Es un solo pin, el mismo en las nueve esquinas: **`clkbuf_0_clk/Z`, la raíz del
+  árbol de reloj**, un `clkbuf_16` que insertó `OpenROAD.CTS` por `CTS_ROOT_BUFFER`. Maneja
+  0,428234 pF contra un límite de 0,2 pF, o sea un slack de -0,228234 pF en
+  `max_ss_125C_4v50` (0,401561 pF y -0,201561 en `nom_tt_025C_5v00`;
+  `asic/rom/resultados/final/{max_ss_125C_4v50,nom_tt_025C_5v00}_checks.rpt`, sección
+  `max capacitance`). Tres cosas hay que decir de ella:
+  1. **El límite de 0,2 pF no es de la celda, es del flujo**: es
+     `MAX_CAPACITANCE_CONSTRAINT = 0.2` de `resolved.json`, que LibreLane aplica con
+     `set_max_capacitance` a todos los pines del diseño. El límite propio del `clkbuf_16` en
+     el liberty de la esquina lenta es **3,93 pF** para su pin Z
+     (`$PDK_ROOT/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/lib/gf180mcu_fd_sc_mcu7t5v0__ss_125C_4v50.lib`,
+     celda `clkbuf_16`, `pin(Z)`, `max_capacitance`): la celda maneja nueve veces menos de lo
+     que puede. Y la transición que produce son 0,798408 ns
+     (`max_ss_125C_4v50_ruta_critica.rpt`, línea del pin), dentro de los 3 ns de
+     `MAX_TRANSITION_CONSTRAINT`, que es por lo que no aparece como violación de slew.
+  2. **`repair_design` no toca la red de reloj**, así que ni el repair del placement ni el
+     post-GRT la pueden arreglar: el flujo la ve y la deja.
+  3. **No se puede quitar sin costo.** Las tres salidas posibles cuestan algo: (a) un buffer
+     de raíz más grande no sirve, porque lo que sobra es la carga, no el drive, y además el
+     `clkbuf_16` ya está muy por debajo de su propio límite; el PDK tiene un `clkbuf_20`
+     (área 136,1 contra 109,76 µm²) pero no reduce la capacidad que maneja. (b) Repartir la
+     carga agregando un nivel más al árbol de reloj (`CTS_BALANCE_LEVELS`, o bajar
+     `CTS_SINK_CLUSTERING_SIZE`) sí la quitaría, a costa de más buffers de reloj, más área y
+     más latencia de inserción, que es justamente lo que la corrida final ya pagó una vez
+     (172 buffers de reloj contra 110 en v1, y la potencia del reloj de 3,709 a 4,592 mW,
+     `asic/potencia/resultado.md`). (c) Relajar `MAX_CAPACITANCE_CONSTRAINT` la haría
+     desaparecer del reporte sin cambiar el circuito, que es esconderla y no arreglarla.
+     Como no es criterio de cierre del enunciado y la celda está nueve veces por debajo de su
+     límite de biblioteca, la decisión es dejarla y explicarla.
+- Violaciones de **max fanout**: 21 pines, todos salidas de buffers del árbol de reloj
+  (`clkbuf_0_clk/Z` con 16 cargas y veinte `clkbuf_leaf_*` con 11 o 12) contra el límite de
+  10 de `MAX_FANOUT_CONSTRAINT` (`max_ss_125C_4v50_checks.rpt`, sección `max fanout`). En v1
+  eran 62. Tampoco son criterio de cierre y tienen la misma causa: el CTS arma el árbol con
+  su propio criterio y el chequeo de fanout del signoff no lo mira.
+- **DRC del ruteo detallado por iteración**: la corrida nueva parte con **2** violaciones y
+  llega a 0 en la iteración 1, después pasa por 430 y 3 y termina en 0 en la iteración 4
+  (`route__drc_errors__iter:0` a `:4` de `metrics.json`: 2, 0, 430, 3, 0). En v1 era 1.546,
+  501, 379, 0. Las dos cosas que cambian: la reparación post-GRT le entrega al ruteador
+  detallado un diseño mucho más limpio (de 1.546 a 2 en la primera iteración), y después del
+  primer cierre el flujo inserta un diodo de antena y vuelve a rutear, de donde salen las
+  430 de la iteración 2 (`design__instance__count__class:antenna_cell` = 1 en la corrida
+  nueva y 0 en v1).
 - Violación aparecida durante el desarrollo: antena de la estrategia 2, net `net3342`
   de s2_t100 (1 net, pin `fanout3341/I`, razón de área lateral de Metal2 1,12 veces el
   límite de 400: `asic/ff/resultados/s2_t100/antenna_summary.rpt` y `antenna.rpt`).
@@ -390,45 +443,72 @@ de comparación de esa tabla es v1 y está rotulada como tal.
   Otra que apareció y se resolvió sola: con D21 el ruteo detallado parte con 1.546
   violaciones de DRC en la iteración 0 (contra 6 sin orden de pines, z3_t100) y
   termina en 0 en la iteración 3 (`route__drc_errors__iter:N` de `metrics.json`).
-- Marcas del register file, la ALU y el contador: `asic/rom/resultados/final/layout/bloques.png`
-  (nombres jerárquicos `u_soc.u_core.u_rf`, `u_soc.u_core.u_id.u_alu`,
-  `u_soc.u_periph.u_cycles`; 2.103, 615 y 116 celdas; 46,0 %, 6,2 % y 2,3 % del área de
-  celdas), `bloques.txt` con las envolventes, `bloques.lyrdb` para KLayout, y
-  `docs/layout.md` para repetirlas en la interfaz. Ruta crítica: `ruta_critica.png`;
-  slew: `slew.png` (546 pines en 520 celdas, peor 5,41 ns contra 3 ns).
-- Avisos que quedan: `asic/rom/resultados/final/avisos.md` (3 pines SPI sin compuerta,
-  VDD y VSS "flotantes" para el resizer, VSRC_LOC_FILES sin valor).
+- Marcas del register file, la ALU y el contador en el layout:
+  `asic/rom/resultados/final/layout/bloques.png` (nombres jerárquicos `u_soc.u_core.u_rf`,
+  `u_soc.u_core.u_id.u_alu`, `u_soc.u_periph.u_cycles`; **2.963, 673 y 117 celdas**, y
+  **96.935,6, 11.718,0 y 3.995,3 µm², o sea 49,44 %, 5,98 % y 2,04 %** del área de celdas sin
+  relleno, que son 196.079,7 µm²), `bloques.txt` con las envolventes y los 28 terminales con
+  su capa y su coordenada, `bloques.lyrdb` para KLayout, y `docs/layout.md` para repetirlas
+  en la interfaz. El die mide **638,50 x 656,42 µm = 0,4191 mm²**. En v1 eran 2.103, 615 y
+  116 celdas y 46,0 %, 6,2 % y 2,3 % (`resultados/v1_final/layout/bloques.txt`).
+- Ruta crítica anotada: `layout/ruta_critica.png` y `.txt` (34 celdas numeradas más 3
+  buffers del camino de reloj a 100 ns; 39 más 3 al período mínimo, en
+  `resultados/f2_t21p5/layout/`). Detalle por tramos en `asic/rutas.md` y lectura en 3.4.
+- Figura de slew: `layout/slew.png` y `slew.txt`, que ahora dicen 0 pines en 0 celdas (en v1
+  eran 546 pines en 520 celdas, peor 5,41 ns contra el límite de 3 ns).
+- Avisos que quedan: `asic/rom/resultados/final/avisos.md`, revisados uno por uno contra el
+  `warning.log` de la corrida nueva. Ningún aviso nuevo del flujo; desaparece el de max slew;
+  la caída de tensión sube de 0,148 a 0,611 mV en VDD (0,01 % de los 5 V) y la potencia sin
+  actividad de 8,971 a 9,620 mW; y el único aviso de lint nuevo es `rst_ni` sin uso en el
+  `espino_id_stage`, que es real y lo cubre el monitor de valores desconocidos usados.
 
 ## 3.7. Simulación post-síntesis
 
 - `make post-synth` (`asic/sim/resultado.md`): RTL y netlist de celdas estándar
   (`asic/sim/runs/sim_rom`, síntesis con la configuración final y la ROM del programa
-  de simulación), mismo testbench `tb/post_synth_tb.v` (solo puertos de asic_top) y
-  mismos estímulos `asic/sim/estimulos.txt`: trazas idénticas (17 cambios de salida),
-  0 valores X. Ronda 1 correcta: el display muestra 57 (ciclos medidos, porque
-  CYCLES_PER_TENTH=1) en los dos; pulsación incorrecta en la ronda 2: EE en el ciclo
-  2181 y la ronda vuelve a 02 (no avanza); reintento correcto: 57 de nuevo.
-- Configuración común documentada en `asic/sim/README.md`: CYCLES_PER_TENTH=1 (el
+  de simulación), mismo testbench `tb/post_synth_tb.v` (solo puertos de `asic_top`) y
+  mismos estímulos `asic/sim/estimulos.txt`: **trazas idénticas (17 cambios de salida en
+  4.500 ciclos) y 0 valores X** en las dos. Ronda 1 correcta: el display muestra **51**
+  (ciclos medidos, porque `CYCLES_PER_TENTH = 1`) en el ciclo 1033 en los dos; pulsación
+  incorrecta en la ronda 2: **EE en el ciclo 1405** y la ronda vuelve a 02 en el 1507 (no
+  avanza); reintento correcto: 51 de nuevo en el ciclo 2131. En v1 eran 57 ciclos medidos y
+  el EE caía en el 2181: **el core nuevo llega antes porque gasta un ciclo menos por
+  instrucción**. Salida completa de la corrida de la integración en
+  `docs/verificacion/integracion_13_post_synth.txt`.
+- Los estímulos se regeneraron para el core nuevo con `python3 asic/sim/calibrar.py`
+  (`docs/verificacion/integracion_15_calibrar.txt`): el archivo que quedó del `merge` sale
+  byte a byte igual al que vuelve a generar el calibrador con el RTL integrado, así que la
+  recalibración está hecha y verificada. Las pulsaciones pasan de los ciclos 801, 2141 y
+  2719 de v1 a **635, 1373 y 1733**.
+- Control negativo (`make post-synth-control`, `docs/verificacion/integracion_14_post_synth_control.txt`):
+  el netlist con la pulsación de la primera ronda atrasada **8** ciclos da 12 cambios de
+  salida y display 59, así que la comparación da FAIL, que es lo que el objetivo exige. **8
+  es el atraso más chico que cambia la traza** con este core: el programa lee BTN en un lazo
+  de polling de 8 ciclos (`POLL_CICLOS` del `Makefile`) y un atraso de 1 a 7 cae en la misma
+  vuelta. En v1 el lazo era de 13 ciclos y el mínimo 6.
+- Configuración común documentada en `asic/sim/README.md`: `CYCLES_PER_TENTH = 1` (el
   display muestra ciclos, saturado en 99; las esperas de 30, 12 y 10 "décimas" duran
-  decenas de ciclos), DebounceDivBits=2 (por SYNTH_PARAMETERS en el netlist y por
+  decenas de ciclos), `DebounceDivBits = 2` (por `SYNTH_PARAMETERS` en el netlist y por
   parámetro en el RTL), estímulos en ciclos absolutos obtenidos corriendo el RTL por
   etapas (`asic/sim/calibrar.py`).
 - Extra: `make post-synth-final` (netlist de la corrida final, constantes reales,
   320.000 ciclos con una pulsación de inicio real): `asic/sim/resultado_final.md`.
-  Resultado: PASS (LEDs 1111 en el ciclo 262.156 y display 01 en el 262.194, iguales en RTL y netlist).
-  Post-PnR con SDF: `asic/sim/resultado_sdf.md` (frente D1 de la sesión del 27 y
-  28-10-2026). Corrida completa del flujo con la configuración de simulación
-  (`asic/sim/config_pnr.yaml`, tag `d1_pnr`, cierra: `asic/sim/resultados/d1_pnr/cierre.md`)
-  y su SDF simulado con el mismo testbench y escenario en cuatro esquinas, con tres
-  ejecuciones por esquina y por simulador: todas las trazas idénticas a la del RTL
-  (md5 `4f14ec05462e4789a3d873d2ba50fd97`), 0 valores X. Dos simuladores:
+  Resultado **PASS**: 3 líneas de traza idénticas en RTL y netlist, 0 valores X, con los
+  cuatro LEDs en el ciclo **262.151** y el display 01 en el **262.172** (en v1 eran 262.156
+  y 262.194). Esos dos ciclos son los que fijan dos de las cuatro ventanas de la medición de
+  potencia (`asic/potencia/resultado.md`, sección 4).
+- Post-PnR con SDF: `asic/sim/resultado_sdf.md`. Corrida completa del flujo con la
+  configuración de simulación (`asic/sim/config_pnr.yaml`, regenerada desde la configuración
+  final de D23, tag **`d2_pnr`**; la de v1 era `d1_pnr` y sus resultados quedan en
+  `asic/sim/resultados/d1_pnr/`) y su SDF simulado con el mismo testbench y escenario en
+  tres esquinas, con tres ejecuciones por esquina y por simulador. Dos simuladores:
   `make post-pnr-sdf` con Icarus Verilog 13.0 de la imagen de LibreLane, que anota los
-  retardos pero NO evalúa los timing checks (lo dice al compilar: "Timing checks are not
+  retardos pero **no** evalúa los timing checks (lo dice al compilar: "Timing checks are not
   supported"), y `make post-pnr-cvc` con Open Verilog CVC 7.00b, que sí evalúa `$setup`,
-  `$hold`, `$width`, `$recovery`, `$removal` y `$period` con los valores del SDF y no
-  reporta ninguna violación, con un control positivo que demuestra que los evalúa. El
-  aborto de vvp al anotar el SDF que se veía antes era el nombre jerárquico de las
-  instancias del banco de registros; lo arregla `asic/sim/renombrar_instancias.py`.
+  `$hold`, `$width`, `$recovery`, `$removal` y `$period` con los valores del SDF, con un
+  control positivo que demuestra que los evalúa. El aborto de vvp al anotar el SDF que se
+  veía antes era el nombre jerárquico de las instancias del banco de registros; lo arregla
+  `asic/sim/renombrar_instancias.py`.
 
 ## 3.8. Verificación adicional de la sesión del 27 y 28-10-2026 (no cambia el diseño)
 

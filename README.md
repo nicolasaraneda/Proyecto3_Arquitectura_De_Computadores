@@ -80,7 +80,7 @@ python3 asic/recolectar.py --md asic/barrido.md --titulo "Título" asic/rom/runs
 
 ## Corrida final
 
-La corrida final es el tag `final` de `asic/rom/config.yaml`: estrategia 1 con pre-decodificación (D18), celdas de retardo y `buf_1` excluidas con margen de 10 ns en el resizer (D20), terminales ubicados por función (D21, `asic/rom/pines.cfg`), T = 100 ns y FP_CORE_UTIL = 40 %. Se lanza con:
+La corrida final es el tag `final` de `asic/rom/config.yaml`: estrategia 1 con el core del pipeline (lectura del banco de registros y decodificación durante el fetch, `EarlyRead = 1`, banco write-through y el offset de byte de la carga registrado en la LSU; D23 y `docs/pipeline.md`), celdas de retardo y `buf_1` excluidas con margen de 10 ns en el resizer (D20), terminales ubicados por función (D21, `asic/rom/pines.cfg`), el modelo de cable del resizer con los RC medidos por extracción y la reparación después del ruteo global (D23 y `docs/modelo_cable.md`), T = 100 ns y FP_CORE_UTIL = 40 %. Se lanza con:
 
 ```bash
 source ~/herramientas/librelane/bin/activate
@@ -98,15 +98,23 @@ o con `make final`, que además verifica los criterios de cierre y regenera todo
 7. `make post-synth` y `make post-synth-final` (sección 3.7, `asic/sim/`);
 8. `asic/versiones.sh` -> `asic/versiones.md`.
 
-Resultado de la corrida final (`asic/rom/resultados/final/`): cierra en las 9 esquinas (setup WNS 65,2 ns, hold WNS 0,18 ns), DRC de Magic y de KLayout limpios, LVS limpio, 0 antenas; die de 630,6 x 648,5 µm (0,409 mm²), 182.265 µm² de celdas estándar, 990 flip-flops. Quedan 546 violaciones de max slew y 36 de max capacitancia en la esquina lenta, que no son criterio de cierre del enunciado (`asic/exploraciones.md`, B1). Los barridos de período y utilización están en `asic/final.md` y los datos de cada sección del enunciado en `docs/datos_informe.md`.
+Resultado de la corrida final (`asic/rom/resultados/final/`): cierra en las 9 esquinas (setup WNS 65,725 ns, hold WNS 0,173 ns en la peor), DRC de Magic y de KLayout limpios (0 marcadores en 684 reglas, con control positivo), LVS limpio, 0 antenas; die de 638,5 x 656,4 µm (0,419 mm²), 208.439 µm² de celdas estándar, 9.928 celdas y 964 flip-flops, utilización real del core 53,5 %. **0 violaciones de max slew** y 1 de max capacitancia en la esquina lenta (en v1 eran 546 y 36): la única que queda es la raíz del árbol de reloj, que `repair_design` no toca (`asic/rom/resultados/final/avisos.md`, aviso 4, y `docs/datos_informe.md` 3.6). Período mínimo 21,5 ns (46,5 MHz) y 27,9 MIPS con el CPI del juego de 1,665. Los barridos de período y utilización están en `asic/final.md`, la evolución del rendimiento etapa por etapa en `asic/evolucion.md` y los datos de cada sección del enunciado en `docs/datos_informe.md`.
 
-Los barridos se lanzan aparte, de a tres corridas (`PAR=3 bash asic/barrido.sh < lista.txt`, con `bash asic/vigilar.sh &` vigilando memoria y tiempo), por ejemplo:
+La corrida final anterior, la de `main` antes de integrar `exp/candidata-rc`, se conserva como historia: tag `v1-final`, reportes en `asic/rom/resultados/v1_final/` (con un `LEEME.md` que lista cada cifra y su clave) y corrida en disco en `asic/rom/runs/v1_final_run/`. En todos los documentos "v1" quiere decir ese estado.
 
+Los barridos se lanzan aparte con la **cola única** de corridas, que es lo que hay que usar desde la sesión del 27-10-2026: un solo proceso lanza todas las corridas con un máximo de tres simultáneas, corta a los 40 minutos y vigila memoria y disco.
+
+```bash
+bash asic/cola.sh &                                                  # el daemon
+bash asic/encolar.sh . asic/rom/config.yaml f2_t22 22                # encolar
+bash asic/encolar.sh . asic/rom/config.yaml u2_u60 100 FP_CORE_UTIL=60
+bash asic/encolar.sh . asic/rom/config.yaml h3_t100 100 SYNTH_HIERARCHY_MODE=keep --to Yosys.Synthesis
+bash asic/encolar.sh build/exp_pipeline asic/rom/config_final.yaml pr_t22 22   # en un worktree
+bash asic/esperar.sh f2_t22 u2_u60                                   # esperar
+touch asic/logs/cola.fin                                             # terminar el daemon
 ```
-asic/rom/config.yaml f1_t26 26
-asic/rom/config.yaml u1_u60 100 FP_CORE_UTIL=60
-asic/rom/config.yaml h3_t100 100 SYNTH_HIERARCHY_MODE=keep --to Yosys.Synthesis
-```
+
+La cola está en `asic/logs/cola.txt` y su bitácora en `asic/logs/cola_estado.txt` (una línea por evento: encolada, lanzada, terminada, fallida o incompleta). El tag tiene que ser único en toda la sesión, porque la cola identifica el contenedor por el tag. `asic/barrido.sh` y `asic/vigilar.sh` siguen ahí, pero la cola los reemplaza.
 
 ## Programa del juego
 
@@ -126,13 +134,13 @@ Las constantes de tiempo están ajustadas al período del macro: con T = 100 ns 
 make check
 ```
 
-Corre los 80 tests del assembler y los tres testbenches para cada estrategia de memoria (`make sim1` y `make sim2`). Las simulaciones ensamblan el juego con `CYCLES_PER_TENTH = 2500`, para que una partida dure segundos de simulación. Necesita `iverilog` y `vvp` (oss-cad-suite).
+Corre los 80 tests del assembler y los seis testbenches para cada estrategia de memoria (`make sim1` y `make sim2`). Las simulaciones ensamblan el juego con `CYCLES_PER_TENTH = 2500`, para que una partida dure segundos de simulación. Necesita `iverilog` y `vvp` (oss-cad-suite).
 
 ```bash
 make equiv
 ```
 
-Compara el core actual con el de otro commit (por defecto `116fa20`, antes de la pre-decodificación): corre `sw/isa_test.s`, que usa todas las instrucciones que soporta el assembler, con los dos RTL y las dos estrategias de memoria, y exige que las trazas de escrituras al banco de registros, accesos al bus de datos y salidas sean idénticas ciclo a ciclo. Se elige otra referencia con `make equiv REF=<commit>`; con `MODO=funcional` se comparan las secuencias de eventos sin el número de ciclo (para variantes que cambian los ciclos por instrucción). Las dos simulaciones imprimen el CPI.
+Compara el core actual con el de otro commit (por defecto `116fa20`, antes de la pre-decodificación): corre `sw/isa_test.s`, que usa todas las instrucciones que soporta el assembler, con los dos RTL y las dos estrategias de memoria, y compara las trazas de escrituras al banco de registros, accesos al bus de datos y salidas. Se elige otra referencia con `make equiv REF=<commit>` (por ejemplo `REF=v1-final`), otro programa con `PROG=<nombre>` (`sw/hazard_test.s`, `sw/hazard_review.s`, `sw/hazard_cycles.s`) y el modo con `MODO=funcional`, que compara las secuencias de eventos sin el número de ciclo. **El core de D23 gasta un ciclo menos por instrucción que el de v1, así que la comparación con v1 es funcional y no ciclo a ciclo**: ciclo a ciclo sigue valiendo contra la estrategia 2, que usa `EarlyRead = 0` y conserva la temporización anterior. Las dos simulaciones imprimen el CPI y el monitor de valores desconocidos usados. Las 15 comprobaciones de la integración de D23, con su salida completa, están en `docs/verificacion/integracion.md`.
 
 ```bash
 make post-synth
@@ -179,7 +187,7 @@ Al encender, el display muestra `00` y una pulsación empieza la partida. En cad
 
 ## Documentación
 
-- `docs/decisiones.md`: cada decisión del proyecto, con sus opciones y la razón (D1 a D21).
+- `docs/decisiones.md`: cada decisión del proyecto, con sus opciones y la razón (D1 a D23).
 - `docs/memory_map.md`: mapa de memoria, periféricos y estrategias de memoria.
 - `docs/assembler.md`: uso del assembler, incluidas la ROM y la imagen Verilog.
 - `docs/datos_informe.md`: por cada sección del enunciado, los números, tablas y figuras que la responden y la corrida de origen.
@@ -187,4 +195,12 @@ Al encender, el display muestra `00` y una pulsación empieza la partida. En cad
 - `docs/layout.md`: cómo abrir el layout final en KLayout u OpenROAD y repetir las marcas de los bloques.
 - `docs/progreso.md`: estado de cada tarea del cierre y cómo retomarla.
 - `asic/p2_original/evidencia.md`: construcciones dependientes de la FPGA y lo que dijo el flujo de cada una (sección 3.1).
-- `asic/exploraciones.md`: ramas `exp/*` con cambios de RTL o de configuración no fusionados, con su verificación y sus medidas.
+- `asic/exploraciones.md`: ramas `exp/*` con cambios de RTL o de configuración, con su verificación y sus medidas. Las que entraron en la corrida final están marcadas.
+- `docs/pipeline.md`: el core del pipeline (lectura del banco y decodificación en el fetch, write-through, `EarlyRead`, B2), cómo se resuelve cada riesgo de datos y cómo se verificó.
+- `docs/modelo_cable.md`: qué estima el resizer, por qué el promedio del tech LEF era optimista, cómo se midieron los RC de cable y qué cuesta corregirlos. Los valores los deriva `asic/modelo_cable.py` y su informe es `asic/modelo_cable.md`.
+- `docs/propuesta_d23.md` y `docs/revision_frente_a.md`: el análisis que llevó a D23 y la revisión independiente del core nuevo.
+- `docs/verificacion/integracion.md`: las 15 comprobaciones de la integración de D23, con la salida de cada una.
+- `docs/cambios_informe.md`: sección por sección del informe y pregunta por pregunta de la defensa, qué cifra cambia, de qué valor a qué valor y con qué archivo.
+- `asic/evolucion.md`: la evolución del rendimiento etapa por etapa (período mínimo, f máx, CPI, MIPS, área), con el reparto del aumento de MIPS entre el RTL y el flujo.
+- `asic/rutas.md`: las rutas críticas partidas en tramos y el cálculo del tiempo requerido.
+- `asic/potencia/resultado.md` y `docs/equivalencia.md`: potencia con actividad real y equivalencia formal del diseño nuevo, comparadas contra v1.
