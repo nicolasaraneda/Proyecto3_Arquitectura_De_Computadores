@@ -645,8 +645,8 @@ corrida `final` métrica por métrica: mismo área, mismos 964 flip-flops, mismo
 | Flip-flops | 120 | 921 / 4.602 | estrategia 1: **964**; estrategia 2: **4.673** | `design__instance__count__class:sequential_cell` de `final` (964) y de `asic/ff/resultados/s4_t100/metrics.json` (4673); viejo: `s1_t100` 921 y `s2_t100` 4602 |
 | Utilización real (pedida 40 %) | 121 | 47,5 % / 48,5 % | estrategia 1: **53,5 %** (`0,53511`); estrategia 2: **56,2 %** (`0,562228`) | `design__instance__utilization` de `final` (0,53511) y de `s4_t100` (0,562228); viejo: `s1_t100` 0,475391 y `s2_t100` 0,4848 |
 | Área del die | 122 | 0,394 / 1,794 mm² | estrategia 1: **0,419 mm²** (419.131 µm², die 638,505 x 656,425 µm); estrategia 2: **1,802 mm²** (1.801.610 µm², die 1.333,31 x 1.351,23 µm), **4,3 veces** el de la 1 | `design__die__area` y `design__die__bbox` de `final` (419131) y de `asic/ff/resultados/s4_t100/metrics.json` (1801610, bbox 0 0 1333.31 1351.23); viejo: `s1_t100` 393525 y `s2_t100` 1794180 |
-| Período mínimo que cierra timing | 123 | 55 / 62 ns | estrategia 1: **21,5 ns**; estrategia 2: **por medir** (barrido `s4_t100`, `s4_t65`, `s4_t60`, `s4_t55`, `s4_t50`) | `asic/rom/resultados/f2_t21p5/cierre.md` (CIERRA, WNS 0,876 ns) y `asic/rom/resultados/co_rc_t21/metrics.json` (no cierra, WNS -0,129 ns); viejo: `asic/barrido.md` línea 103 y 104 |
-| Frecuencia máxima | 124 | 18,2 / 16,1 MHz | estrategia 1: **46,51 MHz** (1 / 21,5 ns); estrategia 2: **por medir** | cálculo sobre el período mínimo de arriba; `docs/decisiones.md`, D23 ("el período mínimo baja de 24,5 a 21,5 ns") |
+| Período mínimo que cierra timing | 123 | 55 / 62 ns | estrategia 1: **21,5 ns**; estrategia 2: **35 ns o menos** (el barrido `s4_*` cierra a 100, 65, 60, 55, 50, 45, 42, 40 y 35 ns; el punto de 30 ns no cabe en el corte de 40 minutos de la cola, dos intentos) | `asic/rom/resultados/f2_t21p5/cierre.md` (CIERRA, WNS 0,876 ns) y `asic/rom/resultados/co_rc_t21/metrics.json` (no cierra, WNS -0,129 ns); viejo: `asic/barrido.md` línea 103 y 104 |
+| Frecuencia máxima | 124 | 18,2 / 16,1 MHz | estrategia 1: **46,51 MHz** (1 / 21,5 ns); estrategia 2: **28,57 MHz o más** (1 / 35 ns) | cálculo sobre el período mínimo de arriba; `docs/decisiones.md`, D23 ("el período mínimo baja de 24,5 a 21,5 ns") |
 | Nets con violación de antena | 125 | 0 / 1 | estrategia 1: **0** (1 diodo); estrategia 2: **0** (6 diodos): la violación de la estrategia 2 desaparece con la configuración nueva | `asic/rom/resultados/final/metrics.json`, `antenna__violating__nets = 0` |
 | Pie: la regla del barrido | 128 | "barrer `CLOCK_PERIOD` hasta dejar 2\,ns entre el último que cierra y el primero que no" | la regla de la sesión es **dejar 0,5 ns o menos**, y el barrido nuevo usa pasos de 0,5 ns (21, 21,5, 22, 23, 24, 25 ns) | `asic/exploraciones.md`, encabezado de la sesión del 27 y 28-10-2026: "período barrido hasta dejar 0,5 ns o menos entre el último período que cierra y el primero que no"; `docs/decisiones.md`, D23, viñeta "Contexto" |
 | Pie: fuente | 128 | `asic/barrido.md` | `asic/barrido.md` (historia) más `asic/rom/resultados/s3_t100/` y `asic/ff/resultados/s4_*/`, con la tabla ya armada en `docs/datos_informe.md` sección 3.2 | |
@@ -1299,7 +1299,7 @@ La comparación con el RTL nuevo y la configuración final **ya está medida**: 
 | celdas estándar | no citadas | 9.928 contra **43.960** | `design__instance__count__stdcell` de las dos corridas |
 | área del die, estrategia 1 contra 2 | 0,394 contra 1,794 mm² | 0,419131 contra **1,801610 mm²** (4,3 veces) | `asic/rom/resultados/final/metrics.json` (`design__die__area` = 419131) y `asic/ff/resultados/s4_t100/metrics.json` (1801610); viejo en `asic/barrido.md` (393525 y 1794180) |
 | largo de cables | no citado | 377.509 contra **2.242.954 µm** (5,9 veces) | `route__wirelength` de las dos corridas |
-| período mínimo, estrategia 1 contra 2 | 55 contra 62 ns (18,2 contra 16,1 MHz) | estrategia 1: 21,5 ns (46,5 MHz); estrategia 2: **por medir por debajo de 50 ns**, donde todavía cierra con 6,939 ns de margen (el barrido `s4_*` bajó de 100 a 65, 60, 55 y 50 ns y los puntos de 45 y 42 ns están corriendo: `asic/ff/runs/s4_t45` y `s4_t42` sin `final/metrics.json`) | `asic/rom/resultados/f2_t21p5/cierre.md`; `asic/ff/resultados/s4_t50/{cierre.md,metrics.json}`; viejo en `asic/barrido.md` |
+| período mínimo, estrategia 1 contra 2 | 55 contra 62 ns (18,2 contra 16,1 MHz) | estrategia 1: 21,5 ns (46,5 MHz, 27,9 MIPS); estrategia 2: **35 ns o menos** (28,57 MHz, 10,7 MIPS con su CPI de 2,665). El barrido completo es 100, 65, 60, 55, 50, 45, 42, 40 y 35 ns, todos cerrando, con WNS 3,066 ns en max_ss a 35 ns; el de 30 ns no se midió porque no cabe en el corte de 40 minutos de la cola | `asic/rom/resultados/f2_t21p5/cierre.md`; `asic/ff/resultados/s4_t50/{cierre.md,metrics.json}`; viejo en `asic/barrido.md` |
 | nets con violación de antena | 0 contra 1 | **0 contra 0**: la estrategia 1 sigue en 0 (con 1 diodo) y la estrategia 2 con la configuración final cierra con 0 nets y 6 diodos que insertó el flujo | `antenna__violating__nets` y `antenna_diodes_count` de `asic/rom/resultados/final/metrics.json` y de `asic/ff/resultados/s4_t100/metrics.json`; `docs/datos_informe.md`, sección 3.2, punto 3 |
 | violaciones de max slew y de max capacitancia | no citadas | 0 / 1 contra **62 / 14** | `design__max_slew_violation__count` y `design__max_cap_violation__count` de las dos corridas; `s4_t100/cierre.md` |
 | CPI del juego completo | no citado | 1,665 contra **2,665** | `docs/verificacion/integracion.md`, tabla de CPI (la estrategia 2 corre con `EarlyRead = 0` y reproduce el CPI de v1) |
@@ -1337,7 +1337,7 @@ Cualquiera de las dos sirve, pero hay que decir de cuál se habla.
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
 | cuántas veces más grande es el die de la estrategia 2 | 4,6 veces | **4,3 veces** medidas con el RTL nuevo (1.801.610 / 419.131 = 4,30) | `asic/ff/resultados/s4_t100/metrics.json` (`design__die__area` = 1801610) y `asic/rom/resultados/final/metrics.json` (419131); `docs/datos_informe.md`, sección 3.2 |
-| período mínimo de la estrategia 2 | 62 ns | **por medir por debajo de 50 ns**: `s4_t50` todavía cierra con WNS 6,939 ns en max_ss, y los puntos de 45 y 42 ns están corriendo | `asic/ff/resultados/s4_t50/{cierre.md,metrics.json}`; `asic/ff/runs/s4_t45` y `s4_t42` (sin `final/metrics.json`); el 62 ns de v1 en `asic/barrido.md` |
+| período mínimo de la estrategia 2 | 62 ns | **35 ns o menos**: cierra a 35 ns con WNS 3,066 ns en max_ss y el punto de 30 ns no se pudo medir (dos corridas cortadas a los 40 minutos en el paso 44). El salto de 62 a 35 ns no es del core, que con `MemStrategy = 2` sigue siendo el de v1, sino del modelo de cable y la reparación post-GRT | `asic/ff/resultados/s4_t35/{cierre.md,metrics.json}` y `s4_t30_b/falla.txt`; el 62 ns de v1 en `asic/barrido.md` |
 
 El mecanismo no cambia: la ruta es igual a la de la estrategia 1 hasta la dirección que calcula la
 ALU y después decodifica esa dirección sobre 119 palabras en vez de 4. Hay que agregar que con el core
@@ -2438,8 +2438,9 @@ RTL de v1 cerraba a 62 ns contra 55 ns de la estrategia 1 (`asic/barrido.md`), a
 empeoraría. Por eso `pochoco_soc` instancia el core con `EarlyRead = 0` cuando `MemStrategy = 2`.
 Dicho de otra forma: la ROM combinacional de la estrategia 1 deja de ser solo la opción más barata y
 pasa a ser condición del pipeline, que es un argumento más a favor de D17. El período mínimo de la
-estrategia 2 con el RTL nuevo está **por medir** (hay que repetir el barrido `s2_*` con la
-configuración final). Dato: `docs/pipeline.md`, sección 1, subsección de estrategia 2.
+estrategia 2 con el RTL nuevo y la configuración final es de **35 ns o menos** (barrido `s4_*`), o
+sea 10,7 MIPS con su CPI de 2,665 contra los 27,9 de la estrategia 1. Dato: `docs/pipeline.md`,
+sección 1, subsección de estrategia 2; `asic/final.md`, barrido `s4_*`.
 
 ### 136. [A] Qué riesgos de datos y de control aparecen con la lectura anticipada y cómo se resuelve cada uno
 
@@ -2730,6 +2731,7 @@ con el archivo de origen de cada cifra, está en `docs/datos_informe.md` y en `a
 | Simulación post-PnR con SDF | `d2_pnr` cierra; tres esquinas con Icarus y con CVC, 18 ejecuciones con un solo md5, 0 violaciones de timing y control positivo con 8 violaciones; y el netlist real a 320.000 ciclos con la misma traza que el RTL | `asic/sim/resultado_sdf.md` |
 | Equivalencia formal | el flujo clásico prueba 976 de 976 celdas contra el netlist de síntesis y 968 de 968 contra el post-PnR; el miter desde reset pasa a 24 y a 100 pasos; eqy deja una partición sin decidir por el estado inicial libre | `docs/equivalencia.md` |
 | Potencia con actividad real | 9,620 mW sin actividad y 13,936 a 16,615 mW con actividad en nom_tt, comparada contra v1 y contra la candidata | `asic/potencia/resultado.md` |
+| Período mínimo de la estrategia 2 | cierra hasta **35 ns** (28,57 MHz, 10,7 MIPS con CPI 2,665), contra 62 ns con la configuración de v1. El punto de 30 ns **no se midió**: dos corridas cortadas por la regla de 40 minutos | `asic/final.md`, barrido `s4_*`; `asic/ff/resultados/s4_t35/cierre.md` y `s4_t30_b/falla.txt` |
 | Figuras | `docs/figuras/periodo.png`, `utilizacion.png` y `construccion.gif` (14 cuadros, con los dos pasos nuevos) regeneradas con la corrida final; `bloques.png`, `ruta_critica.png` y `slew.png` también | `asic/tablas.sh`, `asic/layout/anotar.sh`, `make animacion` |
 
 **Lo que sigue sin medirse, y hay que decirlo en el informe**: la potencia a la frecuencia máxima,
@@ -2955,9 +2957,11 @@ Conteos y afirmaciones de alcance que no se sostienen:
     como "incompleta"; `u2_u72`, `u2_u73`, `u2_u74` y los puntos que fallan **no figuran en ninguna
     fila**, y falta además la sección de la estrategia 2 que `asic/ff/resultados/LEEME.md` ya
     anuncia.
-24. **Pregunta 25**: el período mínimo de la estrategia 2 no es un "por medir" a secas: el barrido
-    `s4_*` cierra a 100, 65, 60, 55 y 50 ns (a 50 ns con 6,939 ns de margen) y los puntos de 45 y
-    42 ns están corriendo, así que el mínimo está por debajo de 50 ns y todavía sin acotar.
+24. **Pregunta 25**: el período mínimo de la estrategia 2 no es un "por medir" a secas. El barrido
+    `s4_*` terminó: cierra a 100, 65, 60, 55, 50, 45, 42, 40 y **35 ns** (3,066 ns de margen en
+    max_ss), contra los 62 ns que daba con la configuración de v1. El punto de 30 ns no se midió
+    porque las dos corridas que lo intentaron las cortó la regla de 40 minutos de la cola en el
+    paso 44 de 78, así que 35 ns es el menor medido y no necesariamente el mínimo.
 25. **Pregunta 31**: "total de celdas de la corrida final: 5.577 celdas de 36 tipos" es ambiguo.
     `asic/sintesis.md` ahora lo dice explícitamente: son las celdas que **salen de Yosys**, no las del
     layout, que llega a 9.928 (`design__instance__count__stdcell`).

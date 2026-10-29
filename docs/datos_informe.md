@@ -129,9 +129,27 @@ Tres cosas que esta comparación deja dichas y que el informe debería usar:
    `asic/ff/resultados/` es una corrida temprana con el RTL de v1 y sí tiene 1 net en violación; el
    aviso está en `asic/ff/resultados/LEEME.md`.
 
-- Período mínimo y frecuencia máxima de cada estrategia: el de la estrategia 1 es el barrido `f2_*`
-  (21,5 ns, 46,5 MHz; sección 3.4) y el de la estrategia 2 el barrido `s4_*`, en `asic/final.md`.
-  Para comparar, con la configuración de v1 eran 24,5 y 62 ns (`asic/barrido.md`).
+- **Período mínimo y frecuencia máxima de cada estrategia.** Estrategia 1: **21,5 ns, 46,51 MHz**,
+  barrido `f2_*` (sección 3.4). Estrategia 2: el barrido `s4_*` cierra todo hasta **35 ns**
+  (28,57 MHz) con WNS 3,066 ns en `max_ss` (`asic/ff/resultados/s4_t35/cierre.md`); los puntos
+  medidos son 100, 65, 60, 55, 50, 45, 42, 40 y 35 ns, todos cerrando. **El punto de 30 ns no se
+  midió**: la corrida se intentó dos veces (`s4_t30` compartiendo CPU y `s4_t30_b` con la cola
+  vacía) y las dos veces la cortó la regla de 40 minutos de la cola en el paso 44 de 78, con el
+  resizer todavía en WNS -0,276 ns (`asic/ff/resultados/s4_t30_b/falla.txt`). O sea que **35 ns es
+  el menor período medido de la estrategia 2, no necesariamente su mínimo**, y la resolución del
+  barrido ahí es de 5 ns y no de 0,5 como en el de la estrategia 1.
+- **Lo que esa comparación dice, en MIPS.** Con el CPI de cada estrategia en el juego completo
+  (1,665 y 2,665, `docs/verificacion/integracion_16_make_check_cierre.txt`): la estrategia 1 rinde
+  **27,9 MIPS** y la estrategia 2 a lo sumo **10,7** (28,57 / 2,665). Son **2,6 veces**, y la
+  diferencia ahora viene de los dos factores de la Ley de Hierro a la vez: la estrategia 1 corre a
+  más frecuencia *y* gasta menos ciclos por instrucción. Con la configuración de v1 los períodos
+  mínimos eran 24,5 y 62 ns y el CPI era 2,665 en las dos, así que la diferencia era solo de
+  frecuencia (`asic/barrido.md`).
+- **Ojo con el salto de la estrategia 2**: pasa de 62 ns con la configuración de v1 a 35 o menos con
+  la de D23. No es el core (con `MemStrategy = 2` el core usa `EarlyRead = 0` y es el de siempre):
+  es el modelo de cable más la reparación después del ruteo global, que en un diseño de 43.960
+  celdas tienen mucho más que reparar. Es la misma mejora de flujo que en la estrategia 1 llevó el
+  RTL de v1 de 24,5 a 22 ns (`co_rcm_*`), pero amplificada.
 - ROM generada por el assembler: `rtl/gen/pochoco_rom.v` (`make image`, D11), **sin cambios**;
   memoria unificada: `rtl/pochoco_mem_ff.v` con `rtl/gen/game_image.vh`, también sin cambios de
   contenido.
