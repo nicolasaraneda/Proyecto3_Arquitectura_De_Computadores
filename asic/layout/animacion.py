@@ -35,8 +35,12 @@ ETAPAS = [
     ("openroad-cts", "8. Arbol de reloj"),
     ("openroad-resizertimingpostcts", "9. Resizer: setup y hold"),
     ("openroad-globalrouting", "10. Ruteo global"),
-    ("openroad-detailedrouting", "11. Ruteo detallado"),
-    ("openroad-fillinsertion", "12. Relleno: layout final"),
+    # Los dos pasos que agrega la configuracion de D23 (modelo de cable mas
+    # reparacion despues del ruteo global). Si la corrida no los tiene, se saltan.
+    ("openroad-repairdesignpostgrt", "11. Reparacion de diseno tras el ruteo global (D23)"),
+    ("openroad-resizertimingpostgrt", "12. Resizer de timing tras el ruteo global (D23)"),
+    ("openroad-detailedrouting", "13. Ruteo detallado"),
+    ("openroad-fillinsertion", "14. Relleno: layout final"),
 ]
 
 base = os.path.join(PDK_ROOT, PDK)
