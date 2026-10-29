@@ -28,7 +28,8 @@ del 27 y 28-10-2026 y no se repitió, porque no depende del diseño.
 | RTL contra netlist de síntesis (`asic/rom/runs/final/06-yosys-synthesis/asic_top.nl.v`) | eqy 0.68, 30 particiones cortadas en registros, estrategias `sat` (inducción temporal, 5 pasos) y `pdr` (sby, abc pdr) | **29 de 30 particiones probadas** (las 29 por `sat`, cada una en menos de 2 s de CPU); la partición grande `asic_top.led.0` (807 salidas) queda sin decidir: `sat` agota sus 5 pasos ("equivalence unknown", 69 s) y `pdr` responde "partitions not equivalent" con un contraejemplo que parte de un estado inicial inalcanzable (sección 4.5). 106 s de reloj, 122 s de CPU y 3.301.276 KB de memoria máxima | `asic/eqy/resultados/sint_v1ff/eqy_resumen.md`, `eqy_particiones.md`, `eqy_tiempo.txt` |
 | RTL contra netlist post-PnR sin celdas físicas (`asic/rom/runs/final/final/nl/asic_top.nl.v` sin fill, decap, tap ni endcap) | ídem | **29 de 30 probadas**, con la misma partición grande (799 salidas) sin decidir y por la misma razón. 152 s de reloj, 168 s de CPU y 3.312.736 KB de memoria | `asic/eqy/resultados/pnr_v1ff/eqy_resumen.md`, `eqy_particiones.md`, `eqy_tiempo.txt` |
 | RTL contra netlist de síntesis, **flujo clásico de Yosys** (`equiv_make`, `equiv_simple -seq 2`, `equiv_induct -seq 4`) | yosys 0.68 | **PASS, y es la prueba que cierra el caso**: 976 celdas `$equiv` (de los 984 nombres comunes: 28 puertos y 961 salidas de flip-flop emparejadas), 5 probadas por `equiv_simple` y las 971 restantes por `equiv_induct`, 0 sin probar. 518 s de reloj y 598.144 KB de memoria | `asic/eqy/resultados/sint_v1ff/equiv_resumen.txt` |
-| RTL contra netlist de síntesis, miter completo desde reset, solo salidas | sby 0.68, `smtbmc yices`, BMC acotado | **PASS a 24 pasos** (26 s de reloj, 189.376 KB), sin emparejar ningún nombre | `asic/eqy/resultados/sint_v1ff/bmc_24_resumen.txt` |
+| RTL contra netlist **post-PnR**, flujo clásico de Yosys | yosys 0.68 | **PASS**: 968 celdas `$equiv`, 5 probadas por `equiv_simple` y 963 por `equiv_induct`, 0 sin probar. 654 s de reloj y 606.844 KB | `asic/eqy/resultados/pnr_v1ff/equiv_resumen.txt` |
+| RTL contra netlist de síntesis, miter completo desde reset, solo salidas | sby 0.68, `smtbmc yices`, BMC acotado | **PASS a 24 pasos** (26 s de reloj, 189.376 KB) y **PASS a 100 pasos** (1.731 s, 28 min 51 s, 971.392 KB), sin emparejar ningún nombre | `asic/eqy/resultados/sint_v1ff/bmc_24_resumen.txt` y `asic/eqy/resultados/sint_v1/bmc_100_resumen.txt` |
 | **Control negativo** por `eqy`: netlist de síntesis con una celda cambiada en la ALU (`nand2_1` por `nor2_1` en la instancia `_0586_`) | eqy | **no discrimina**: da el mismo 29 de 30 que el netlist sin mutar, porque la partición que contiene la ALU es justamente la que queda sin decidir | `asic/eqy/resultados/mut_v1ff/eqy_resumen.md`, `gate_mut_diff.txt` |
 | **Control negativo** por BMC desde reset, 24 pasos | sby | **no discrimina**: PASS. El bit del sumador que la mutación rompe no se ejercita en 24 ciclos desde reset | `asic/eqy/resultados/mut_v1ff/bmc_24_resumen.txt` |
 | **Control negativo** por el flujo clásico de Yosys | yosys | **FAIL, como corresponde, y es el control que sí discrimina**: prueba 776 de las 976 celdas y deja **200 sin probar**, contra 976 de 976 en el netlist sin mutar | `build/eqy/mut_v1ff/equiv.log` (líneas 8988 y 8992) |
@@ -425,6 +426,7 @@ primera parte de cada `bmc_<profundidad>_resumen.txt`. sby en modo `bmc` con el 
 | `sint_v1ff` | netlist de síntesis | 24 pasos | **PASS** | 26,8 s | 189.376 | `asic/eqy/resultados/sint_v1ff/bmc_24_resumen.txt` |
 | `pnr_v1` | post-PnR sin celdas físicas | 24 pasos | **PASS** | 26,5 s | 189.372 | `asic/eqy/resultados/pnr_v1/bmc_24_resumen.txt` |
 | `mut_v1ff` | síntesis con una celda cambiada | 24 pasos | **PASS, o sea que no detecta la mutación** | 26,5 s | 197.772 | `asic/eqy/resultados/mut_v1ff/bmc_24_resumen.txt` |
+| `sint_v1` | netlist de síntesis | **100 pasos** | **PASS** | 1.731 s (28 min 51 s) | 971.392 | `asic/eqy/resultados/sint_v1/bmc_100_resumen.txt` |
 
 Es una comprobación acotada y de salidas solamente (en 24 ciclos el programa recién pasa sus
 primeras instrucciones); su valor es que **no depende de ningún emparejamiento de nombres** entre
@@ -460,23 +462,28 @@ siempre. **Es el resultado que sostiene la equivalencia de este diseño**, y el 
 la sección 5.2 muestra que discrimina: sobre el netlist con una celda cambiada deja 200 de las 976
 sin probar.
 
-Lo que no se repitió en esta vuelta: el flujo clásico contra el netlist post-PnR
-(`asic/eqy/resultados/pnr_v1ff/equiv_resumen.txt` sigue siendo el de v1, con sus 994 celdas; se
-reconoce por la fecha del archivo) y el primer intento sin canonizar, que está documentado en
-`docs/equivalencia_v1.md`. Para el post-PnR de este diseño la evidencia es eqy (29 de 30
-particiones, sección 5.1) más el miter desde reset a 24 pasos (sección 5.4).
+**Lo mismo contra el netlist post-PnR sin celdas físicas** (`TMAX=1500 bash asic/eqy/correr.sh
+equiv pnr_v1ff`): **PASS, 968 de 968 celdas `$equiv` probadas**, 5 por `equiv_simple` y 963 por
+`equiv_induct`, 0 sin probar, en 654,28 s de reloj y 606.844 KB de memoria máxima
+(`asic/eqy/resultados/pnr_v1ff/equiv_resumen.txt`). Son 968 y no 976 porque el PnR renombró ocho
+salidas de flip-flop al insertar buffers (sección 5.1). Con eso **los dos netlists de la corrida
+final quedan probados equivalentes al RTL por inducción**, no solo el de síntesis.
+
+Lo único que no se repitió en esta vuelta es el primer intento sin canonizar, que está documentado
+en `docs/equivalencia_v1.md` y no depende del diseño.
 
 ## 6. Qué queda probado y qué no
 
-**Probado.** El netlist de síntesis de la corrida final es equivalente al RTL de `asic_top` con
-`MemStrategy = 1`, `DataWords = 4` y `EarlyRead = 1`, y lo prueba el flujo clásico de Yosys: las
-976 celdas `$equiv` (los 28 puertos del chip y las salidas de flip-flop emparejadas) quedan
-probadas, 5 por `equiv_simple -seq 2` y 971 por `equiv_induct -seq 4`, que cierra la inducción en
-el paso 3. Eso quiere decir que, una vez que los dos circuitos coinciden en esos 976 puntos durante
+**Probado.** **Los dos netlists de la corrida final, el de síntesis y el post-PnR sin celdas
+físicas, son equivalentes al RTL** de `asic_top` con `MemStrategy = 1`, `DataWords = 4` y
+`EarlyRead = 1`, y lo prueba el flujo clásico de Yosys: contra el de síntesis, las 976 celdas
+`$equiv` (los 28 puertos del chip y las salidas de flip-flop emparejadas) quedan probadas, 5 por
+`equiv_simple -seq 2` y 971 por `equiv_induct -seq 4`, que cierra la inducción en el paso 3; contra
+el post-PnR, las 968 celdas `$equiv`, 5 y 963, también todas. Eso quiere decir que, una vez que los dos circuitos coinciden en esos 976 puntos durante
 tres ciclos, no vuelven a divergir nunca, para cualquier secuencia de entradas. El miter completo
-desde reset lo confirma por otra vía y sin emparejar nombres: a 24 pasos, con `rst_n` forzado dos
-ciclos y los botones y el SPI libres, las cuatro salidas del chip coinciden contra el netlist de
-síntesis y contra el post-PnR sin celdas físicas. Y eqy prueba 29 de sus 30 particiones, entre
+desde reset lo confirma por otra vía y sin emparejar nombres: a 24 pasos las cuatro salidas del chip
+coinciden contra el netlist de síntesis y contra el post-PnR, y **a 100 pasos** contra el de
+síntesis, con `rst_n` forzado dos ciclos y los botones y el SPI libres. Y eqy prueba 29 de sus 30 particiones, entre
 ellas todos los contadores, el PC de la etapa ID, el inmediato, los sincronizadores, el debounce,
 los displays y todas las señales de control del decode.
 

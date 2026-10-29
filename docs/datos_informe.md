@@ -586,14 +586,17 @@ rehechas sobre la corrida final de D23.
 `docs/equivalencia.md` y `asic/eqy/` (el documento de v1 queda en `docs/equivalencia_v1.md` y sus
 reportes en `asic/eqy/resultados_v1/`). Lo medido:
 
-- **El flujo clásico de Yosys prueba la equivalencia completa** contra el netlist de síntesis:
+- **El flujo clásico de Yosys prueba la equivalencia completa contra los dos netlists**:
   `equiv_make` más `equiv_simple -seq 2` más `equiv_induct -seq 4` dejan **976 de 976 celdas
-  `$equiv` probadas, 0 sin probar** (5 por `equiv_simple` y 971 por `equiv_induct`, que cierra la
-  inducción en el paso 3), en 518 s de reloj
-  (`asic/eqy/resultados/sint_v1ff/equiv_resumen.txt`).
+  `$equiv` probadas** contra el netlist de síntesis (5 por `equiv_simple` y 971 por `equiv_induct`,
+  que cierra la inducción en el paso 3; 518 s de reloj,
+  `asic/eqy/resultados/sint_v1ff/equiv_resumen.txt`) y **968 de 968** contra el post-PnR sin celdas
+  físicas (5 y 963; 654 s, `asic/eqy/resultados/pnr_v1ff/equiv_resumen.txt`). Son 968 y no 976
+  porque el PnR renombró ocho salidas de flip-flop al insertar buffers.
 - **El miter completo desde reset pasa a 24 pasos** contra el netlist de síntesis y contra el
-  post-PnR sin celdas físicas, sin emparejar ningún nombre
-  (`asic/eqy/resultados/{sint_v1ff,pnr_v1}/bmc_24_resumen.txt`).
+  post-PnR sin celdas físicas, y **a 100 pasos** contra el de síntesis (1.731 s, 28 min 51 s), sin
+  emparejar ningún nombre
+  (`asic/eqy/resultados/{sint_v1ff,pnr_v1}/bmc_24_resumen.txt` y `sint_v1/bmc_100_resumen.txt`).
 - **eqy prueba 29 de sus 30 particiones** contra los dos netlists y deja sin decidir la grande
   (`asic_top.led.0`, 807 y 799 salidas). La causa es estructural: el RTL tiene 44 bits de registro
   que el netlist no tiene (27 más que en v1, porque con la lectura anticipada el decodificador

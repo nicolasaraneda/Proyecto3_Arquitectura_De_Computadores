@@ -14,23 +14,23 @@ equiv_status
 equiv_induct -seq 4
 equiv_status
 
-tiempo_real_496.25_s;usuario_495.27_s;sistema_1.17_s;memoria_maxima_688160_KB
+tiempo_real_654.28_s;usuario_644.14_s;sistema_10.40_s;memoria_maxima_606844_KB
 
 equiv_status (en orden: tras equiv_make, tras equiv_simple, tras equiv_induct):
-2263:7. Executing EQUIV_STATUS pass.
-2264:Found 994 $equiv cells in equiv:
-2265:  Of those cells 0 are proven and 994 are unproven.
-3262:8. Executing EQUIV_SIMPLE pass.
-3263:Found 994 unproven $equiv cells (994 groups) in equiv:
-7237:Proved 3 previously unproven $equiv cells.
-7239:9. Executing EQUIV_STATUS pass.
-7240:Found 994 $equiv cells in equiv:
-7241:  Of those cells 3 are proven and 991 are unproven.
-8235:10. Executing EQUIV_INDUCT pass.
-8236:Found 991 unproven $equiv cells in module equiv:
-8249:Proved 991 previously unproven $equiv cells.
-8251:11. Executing EQUIV_STATUS pass.
-8252:Found 994 $equiv cells in equiv:
-8253:  Of those cells 994 are proven and 0 are unproven.
+2134:7. Executing EQUIV_STATUS pass.
+2135:Found 968 $equiv cells in equiv:
+2136:  Of those cells 0 are proven and 968 are unproven.
+3107:8. Executing EQUIV_SIMPLE pass.
+3108:Found 968 unproven $equiv cells (968 groups) in equiv:
+6978:Proved 5 previously unproven $equiv cells.
+6980:9. Executing EQUIV_STATUS pass.
+6981:Found 968 $equiv cells in equiv:
+6982:  Of those cells 5 are proven and 963 are unproven.
+7948:10. Executing EQUIV_INDUCT pass.
+7949:Found 963 unproven $equiv cells in module equiv:
+7959:Proved 963 previously unproven $equiv cells.
+7961:11. Executing EQUIV_STATUS pass.
+7962:Found 968 $equiv cells in equiv:
+7963:  Of those cells 968 are proven and 0 are unproven.
 
 no probados al final:

@@ -17,17 +17,17 @@ prep -top miter_reset
 [files]
 miter_reset.sv
 
-tiempo_real_1394.40_s;usuario_1379.52_s;sistema_35.98_s;memoria_maxima_932200_KB
+tiempo_real_1731.16_s;usuario_1715.73_s;sistema_37.48_s;memoria_maxima_971392_KB
 
-SBY  7:24:41 [miter_reset] engine_0: ##   0:19:39  Checking assertions in step 95..
-SBY  7:25:25 [miter_reset] engine_0: ##   0:20:24  Checking assertions in step 96..
-SBY  7:25:58 [miter_reset] engine_0: ##   0:20:57  Checking assertions in step 97..
-SBY  7:26:27 [miter_reset] engine_0: ##   0:21:25  Checking assertions in step 98..
-SBY  7:27:14 [miter_reset] engine_0: ##   0:22:12  Checking assertions in step 99..
-SBY  7:28:12 [miter_reset] engine_0: ##   0:23:11  Status: passed
-SBY  7:28:13 [miter_reset] engine_0: Status returned by engine: pass
-SBY  7:28:13 [miter_reset] summary: Elapsed clock time [H:MM:SS (secs)]: 0:23:14 (1394)
-SBY  7:28:13 [miter_reset] summary: Elapsed process time [H:MM:SS (secs)]: 0:23:35 (1415)
-SBY  7:28:13 [miter_reset] summary: engine_0 (smtbmc yices) returned pass
-SBY  7:28:13 [miter_reset] summary: engine_0 did not produce any traces
-SBY  7:28:13 [miter_reset] DONE (PASS, rc=0)
+SBY 21:33:37 [miter_reset] engine_0: ##   0:25:06  Checking assertions in step 95..
+SBY 21:34:29 [miter_reset] engine_0: ##   0:25:59  Checking assertions in step 96..
+SBY 21:35:04 [miter_reset] engine_0: ##   0:26:34  Checking assertions in step 97..
+SBY 21:35:44 [miter_reset] engine_0: ##   0:27:13  Checking assertions in step 98..
+SBY 21:36:23 [miter_reset] engine_0: ##   0:27:53  Checking assertions in step 99..
+SBY 21:37:17 [miter_reset] engine_0: ##   0:28:47  Status: passed
+SBY 21:37:17 [miter_reset] engine_0: Status returned by engine: pass
+SBY 21:37:17 [miter_reset] summary: Elapsed clock time [H:MM:SS (secs)]: 0:28:51 (1731)
+SBY 21:37:17 [miter_reset] summary: Elapsed process time [H:MM:SS (secs)]: 0:29:12 (1752)
+SBY 21:37:17 [miter_reset] summary: engine_0 (smtbmc yices) returned pass
+SBY 21:37:17 [miter_reset] summary: engine_0 did not produce any traces
+SBY 21:37:17 [miter_reset] DONE (PASS, rc=0)
