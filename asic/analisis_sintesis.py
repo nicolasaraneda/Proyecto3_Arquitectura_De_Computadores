@@ -285,7 +285,11 @@ def main():
     L.append("## Comparación con lo esperado antes de sintetizar\n")
     L.append(f"- Flip-flops: el RTL tiene {esperado_q} bits de registro sin reset y {esperado_r} con reset ({esperado_q + esperado_r} en total, contados módulo por módulo arriba). La síntesis jerárquica da {tot_j.get('dffq_1', 0)} + {tot_j.get('dffrnq_1', 0)} y la final {q_f} + {r_f} = {q_f + r_f}.")
     L.append(f"- Se esperaba que el banco de registros dominara el área: 480 bits de almacenamiento más dos árboles de lectura de 15 a 1 por 32 bits, sin celdas de memoria en la biblioteca. Resultó el {100 * (rf['area_incl'] if rf else 0) / total_j:.0f} % del área y concentra los flip-flops sin reset y los multiplexores.")
-    L.append("- Se esperaba que los flip-flops fueran la celda más numerosa y los multiplexores la segunda, por los muxes de retención (un mux2 por bit escrito bajo condición). La tabla anterior lo confirma; la novedad es que `nand2_1` queda casi a la par de `mux2_2`: la ROM combinacional, el decodificador y la ALU se mapean sobre la compuerta más chica.")
+    prim = top[0][0] if top else ""
+    if "dff" in prim:
+        L.append("- Se esperaba que los flip-flops fueran la celda más numerosa y los multiplexores la segunda, por los muxes de retención (un mux2 por bit escrito bajo condición). La tabla anterior lo confirma.")
+    else:
+        L.append(f"- Se esperaba que los flip-flops fueran la celda más numerosa y los multiplexores la segunda, por los muxes de retención (un mux2 por bit escrito bajo condición). **No se cumplió**: la celda más usada es `{prim.replace('gf180mcu_fd_sc_mcu7t5v0__', '')}`, y el flip-flop queda tercero. La ROM combinacional, el decodificador y la ALU se mapean sobre las compuertas más chicas de la biblioteca, y con el core nuevo esa lógica creció más que los registros (el banco de registros no cambió de tamaño y el registro de instrucción perdió bits).")
     L.append(f"- El contador de ciclos es un bloque chico: {100 * (cc['area_incl'] if cc else 0) / total_j:.1f} % del área, casi todo flip-flops con reset.\n")
 
     with open(a.md, "w", encoding="utf-8") as f:

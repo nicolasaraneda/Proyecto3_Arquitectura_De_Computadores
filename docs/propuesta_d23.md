@@ -83,7 +83,7 @@ mismo RTL y la misma configuración). Las dos a T = 100 ns y `FP_CORE_UTIL` = 40
 | LVS (Netgen) | 0 | 0 | `design__lvs_error__count` |
 | Nets con violación de antena | 0 | 0 | `antenna__violating__nets` |
 | Setup WNS / TNS, peor de las 9 esquinas | 65,223 ns / 0 (max_ss) | 63,191 ns / 0 (max_ss) | `cierre.md` |
-| Hold WNS / TNS, peor de las 9 esquinas | 0,178 ns / 0 (min_ff) | 0,134 ns / 0 (min_ff) | `cierre.md` |
+| Hold WNS / TNS, peor de las 9 esquinas | 0,178 ns / 0 (min_ff) | 0,134 ns / 0 (min_ff); la corrida final que se adoptó mide 0,173 | `cierre.md` |
 | Área de celdas estándar (2, 3.3) | 182.265 µm² | 186.432 µm² (+2,3 por ciento) | `design__instance__area__stdcell` |
 | Área del die (3.5) | 408.957 µm² (0,409 mm²) | 419.131 µm² (0,419 mm², +2,5 por ciento) | `design__die__area` |
 | Celdas estándar | 8.670 | 9.197 (+6,1 por ciento) | `design__instance__count__stdcell` |
@@ -296,8 +296,12 @@ cambio no altera el comportamiento (hazard_test, mutaciones, monitor de X).
 2. **Superficie que defender.** El cambio introduce un camino de datos nuevo (write-through) y un
    parámetro de temporización (`EarlyRead`) que los tres integrantes tienen que poder explicar,
    incluidos los riesgos de datos y por qué cada uno está resuelto.
-3. **Margen de hold.** La candidata cierra con 0,134 ns de hold en la peor esquina contra 0,178 ns
-   de `main`: sigue cumpliendo, pero con 25 por ciento menos de margen.
+3. **Margen de hold.** La candidata con la configuración de v1 cerraba con 0,134 ns de hold en la
+   peor esquina contra 0,178 ns de `main`, 25 por ciento menos de margen. **Esa previsión no se
+   cumplió en la corrida final que se adoptó**: con la configuración del modelo de cable el hold de
+   la peor esquina es 0,173 ns (`asic/rom/resultados/final/cierre.md`), o sea 2,8 por ciento menos
+   que v1 y no 25 por ciento. El riesgo queda registrado como lo que se anticipó, con la medición
+   que lo corrigió.
 4. **Slew.** 571 pines con violación de max slew contra 546. No es criterio de cierre, pero es un
    número que empeora y que hay que saber explicar (cables más largos, 6 por ciento más de celdas).
 5. **La frecuencia máxima baja.** De 40,8 a 39,2 MHz con la configuración del enunciado. Si en la

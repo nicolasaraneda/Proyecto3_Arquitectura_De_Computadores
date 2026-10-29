@@ -126,6 +126,6 @@ Total esperado desde el RTL: 820; síntesis jerárquica: 820; corrida final: 779
 
 - Flip-flops: el RTL tiene 820 bits de registro sin reset y 185 con reset (1005 en total, contados módulo por módulo arriba). La síntesis jerárquica da 820 + 185 y la final 779 + 185 = 964.
 - Se esperaba que el banco de registros dominara el área: 480 bits de almacenamiento más dos árboles de lectura de 15 a 1 por 32 bits, sin celdas de memoria en la biblioteca. Resultó el 49 % del área y concentra los flip-flops sin reset y los multiplexores.
-- Se esperaba que los flip-flops fueran la celda más numerosa y los multiplexores la segunda, por los muxes de retención (un mux2 por bit escrito bajo condición). La tabla anterior lo confirma; la novedad es que `nand2_1` queda casi a la par de `mux2_2`: la ROM combinacional, el decodificador y la ALU se mapean sobre la compuerta más chica.
+- Se esperaba que los flip-flops fueran la celda más numerosa y los multiplexores la segunda, por los muxes de retención (un mux2 por bit escrito bajo condición). **No se cumplió**: la celda más usada es `nand2_1`, y el flip-flop queda tercero. La ROM combinacional, el decodificador y la ALU se mapean sobre las compuertas más chicas de la biblioteca, y con el core nuevo esa lógica creció más que los registros (el banco de registros no cambió de tamaño y el registro de instrucción perdió bits).
 - El contador de ciclos es un bloque chico: 2.4 % del área, casi todo flip-flops con reset.
 
