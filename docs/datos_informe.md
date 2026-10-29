@@ -83,18 +83,60 @@ tensión de 56 a 58, `magic-writelef` de 60 a 62 y el chequeo de antenas del LEF
 
 ## 3.2. Estrategias de memoria
 
-- Tabla comparativa: `asic/barrido.md`, sección "Comparación de estrategias (sección
-  3.2)", corridas s1_t100 y s2_t100 (configuración D15, mismo RTL):
-  área de celdas de síntesis 146.400 contra 693.901 µm²; flip-flops 921 contra 4.602;
-  área tras PnR 173.568 contra 838.173 µm²; die 393.525 contra 1.794.180 µm²;
-  período mínimo 55 contra 62 ns; antenas 0 contra 1 net.
-- Con la configuración final (D20, D21) la estrategia 1 pasa a 182.265 µm² de celdas y
-  408.957 µm² de die (corrida `final`); la estrategia 2 no se repitió con D20/D21.
-- Costo a US$23.000/mm²: estrategia 1 (final) 0,409 mm² -> US$9.406; estrategia 2
-  (s2_t100) 1,794 mm² -> US$41.266 (4,4 veces). Ver 3.5.
-- Antena de la estrategia 2: ver 3.6.
-- ROM generada por el assembler: `rtl/gen/pochoco_rom.v` (`make image`, D11);
-  memoria unificada: `rtl/pochoco_mem_ff.v` con `rtl/gen/game_image.vh`.
+Las dos estrategias se volvieron a correr con **el core y la configuración de D23**, para que la
+comparación de la sección 3.2 sea del mismo diseño: `s3_t100` es la estrategia 1
+(`asic/rom/config.yaml`, la misma configuración y el mismo RTL que la corrida final, con otro tag) y
+`s4_*` la estrategia 2 (`asic/ff/config_final.yaml`: `MemStrategy = 2`, con `EarlyRead = 0` por
+omisión, y las mismas perillas de flujo, incluido el modelo de cable). Tablas en `asic/final.md`.
+
+**`s3_t100` da exactamente los mismos números que `final`** (208.439 µm² de celdas, 419.131 µm² de
+die, WNS 65,725 ns, 0 violaciones de slew y 1 de capacitancia): el flujo es determinista con esta
+configuración, lo que vale como reproducción independiente de la corrida final.
+
+| dato a 100 ns | estrategia 1 (`final` y `s3_t100`) | estrategia 2 (`s4_t100`) | archivo |
+|---|---|---|---|
+| Área de celdas de la síntesis | 156.098 µm² | **696.640 µm²** | `sintesis_stat.rpt` de cada corrida, "Chip area for top module" |
+| Área de celdas tras place and route | 208.439 µm² | **977.015 µm²** (4,7 veces) | `design__instance__area__stdcell` |
+| Flip-flops | 964 | **4.673** (3.709 más) | `design__instance__count__class:sequential_cell` |
+| Celdas estándar | 9.928 | 43.960 | `design__instance__count__stdcell` |
+| Área del die | 419.131 µm² (0,419 mm²) | **1.801.610 µm² (1,802 mm²)**, 4,3 veces | `design__die__area` |
+| Utilización real del core | 0,535 | 0,562 | `design__instance__utilization` |
+| Largo de cables | 377.509 µm | 2.242.954 µm (5,9 veces) | `route__wirelength` |
+| Nets con violación de antena | 0 (1 diodo) | **0 (6 diodos)** | `antenna__violating__nets`, `antenna_diodes_count` |
+| Violaciones de max slew / max cap | 0 / 1 | 62 / 14 | `design__max_slew_violation__count` y `__max_cap__` |
+| Setup WNS peor esquina | 65,725 ns | 55,558 ns | `cierre.md` |
+| Hold WNS peor esquina | 0,173 ns | 0,171 ns | `cierre.md` |
+| CPI del juego completo | **1,665** | **2,665** | `docs/verificacion/integracion_01_make_check.txt` |
+| CPI de `isa_test.s` | 1,969 | 2,953 | `docs/verificacion/integracion_03_equiv_isa_v1.txt` |
+| Costo a 23.000 dólares por mm² | 9.640 dólares | **41.437 dólares** (4,3 veces) | cálculo sobre el área del die |
+
+Tres cosas que esta comparación deja dichas y que el informe debería usar:
+
+1. **La ROM combinacional de la estrategia 1 pasa a ser condición del pipeline, no solo la opción más
+   barata.** Es su salida combinacional la que permite conocer la instrucción un ciclo antes y pedir
+   con ella la lectura del banco de registros. La memoria unificada en flip-flops también expone esa
+   salida (`a_next_o` en `rtl/pochoco_mem_ff.v`), así que técnicamente se podría anticipar con ella,
+   pero el mux de 119 palabras en el camino la haría impracticable: por eso `pochoco_soc` fija
+   `EarlyRead = (MemStrategy == 1) ? 1 : 0`. Es un argumento nuevo a favor de D17, que elige la
+   estrategia 1 para la corrida final.
+2. **Por eso la estrategia 2 tiene el CPI de v1, 2,665, y la 1 lo baja a 1,665.** La diferencia de
+   rendimiento entre las dos estrategias deja de ser solo de frecuencia y pasa a ser también de
+   instrucciones por ciclo, que es lo que la Ley de Hierro mide.
+3. **La violación de antena de la estrategia 2 desapareció.** Con las corridas `s2_*` de v1 había 1
+   net en violación (`net3342`, sección 3.6) y hacía falta insertar diodos o repetir la reparación de
+   antenas; con el core y la configuración nuevos `s4_t100` cierra con **0 nets** y 6 diodos que el
+   propio flujo insertó. **Cuidado al citar**: la corrida `e2_t100` que está en
+   `asic/ff/resultados/` es una corrida temprana con el RTL de v1 y sí tiene 1 net en violación; el
+   aviso está en `asic/ff/resultados/LEEME.md`.
+
+- Período mínimo y frecuencia máxima de cada estrategia: el de la estrategia 1 es el barrido `f2_*`
+  (21,5 ns, 46,5 MHz; sección 3.4) y el de la estrategia 2 el barrido `s4_*`, en `asic/final.md`.
+  Para comparar, con la configuración de v1 eran 24,5 y 62 ns (`asic/barrido.md`).
+- ROM generada por el assembler: `rtl/gen/pochoco_rom.v` (`make image`, D11), **sin cambios**;
+  memoria unificada: `rtl/pochoco_mem_ff.v` con `rtl/gen/game_image.vh`, también sin cambios de
+  contenido.
+- Palabras del programa y de datos: 115 palabras de instrucción (460 bytes) y 0 de datos; máximos 256
+  y 64; RAM de datos de 4 palabras (128 flip-flops). **No cambian**: el programa es el mismo.
 
 ## 3.3. Síntesis
 
