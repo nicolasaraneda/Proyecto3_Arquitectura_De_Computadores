@@ -171,7 +171,7 @@ quedaron **incompletas por tiempo** (la cola las cortó a los 40 minutos).
 **Fallaron cinco**, todas del barrido de utilización, y es el resultado que el barrido busca: son
 las del punto 7.1.
 
-**Quedaron incompletas por tiempo tres**, todas registradas en `asic/logs/detenidas.txt`:
+**Quedaron incompletas por tiempo tres corridas** (cuatro intentos), todas registradas en `asic/logs/detenidas.txt`:
 
 | corrida | cuándo | hasta dónde llegó | qué significa |
 |---|---|---|---|
@@ -180,9 +180,11 @@ las del punto 7.1.
 | `s4_t30` y su repetición `s4_t30_b` | 29-10 01:53 y 02:34 | `OpenROAD.ResizerTimingPostGRT` (paso 44 de 78) | el punto de 30 ns de la estrategia 2. La primera vez competía por CPU con otras dos corridas; la segunda corrió **sola** y la cortó igual: solo el paso 37 (`ResizerTimingPostCTS`) se lleva 1.301 s, y al cortarse el resizer todavía iba en WNS -0,276 ns con 21 puntos en violación. Evidencia en `asic/ff/resultados/s4_t30_b/falla.txt` |
 
 La consecuencia del último caso es la única que toca un número del informe, y hay que decirla tal
-cual: **el período mínimo de la estrategia 2 que esta sesión pudo medir es el de `s4_t35`**, y el
-punto de 30 ns no se midió porque la corrida no cabe en el corte de 40 minutos de la cola. No es que
-no cierre: es que no se sabe.
+cual: **el período mínimo de la estrategia 2 que esta sesión pudo medir es el de `s4_t32`** (32 ns,
+31,25 MHz, WNS 1,807 ns), y el punto de 30 ns no se midió porque la corrida no cabe en el corte de
+40 minutos de la cola. No es que no cierre: es que no se sabe. La propia corrida de 32 ns tardó
+40 min 8 s, así que el corte es el límite práctico de lo que esta sesión puede medir en la
+estrategia 2.
 
 ## 9. Disco y memoria
 
