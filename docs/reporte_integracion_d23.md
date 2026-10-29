@@ -214,7 +214,7 @@ La sesión dejó **48 commits en `main`** sobre el tag `v1-final`, uno por hito
 
 | referencia | commit en `origin` | qué es |
 |---|---|---|
-| rama `main` | `f88ecbb` | la integración y todo el trabajo de la sesión; igual al `HEAD` local, y el árbol de trabajo queda limpio |
+| rama `main` | la punta de la sesión | la integración y todo el trabajo; el `git ls-remote` del cierre está al final de esta sección |
 | tag `v1-final` | `f868867` (tag anotado; apunta al commit `d881583`) | `main` antes de integrar: el estado al que se vuelve en la segunda vuelta atrás |
 | tag `candidata-rc-pre-rebase` | `968ab00` (tag anotado; apunta al commit `297c5fe`) | `exp/candidata-rc` antes del rebase, para que los hashes que citan los documentos sigan alcanzables |
 | rama `exp/candidata-rc-rebasada` | `90a3efd` | la rama rebasada tal como se mezcló en `main` (es el segundo padre del merge `d974a9f`) |
@@ -238,3 +238,22 @@ Los hitos de la integración, en orden:
 | `daacad5` | `docs/cambios_informe.md` rehecho con la revisión adversaria (14 + 29 correcciones) |
 | `5914024` | `pr_t22p5` cierra: B2 vale 1 ns, no 1,5 |
 | `f88ecbb` | el barrido de la estrategia 2 llega a 32 ns |
+
+Un commit no puede registrar su propio hash, así que la comprobación de que todo está en `origin`
+va aparte. Al cerrar la sesión, con el árbol de trabajo limpio (`git status --porcelain` vacío) y
+`main` empujado:
+
+```
+$ git ls-remote origin refs/heads/main refs/tags/v1-final refs/tags/candidata-rc-pre-rebase \
+      refs/heads/exp/candidata-rc refs/heads/exp/candidata-rc-rebasada
+297c5fe1d71c983e87abde7859842c9cdb2e652a	refs/heads/exp/candidata-rc
+90a3efd1a1448dcc61e3d3df54eedefd5b764129	refs/heads/exp/candidata-rc-rebasada
+2a4b4668c9a366f1205ec576a697ef8169cc2024	refs/heads/main
+968ab00723bc96f97c7ab630333793408e07ca9d	refs/tags/candidata-rc-pre-rebase
+f868867ed54b1e8aac4361e771daec6e6553cd5c	refs/tags/v1-final
+$ git rev-parse HEAD
+2a4b4668c9a366f1205ec576a697ef8169cc2024
+```
+
+`2a4b466` es el commit que dejó esta sección al día; después de él solo va el que agrega este
+bloque, que se empuja igual.
