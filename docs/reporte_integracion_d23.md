@@ -208,13 +208,13 @@ VCD) se puede volver a generar con la configuración versionada y no se sube.
 
 ## 10. Commits y tags
 
-La sesión dejó **35 commits en `main`** sobre el tag `v1-final`, uno por hito
+La sesión dejó **48 commits en `main`** sobre el tag `v1-final`, uno por hito
 (`git log --oneline v1-final..HEAD`). Todas las referencias están en `origin`, confirmado con
 `git ls-remote origin` (los dos tags son anotados, así que `ls-remote` imprime el hash del objeto de tag y no el del commit; la tabla da los dos):
 
 | referencia | commit en `origin` | qué es |
 |---|---|---|
-| rama `main` | `bfbd18a` | la integración y todo el trabajo de la sesión; igual al `HEAD` local |
+| rama `main` | `f88ecbb` | la integración y todo el trabajo de la sesión; igual al `HEAD` local, y el árbol de trabajo queda limpio |
 | tag `v1-final` | `f868867` (tag anotado; apunta al commit `d881583`) | `main` antes de integrar: el estado al que se vuelve en la segunda vuelta atrás |
 | tag `candidata-rc-pre-rebase` | `968ab00` (tag anotado; apunta al commit `297c5fe`) | `exp/candidata-rc` antes del rebase, para que los hashes que citan los documentos sigan alcanzables |
 | rama `exp/candidata-rc-rebasada` | `90a3efd` | la rama rebasada tal como se mezcló en `main` (es el segundo padre del merge `d974a9f`) |
@@ -235,3 +235,6 @@ Los hitos de la integración, en orden:
 | `04fa633` | `docs/hechos_flujo.md` reescrito como acta de la corrida final nueva |
 | `1858fb9` | barridos de utilización y de `pr_*` completos |
 | `7dd2fb4` | `docs/cambios_informe.md`, sección por sección y pregunta por pregunta |
+| `daacad5` | `docs/cambios_informe.md` rehecho con la revisión adversaria (14 + 29 correcciones) |
+| `5914024` | `pr_t22p5` cierra: B2 vale 1 ns, no 1,5 |
+| `f88ecbb` | el barrido de la estrategia 2 llega a 32 ns |
