@@ -68,3 +68,20 @@ diseño queda igual que antes y `make check` lo sigue ejercitando.
   salidas) sí es idéntico, y las 5 comprobaciones del programa pasan en las dos versiones.
 - `make post-synth` compara sin retardos. La comparación con retardos anotados es
   `make post-pnr-sdf` y `make post-pnr-cvc`, en `asic/sim/resultado_sdf.md`.
+
+## 16. `make check` repetido al cierre de la sesión
+
+La verificación 1 se corrió sobre el commit de la integración. Al cerrar la sesión, después de todos
+los commits de documentación y del cambio de comentarios en `rtl/espino_core/espino_id_stage.v`, se
+repitió completa: **PASS, código 0**, 80 pruebas del assembler y los seis testbenches en las dos
+estrategias. Salida en `integracion_16_make_check_cierre.txt`. Las cifras que el informe cita salen
+de ahí:
+
+| medida | estrategia 1 | estrategia 2 |
+|---|---|---|
+| CPI del juego completo | 1.595.814 / 958.358 = **1,665** | 1.599.759 / 600.218 = **2,665** |
+| CPI del juego corto (`game_top_tb`) | 782.048 / 465.094 = 1,681 | 783.951 / 292.252 = 2,682 |
+| Monitor de valores desconocidos usados, juego completo | **0** en 620.217 escrituras al banco | **0** en 388.411 |
+
+El CPI de la estrategia 2 es exactamente el de v1, porque con `MemStrategy = 2` el core usa
+`EarlyRead = 0` y la temporización vuelve a ser la de antes del pipeline.

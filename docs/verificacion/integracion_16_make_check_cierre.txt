@@ -1,0 +1,263 @@
+# make check sobre main ya integrado, repetido al cierre de la sesion
+
+Commit: 45f80bc del 2026-10-29 01:18:05. Repite la verificacion 1 de docs/verificacion/integracion.md sobre el HEAD final, despues de todos los commits de documentacion.
+
+```
+cd assembler && python3 -m unittest discover -s tests -t .
+................................................................................
+----------------------------------------------------------------------
+Ran 80 tests in 0.016s
+
+OK
+iverilog -g2012 -DMEM_STRATEGY=1 -I build/buttons_leds -o build/game_top_tb_m1 tb/game_top_tb.v ./rtl/asic_top.v ./rtl/debounce.v ./rtl/pochoco_cycle_counter.v ./rtl/pochoco_mem_ff.v ./rtl/pochoco_mem_rom.v ./rtl/pochoco_periph.v ./rtl/pochoco_soc.v ./rtl/pochoco_spi_slave.v ./rtl/espino_core/espino_alu.v ./rtl/espino_core/espino_controller.v ./rtl/espino_core/espino_core.v ./rtl/espino_core/espino_decoder.v ./rtl/espino_core/espino_id_stage.v ./rtl/espino_core/espino_if_stage.v ./rtl/espino_core/espino_load_store_unit.v ./rtl/espino_core/espino_register_file.v build/buttons_leds/pochoco_rom.v
+vvp build/game_top_tb_m1
+VCD info: dumpfile game_top_tb.vcd opened for output.
+ok   @166340000: reposo tras reset -- o_LED=0000
+ok   @166421000: sincronizador: btn_sync sigue a i_Switch en 2 ciclos
+ok   @166421000: sincronizador: btn_clean todavia no se movio
+ok   @330260000: pulso de 2 ciclos filtrado: LEDs nunca se movieron -- o_LED=0000
+ok   @374420000: boton 0 en pleno rebote, LED todavia no debe moverse -- o_LED=0000
+ok   @538260000: boton 0 asentado -> LED0 encendido -- o_LED=0001
+ok   @703700000: boton 0 soltado y asentado -> LEDs apagadas -- o_LED=0000
+ok   @867540000: botones 1 y 3 -> LED1 y LED3 encendidas -- o_LED=1010
+ok   @869140000: glitch mas corto que un tick -> sin efecto en LEDs -- o_LED=1010
+ok   @1032980000: todo soltado y asentado -- o_LED=0000
+ok   : CYCLES avanzo exactamente 1000 en 1000 ciclos
+
+=== PASS: todos los checks OK ===
+tb/game_top_tb.v:212: $finish called at 1072980000 (1ps)
+iverilog -g2012 -DMEM_STRATEGY=1 -I build/game_sim -o build/game_tb_m1 tb/game_tb.v ./rtl/asic_top.v ./rtl/debounce.v ./rtl/pochoco_cycle_counter.v ./rtl/pochoco_mem_ff.v ./rtl/pochoco_mem_rom.v ./rtl/pochoco_periph.v ./rtl/pochoco_soc.v ./rtl/pochoco_spi_slave.v ./rtl/espino_core/espino_alu.v ./rtl/espino_core/espino_controller.v ./rtl/espino_core/espino_core.v ./rtl/espino_core/espino_decoder.v ./rtl/espino_core/espino_id_stage.v ./rtl/espino_core/espino_if_stage.v ./rtl/espino_core/espino_load_store_unit.v ./rtl/espino_core/espino_register_file.v build/game_sim/pochoco_rom.v
+vvp build/game_tb_m1
+== game_tb: programa game.s,CYCLES_PER_TENTH=2500, memoria estrategia 1, RONDAS=10, reaccion inyectada=12 decimas ==
+ok   @171780000: pantalla de inicio: el display muestra 00
+ok   @171780000: pantalla de inicio: los LEDs estan apagados
+ok   @1671780000: pantalla de inicio: el juego espera una pulsacion, no avanza solo
+ok   @1702620000: ronda 1: round_begin enciende los 4 LEDs
+ok   @1703460000: ronda 1: el display muestra el numero de ronda
+ok   @4710740000: ronda 1: arm enciende un solo LED (el objetivo)
+ok   @5923740000: ronda 1: el display mide 12 decimas de reaccion (BCD 12)
+ok   @7127100000: ronda 2: round_begin enciende los 4 LEDs
+ok   @7127940000: ronda 2: el display muestra el numero de ronda
+ok   @10135220000: ronda 2: arm enciende un solo LED (el objetivo)
+ok   @11348540000: ronda 2: el display mide 12 decimas de reaccion (BCD 12)
+ok   @12551900000: ronda 3: round_begin enciende los 4 LEDs
+ok   @12552740000: ronda 3: el display muestra el numero de ronda
+ok   @15560220000: ronda 3: arm enciende el LED objetivo
+ok   @15577980000: ronda 3: la pulsacion incorrecta muestra EE
+ok   @15578020000: ronda 3: miss apaga los LEDs (despues de escribir EE)
+ok   @16580860000: ronda 3: el reintento vuelve a la fase de los 4 LEDs
+ok   @16581700000: ronda 3: el numero de ronda NO avanzo tras el error
+ok   @19588980000: ronda 3: arm enciende un solo LED (el objetivo)
+ok   @20802620000: ronda 3: el display mide 12 decimas de reaccion (BCD 12)
+ok   @22005980000: ronda 4: round_begin enciende los 4 LEDs
+ok   @22006820000: ronda 4: el display muestra el numero de ronda
+ok   @25014300000: ronda 4: arm enciende un solo LED (el objetivo)
+ok   @26229540000: ronda 4: el display mide 12 decimas de reaccion (BCD 12)
+ok   @27432900000: ronda 5: round_begin enciende los 4 LEDs
+ok   @27433740000: ronda 5: el display muestra el numero de ronda
+ok   @30441220000: ronda 5: arm enciende un solo LED (el objetivo)
+ok   @31654220000: ronda 5: el display mide 12 decimas de reaccion (BCD 12)
+ok   @32857580000: ronda 6: round_begin enciende los 4 LEDs
+ok   @32858420000: ronda 6: el display muestra el numero de ronda
+ok   @35866100000: ronda 6: arm enciende un solo LED (el objetivo)
+ok   @37079100000: ronda 6: el display mide 12 decimas de reaccion (BCD 12)
+ok   @38282460000: ronda 7: round_begin enciende los 4 LEDs
+ok   @38283300000: ronda 7: el display muestra el numero de ronda
+ok   @41290780000: ronda 7: arm enciende un solo LED (el objetivo)
+ok   @42506020000: ronda 7: el display mide 12 decimas de reaccion (BCD 12)
+ok   @43709380000: ronda 8: round_begin enciende los 4 LEDs
+ok   @43710220000: ronda 8: el display muestra el numero de ronda
+ok   @46717900000: ronda 8: arm enciende un solo LED (el objetivo)
+ok   @47930900000: ronda 8: el display mide 12 decimas de reaccion (BCD 12)
+ok   @49134260000: ronda 9: round_begin enciende los 4 LEDs
+ok   @49135100000: ronda 9: el display muestra el numero de ronda
+ok   @52142180000: ronda 9: arm enciende un solo LED (el objetivo)
+ok   @53355500000: ronda 9: el display mide 12 decimas de reaccion (BCD 12)
+ok   @54558860000: ronda 10: round_begin enciende los 4 LEDs
+ok   @54559900000: ronda 10: el display muestra el numero de ronda
+ok   @57567180000: ronda 10: arm enciende un solo LED (el objetivo)
+ok   @58780180000: ronda 10: el display mide 12 decimas de reaccion (BCD 12)
+ok   @59983500000: finish: el display muestra el patron AA
+ok   @60990060000: finish: el display pasa de AA al promedio
+ok   @60990060000: finish: el promedio de las 10 rondas es 12 decimas (BCD 12, leido 12)
+ok   @60990260000: finish: el parpadeo arranca con los 4 LEDs encendidos
+ok   @61492180000: finish: el parpadeo los apaga
+ok   @61994100000: finish: el parpadeo los vuelve a encender
+ok   @62496300000: reinicio: una pulsacion en finish vuelve al display 00
+ok   @62496340000: reinicio: los LEDs quedan apagados (despues de escribir 00)
+ok   @63996340000: reinicio: el juego quedo en la pantalla de inicio, no parpadeando
+uso de memoria: 0 lecturas y 0 escrituras de datos; instruccion mas alta ejecutada en 0x1c8 (palabra 114)
+CPI del juego: 1595814 ciclos / 958358 instrucciones retiradas = 1.665
+monitor de X: 0 valores desconocidos usados en 620217 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+
+=== PASS: todos los checks OK ===
+tb/game_tb.v:482: $finish called at 63996340000 (1ps)
+iverilog -g2012 -DMEM_STRATEGY=1 -I build/game_sim_r4 -DPROGRAMA=\"game.s,CYCLES_PER_TENTH=2500,RONDAS=4\" -DRONDAS_N=4 -o build/game_tb_r4_m1 tb/game_tb.v ./rtl/asic_top.v ./rtl/debounce.v ./rtl/pochoco_cycle_counter.v ./rtl/pochoco_mem_ff.v ./rtl/pochoco_mem_rom.v ./rtl/pochoco_periph.v ./rtl/pochoco_soc.v ./rtl/pochoco_spi_slave.v ./rtl/espino_core/espino_alu.v ./rtl/espino_core/espino_controller.v ./rtl/espino_core/espino_core.v ./rtl/espino_core/espino_decoder.v ./rtl/espino_core/espino_id_stage.v ./rtl/espino_core/espino_if_stage.v ./rtl/espino_core/espino_load_store_unit.v ./rtl/espino_core/espino_register_file.v build/game_sim_r4/pochoco_rom.v
+vvp build/game_tb_r4_m1
+== game_tb: programa game.s,CYCLES_PER_TENTH=2500,RONDAS=4, memoria estrategia 1, RONDAS=4, reaccion inyectada=12 decimas ==
+ok   @171780000: pantalla de inicio: el display muestra 00
+ok   @171780000: pantalla de inicio: los LEDs estan apagados
+ok   @1671780000: pantalla de inicio: el juego espera una pulsacion, no avanza solo
+ok   @1702620000: ronda 1: round_begin enciende los 4 LEDs
+ok   @1703460000: ronda 1: el display muestra el numero de ronda
+ok   @4710740000: ronda 1: arm enciende un solo LED (el objetivo)
+ok   @5923740000: ronda 1: el display mide 12 decimas de reaccion (BCD 12)
+ok   @7127100000: ronda 2: round_begin enciende los 4 LEDs
+ok   @7127940000: ronda 2: el display muestra el numero de ronda
+ok   @10135220000: ronda 2: arm enciende un solo LED (el objetivo)
+ok   @11348540000: ronda 2: el display mide 12 decimas de reaccion (BCD 12)
+ok   @12551900000: ronda 3: round_begin enciende los 4 LEDs
+ok   @12552740000: ronda 3: el display muestra el numero de ronda
+ok   @15560220000: ronda 3: arm enciende el LED objetivo
+ok   @15577980000: ronda 3: la pulsacion incorrecta muestra EE
+ok   @15578020000: ronda 3: miss apaga los LEDs (despues de escribir EE)
+ok   @16580860000: ronda 3: el reintento vuelve a la fase de los 4 LEDs
+ok   @16581700000: ronda 3: el numero de ronda NO avanzo tras el error
+ok   @19588980000: ronda 3: arm enciende un solo LED (el objetivo)
+ok   @20802620000: ronda 3: el display mide 12 decimas de reaccion (BCD 12)
+ok   @22005980000: ronda 4: round_begin enciende los 4 LEDs
+ok   @22006820000: ronda 4: el display muestra el numero de ronda
+ok   @25014300000: ronda 4: arm enciende un solo LED (el objetivo)
+ok   @26229540000: ronda 4: el display mide 12 decimas de reaccion (BCD 12)
+ok   @27432860000: finish: el display muestra el patron AA
+ok   @28439420000: finish: el display pasa de AA al promedio
+ok   @28439420000: finish: el promedio de las 4 rondas es 12 decimas (BCD 12, leido 12)
+ok   @28439620000: finish: el parpadeo arranca con los 4 LEDs encendidos
+ok   @28941540000: finish: el parpadeo los apaga
+ok   @29443460000: finish: el parpadeo los vuelve a encender
+ok   @29945660000: reinicio: una pulsacion en finish vuelve al display 00
+ok   @29945700000: reinicio: los LEDs quedan apagados (despues de escribir 00)
+ok   @31445700000: reinicio: el juego quedo en la pantalla de inicio, no parpadeando
+uso de memoria: 0 lecturas y 0 escrituras de datos; instruccion mas alta ejecutada en 0x1c8 (palabra 114)
+CPI del juego: 782048 ciclos / 465094 instrucciones retiradas = 1.681
+monitor de X: 0 valores desconocidos usados en 298803 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+
+=== PASS: todos los checks OK ===
+tb/game_tb.v:482: $finish called at 31445700000 (1ps)
+iverilog -g2012 -DMEM_STRATEGY=2 -I build/buttons_leds -o build/game_top_tb_m2 tb/game_top_tb.v ./rtl/asic_top.v ./rtl/debounce.v ./rtl/pochoco_cycle_counter.v ./rtl/pochoco_mem_ff.v ./rtl/pochoco_mem_rom.v ./rtl/pochoco_periph.v ./rtl/pochoco_soc.v ./rtl/pochoco_spi_slave.v ./rtl/espino_core/espino_alu.v ./rtl/espino_core/espino_controller.v ./rtl/espino_core/espino_core.v ./rtl/espino_core/espino_decoder.v ./rtl/espino_core/espino_id_stage.v ./rtl/espino_core/espino_if_stage.v ./rtl/espino_core/espino_load_store_unit.v ./rtl/espino_core/espino_register_file.v build/buttons_leds/pochoco_rom.v
+vvp build/game_top_tb_m2
+VCD info: dumpfile game_top_tb.vcd opened for output.
+ok   @166340000: reposo tras reset -- o_LED=0000
+ok   @166421000: sincronizador: btn_sync sigue a i_Switch en 2 ciclos
+ok   @166421000: sincronizador: btn_clean todavia no se movio
+ok   @330260000: pulso de 2 ciclos filtrado: LEDs nunca se movieron -- o_LED=0000
+ok   @374420000: boton 0 en pleno rebote, LED todavia no debe moverse -- o_LED=0000
+ok   @538260000: boton 0 asentado -> LED0 encendido -- o_LED=0001
+ok   @703700000: boton 0 soltado y asentado -> LEDs apagadas -- o_LED=0000
+ok   @867540000: botones 1 y 3 -> LED1 y LED3 encendidas -- o_LED=1010
+ok   @869140000: glitch mas corto que un tick -> sin efecto en LEDs -- o_LED=1010
+ok   @1032980000: todo soltado y asentado -- o_LED=0000
+ok   : CYCLES avanzo exactamente 1000 en 1000 ciclos
+
+=== PASS: todos los checks OK ===
+tb/game_top_tb.v:212: $finish called at 1072980000 (1ps)
+iverilog -g2012 -DMEM_STRATEGY=2 -I build/game_sim -o build/game_tb_m2 tb/game_tb.v ./rtl/asic_top.v ./rtl/debounce.v ./rtl/pochoco_cycle_counter.v ./rtl/pochoco_mem_ff.v ./rtl/pochoco_mem_rom.v ./rtl/pochoco_periph.v ./rtl/pochoco_soc.v ./rtl/pochoco_spi_slave.v ./rtl/espino_core/espino_alu.v ./rtl/espino_core/espino_controller.v ./rtl/espino_core/espino_core.v ./rtl/espino_core/espino_decoder.v ./rtl/espino_core/espino_id_stage.v ./rtl/espino_core/espino_if_stage.v ./rtl/espino_core/espino_load_store_unit.v ./rtl/espino_core/espino_register_file.v build/game_sim/pochoco_rom.v
+vvp build/game_tb_m2
+== game_tb: programa game.s,CYCLES_PER_TENTH=2500, memoria estrategia 2, RONDAS=10, reaccion inyectada=12 decimas ==
+ok   @171780000: pantalla de inicio: el display muestra 00
+ok   @171780000: pantalla de inicio: los LEDs estan apagados
+ok   @1671780000: pantalla de inicio: el juego espera una pulsacion, no avanza solo
+ok   @1702820000: ronda 1: round_begin enciende los 4 LEDs
+ok   @1704340000: ronda 1: el display muestra el numero de ronda
+ok   @4717340000: ronda 1: arm enciende un solo LED (el objetivo)
+ok   @5935340000: ronda 1: el display mide 12 decimas de reaccion (BCD 12)
+ok   @7141300000: ronda 2: round_begin enciende los 4 LEDs
+ok   @7142820000: ronda 2: el display muestra el numero de ronda
+ok   @10156180000: ronda 2: arm enciende un solo LED (el objetivo)
+ok   @11375220000: ronda 2: el display mide 12 decimas de reaccion (BCD 12)
+ok   @12581180000: ronda 3: round_begin enciende los 4 LEDs
+ok   @12582700000: ronda 3: el display muestra el numero de ronda
+ok   @15596060000: ronda 3: arm enciende el LED objetivo
+ok   @15614580000: ronda 3: la pulsacion incorrecta muestra EE
+ok   @15614660000: ronda 3: miss apaga los LEDs (despues de escribir EE)
+ok   @16619700000: ronda 3: el reintento vuelve a la fase de los 4 LEDs
+ok   @16621220000: ronda 3: el numero de ronda NO avanzo tras el error
+ok   @19634220000: ronda 3: arm enciende un solo LED (el objetivo)
+ok   @20852740000: ronda 3: el display mide 12 decimas de reaccion (BCD 12)
+ok   @22058700000: ronda 4: round_begin enciende los 4 LEDs
+ok   @22060220000: ronda 4: el display muestra el numero de ronda
+ok   @25073580000: ronda 4: arm enciende un solo LED (el objetivo)
+ok   @26292620000: ronda 4: el display mide 12 decimas de reaccion (BCD 12)
+ok   @27498580000: ronda 5: round_begin enciende los 4 LEDs
+ok   @27500100000: ronda 5: el display muestra el numero de ronda
+ok   @30513100000: ronda 5: arm enciende un solo LED (el objetivo)
+ok   @31730060000: ronda 5: el display mide 12 decimas de reaccion (BCD 12)
+ok   @32936020000: ronda 6: round_begin enciende los 4 LEDs
+ok   @32937540000: ronda 6: el display muestra el numero de ronda
+ok   @35950540000: ronda 6: arm enciende un solo LED (el objetivo)
+ok   @37167500000: ronda 6: el display mide 12 decimas de reaccion (BCD 12)
+ok   @38373460000: ronda 7: round_begin enciende los 4 LEDs
+ok   @38374980000: ronda 7: el display muestra el numero de ronda
+ok   @41388700000: ronda 7: arm enciende un solo LED (el objetivo)
+ok   @42607220000: ronda 7: el display mide 12 decimas de reaccion (BCD 12)
+ok   @43813180000: ronda 8: round_begin enciende los 4 LEDs
+ok   @43814700000: ronda 8: el display muestra el numero de ronda
+ok   @46827700000: ronda 8: arm enciende un solo LED (el objetivo)
+ok   @48044660000: ronda 8: el display mide 12 decimas de reaccion (BCD 12)
+ok   @49250620000: ronda 9: round_begin enciende los 4 LEDs
+ok   @49252140000: ronda 9: el display muestra el numero de ronda
+ok   @52265500000: ronda 9: arm enciende un solo LED (el objetivo)
+ok   @53485060000: ronda 9: el display mide 12 decimas de reaccion (BCD 12)
+ok   @54691020000: ronda 10: round_begin enciende los 4 LEDs
+ok   @54692900000: ronda 10: el display muestra el numero de ronda
+ok   @57705900000: ronda 10: arm enciende un solo LED (el objetivo)
+ok   @58924940000: ronda 10: el display mide 12 decimas de reaccion (BCD 12)
+ok   @60130860000: finish: el display muestra el patron AA
+ok   @61142580000: finish: el display pasa de AA al promedio
+ok   @61142580000: finish: el promedio de las 10 rondas es 12 decimas (BCD 12, leido 12)
+ok   @61142940000: finish: el parpadeo arranca con los 4 LEDs encendidos
+ok   @61646460000: finish: el parpadeo los apaga
+ok   @62149980000: finish: el parpadeo los vuelve a encender
+ok   @62654060000: reinicio: una pulsacion en finish vuelve al display 00
+ok   @62654140000: reinicio: los LEDs quedan apagados (despues de escribir 00)
+ok   @64154140000: reinicio: el juego quedo en la pantalla de inicio, no parpadeando
+uso de memoria: 0 lecturas y 0 escrituras de datos; instruccion mas alta ejecutada en 0x1c8 (palabra 114)
+CPI del juego: 1599759 ciclos / 600218 instrucciones retiradas = 2.665
+monitor de X: 0 valores desconocidos usados en 388411 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+
+=== PASS: todos los checks OK ===
+tb/game_tb.v:482: $finish called at 64154140000 (1ps)
+iverilog -g2012 -DMEM_STRATEGY=2 -I build/game_sim_r4 -DPROGRAMA=\"game.s,CYCLES_PER_TENTH=2500,RONDAS=4\" -DRONDAS_N=4 -o build/game_tb_r4_m2 tb/game_tb.v ./rtl/asic_top.v ./rtl/debounce.v ./rtl/pochoco_cycle_counter.v ./rtl/pochoco_mem_ff.v ./rtl/pochoco_mem_rom.v ./rtl/pochoco_periph.v ./rtl/pochoco_soc.v ./rtl/pochoco_spi_slave.v ./rtl/espino_core/espino_alu.v ./rtl/espino_core/espino_controller.v ./rtl/espino_core/espino_core.v ./rtl/espino_core/espino_decoder.v ./rtl/espino_core/espino_id_stage.v ./rtl/espino_core/espino_if_stage.v ./rtl/espino_core/espino_load_store_unit.v ./rtl/espino_core/espino_register_file.v build/game_sim_r4/pochoco_rom.v
+vvp build/game_tb_r4_m2
+== game_tb: programa game.s,CYCLES_PER_TENTH=2500,RONDAS=4, memoria estrategia 2, RONDAS=4, reaccion inyectada=12 decimas ==
+ok   @171780000: pantalla de inicio: el display muestra 00
+ok   @171780000: pantalla de inicio: los LEDs estan apagados
+ok   @1671780000: pantalla de inicio: el juego espera una pulsacion, no avanza solo
+ok   @1702820000: ronda 1: round_begin enciende los 4 LEDs
+ok   @1704340000: ronda 1: el display muestra el numero de ronda
+ok   @4717340000: ronda 1: arm enciende un solo LED (el objetivo)
+ok   @5935340000: ronda 1: el display mide 12 decimas de reaccion (BCD 12)
+ok   @7141300000: ronda 2: round_begin enciende los 4 LEDs
+ok   @7142820000: ronda 2: el display muestra el numero de ronda
+ok   @10156180000: ronda 2: arm enciende un solo LED (el objetivo)
+ok   @11375220000: ronda 2: el display mide 12 decimas de reaccion (BCD 12)
+ok   @12581180000: ronda 3: round_begin enciende los 4 LEDs
+ok   @12582700000: ronda 3: el display muestra el numero de ronda
+ok   @15596060000: ronda 3: arm enciende el LED objetivo
+ok   @15614580000: ronda 3: la pulsacion incorrecta muestra EE
+ok   @15614660000: ronda 3: miss apaga los LEDs (despues de escribir EE)
+ok   @16619700000: ronda 3: el reintento vuelve a la fase de los 4 LEDs
+ok   @16621220000: ronda 3: el numero de ronda NO avanzo tras el error
+ok   @19634220000: ronda 3: arm enciende un solo LED (el objetivo)
+ok   @20852740000: ronda 3: el display mide 12 decimas de reaccion (BCD 12)
+ok   @22058700000: ronda 4: round_begin enciende los 4 LEDs
+ok   @22060220000: ronda 4: el display muestra el numero de ronda
+ok   @25073580000: ronda 4: arm enciende un solo LED (el objetivo)
+ok   @26292620000: ronda 4: el display mide 12 decimas de reaccion (BCD 12)
+ok   @27498540000: finish: el display muestra el patron AA
+ok   @28510260000: finish: el display pasa de AA al promedio
+ok   @28510260000: finish: el promedio de las 4 rondas es 12 decimas (BCD 12, leido 12)
+ok   @28510620000: finish: el parpadeo arranca con los 4 LEDs encendidos
+ok   @29014140000: finish: el parpadeo los apaga
+ok   @29517660000: finish: el parpadeo los vuelve a encender
+ok   @30021740000: reinicio: una pulsacion en finish vuelve al display 00
+ok   @30021820000: reinicio: los LEDs quedan apagados (despues de escribir 00)
+ok   @31521820000: reinicio: el juego quedo en la pantalla de inicio, no parpadeando
+uso de memoria: 0 lecturas y 0 escrituras de datos; instruccion mas alta ejecutada en 0x1c8 (palabra 114)
+CPI del juego: 783951 ciclos / 292252 instrucciones retiradas = 2.682
+monitor de X: 0 valores desconocidos usados en 187627 escrituras al banco (rf_wdata 0, bus 0, operandos ALU 0, salidas 0)
+
+=== PASS: todos los checks OK ===
+tb/game_tb.v:482: $finish called at 31521820000 (1ps)
+codigo=0
+```
