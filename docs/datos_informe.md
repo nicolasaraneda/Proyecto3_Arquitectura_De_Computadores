@@ -510,23 +510,72 @@ de comparación de esa tabla es v1 y está rotulada como tal.
   veía antes era el nombre jerárquico de las instancias del banco de registros; lo arregla
   `asic/sim/renombrar_instancias.py`.
 
-## 3.8. Verificación adicional de la sesión del 27 y 28-10-2026 (no cambia el diseño)
+## 3.8. Verificación formal y de potencia (la que el informe todavía no recoge)
 
-- Equivalencia formal entre el RTL y los netlists de la corrida final:
-  `docs/equivalencia.md` y `asic/eqy/` (frente D2). eqy con las funciones del liberty
-  típico como modelo de celda, RTL (`MemStrategy=1`, `DataWords=4`) contra el netlist de
-  síntesis y contra el post-PnR sin celdas físicas, con control negativo que falla como
-  debe, BMC desde reset y el flujo clásico de Yosys (`equiv_make`, `equiv_simple`,
-  `equiv_induct`). El paso `Yosys.EQY` del flujo no sirve para este PDK y se documenta por
-  qué.
-- Potencia con actividad real: `asic/potencia/resultado.md` y `asic/potencia/` (frente D3).
-  VCD de la simulación del netlist de la corrida final en cuatro ventanas del juego
-  (lazo de polling, espera de tres segundos, escritura al display y ráfaga de inicio de
-  ronda), leídos por OpenSTA con el SPEF y el liberty de las 9 esquinas: 11,5 a 12,8 mW en
-  `nom_tt_025C_5v00` según la fase, contra los 8,97 mW de la estimación sin actividad del
-  flujo, con la lógica combinacional pasando de 0,0 a 20 y 28 por ciento del total. El
-  reloj (árbol más pines CLK de los 990 flip-flops) sigue siendo el 70 a 78 por ciento.
-  Incluye la sensibilidad al estado inicial de los flip-flops sin reset (entre -1,2 y
-  +1,8 por ciento).
-- Ramas de exploración de la sesión y propuesta de decisión: `asic/exploraciones.md`,
-  `docs/propuesta_d23.md` y D23 de `docs/decisiones.md`.
+Tres verificaciones que no son del enunciado pero que el informe gana si las incluye, las tres
+rehechas sobre la corrida final de D23.
+
+### Equivalencia formal entre el RTL y los netlists
+
+`docs/equivalencia.md` y `asic/eqy/` (el documento de v1 queda en `docs/equivalencia_v1.md` y sus
+reportes en `asic/eqy/resultados_v1/`). Lo medido:
+
+- **El flujo clásico de Yosys prueba la equivalencia completa** contra el netlist de síntesis:
+  `equiv_make` más `equiv_simple -seq 2` más `equiv_induct -seq 4` dejan **976 de 976 celdas
+  `$equiv` probadas, 0 sin probar** (5 por `equiv_simple` y 971 por `equiv_induct`, que cierra la
+  inducción en el paso 3), en 518 s de reloj
+  (`asic/eqy/resultados/sint_v1ff/equiv_resumen.txt`).
+- **El miter completo desde reset pasa a 24 pasos** contra el netlist de síntesis y contra el
+  post-PnR sin celdas físicas, sin emparejar ningún nombre
+  (`asic/eqy/resultados/{sint_v1ff,pnr_v1}/bmc_24_resumen.txt`).
+- **eqy prueba 29 de sus 30 particiones** contra los dos netlists y deja sin decidir la grande
+  (`asic_top.led.0`, 807 y 799 salidas). La causa es estructural: el RTL tiene 44 bits de registro
+  que el netlist no tiene (27 más que en v1, porque con la lectura anticipada el decodificador
+  trabaja sobre la salida de la ROM y la síntesis elimina los bits del registro de instrucción que
+  ya nadie lee), y eqy prueba cada partición para todo estado inicial, así que `pdr` encuentra uno
+  inalcanzable en que los bits 20 y 21 del PC difieren. **No hay ningún contraejemplo alcanzable.**
+  En v1 esa partición cerraba, así que es una pérdida de cobertura que queda informada
+  (`asic/eqy/resultados/sint_v1ff/eqy_particiones.md` y `ff_gold_sin_par.txt`).
+- **Control negativo** (una celda de la ALU, `nand2_1` por `nor2_1` en el acarreo del bit 30):
+  `eqy` **no** lo detecta (mismo 29 de 30) y el BMC de 24 pasos **tampoco** (PASS); el flujo clásico
+  **sí**, y deja 200 de 976 celdas sin probar. Es decir que el método que prueba es el que
+  discrimina, y eso vale decirlo: **la simulación del juego tampoco detectaría esa celda**, porque
+  el programa no genera operandos tan grandes.
+- El paso `Yosys.EQY` del flujo sigue sin servir para este PDK, por las dos razones documentadas en
+  `docs/equivalencia.md` sección 3 (no se repitió: no depende del diseño).
+
+### Potencia con actividad real
+
+`asic/potencia/resultado.md` y `asic/potencia/` (el de v1 queda en `resultado_v1.md` y
+`resultados_v1/`). VCD de la simulación del netlist post-PnR de la corrida final en cuatro ventanas
+del juego (lazo de polling, espera de tres segundos, escritura al display y ráfaga de inicio de
+ronda), leídos por OpenSTA con el SPEF y el liberty de las 9 esquinas (83 reportes):
+
+- en `nom_tt_025C_5v00`, **9,620 mW sin actividad y de 13,936 a 16,615 mW con actividad real**
+  según la fase, es decir entre 45 y 73 por ciento más que lo que informa el flujo (en v1 eran
+  8,971 y 11,504 a 12,755 mW, entre 28 y 42 por ciento más);
+- la lógica combinacional pasa de 0,0 por ciento del total sin actividad a **29 a 40 por ciento**
+  con actividad real (en v1 era 20 a 28 por ciento);
+- **el reloj deja de ser la mitad del consumo**: el árbol más los pines CLK de los flip-flops son el
+  61 por ciento del total en la ventana de polling (en v1 eran el 70 a 78 por ciento). El árbol
+  solo sube de 3,709 a 4,592 mW, y la causa está medida: 172 buffers de reloj contra 110
+  (`design__instance__count__class:clock_buffer`);
+- comparado con `exp/candidata` (el mismo RTL con el flujo de v1): 12,392 mW en la ventana de
+  polling contra 13,936 de la corrida final, así que de la subida total respecto de v1 (2,43 mW) el
+  RTL explica 0,89 y el modelo de cable 1,54;
+- **en MIPS por mW el diseño nuevo gana 50 por ciento igual**: 2,00 contra 1,33 MIPS/mW en la
+  ventana de polling (el MIPS es el de la frecuencia máxima y la potencia es a 10 MHz, así que es
+  una comparación relativa y no una métrica física);
+- lo que no se midió: la potencia a la frecuencia máxima, el experimento de sensibilidad al estado
+  inicial de los flip-flops sin reset (que v1 sí tiene) y la potencia de la estrategia 2.
+
+### Simulación post-PnR con retardos anotados
+
+`asic/sim/resultado_sdf.md`: corrida completa `d2_pnr` con la configuración de simulación de D23 y
+su SDF, en tres esquinas y con dos simuladores. Resultado en 3.7.
+
+### Ramas de exploración y la decisión
+
+`asic/exploraciones.md`, `docs/propuesta_d23.md`, `docs/modelo_cable.md`, `docs/pipeline.md`,
+`docs/revision_frente_a.md` y D23 de `docs/decisiones.md`. El reporte de la integración, con el
+estado de cada verificación y lo que falló, está en `docs/reporte_integracion_d23.md`.

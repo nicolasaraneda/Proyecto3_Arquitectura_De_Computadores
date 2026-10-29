@@ -1,12 +1,11 @@
 # Simulación post-PnR con retardos (SDF), sección 3.7
 
-Netlist post-PnR y SDF de la corrida `d1_pnr` (flujo completo con la configuración de
-simulación, abajo), simulados con el mismo testbench de puertos y el mismo escenario de
-`make post-synth` (`tb/post_synth_tb.v`, `asic/sim/estimulos.txt`, 4.500 ciclos a 100 ns:
-pulsación de inicio, ronda correcta de 57 ciclos, pulsación incorrecta con EE y reintento),
-en tres esquinas: típica `nom_tt_025C_5v00`, lenta `max_ss_125C_4v50` y rápida
-`min_ff_n40C_5v50`, más una cuarta (`nom_ss_125C_4v50`) como prueba de punta a punta de los
-objetivos del Makefile. Dos simuladores:
+Netlist post-PnR y SDF de la corrida **`d2_pnr`** (flujo completo con la configuración de
+simulación de D23, abajo), simulados con el mismo testbench de puertos y el mismo escenario de
+`make post-synth` (`tb/post_synth_tb.v`, `asic/sim/estimulos.txt`, 4.500 ciclos a 100 ns: pulsación
+de inicio, ronda correcta de **51** ciclos medidos, pulsación incorrecta con EE y reintento), en
+tres esquinas: típica `nom_tt_025C_5v00`, lenta `max_ss_125C_4v50` y rápida `min_ff_n40C_5v50`.
+Dos simuladores:
 
 - Icarus Verilog 13.0 de la imagen de LibreLane (`make post-pnr-sdf`, `asic/sim/post_pnr_sdf.sh`):
   anota los retardos del SDF pero NO evalúa los timing checks (sección 3).
@@ -14,46 +13,43 @@ objetivos del Makefile. Dos simuladores:
   evalúa `$setup`, `$hold`, `$width`, `$recovery`, `$removal` y `$period` con los valores del SDF
   (sección 4), con un control positivo que demuestra que los evalúa.
 
-Resultado: en las tres esquinas, con los dos simuladores, la traza del netlist con retardos es
-idéntica a la del RTL (md5 `4f14ec05462e4789a3d873d2ba50fd97`), sin valores X, reproducible en tres
-ejecuciones de cada simulador en cada esquina, y CVC no reporta ninguna violación de timing en 4.500
-ciclos a 100 ns. Además, el
-netlist REAL de la corrida final (`asic/rom/runs/final`, ROM real y `DebounceDivBits=15`) con su SDF
-de `nom_tt_025C_5v00` completó con Icarus el escenario de 320.000 ciclos de `make post-synth-final`
-con la misma traza que el RTL (sección 2.5).
+**Resultado con Icarus: en las tres esquinas la traza del netlist con retardos es idéntica a la del
+RTL (md5 `5b6cebfb898a90a258b592fb29e64651`), sin valores X, y reproducible en las tres ejecuciones
+de cada esquina (nueve trazas, un solo md5).** El resultado con CVC está en la sección 4.
 
-Archivos de salida (no versionados): `build/post_pnr/d1_pnr/<esquina>[_control_estimulo1]/` (Icarus),
-`build/post_pnr/cvc/d1_pnr/<esquina>[_control_estimulo1]/` (CVC) y
-`build/post_pnr/final/nom_tt_025C_5v00_final/` (escenario final), cada uno con su `resumen.md`.
-Los logs de `make` de cada corrida quedan en `build/post_pnr/make_*.log`.
+`d1_pnr` era la corrida equivalente de v1 y sus resultados quedan en
+`asic/sim/resultados/d1_pnr/`; el documento de v1 con sus números (57 ciclos medidos, md5
+`4f14ec05462e4789a3d873d2ba50fd97`, cuatro esquinas) está en el historial de git de este archivo.
 
-## 1. Corrida d1_pnr: flujo completo con la configuración de simulación (asic/sim/config_pnr.yaml)
+## 1. Corrida d2_pnr: flujo completo con la configuración de simulación (asic/sim/config_pnr.yaml)
 
 `asic/sim/config_pnr.yaml` la genera `asic/sim/generar_config.py --pnr` desde `asic/rom/config.yaml`:
-es la configuración final completa (D15, D20, D21, incluido `IO_PIN_ORDER_CFG: dir::../rom/pines.cfg`,
+es la configuración final completa de D23 (D15, D20, D21, `EarlyRead = 1`, el bloque `LAYERS_RC` y
+las cuatro variables de la reparación post-GRT, incluido `IO_PIN_ORDER_CFG: dir::../rom/pines.cfg`,
 que `asic/sim/config.yaml` omite porque solo se corre hasta la síntesis) con la ROM del programa de
 simulación (`asic/sim/gen/pochoco_rom.v`, `CYCLES_PER_TENTH=1`) y `DebounceDivBits=2`.
-Encolada con `bash asic/encolar.sh . asic/sim/config_pnr.yaml d1_pnr 100` (CLOCK_PERIOD 100,
-FP_CORE_UTIL 40); terminó con código 0 en 3 min 21 s (`asic/logs/cola_estado.txt`, 13:33 a 13:36).
-Cierre: `asic/sim/resultados/d1_pnr/cierre.md` (`asic/verificar_cierre.py`): DRC 0, LVS 0,
-antena 0, setup y hold con WNS >= 0 y TNS = 0 en las 9 esquinas: CIERRA. Archivos copiados por
-`asic/recolectar.py` a `asic/sim/resultados/d1_pnr/`.
+Encolada con `bash asic/encolar.sh . asic/sim/config_pnr.yaml d2_pnr 100` (CLOCK_PERIOD 100,
+FP_CORE_UTIL 40); terminó con código 0 en **5 min 31 s** (`asic/logs/cola_estado.txt`, 20:58:49 a
+21:04:20). Cierre: `asic/sim/resultados/d2_pnr/cierre.md` (`asic/verificar_cierre.py`): DRC 0,
+LVS 0, antena 0, setup y hold con WNS >= 0 y TNS = 0 en las 9 esquinas: **CIERRA** (setup WNS
+59,174 ns y hold 0,082 ns en la peor esquina). Archivos copiados por `asic/recolectar.py` a
+`asic/sim/resultados/d2_pnr/`.
 
-Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
+Datos de la corrida (`asic/sim/resultados/d2_pnr/metrics.json`): área de celdas estándar
+**207.624 µm²**, **951** flip-flops, die **414.282 µm²**, utilización real 0,540, 5 violaciones de
+max slew y 1 de max capacitancia.
 
-| corrida | T (ns) | setup WS tt | setup TNS tt | setup WS ss | setup TNS ss | hold WS tt | hold TNS tt | hold WS ss | hold TNS ss | setup WS peor | setup TNS peor | hold WS peor | hold TNS peor | cierra timing | área stdcell (µm²) | utilización | área die (µm²) | antena (nets) | DRC | LVS | cierra todo | slew (peor) | cap (peor) | celdas dly |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| d1_pnr | 100 | 74.695 | 0 | 63.717 | 0 | 0.442 | 0 | 1.063 | 0 | 63.717 | 0 | 0.173 | 0 | sí | 179330 | 0.479 | 403659 | 0 | 0 | 0 | sí | 516 | 30 | 0 |
+Difiere de la corrida final (`asic/final.md`: 208.439 µm², 964 flip-flops, die 419.131 µm²) solo por
+el programa (113 palabras en vez de 115, porque `CYCLES_PER_TENTH = 1` convierte dos `li` en dos
+`addi`) y el debounce de 2 bits en vez de 15 (13 flip-flops menos). Las 5 violaciones de slew contra
+las 0 de la corrida final son de ese mismo cambio: el diseño es un poco distinto y el resizer llega
+a otro punto.
 
-| corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
-|---|---|---|---|---|---|---|
-| d1_pnr | 150125.338 | 64095.450 | 977 | 73655.546 | 10005.722 | 3942.579 |
-
-Difiere de la corrida final (`asic/final.md`: 182.265 µm², 990 flip-flops) solo por el programa
-(113 palabras en vez de 115) y el debounce de 2 bits en vez de 15 (13 flip-flops menos).
-Latencia del árbol de reloj de d1_pnr (`asic/sim/runs/d1_pnr/55-openroad-stapostpnr/<esquina>/skew.max.rpt`,
-latencia de fuente y de destino en la ruta del peor skew): 1,465 y 1,241 ns en `nom_tt`, 2,679 y
-2,252 ns en `max_ss`, 0,928 y 0,792 ns en `min_ff`. Este dato explica el corrimiento de la sección 2.3.
+Latencia del árbol de reloj de `d2_pnr`
+(`asic/sim/runs/d2_pnr/*-openroad-stapostpnr/<esquina>/skew.max.rpt`, latencia de fuente y de
+destino en la ruta del peor skew): **1,541 y 1,298 ns** en `nom_tt`, **2,804 y 2,357 ns** en
+`max_ss`, **0,982 y 0,828 ns** en `min_ff`. Este dato explica el corrimiento de la sección 2.3 y es
+por lo que `MUESTREO` y `ESTIMULO` valen 50 ns y no 1.
 
 ## 2. Icarus Verilog 13.0 de la imagen: `make post-pnr-sdf ESQUINA=<esquina>`
 
@@ -89,29 +85,27 @@ python3 asic/sim/comparar.py build/post_pnr/d1_pnr/traza_rtl_sim.txt build/post_
 `PDK_ROOT=$HOME/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee`. Sin `-ginterconnect`
 iverilog omite la anotación (`Omitting $sdf_annotate()`); sin `-gspecify` no compila los bloques specify.
 
-### 2.2 Resultado por esquina (netlist post-PnR de d1_pnr, 3 ejecuciones de vvp por esquina)
+### 2.2 Resultado por esquina (netlist post-PnR de d2_pnr, 3 ejecuciones de vvp por esquina)
 
-Fuente: `build/post_pnr/d1_pnr/<esquina>/resumen.md`, `tiempo_<n>.txt`, `traza_<n>.txt`, `vvp_<n>.log`.
+Fuente: `build/post_pnr/d2_pnr/<esquina>/resumen.md`, `tiempo_<n>.txt`, `traza_<n>.txt`, `vvp_<n>.log`.
 
 | esquina | ciclos | cambios de salida | con X | igual al RTL | 3 md5 iguales | tiempo real de vvp (s), 3 ejecuciones | IOPATH anotados | INTERCONNECT anotados | timing checks |
 |---|---|---|---|---|---|---|---|---|---|
-| nom_tt_025C_5v00 | 4500 | 16 | 0 | sí (3 de 3) | sí | 47,274 / 47,806 / 53,067 | 35910 de 38086 | 14565 de 14566 | no evaluados (977 bloques ignorados) |
-| max_ss_125C_4v50 | 4500 | 16 | 0 | sí (3 de 3) | sí | 50,769 / 61,006 / 62,475 | 35910 de 38086 | 14565 de 14566 | no evaluados (977 bloques ignorados) |
-| min_ff_n40C_5v50 | 4500 | 16 | 0 | sí (3 de 3) | sí | 65,828 / 55,437 / 51,181 | 35910 de 38086 | 14565 de 14566 | no evaluados (977 bloques ignorados) |
-| nom_ss_125C_4v50 (*) | 4500 | 16 | 0 | sí (3 de 3) | sí | 43,370 / 43,459 / 42,736 | 35910 de 38086 | 14565 de 14566 | no evaluados (977 bloques ignorados) |
+| nom_tt_025C_5v00 | 4500 | 16 | 0 | **sí (3 de 3)** | sí | 80,007 / 76,862 / 82,264 | 34005 de 36473 | 16300 de 16301 | no evaluados (951 bloques ignorados) |
+| max_ss_125C_4v50 | 4500 | 16 | 0 | **sí (3 de 3)** | sí | 99,260 / 98,917 / 92,420 | 34005 de 36473 | 16300 de 16301 | no evaluados (951 bloques ignorados) |
+| min_ff_n40C_5v50 | 4500 | 16 | 0 | **sí (3 de 3)** | sí | 103,107 / 90,978 / 76,987 | 34005 de 36473 | 16300 de 16301 | no evaluados (951 bloques ignorados) |
 
-(*) Cuarta esquina, corrida a las 20:56 como prueba de punta a punta del objetivo `make post-pnr-sdf`
-después de darle como prerrequisito la ROM de simulación (`build/post_pnr/make_nom_ss_125C_4v50.log`,
-`build/post_pnr/cadena_nom_ss.log`); mismo md5.
+md5 de las nueve trazas del netlist y de la del RTL: **`5b6cebfb898a90a258b592fb29e64651`** (17
+líneas: la inicial y 16 cambios). El RTL con el mismo Icarus tarda de 0,100 a 0,181 s; el netlist
+anotado, de 76,9 a 103,1 s (`time` de bash dentro de la imagen: real, usuario y sistema en
+`tiempo_<n>.txt`). Es la misma traza de `make post-synth` (`build/post_synth/traza_rtl.txt`, mismo
+md5): 4 LEDs en el ciclo 383 y display 01 en el 404, **51** ciclos medidos en el 1033, EE en el
+1405, ronda 02 repetida en el 1507 y 51 de nuevo en el 2131. Los tres binarios de vvp (uno por
+esquina) no abortaron en ninguna de las nueve ejecuciones (código 0 en los `tiempo_<n>.txt`).
 
-md5 de las doce trazas del netlist y de la del RTL: `4f14ec05462e4789a3d873d2ba50fd97` (17 líneas:
-la inicial y 16 cambios). El RTL con el mismo Icarus tarda de 0,073 a 0,082 s; el netlist anotado,
-de 42,7 a 65,8 s
-(`time` de bash dentro de la imagen: real, usuario y sistema en `tiempo_<n>.txt`). Es la misma traza
-de `make post-synth` (`build/post_synth/traza_rtl.txt`, mismo md5): 4 LEDs y display 01 en los ciclos
-388 y 426, 57 ciclos medidos en el 1574, EE en el 2181, ronda 02 repetida en el 2353, 57 en el 3492.
-Los cuatro binarios de vvp (uno por esquina) no abortaron en ninguna de las doce ejecuciones
-(código 0 en los `tiempo_<n>.txt`).
+El SDF de cada esquina trae 36.473 IOPATH, 16.301 INTERCONNECT y 951 bloques TIMINGCHECK con 7.173
+checks (SETUP 1.902, HOLD 1.902, WIDTH 2.074, RECOVERY 172, REMOVAL 172, PERIOD 951). Qué se anota y
+qué no, en la sección 2.4.
 
 ### 2.3 Instante de aplicación de las entradas (ESTIMULO) y el corrimiento de un ciclo
 
