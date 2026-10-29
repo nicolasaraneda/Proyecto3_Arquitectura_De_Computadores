@@ -2711,10 +2711,10 @@ violaciones de max slew desaparecen. Dato: `docs/revision_frente_a.md`, O3; `doc
 
 # Cierre: lo que decía "por medir" y ya está medido
 
-Las dos partes de arriba se redactaron mientras la cola de LibreLane todavía corría, así que dejan 63
-marcas de "por medir". **Casi todas ya tienen número.** Esta tabla es la que manda sobre esas marcas;
-el detalle, con el archivo de origen de cada cifra, está en `docs/datos_informe.md` y en
-`asic/final.md`.
+Las dos partes de arriba se redactaron mientras la cola de LibreLane todavía corría, así que dejaron
+63 marcas de "por medir". **Casi todas ya tienen número**, y las que quedan están listadas al final
+de esta sección. Donde el texto de arriba y esta tabla no coincidan, manda esta tabla; el detalle,
+con el archivo de origen de cada cifra, está en `docs/datos_informe.md` y en `asic/final.md`.
 
 | lo que faltaba | medido | dónde |
 |---|---|---|

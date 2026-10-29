@@ -88,7 +88,7 @@ Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "pe
 
 ## Estrategia 2 de memoria con la configuración final (sección 3.2)
 
-Corridas s4_* con asic/ff/config_final.yaml: memoria unificada de instrucciones y datos en flip-flops, el core nuevo con EarlyRead = 0 (el valor por omisión cuando MemStrategy = 2: la memoria en flip-flops lee registrado y no puede anticipar la lectura del banco) y las mismas perillas de flujo de la corrida final, incluido el modelo de cable. Por eso su CPI es el de v1 (2,665 en el juego completo, docs/verificacion/integracion_01_make_check.txt) y no el 1,665 de la estrategia 1. Comparar con las s2_* de v1 (asic/barrido.md), que usaban asic/ff/config.yaml.
+Corridas s4_* con asic/ff/config_final.yaml: memoria unificada de instrucciones y datos en flip-flops, el core nuevo con EarlyRead = 0 (el valor por omisión cuando MemStrategy = 2: la memoria en flip-flops lee registrado y no puede anticipar la lectura del banco) y las mismas perillas de flujo de la corrida final, incluido el modelo de cable. Por eso su CPI es el de v1 (2,665 en el juego completo, docs/verificacion/integracion_01_make_check.txt) y no el 1,665 de la estrategia 1. Comparar con las s2_* de v1 (asic/barrido.md), que usaban asic/ff/config.yaml y cuyo periodo minimo era 62 ns. Con la configuracion final la estrategia 2 baja mucho mas: cierra a 100, 65, 60, 55, 50, 45, 42, 40 y 35 ns, y el WNS no baja un nanosegundo por cada nanosegundo de periodo porque el resizer sigue reparando (55,558 a 100 ns; 10,558 a 55; 6,939 a 50; 6,802 a 45; 5,431 a 42; 5,531 a 40; 3,066 a 35). El punto de 30 ns (s4_t30) lo corto la regla de 40 minutos de la cola en el paso 44 de 78 y se repitio como s4_t30_b.
 
 Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "peor" es la peor de las 9 esquinas. Generado por `asic/recolectar.py`.
 
@@ -101,7 +101,9 @@ Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "pe
 | s4_t50 | 50 | 26.834 | 0 | 6.939 | 0 | 0.439 | 0 | 1.060 | 0 | 6.939 | 0 | 0.171 | 0 | sí | 977125 | 0.562 | 1801610 | 0 | 0 | 0 | sí | 64 | 13 | 0 |
 | s4_t45 | 45 | 24.513 | 0 | 6.802 | 0 | 0.439 | 0 | 1.060 | 0 | 6.802 | 0 | 0.171 | 0 | sí | 978190 | 0.563 | 1801610 | 0 | 0 | 0 | sí | 49 | 15 | 0 |
 | s4_t42 | 42 | 22.385 | 0 | 5.431 | 0 | 0.439 | 0 | 1.060 | 0 | 5.431 | 0 | 0.171 | 0 | sí | 980598 | 0.564 | 1801610 | 0 | 0 | 0 | sí | 52 | 11 | 0 |
-| s4_t40 | incompleta |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| s4_t40 | 40 | 21.461 | 0 | 5.531 | 0 | 0.439 | 0 | 1.060 | 0 | 5.531 | 0 | 0.163 | 0 | sí | 981147 | 0.565 | 1801610 | 0 | 0 | 0 | sí | 66 | 17 | 0 |
+| s4_t35 | 35 | 17.708 | 0 | 3.066 | 0 | 0.439 | 0 | 1.060 | 0 | 3.066 | 0 | 0.171 | 0 | sí | 990048 | 0.570 | 1801610 | 0 | 0 | 0 | sí | 35 | 14 | 0 |
+| s4_t30_b | incompleta |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 
 | corrida | área de celdas de síntesis (µm²) | área secuencial (µm²) | flip-flops | área espino_register_file (µm²) | área espino_alu (µm²) | área pochoco_cycle_counter (µm²) |
 |---|---|---|---|---|---|---|
@@ -112,6 +114,8 @@ Esquina típica: `nom_tt_025C_5v00`; esquina más lenta: `max_ss_125C_4v50`; "pe
 | s4_t50 | 696640.134 | 346545.248 | 4673 | 80348.710 | 10005.722 | 3942.579 |
 | s4_t45 | 696640.134 | 346545.248 | 4673 | 80348.710 | 10005.722 | 3942.579 |
 | s4_t42 | 696640.134 | 346545.248 | 4673 | 80348.710 | 10005.722 | 3942.579 |
+| s4_t40 | 696640.134 | 346545.248 | 4673 | 80348.710 | 10005.722 | 3942.579 |
+| s4_t35 | 696640.134 | 346545.248 | 4673 | 80348.710 | 10005.722 | 3942.579 |
 
 ## El pipeline sin B2 con la configuración final (sección 3.4, efecto de B2)
 
