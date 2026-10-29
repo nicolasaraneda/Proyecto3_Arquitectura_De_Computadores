@@ -194,21 +194,21 @@ disco=<GB>`). Ninguna corrida se saltó ni se mató por esas guardas en esta ses
 
 | qué | cuánto | de dónde |
 |---|---|---|
-| Disco del sistema de archivos | 1.007 GB en total, 337 GB usados, 620 GB libres (36 %) | `df -h .` |
-| El repositorio completo con todo lo generado | 311 GB | `du -sh .` |
+| Disco del sistema de archivos | 1.007 GB en total, 355 GB usados, 602 GB libres (38 %) | `df -h .` |
+| El repositorio completo con todo lo generado | 329 GB | `du -sh .` |
 | Corridas de LibreLane de la estrategia 1 (`asic/rom/runs`) | 70 GB | `du -sh` |
-| Corridas de la estrategia 2 (`asic/ff/runs`) | 62 GB | `du -sh` |
-| Árboles de trabajo de las ramas de exploración (`build/`) | 178 GB | `du -sh` |
-| Lo que sí está versionado de las corridas (`asic/rom/resultados`) | 20 MB | `du -sh` |
+| Corridas de la estrategia 2 (`asic/ff/runs`) | 79 GB | `du -sh` |
+| Árboles de trabajo de las ramas de exploración (`build/`) | 179 GB | `du -sh` |
+| Lo que sí está versionado de las corridas (`asic/rom/resultados` y `asic/ff/resultados`) | 20 MB y 3,9 MB | `du -sh` |
 
-El reparto importa para reproducir: de los 311 GB, **solo 20 MB están en git**. Los
+El reparto importa para reproducir: de los 329 GB, **solo 24 MB están en git**. Los
 `asic/*/resultados/<tag>/` guardan de cada corrida el `metrics.json`, los reportes de STA, el
 `cierre.md` y, cuando falla, el extracto `falla.txt`; el resto (los `runs/`, los ODB, los GDS, los
 VCD) se puede volver a generar con la configuración versionada y no se sube.
 
 ## 10. Commits y tags
 
-La sesión dejó **48 commits en `main`** sobre el tag `v1-final`, uno por hito
+La sesión dejó **50 commits en `main`** sobre el tag `v1-final`, uno por hito
 (`git log --oneline v1-final..HEAD`). Todas las referencias están en `origin`, confirmado con
 `git ls-remote origin` (los dos tags son anotados, así que `ls-remote` imprime el hash del objeto de tag y no el del commit; la tabla da los dos):
 
