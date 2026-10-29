@@ -239,7 +239,7 @@ def main():
     top = sorted(tot_f.items(), key=lambda x: -x[1])[: a.top]
     ncel_f = sum(tot_f.values())
     L.append(f"## Las {a.top} celdas más usadas de la corrida final\n")
-    L.append(f"La corrida final tiene {f0(ncel_f)} celdas de {len(tot_f)} tipos. El desglose por módulo sale de la síntesis jerárquica (misma configuración), por eso su total puede diferir en algunas celdas del de la corrida final.\n")
+    L.append(f"La síntesis de la corrida final deja {f0(ncel_f)} celdas de {len(tot_f)} tipos. Son las celdas que salen de Yosys, no las del layout: el PnR agrega buffers y celdas de reparación y el diseño final llega a 9.928 (`design__instance__count__stdcell` de `asic/rom/resultados/final/metrics.json`). El desglose por módulo sale de la síntesis jerárquica (misma configuración), por eso su total puede diferir en algunas celdas del de la corrida final.\n")
     L.append("| # | celda | cantidad (final) | % de las celdas | cantidad (jerárquica) | qué la explica |")
     L.append("|---|---|---|---|---|---|")
     for i, (c, k) in enumerate(top, 1):

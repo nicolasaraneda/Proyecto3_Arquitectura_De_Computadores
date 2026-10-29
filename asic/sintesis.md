@@ -38,7 +38,7 @@ La corrida final sintetiza aplanando el diseño salvo tres módulos cuya jerarqu
 
 ## Las 5 celdas más usadas de la corrida final
 
-La corrida final tiene 5.577 celdas de 36 tipos. El desglose por módulo sale de la síntesis jerárquica (misma configuración), por eso su total puede diferir en algunas celdas del de la corrida final.
+La síntesis de la corrida final deja 5.577 celdas de 36 tipos. Son las celdas que salen de Yosys, no las del layout: el PnR agrega buffers y celdas de reparación y el diseño final llega a 9.928 (`design__instance__count__stdcell` de `asic/rom/resultados/final/metrics.json`). El desglose por módulo sale de la síntesis jerárquica (misma configuración), por eso su total puede diferir en algunas celdas del de la corrida final.
 
 | # | celda | cantidad (final) | % de las celdas | cantidad (jerárquica) | qué la explica |
 |---|---|---|---|---|---|
