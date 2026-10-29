@@ -1,0 +1,12 @@
+asic/logs/s4_t30_b.log; corrida asic/ff/runs/s4_t30_b (CLOCK_PERIOD = 30, asic/ff/config_final.yaml)
+Detenida por la regla de 40 minutos de la cola (asic/logs/detenidas.txt, 2026-10-29 02:34:18), no por un error del flujo.
+Ultimo paso alcanzado: 44-openroad-resizertimingpostgrt de 78. El paso 37 (ResizerTimingPostCTS) solo se llevo 1.301 s.
+Estado del resizer al momento del corte (ultimas lineas del log):
+     1900 |      28 |     601 |       18 |      0 |    26 |    +0.6% |   -0.337 
+|       -2.0 |   2111 | _36485_/D                                               
+     1900 |      28 |     601 |       18 |      0 |    26 |    +0.6% |   -0.337 
+|       -2.0 |   2111 | _36485_/D                                               
+    1900* |      28 |     601 |       18 |      0 |    26 |    +0.6% |   -0.337 
+|       -2.0 |     23 | _36485_/D                                               
+    1902* |      28 |     602 |       18 |      0 |    26 |    +0.6% |   -0.276 
+|       -1.7 |     21 | _36134_/D                                               

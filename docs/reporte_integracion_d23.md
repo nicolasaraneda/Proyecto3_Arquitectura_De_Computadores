@@ -165,9 +165,24 @@ Un solo pin, el mismo en las nueve esquinas: **`clkbuf_0_clk/Z`, la raíz del á
 
 ## 8. Corridas incompletas
 
-Ninguna corrida se detuvo por la regla de 40 minutos de la cola en esta sesión
-(`asic/logs/detenidas.txt` no registra ninguna del 28-10 por la tarde). Las cinco que no
-completaron son las del punto 7.1, que fallaron por el diseño y no por tiempo.
+Hay que separar dos cosas distintas: las que **fallaron** (el flujo se detuvo con error) y las que
+quedaron **incompletas por tiempo** (la cola las cortó a los 40 minutos).
+
+**Fallaron cinco**, todas del barrido de utilización, y es el resultado que el barrido busca: son
+las del punto 7.1.
+
+**Quedaron incompletas por tiempo tres**, todas registradas en `asic/logs/detenidas.txt`:
+
+| corrida | cuándo | hasta dónde llegó | qué significa |
+|---|---|---|---|
+| `pa_b5_t28` | 28-10 07:41 | `OpenROAD.ResizerTimingPostCTS` | exploración B5 (banco de registros con latches) en `exp/pipeline-b5`; la rama no entró en la corrida final, así que no afecta a ningún número del informe. Queda dicho en `docs/pipeline.md` 5.1 |
+| `pa_b5_t28p5` | 28-10 08:41 | el mismo paso | lo mismo: por eso la regla de 0,5 ns queda **abierta** en el barrido de B5, y así está informado |
+| `s4_t30` y su repetición `s4_t30_b` | 29-10 01:53 y 02:34 | `OpenROAD.ResizerTimingPostGRT` (paso 44 de 78) | el punto de 30 ns de la estrategia 2. La primera vez competía por CPU con otras dos corridas; la segunda corrió **sola** y la cortó igual: solo el paso 37 (`ResizerTimingPostCTS`) se lleva 1.301 s, y al cortarse el resizer todavía iba en WNS -0,276 ns con 21 puntos en violación. Evidencia en `asic/ff/resultados/s4_t30_b/falla.txt` |
+
+La consecuencia del último caso es la única que toca un número del informe, y hay que decirla tal
+cual: **el período mínimo de la estrategia 2 que esta sesión pudo medir es el de `s4_t35`**, y el
+punto de 30 ns no se midió porque la corrida no cabe en el corte de 40 minutos de la cola. No es que
+no cierre: es que no se sabe.
 
 ## 9. Disco y memoria
 
