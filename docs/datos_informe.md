@@ -275,42 +275,64 @@ de comparación de esa tabla es v1 y está rotulada como tal.
 
 ## 3.5. Floorplan, utilización y costo
 
-- Barrido de FP_CORE_UTIL a 100 ns (corridas `final` = 40, `u1_u50`, `u1_u60`,
-  `u1_u70`, `u1_u72`, `u1_u75`, `u1_u78`, `u1_u79`, `u1_u80`, `u1_u90`; las de 72, 75, 78 y
-  79 % son del 27-10-2026): tabla en `asic/final.md`, gráfico
-  `docs/figuras/utilizacion.png` (DRC de ruteo por iteración, largo de cables global y
-  detallado, slew, capacitancia, antena, área del die, WNS).
-  Resultados: 50 % cierra (die 329.861 µm², utilización real 59 %), 60 % cierra
-  (276.917 µm², 70 %), 70 % cierra (238.967 µm², 81 %; el ruteo detallado parte con
-  2.149 violaciones de DRC y las resuelve), 72 % cierra (232.629 µm², 83 %; WNS 65,7 ns),
-  75 % cierra (223.753 µm², 87 %; WNS 65,8 ns), 78 % cierra (215.545 µm², 90 %; WNS
-  59,6 ns, hold 0,182 ns; cables 425.175 µm contra 318.333 a 70 %, +34 %; slew 880 y
-  capacitancia 49 contra 392 y 27), 79 % falla en CTS (`[DPL-0036] Detailed placement
-  failed`: al legalizar después de insertar los buffers del árbol de reloj quedan 6
-  instancias del banco de registros sin lugar; log `asic/logs/u1_u79.log`; die 452,6 x
-  470,5 µm y utilización 87,5 % según el placement global, GPL-0019), 80 % falla en el
-  mismo paso y con el mismo mensaje (22 instancias; log `asic/logs/u1_u80.log`), 90 % falla en el placement global
-  (`[GPL-0301] Utilization 100.531 % exceeds 100%`, `asic/logs/u1_u90.log`). Los logs
-  no se versionan (`asic/logs/` está en .gitignore); el extracto de cada falla está en
-  `asic/rom/resultados/u1_u79/falla.txt`, `asic/rom/resultados/u1_u80/falla.txt` y
-  `asic/rom/resultados/u1_u90/falla.txt`. Cada corrida que cierra tiene su `cierre.md` en
-  `asic/rom/resultados/<tag>/` y sus números salen de `metrics.json` (`design__die__area`,
-  `design__die__bbox`, `design__instance__utilization`, `timing__setup__ws__corner:max_ss_125C_4v50`,
-  `route__wirelength`, `design__max_slew_violation__count`, `design__max_cap_violation__count`).
-  Área mínima que cumple los criterios: u1_u78 (78 %), die 455,4 x 473,3 µm = 215.545 µm²
-  (0,216 mm²; `design__die__bbox` 0 0 455.395 473.315), 47,3 % menos que la final (408.957
-  µm²) y 9,8 % menos que u1_u70 (238.967 µm²), con DRC, LVS y antenas limpios, WNS de setup
-  59,6 ns y hold 0,182 ns en la peor esquina (`asic/rom/resultados/u1_u78/cierre.md`). La
-  utilización máxima que cierra es 78 %: 79 % ya falla. A 78 % cambia la ruta crítica: la
-  de la ALU al banco de registros queda con 60,5 ns de slack y la peor pasa a ser la salida
-  `seg2[2]` del display (startpoint `_4486_`, `u_soc.u_periph.digit_q[1]`, slack 59,6 ns
-  contra 69,2 ns a 75 % y 70,5 ns en la final): el flip-flop sale con un slew de 4,13 ns
-  sobre 0,148 pF y el decodificador de 7 segmentos sigue con slews de 2,7 a 3,5 ns
-  (`asic/rom/resultados/u1_u78/max_ss_125C_4v50_ruta_critica.rpt`), lo mismo que muestra el
-  salto de slew a 880 pines. Las violaciones de slew bajan
-  con la utilización hasta 70 % (546, 438, 378, 392) porque los cables se acortan, se
-  mantienen a 72 y 75 % (388, 424) y suben a 78 % (880): con el core casi lleno el
-  placement ya no puede acercar las celdas y el largo de cables vuelve a crecer.
+- **Costo del die a 23.000 dólares por mm²**: 0,419131 mm² x 23.000 = **9.640 dólares** (v1:
+  0,408957 mm² y 9.406 dólares). El die lo fija `FP_CORE_UTIL = 40` sobre el área de la síntesis, y
+  esa área es la misma que tendría la candidata sin el modelo de cable, así que **el costo no cambia
+  por adoptar el modelo de cable**: es el argumento con que D23 levanta el límite de área de celdas
+  de la sesión. Lo que sube es la utilización real del core, de 0,480 a 0,535.
+- **Barrido de FP_CORE_UTIL a 100 ns** (corridas `final` = 40 %, y `u2_u50` a `u2_u90`): tabla en
+  `asic/final.md`, gráfico `docs/figuras/utilizacion.png` (DRC de ruteo por iteración, largo de
+  cables, slew, capacitancia, antena, área del die y WNS). Cada corrida que cierra tiene su
+  `cierre.md` en `asic/rom/resultados/<tag>/` y sus números salen de `metrics.json`
+  (`design__die__area`, `design__die__bbox`, `design__instance__utilization`,
+  `timing__setup__ws__corner:max_ss_125C_4v50`, `route__wirelength`,
+  `design__max_slew_violation__count`, `design__max_cap_violation__count`).
+
+  | pedida | die (µm²) | utilización real | WNS setup max_ss (ns) | hold peor (ns) | cables (µm) | slew / cap | cierra |
+  |---|---|---|---|---|---|---|---|
+  | 40 % (la final) | 419.131 | 0,535 | 65,725 | 0,173 | 377.509 | 0 / 1 | sí |
+  | 50 % | 338.033 | 0,653 | 63,697 | 0,144 | 361.730 | 8 / 1 | sí |
+  | 60 % | 283.758 | 0,769 | 65,117 | 0,142 | 352.225 | 0 / 1 | sí |
+  | 70 % | 244.851 | 0,887 | 60,805 | 0,125 | 407.376 | 20 / 1 | sí |
+  | 72 % | 238.352 | 0,917 | 61,351 | 0,142 | 447.720 | 92 / 5 | sí |
+  | 73 % | 235.237 | 0,918 | 59,531 | 0,162 | 449.400 | 99 / 6 | sí |
+  | 75 %, 78 %, 80 %, 90 % | no completan | | | | | | **no** |
+
+  **La utilización máxima que cierra es 73 por ciento, con un die de 235.237 µm² (0,235 mm²)**, un
+  43,9 por ciento menos que el de la corrida final. En v1 la máxima era 78 por ciento con 0,216 mm²:
+  el diseño nuevo tiene 14 por ciento más área de celdas, así que el core se llena antes.
+- **Las cuatro que fallan lo hacen en pasos distintos, y vale leerlo así**: cuanto más alta la
+  utilización pedida, más temprano se queda sin espacio la legalización, porque cada paso de
+  reparación agrega celdas. Extractos versionados en `asic/rom/resultados/u2_u*/falla.txt`:
+  - **75 %**: falla en `OpenROAD.RepairDesignPostGRT` (paso 41, el que agrega D23) con
+    `[DPL-0036] Detailed placement failed` desde `repair_design_postgrt.tcl:48`, con 40 instancias
+    sin lugar;
+  - **78 %**: falla en `OpenROAD.CTS` (paso 35) con el mismo error desde `cts.tcl:102`, con 36
+    instancias sin lugar, 19 de ellas del banco de registros;
+  - **80 %**: falla en `OpenROAD.RepairDesignPostGPL` (paso 32) desde `repair_design.tcl:68`, con 5
+    instancias sin lugar;
+  - **90 %**: falla antes, en el placement global, con
+    `[GPL-0301] Utilization 100.620 % exceeds 100%` (el área de instancias movibles son
+    169.186,876 µm² sobre un core más chico). En v1 era 100,531 por ciento.
+- **El largo de cables y el slew tienen un mínimo y después suben.** Los cables bajan de 377.509 µm
+  a 40 por ciento a 352.225 a 60 por ciento, y de ahí suben a 407.376 (70 %), 447.720 (72 %) y
+  449.400 (73 %); las violaciones de slew hacen lo mismo (0, 8, 0, 20, 92, 99) y la capacitancia pasa
+  de 1 a 5 y 6. Con el core casi lleno el placement ya no puede acercar las celdas, los cables se
+  alargan y el resizer deja de poder repararlos: es el mismo mecanismo que en v1 (donde el salto era
+  de 424 a 880 pines a 78 por ciento), solo que acá se ve antes y con el detalle de que **la
+  configuración del modelo de cable no salva este caso**: a 73 por ciento quedan 99 pines con
+  violación de slew contra los 0 de la corrida final.
+- **Dato importante para la sección 3.5 del informe**: el mínimo de área del die y el mínimo de
+  cables no están en la misma utilización. El die más chico que cierra es el de 73 por ciento
+  (0,235 mm²) pero ahí los cables son los más largos del barrido; el mínimo de cables está en 60 por
+  ciento (0,284 mm² de die). Si el criterio es el costo, gana 73 por ciento; si es la calidad del
+  signoff, gana 60.
+- **Las dos mediciones que siguen son de v1 y no se repitieron con la configuración de D23**, así
+  que sus cifras hay que citarlas como historia: el die de aspecto 1,6:1 (`d4_die`) y los terminales
+  ubicados por el flujo (`u1_auto`). Las dos comparan contra la corrida final **de v1**
+  (`asic/rom/runs/v1_final_run`), no contra la nueva, y así están rotuladas en `asic/final.md`.
+  Repetirlas con la configuración nueva es trabajo pendiente, y lo que cambiaría es la referencia,
+  no el mecanismo.
 - Relación de aspecto del die (corrida `d4_die`, `asic/rom/config_die.yaml`, 27-10-2026;
   tabla "Floorplan con DIE_AREA absoluto" en `asic/final.md`,
   `asic/rom/resultados/d4_die/cierre.md`, `metrics.json` y `layout/bloques.png`): mismo
