@@ -77,10 +77,13 @@ Qué dice el desglose:
   queda en 0,0 por ciento, porque la actividad se extingue en los registros. Con la actividad real
   pasa a 29 a 40 por ciento del total. Por eso el número que informa el flujo subestima entre un 45 y
   un 73 por ciento según la fase del juego.
-- **El reloj dejó de ser la mitad del consumo.** En v1 el árbol más los pines CLK de los flip-flops
-  eran el 70 a 78 por ciento del total con actividad real; en la corrida final son el 61 por ciento
-  en polling (4,592 + 5,253 de 13,936) y el 60 por ciento en la ventana de espera. El diseño nuevo
-  gasta proporcionalmente más en lógica porque hace más trabajo por ciclo.
+- **El reloj y los registros pesan menos que antes, aunque siguen siendo la mayor parte.** El árbol
+  de reloj más la energía interna de los pines CLK de los flip-flops (las filas "reloj" y
+  "secuencial" del reporte) son, en la corrida final, el **70,6 por ciento** del total en la ventana
+  de polling, el **59,6** en la de espera y el **62,1** en las de display y ráfaga; en v1 eran
+  79,8, 72,3, 74,1 y 75,4 por ciento. O sea que el diseño nuevo gasta proporcionalmente más en
+  lógica combinacional, porque hace más trabajo por ciclo, y la fase que más lo muestra es la espera
+  de tres segundos, que es un lazo de tres instrucciones con una lectura al bus en cada vuelta.
 - **El árbol de reloj es el único término que no depende de la actividad**: 4,592 mW exactos en las
   cuatro ventanas, porque el reloj conmuta siempre.
 - OpenSTA anotó **23.591 actividades de pin y 0 pines sin anotar**

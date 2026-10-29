@@ -556,10 +556,11 @@ ronda), leídos por OpenSTA con el SPEF y el liberty de las 9 esquinas (83 repor
   8,971 y 11,504 a 12,755 mW, entre 28 y 42 por ciento más);
 - la lógica combinacional pasa de 0,0 por ciento del total sin actividad a **29 a 40 por ciento**
   con actividad real (en v1 era 20 a 28 por ciento);
-- **el reloj deja de ser la mitad del consumo**: el árbol más los pines CLK de los flip-flops son el
-  61 por ciento del total en la ventana de polling (en v1 eran el 70 a 78 por ciento). El árbol
-  solo sube de 3,709 a 4,592 mW, y la causa está medida: 172 buffers de reloj contra 110
-  (`design__instance__count__class:clock_buffer`);
+- **el reloj y los registros pesan menos que antes, aunque siguen siendo la mayor parte**: el árbol
+  más los pines CLK de los flip-flops son el 70,6 por ciento del total en la ventana de polling y el
+  59,6 en la de espera (en v1 eran 79,8 y 72,3). El árbol solo sube de 3,709 a 4,592 mW, y la causa
+  está medida: 172 buffers de reloj contra 110
+  (`design__instance__count__class:clock_buffer` de cada `metrics.json`);
 - comparado con `exp/candidata` (el mismo RTL con el flujo de v1): 12,392 mW en la ventana de
   polling contra 13,936 de la corrida final, así que de la subida total respecto de v1 (2,43 mW) el
   RTL explica 0,89 y el modelo de cable 1,54;
