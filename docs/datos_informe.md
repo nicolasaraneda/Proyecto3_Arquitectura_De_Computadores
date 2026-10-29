@@ -235,6 +235,41 @@ mínimo iba del registro de pre-decodificación `_4191_` (`alu_op_a_sel[2]`) por
 alineación de la LSU al banco de registros (`_4309_`), 25 celdas, con llegada 36,485 ns a 100 ns
 (`asic/rom/resultados/v1_final/max_ss_125C_4v50_ruta_critica.rpt`).
 
+### Qué aporta B2 con el flujo final: las corridas pr_*
+
+B2 es el offset de byte de la carga registrado en la LSU (`addr_q[1:0]`, 2 flip-flops). Para medir
+qué aporta **con el flujo final** se corrió el mismo RTL sin B2 (la rama `exp/pipeline`, worktree
+`build/exp_pipeline`, `asic/rom/config_final.yaml` = la configuración final de D23) con los tags
+`pr_*`. Tabla en `asic/final.md`, sección "El pipeline sin B2 con la configuración final"; rutas por
+tramos en `asic/rutas.md`.
+
+- **Período mínimo sin B2: 23 ns** (43,5 MHz). `pr_t23` cierra con WNS 0,463 ns en `max_ss` y
+  `pr_t22` no cierra por 0,597 ns (TNS -3,869). Con B2 son 21,5 ns y 46,5 MHz, así que **B2 compra
+  1,5 ns**. Con el CPI de 1,665 (que B2 no cambia, porque no toca ningún ciclo) eso es 26,1 contra
+  27,9 MIPS.
+- **Al mismo período el efecto se ve directo**: a 23 ns el diseño con B2 cierra con 1,494 ns de WNS y
+  el diseño sin B2 con 0,463, es decir **+1,031 ns de holgura**, y además **ocupa 1.690 µm² menos**
+  (222.714 contra 224.404 µm², -0,75 por ciento; `metrics.json` de `f2_t23` y `pr_t23`). A 100 ns los
+  dos ocupan prácticamente lo mismo (208.439 contra 208.390 µm², +0,02 por ciento). **B2 sale gratis:
+  da holgura y no cuesta área.**
+- **Qué tramo acorta, con los dos reportes al lado**: sin B2, la ruta crítica a 23 ns
+  (`pr_t23`) empieza en el registro de decode `alu_op_a_sel[2]` (`_4112_`), pasa por el mux del
+  operando A (6 celdas), por la ALU (13 celdas, 8,618 ns) hasta `u_soc.u_core.lsu_addr[0]`, y de ahí
+  por **9 celdas aplanadas que son la alineación del dato de la carga y el mux de write-back** hasta
+  `u_soc.u_core.rf_wdata[13]`, para terminar dentro del banco de registros
+  (`u_soc.u_core.u_rf/_4143_`, 4 celdas más): llegada 24,327 ns, 36 celdas de datos. Con B2 esa cola
+  desaparece de la ruta larga: la crítica de `f2_t21p5` sale del mismo registro de decode, pasa por
+  el mux del operando y la ALU, y termina en el registro del display del periférico
+  (`u_soc.u_periph.digit_q[4]`) sin volver al banco de registros. **Eso es exactamente lo que hace
+  B2: registrar `addr_i[1:0]` al emitir la carga saca la ALU del camino de alineación**, así que el
+  resultado de la ALU ya no tiene que atravesar los muxes de byte y medio byte antes de llegar al
+  banco.
+- Lo que B2 **no** cambia: ningún ciclo (el CPI es el mismo), ni las violaciones de slew a 100 ns (0 en
+  los dos). El die queda en 418.503 contra 419.131 µm² (0,15 por ciento menos), por los **2
+  flip-flops** que B2 agrega: 962 contra 964
+  (`design__instance__count__class:sequential_cell` de `pr_t100` y de `final`), que es exactamente
+  `addr_q[1:0]`.
+
 ### Cambio de RTL: de la pre-decodificación al pipeline
 
 - La pre-decodificación de D18 sigue en el diseño: lo que cambia es **cuándo** se registra el
@@ -296,15 +331,19 @@ de comparación de esa tabla es v1 y está rotulada como tal.
   | 70 % | 244.851 | 0,887 | 60,805 | 0,125 | 407.376 | 20 / 1 | sí |
   | 72 % | 238.352 | 0,917 | 61,351 | 0,142 | 447.720 | 92 / 5 | sí |
   | 73 % | 235.237 | 0,918 | 59,531 | 0,162 | 449.400 | 99 / 6 | sí |
-  | 75 %, 78 %, 80 %, 90 % | no completan | | | | | | **no** |
+  | 74 %, 75 %, 78 %, 80 %, 90 % | no completan | | | | | | **no** |
 
   **La utilización máxima que cierra es 73 por ciento, con un die de 235.237 µm² (0,235 mm²)**, un
   43,9 por ciento menos que el de la corrida final. En v1 la máxima era 78 por ciento con 0,216 mm²:
   el diseño nuevo tiene 14 por ciento más área de celdas, así que el core se llena antes.
-- **Las cuatro que fallan lo hacen en pasos distintos, y vale leerlo así**: cuanto más alta la
+- **Las cinco que fallan lo hacen en pasos distintos, y vale leerlo así**: cuanto más alta la
   utilización pedida, más temprano se queda sin espacio la legalización, porque cada paso de
   reparación agrega celdas. Extractos versionados en `asic/rom/resultados/u2_u*/falla.txt`:
-  - **75 %**: falla en `OpenROAD.RepairDesignPostGRT` (paso 41, el que agrega D23) con
+  - **74 %**: falla en `OpenROAD.RepairDesignPostGRT` (paso 41, el que agrega D23) con
+    `[DPL-0036] Detailed placement failed`, con 18 instancias sin lugar. Es el primer punto que no
+    cierra, así que **la regla de resolución queda cerrada a 1 punto de utilización**: 73 por ciento
+    cierra y 74 no;
+  - **75 %**: falla en el mismo paso con
     `[DPL-0036] Detailed placement failed` desde `repair_design_postgrt.tcl:48`, con 40 instancias
     sin lugar;
   - **78 %**: falla en `OpenROAD.CTS` (paso 35) con el mismo error desde `cts.tcl:102`, con 36

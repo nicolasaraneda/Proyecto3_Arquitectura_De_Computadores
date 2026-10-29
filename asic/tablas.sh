@@ -29,8 +29,8 @@ if [ -n "$F2" ]; then
   $HOME/herramientas/librelane/bin/python3 asic/graficos.py --periodo $F2 --salida-periodo docs/figuras/periodo.png > /dev/null
 fi
 
-U2=$(existen asic/rom/runs/final asic/rom/runs/u2_u50 asic/rom/runs/u2_u60 asic/rom/runs/u2_u65 asic/rom/runs/u2_u68 asic/rom/runs/u2_u70 asic/rom/runs/u2_u72 asic/rom/runs/u2_u75 asic/rom/runs/u2_u78 asic/rom/runs/u2_u80 asic/rom/runs/u2_u90)
-U2_FALLAN=$(faltan asic/rom/runs/u2_u50 asic/rom/runs/u2_u60 asic/rom/runs/u2_u65 asic/rom/runs/u2_u68 asic/rom/runs/u2_u70 asic/rom/runs/u2_u72 asic/rom/runs/u2_u75 asic/rom/runs/u2_u78 asic/rom/runs/u2_u80 asic/rom/runs/u2_u90)
+U2=$(existen asic/rom/runs/final asic/rom/runs/u2_u50 asic/rom/runs/u2_u60 asic/rom/runs/u2_u70 asic/rom/runs/u2_u72 asic/rom/runs/u2_u73 asic/rom/runs/u2_u74 asic/rom/runs/u2_u75 asic/rom/runs/u2_u78 asic/rom/runs/u2_u80 asic/rom/runs/u2_u90)
+U2_FALLAN=$(faltan asic/rom/runs/u2_u50 asic/rom/runs/u2_u60 asic/rom/runs/u2_u70 asic/rom/runs/u2_u72 asic/rom/runs/u2_u73 asic/rom/runs/u2_u74 asic/rom/runs/u2_u75 asic/rom/runs/u2_u78 asic/rom/runs/u2_u80 asic/rom/runs/u2_u90)
 if [ -n "$U2" ]; then
   $PY asic/recolectar.py --md asic/final.md --titulo "Barrido de FP_CORE_UTIL a 100 ns con la configuración final (sección 3.5)" \
     --nota "Corridas final (40 %) y u2_*. La columna utilización es la real que mide el flujo (design__instance__utilization), no la pedida: con el modelo de cable el resizer agrega celdas, así que la real queda bastante por encima de la pedida. El valor que el informe reporta como utilización máxima que cierra es el de FP_CORE_UTIL pedido en la corrida de menor die que cierra todo; las que fallan no tienen métricas finales y su extracto de la falla está en asic/rom/resultados/<tag>/falla.txt. Gráfico: docs/figuras/utilizacion.png (asic/graficos.py --util). La comparación con v1 (que cerraba hasta 78 % con un die de 0,216 mm²) está en docs/datos_informe.md, sección 3.5." \
@@ -45,16 +45,16 @@ if [ -n "$S3" ]; then
     asic/rom/runs/final $S3 > /dev/null
 fi
 
-S4=$(existen asic/ff/runs/s4_t100 asic/ff/runs/s4_t65 asic/ff/runs/s4_t60 asic/ff/runs/s4_t55 asic/ff/runs/s4_t50 asic/ff/runs/s4_t45 asic/ff/runs/s4_t42)
-S4_FALLAN=$(faltan asic/ff/runs/s4_t100 asic/ff/runs/s4_t65 asic/ff/runs/s4_t60 asic/ff/runs/s4_t55 asic/ff/runs/s4_t50 asic/ff/runs/s4_t45 asic/ff/runs/s4_t42)
+S4=$(existen asic/ff/runs/s4_t100 asic/ff/runs/s4_t65 asic/ff/runs/s4_t60 asic/ff/runs/s4_t55 asic/ff/runs/s4_t50 asic/ff/runs/s4_t45 asic/ff/runs/s4_t42 asic/ff/runs/s4_t40)
+S4_FALLAN=$(faltan asic/ff/runs/s4_t100 asic/ff/runs/s4_t65 asic/ff/runs/s4_t60 asic/ff/runs/s4_t55 asic/ff/runs/s4_t50 asic/ff/runs/s4_t45 asic/ff/runs/s4_t42 asic/ff/runs/s4_t40)
 if [ -n "$S4" ]; then
   $PY asic/recolectar.py --md asic/final.md --titulo "Estrategia 2 de memoria con la configuración final (sección 3.2)" \
     --nota "Corridas s4_* con asic/ff/config_final.yaml: memoria unificada de instrucciones y datos en flip-flops, el core nuevo con EarlyRead = 0 (el valor por omisión cuando MemStrategy = 2: la memoria en flip-flops lee registrado y no puede anticipar la lectura del banco) y las mismas perillas de flujo de la corrida final, incluido el modelo de cable. Por eso su CPI es el de v1 (2,665 en el juego completo, docs/verificacion/integracion_01_make_check.txt) y no el 1,665 de la estrategia 1. Comparar con las s2_* de v1 (asic/barrido.md), que usaban asic/ff/config.yaml." \
     $S4 $S4_FALLAN > /dev/null 2>&1
 fi
 
-PR=$(existen build/exp_pipeline/asic/rom/runs/pr_t100 build/exp_pipeline/asic/rom/runs/pr_t24 build/exp_pipeline/asic/rom/runs/pr_t23 build/exp_pipeline/asic/rom/runs/pr_t22 build/exp_pipeline/asic/rom/runs/pr_t21p5 build/exp_pipeline/asic/rom/runs/pr_t21)
-PR_FALLAN=$(faltan build/exp_pipeline/asic/rom/runs/pr_t100 build/exp_pipeline/asic/rom/runs/pr_t24 build/exp_pipeline/asic/rom/runs/pr_t23 build/exp_pipeline/asic/rom/runs/pr_t22 build/exp_pipeline/asic/rom/runs/pr_t21p5 build/exp_pipeline/asic/rom/runs/pr_t21)
+PR=$(existen build/exp_pipeline/asic/rom/runs/pr_t100 build/exp_pipeline/asic/rom/runs/pr_t24 build/exp_pipeline/asic/rom/runs/pr_t23 build/exp_pipeline/asic/rom/runs/pr_t22p5 build/exp_pipeline/asic/rom/runs/pr_t22 build/exp_pipeline/asic/rom/runs/pr_t21p5 build/exp_pipeline/asic/rom/runs/pr_t21)
+PR_FALLAN=$(faltan build/exp_pipeline/asic/rom/runs/pr_t100 build/exp_pipeline/asic/rom/runs/pr_t24 build/exp_pipeline/asic/rom/runs/pr_t23 build/exp_pipeline/asic/rom/runs/pr_t22p5 build/exp_pipeline/asic/rom/runs/pr_t22 build/exp_pipeline/asic/rom/runs/pr_t21p5 build/exp_pipeline/asic/rom/runs/pr_t21)
 if [ -n "$PR" ]; then
   $PY asic/recolectar.py --md asic/final.md --titulo "El pipeline sin B2 con la configuración final (sección 3.4, efecto de B2)" \
     --nota "Corridas pr_* en el worktree build/exp_pipeline (rama exp/pipeline, asic/rom/config_final.yaml: la configuración final de D23 aplicada al RTL del frente A sin el offset de byte de la carga registrado en la LSU). Mide cuánto aporta B2 con el flujo final, igual que exp/lsu-offset lo midió con el flujo de v1. El CPI es el mismo que el de la corrida final (1,665): B2 no cambia ningún ciclo, solo acorta la ruta de alineación y write-back. Comparar contra las f2_* del mismo período." \

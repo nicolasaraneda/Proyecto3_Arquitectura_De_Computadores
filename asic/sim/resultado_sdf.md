@@ -166,34 +166,37 @@ con `vpi_scan(vpiHandle): Assertion 0 failed` en el primer INTERCONNECT a una de
 Icarus 13.0 y en 14.0: el lector de SDF parte el nombre por los puntos como si fuera una ruta
 jerárquica. Con el renombrado, ninguna de las nueve ejecuciones abortó.
 
-### 2.5 Escenario final (opcional): el netlist real de la corrida final, 320.000 ciclos
+### 2.5 Escenario final: el netlist real de la corrida final, 320.000 ciclos
 
-`make post-pnr-sdf RUN=asic/rom/runs/final ESCENARIO=final REPETIR=1` (`build/post_pnr/make_final_nom_tt.log`
-y `build/post_pnr/cadena_final.log`: de 16:10 a 16:35): el netlist post-PnR de la corrida final
-(`asic/rom/runs/final/final/nl/asic_top.nl.v`: ROM real de 115 palabras, `DebounceDivBits=15`) con su SDF
-`asic/rom/runs/final/final/sdf/nom_tt_025C_5v00/asic_top__nom_tt_025C_5v00.sdf`, el escenario de
-`make post-synth-final` (`asic/sim/estimulos_final.txt`: una pulsación de inicio real, 320.000 ciclos a
-100 ns, 32 ms simulados) y el RTL de referencia con `rtl/gen/pochoco_rom.v`, `DebounceDivBits=15` y el
-mismo Icarus de la imagen (ESTIMULO=50, MUESTREO=50 en los dos).
+`make post-pnr-sdf RUN=asic/rom/runs/final ESCENARIO=final REPETIR=1`: el netlist post-PnR de la
+corrida final (`asic/rom/runs/final/final/nl/asic_top.nl.v`: ROM real de 115 palabras,
+`DebounceDivBits = 15`) con su SDF de `nom_tt_025C_5v00`, el escenario de `make post-synth-final`
+(`asic/sim/estimulos_final.txt`: una pulsación de inicio real, **320.000 ciclos a 100 ns**, 32 ms
+simulados) y el RTL de referencia con `rtl/gen/pochoco_rom.v`, `DebounceDivBits = 15` y el mismo
+Icarus de la imagen (`ESTIMULO = 50`, `MUESTREO = 50` en los dos).
 
-Fuente: `build/post_pnr/final/nom_tt_025C_5v00_final/resumen.md`, `tiempo_1.txt`, `traza_1.txt`, `vvp_1.log`,
-`mensajes_sdf.txt`; RTL: `build/post_pnr/final/tiempo_rtl_final.txt`, `traza_rtl_final.txt`.
+Fuente: `build/post_pnr/final/nom_tt_025C_5v00_final/resumen.md`, `tiempo_1.txt`, `traza_1.txt`,
+`vvp_1.log`, `mensajes_sdf.txt`; RTL: `build/post_pnr/final/traza_rtl_final.txt`.
 
 | esquina | ciclos | cambios de salida | con X | igual al RTL | tiempo real de vvp (s) | IOPATH anotados | INTERCONNECT anotados | timing checks |
 |---|---|---|---|---|---|---|---|---|
-| nom_tt_025C_5v00 | 320000 | 2 | 0 | sí (md5 `0c602ebd5532804d6c31ac54c80928ad`, el mismo de `build/post_synth/traza_rtl_final.txt`) | 1485,100 (24 min 45 s; el RTL, 4,340 s) | 35424 de 37654 | 14779 de 14780 | no evaluados (990 bloques ignorados) |
+| nom_tt_025C_5v00 | 320.000 | 2 | 0 | **sí** (md5 `347f1d2dd76675023fb51edb9b8c2878`, el mismo del RTL) | 2.556,3 (42 min 36 s; el RTL, 5,389 s) | 34.322 de 36.852 | 16.469 de 16.470 | no evaluados (964 bloques ignorados) |
 
-La traza tiene 3 líneas: `0 led=0000 disp=00`, `262156 led=1111 disp=00` y `262194 led=1111 disp=01`:
-los cuatro LEDs y el 01 de la primera ronda unos 262.000 ciclos después de la pulsación de inicio
-(el debounce real de 15 bits), lo mismo que `asic/sim/resultado_final.md` sin retardos. Se corrió una
-sola vez (REPETIR=1) por su duración; el md5 coincide con el del RTL. El SDF de la corrida final tiene
-37.654 IOPATH, 14.780 INTERCONNECT y 990 bloques TIMINGCHECK con 7.488 checks (1.980 SETUP, 1.980 HOLD,
-2.166 WIDTH, 186 RECOVERY, 186 REMOVAL, 990 PERIOD); vvp no anota 2.230 IOPATH (los arcos `ifnone` con
-flanco de las 759 `mux2_2`, 131 `xor2_1` y 47 `xnor2_1` del netlist final; `mensajes_sdf.txt`) ni el
-INTERCONNECT a `spi_miso`, e ignora los 990 TIMINGCHECK, igual que en `d2_pnr`. Este es el escenario que
-el intento del 25-10 con el Icarus 14.0-devel del host completó una sola vez y después abortaba; con las
-instancias renombradas y el 13.0 de la imagen no abortó. Los tiempos de ese intento no son comparables
-(otro binario y anotación incompleta, sección 2.4).
+La traza tiene 3 líneas: `0 led=0000 disp=00`, `262151 led=1111 disp=00` y `262172 led=1111
+disp=01`: los cuatro LEDs y el 01 de la primera ronda unos 262.000 ciclos después de la pulsación de
+inicio (el debounce real de 15 bits), **exactamente los mismos ciclos que sin retardos**
+(`asic/sim/resultado_final.md`, de `make post-synth-final`). Con el core de v1 esos dos eventos
+caían en 262.156 y 262.194. Se corrió una sola vez (`REPETIR = 1`) por su duración.
+
+El SDF de la corrida final tiene 36.852 IOPATH, 16.470 INTERCONNECT y 964 bloques TIMINGCHECK con
+7.303 checks (1.928 SETUP, 1.928 HOLD, 2.113 WIDTH, 185 RECOVERY, 185 REMOVAL, 964 PERIOD); vvp no
+anota 2.530 IOPATH (los arcos `ifnone` con flanco) ni el INTERCONNECT a `spi_miso`, e ignora los 964
+TIMINGCHECK, igual que en `d2_pnr`.
+
+Vale la pena decir por qué este escenario importa: es el único que ejercita el **netlist que se
+fabricaría**, con la ROM real y el debounce real, durante 32 ms de tiempo simulado, y con los
+retardos anotados. Que la traza coincida al ciclo con la del RTL es la verificación más cercana al
+chip que hay en el proyecto.
 
 ## 3. Los timing checks en Icarus: NO se evalúan
 
@@ -338,6 +341,10 @@ Dos pruebas:
   sin valores X y de forma reproducible: 18 ejecuciones en total (tres por esquina y por simulador)
   con un solo md5, `5b6cebfb898a90a258b592fb29e64651`, que es también el de la traza del RTL y el de
   `make post-synth`. Icarus 13.0 de la imagen tarda 77 a 103 s por ejecución y CVC 7.00b, 18 a 22 s.
+- **El netlist real de la corrida final con su SDF completó los 320.000 ciclos del escenario de
+  `make post-synth-final` con la misma traza que el RTL** (una ejecución, 42 min 36 s, md5
+  `347f1d2dd76675023fb51edb9b8c2878`), con los cuatro LEDs en el ciclo 262.151 y el 01 en el 262.172,
+  los mismos ciclos que sin retardos.
 - **Icarus NO evalúa los timing checks** (aviso textual al compilar, 951 bloques TIMINGCHECK
   ignorados al anotar): su resultado prueba la función con retardos, no los márgenes. Los márgenes
   los verifica el STA de las 9 esquinas (criterio de cierre) y, en simulación, **CVC: 0 violaciones
