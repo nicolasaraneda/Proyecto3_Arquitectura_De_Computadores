@@ -8,25 +8,51 @@ assembler y seis testbenches) y `make equiv` (traza de `sw/isa_test.s` contra el
 idéntica ciclo a ciclo, o en el modo funcional, misma secuencia de escrituras al banco, accesos al
 bus y salidas).
 
+**Resultado de la sesión: D23 adoptó dos de estas exploraciones.** La corrida final del Proyecto 3
+es el RTL del frente A más B2 (la rama `exp/candidata`) junto con la configuración del modelo de
+cable del frente C (la variante `e1_full_t100` de la sección E, medida después en
+`exp/candidata-rc`). Lo que entró y lo que no:
+
+| exploración | ¿entró en la corrida final? |
+|---|---|
+| A: lectura del banco y decodificación en el fetch (`exp/pipeline`) | **sí** |
+| B2: offset de byte de la carga registrado en la LSU (`exp/lsu-offset`) | **sí** |
+| C: RC de cable medidos y reparación post-GRT (`exp/signoff0`) | **sí** |
+| B1, B3, B4, B5 y las demás variantes de signoff | no |
+
+Las cifras de la corrida final están en `asic/final.md`, `asic/evolucion.md` y
+`docs/datos_informe.md`, no acá: este documento mide las exploraciones con la configuración con que
+se exploraron, que para casi todas es la de v1.
+
 Hay dos bloques de exploraciones:
 
 - **Bloque B (26-10-2026):** B1 a B5, ramas `exp/signoff`, `exp/lsu-offset`, `exp/branch-cmp`,
-  `exp/lsu-branch`, `exp/cpi` y `exp/rf-latch`. Ninguna entró en la corrida final (D22).
+  `exp/lsu-branch`, `exp/cpi` y `exp/rf-latch`. D22 decidió que ninguna entrara en la corrida final
+  de entonces; **D23 revirtió eso para B2**, que sí está en la corrida final.
 - **Sesión del 27 y 28-10-2026:** ramas `exp/pipeline` (y sus variantes `exp/pipeline-b2` y
-  `exp/pipeline-b5`), `exp/fmax`, `exp/signoff0` y `exp/candidata`, con la regla de selección fija
-  de la sesión: métrica principal MIPS = f máx / CPI del juego completo, período barrido hasta
-  dejar 0,5 ns o menos entre el último período que cierra y el primero que no, límite de área de
-  celdas estándar a 100 ns de 105 por ciento de la de `main` (191.378 µm²) y cierre completo a
-  100 ns y 40 por ciento de utilización. Desempate: violaciones de max slew y de max capacitancia,
-  potencia con actividad real, área. La propuesta de decisión está en `docs/propuesta_d23.md` y en
-  D23 de `docs/decisiones.md`.
+  `exp/pipeline-b5`), `exp/fmax`, `exp/signoff0`, `exp/candidata` y `exp/candidata-rc`, con la regla
+  de selección fija de la sesión: métrica principal MIPS = f máx / CPI del juego completo, período
+  barrido hasta dejar 0,5 ns o menos entre el último período que cierra y el primero que no, límite
+  de área de celdas estándar a 100 ns de 105 por ciento de la de v1 (191.378 µm²) y cierre completo
+  a 100 ns y 40 por ciento de utilización. Desempate: violaciones de max slew y de max
+  capacitancia, potencia con actividad real, área. **El límite de área se levantó en D23** (era una
+  regla del grupo y no del enunciado; el die y el costo no cambian), que es lo que permitió adoptar
+  la configuración del modelo de cable. La decisión está en D23 de `docs/decisiones.md` y el
+  análisis que llevó a ella, en `docs/propuesta_d23.md`.
 
-Referencia (`main`, configuración final D15, D18, D20 y D21): período mínimo **24,5 ns**
-(`f1_t24p5`, WNS 0,496 ns en max_ss; 24 ns no cierra por 0,004 ns), 40,8 MHz; área de celdas
-estándar 182.265 µm² a 100 ns y 189.817 µm² a 24,5 ns; CPI 2,953 en `isa_test.s` y 2,665 en el
-juego completo (`game_tb`); **15,3 MIPS**; 546 violaciones de max slew y 36 de max capacitancia a
-100 ns; potencia 8,97 mW sin actividad y 12,76 mW con la actividad real del juego en nom_tt
-(`asic/potencia/resultado.md`). Fuentes: `asic/final.md`, `asic/rom/resultados/f1_t24p5/cierre.md`.
+Referencia de comparación de todas las tablas de este documento: **v1**, es decir `main` antes de
+integrar, tag `v1-final`, con la configuración final de entonces (D15, D18, D20 y D21): período
+mínimo **24,5 ns** (`f1_t24p5`, WNS 0,496 ns en max_ss; 24 ns no cierra por 0,004 ns), 40,8 MHz;
+área de celdas estándar 182.265 µm² a 100 ns y 189.817 µm² a 24,5 ns; CPI 2,953 en `isa_test.s` y
+2,665 en el juego completo (`game_tb`); **15,3 MIPS**; 546 violaciones de max slew y 36 de max
+capacitancia a 100 ns; potencia 8,97 mW sin actividad y 12,76 mW con la actividad real del juego en
+nom_tt (`asic/potencia/resultado_v1.md`). Fuentes: `asic/final.md` (sección de historia),
+`asic/rom/resultados/v1_final/` y `asic/rom/resultados/f1_t24p5/cierre.md`.
+
+Para comparar, **la corrida final de D23**: período mínimo 21,5 ns (46,5 MHz), CPI 1,665 en el juego,
+27,9 MIPS, 208.439 µm² de celdas a 100 ns, 0 violaciones de slew y 1 de capacitancia, y 13,9 a
+16,6 mW con actividad real en nom_tt (`asic/rom/resultados/final/cierre.md`, `asic/final.md`,
+`asic/potencia/resultado.md`).
 
 ## Tabla resumen
 
@@ -369,3 +395,32 @@ candidata, los dos por encima del límite de 105 por ciento. Como efecto secunda
 violaciones de max slew en las 9 esquinas en los dos diseños. Detalle, tabla completa y
 reproducción en `docs/modelo_cable.md` de la rama `exp/candidata-rc`.
 
+## Lo que D23 adoptó: la corrida final nueva
+
+28-10-2026. `exp/candidata-rc` se rebasó sobre `main` y se integró con `merge --no-ff`, y la
+configuración del modelo de cable pasó a `asic/rom/config.yaml`. Lo medido sobre `main` integrado,
+con sus archivos:
+
+| dato | v1 | corrida final de D23 | archivo |
+|---|---|---|---|
+| Período mínimo que cierra todo | 24,5 ns | **21,5 ns** | `asic/rom/resultados/f2_t21p5/cierre.md` (21 ns no cierra por 0,129 ns, `f2_t21/cierre.md`) |
+| f máx | 40,8 MHz | **46,5 MHz** | cálculo |
+| CPI del juego completo | 2,665 | **1,665** | `docs/verificacion/integracion_01_make_check.txt` |
+| MIPS | 15,3 | **27,9** | cálculo |
+| Área de celdas a 100 ns | 182.265 µm² | 208.439 µm² | `metrics.json` de cada corrida |
+| Área del die | 408.957 µm² | 419.131 µm² | idem |
+| Utilización real del core | 0,480 | 0,535 | idem |
+| Violaciones de max slew / max cap a 100 ns | 546 / 36 | **0 / 1** | idem |
+| Utilización máxima que cierra | 78 por ciento | ver `asic/final.md` | barridos `u1_*` y `u2_*` |
+| Potencia con actividad real, nom_tt | 11,5 a 12,8 mW | 13,9 a 16,6 mW | `asic/potencia/resultado_v1.md` y `resultado.md` |
+
+El reparto del salto de MIPS entre el RTL y el flujo está en `asic/evolucion.md`: de los 12,6 MIPS
+de diferencia, 8,2 los pone el RTL (bajar el CPI), 1,7 el flujo (bajar el período) y 2,6 son de la
+interacción, que no se le puede atribuir a ninguno de los dos por separado.
+
+Las corridas nuevas de la sesión, con su configuración y su tag, están en `asic/final.md`: `final`
+y `f2_*` (barrido de período), `u2_*` (barrido de utilización), `s3_t100` (la estrategia 1
+reproducida), `s4_*` (la estrategia 2 con la configuración nueva), `pr_*` (el pipeline sin B2 con el
+flujo final, para medir el aporte de B2) y `h3_t100` (síntesis jerárquica). La verificación de la
+integración está en `docs/verificacion/integracion.md` y el reporte completo en
+`docs/reporte_integracion_d23.md`.
