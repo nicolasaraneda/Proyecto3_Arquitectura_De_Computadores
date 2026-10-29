@@ -67,6 +67,7 @@ ETAPAS = [
      "build/exp_pipeline/asic/rom/resultados/pr_t100",
      ["build/exp_pipeline/asic/rom/resultados/pr_t24",
       "build/exp_pipeline/asic/rom/resultados/pr_t23",
+      "build/exp_pipeline/asic/rom/resultados/pr_t22p5",
       "build/exp_pipeline/asic/rom/resultados/pr_t22",
       "build/exp_pipeline/asic/rom/resultados/pr_t21p5",
       "build/exp_pipeline/asic/rom/resultados/pr_t21"]),

@@ -12,7 +12,7 @@ MIPS = f máx / CPI del juego completo (Ley de Hierro).
 | p1 (pre-decodificación, D18, con el flujo de D15) | 42,0 | 40,0 | 23,8 | 2,665 | 8,9 | 181.137 | 2201 / 3 | `asic/rom/resultados/p1_t100/metrics.json` |
 | v1 (corrida final de v1, tag `v1-final`) | 24,5 | 24,0 | 40,8 | 2,665 | 15,3 | 182.265 | 546 / 36 | `asic/rom/resultados/v1_final/metrics.json` |
 | co_rcm (el RTL de v1 con el modelo de cable) | 22,0 | 21,5 | 45,5 | 2,665 | 17,1 | 201.309 | 2 / 1 | `asic/main_rc/resultados/co_rcm_t100/metrics.json` |
-| pr (el pipeline sin B2, con el flujo final) | 23,0 | 22,0 | 43,5 | 1,665 | 26,1 | 208.390 | 0 / 1 | `build/exp_pipeline/asic/rom/resultados/pr_t100/metrics.json` |
+| pr (el pipeline sin B2, con el flujo final) | 22,5 | 22,0 | 44,4 | 1,665 | 26,7 | 208.390 | 0 / 1 | `build/exp_pipeline/asic/rom/resultados/pr_t100/metrics.json` |
 | final (la corrida final de D23) | 21,5 | 21,0 | 46,5 | 1,665 | 27,9 | 208.439 | 0 / 1 | `asic/rom/resultados/final/metrics.json` |
 
 Descripción y origen del CPI de cada etapa:

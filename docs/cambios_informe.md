@@ -1212,7 +1212,7 @@ medir" y de qué corrida o comando sale; no interpolé ni redondeé nada de memo
 | estrategias de memoria | 24, 25, 26, 27, 30 | la ROM combinacional deja de ser un detalle y pasa a ser condición del pipeline; la comparación de las dos estrategias con el RTL nuevo **ya está medida** (`s3_t100` y `s4_t100`, en `docs/datos_informe.md` sección 3.2); del barrido de período de la estrategia 2 falta el tramo por debajo de 50 ns |
 | simulación post-síntesis y con SDF | 101, 102, 103, 104, 106 | display 51 en el ciclo 1033, lazo de polling de 8 ciclos, atraso de control 8; el SDF del netlist nuevo **ya está medido** (corrida `d2_pnr`, tres esquinas) |
 | verificación funcional y riesgos de datos | 53, 105, 111, 114, 115 | `hazard_test` (56 comprobaciones), `hazard_review` (48), dos mutaciones detectadas y 0 valores X usados en 620.217 escrituras al banco |
-| exploraciones y decisiones | 48, 49, 51, 65, 67, 68, 132 | el pipeline y B2 están adoptados (D23, no D22); el aporte de B2 **ya está medido** con el barrido `pr_*` (1,5 ns de período); B5 sube el período a 29 ns con este pipeline |
+| exploraciones y decisiones | 48, 49, 51, 65, 67, 68, 132 | el pipeline y B2 están adoptados (D23, no D22); el aporte de B2 **ya está medido** con el barrido `pr_*` (1 ns de período); B5 sube el período a 29 ns con este pipeline |
 | el flujo por dentro | 8, 11, 87 | 78 pasos (dos nuevos de reparación después del ruteo global, no consecutivos), 3 min 40 s, densidad objetivo 53,2942 por ciento |
 
 ## Pregunta por pregunta
@@ -1574,10 +1574,10 @@ pero la última frase hay que cambiarla: la corrida nueva no necesita ningún bu
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
 | qué lograba B2 | registrar `addr[1:0]` saca la ruta y el período baja a 24 ns | B2 está adoptado; el período mínimo de la corrida final es 21,5 ns | `docs/decisiones.md`, D23; `asic/rom/resultados/f2_t21p5/cierre.md`; el 24 ns de B2 sobre el RTL de v1 sigue en `asic/exploraciones.md` (fila `exp/lsu-offset`) |
-| cuánto aporta B2 sobre este pipeline | no existía la pregunta | **medido, y son 1,5 ns de período**: sin B2 (`pr_*`, rama `exp/pipeline` con la configuración final) el mínimo que cierra es 23 ns (WNS 0,463 ns) y 22 ns no cierra (-0,597 ns, TNS -3,869); con B2 cierra a 21,5 ns. A 100 ns la diferencia es casi nula: 208.390 contra 208.439 µm² de celdas, WNS 65,710 contra 65,725 ns, 0 slew en las dos, die 418.503 contra 419.131 µm² | `build/exp_pipeline/asic/rom/resultados/pr_t24`, `pr_t23`, `pr_t22`, `pr_t21p5`, `pr_t21` y `pr_t100` (`metrics.json` y `cierre.md`); `asic/rom/resultados/f2_t21p5/cierre.md`; tramos de `pr_t24` a `pr_t21` en `asic/rutas.md` |
+| cuánto aporta B2 sobre este pipeline | no existía la pregunta | **medido, y es 1 ns de período**: sin B2 (`pr_*`, rama `exp/pipeline` con la configuración final) el mínimo que cierra es 22,5 ns (WNS 0,007 ns) y 22 ns no cierra (-0,597 ns, TNS -3,869); con B2 cierra a 21,5 ns. En MIPS son 26,7 contra 27,9. A 100 ns la diferencia es casi nula: 208.390 contra 208.439 µm² de celdas, WNS 65,710 contra 65,725 ns, 0 slew en las dos, die 418.503 contra 419.131 µm² | `build/exp_pipeline/asic/rom/resultados/pr_t24`, `pr_t23`, `pr_t22`, `pr_t21p5`, `pr_t21` y `pr_t100` (`metrics.json` y `cierre.md`); `asic/rom/resultados/f2_t21p5/cierre.md`; tramos de `pr_t24` a `pr_t21` en `asic/rutas.md` |
 
 Barrido `pr_*` completo en `max_ss_125C_4v50`, de los `metrics.json`: 100 ns 65,710 (cierra);
-24 ns 1,556 (cierra); 23 ns 0,463 (cierra); 22 ns -0,597 (no cierra, TNS -3,869); 21,5 ns -0,938
+24 ns 1,556 (cierra); 23 ns 0,463 (cierra); 22,5 ns 0,007 (cierra); 22 ns -0,597 (no cierra, TNS -3,869); 21,5 ns -0,938
 (no cierra); 21 ns -1,634 (no cierra). Lo único que falta de ese barrido es el punto de 22,5 ns, para
 cumplir la regla de la sesión de dejar 0,5 ns o menos entre el último que cierra y el primero que no.
 
@@ -1587,8 +1587,8 @@ ciclo después de emitir la carga, con el pipeline detenido y la dirección esta
 ciclos. Ese argumento ya no hace falta para defender el cierre, porque la ruta desapareció: B2
 registra los dos bits bajos de la dirección al emitir la carga y la alineación salió del camino. La
 ruta crítica de hoy (decode registrado, mux de operandos, ALU y decodificación de dirección) es
-genuinamente de un ciclo. Y ahora se puede decir cuánto aporta B2 sobre este pipeline: 1,5 ns de
-período (de 23 a 21,5 ns, o de 43,5 a 46,5 MHz) por dos flip-flops en la LSU. Dato: `asic/rutas.md`,
+genuinamente de un ciclo. Y ahora se puede decir cuánto aporta B2 sobre este pipeline: 1 ns de
+período (de 22,5 a 21,5 ns, o de 44,4 a 46,5 MHz) por dos flip-flops en la LSU. Dato: `asic/rutas.md`,
 `docs/decisiones.md` D23, `build/exp_pipeline/asic/rom/resultados/pr_*`.
 
 ### Pregunta 49 (línea 335): por qué no declarar esa ruta como multiciclo en la SDC
@@ -1772,12 +1772,12 @@ ciento más, con el mismo programa y el mismo enunciado.
 | premisa | B2 no se incorporó (D22) | B2 **está incorporado** (D23) | `docs/decisiones.md`, D23 |
 | costo de slew de B2 | 546 a 672 violaciones | la corrida final tiene 0 violaciones de slew | `asic/rom/resultados/final/metrics.json`; el 672 de v1 en `asic/exploraciones.md`, fila `exp/lsu-offset` |
 | costo de área de B2 | 0,6 por ciento menos de área sobre v1 | dos flip-flops en la LSU (`espino_load_store_unit` pasa de 1 a 3 flip-flops locales) | `asic/sintesis.md`, tabla de área por módulo (3) y desglose de `dffq_1` (`addr_q[1:0]`); `git show v1-final:asic/sintesis.md`, línea 28 (1) |
-| aporte de B2 sobre este pipeline | no existía | **medido**: 1,5 ns de período (sin B2 el mínimo que cierra es 23 ns, con B2 21,5 ns), y a 100 ns 49 µm² de celdas y 15 ps de WNS | `build/exp_pipeline/asic/rom/resultados/pr_t23/cierre.md` (0,463 ns, cierra) y `pr_t22/cierre.md` (-0,597 ns, no cierra); `pr_t100/metrics.json` (208.390 µm², 65,710 ns) contra `asic/rom/resultados/final/metrics.json` (208.439 µm², 65,725 ns) |
+| aporte de B2 sobre este pipeline | no existía | **medido**: 1 ns de período (sin B2 el mínimo que cierra es 22,5 ns, con B2 21,5 ns), y a 100 ns 49 µm² de celdas y 15 ps de WNS | `build/exp_pipeline/asic/rom/resultados/pr_t22p5/cierre.md` (0,007 ns, cierra) y `pr_t22/cierre.md` (-0,597 ns, no cierra); `pr_t100/metrics.json` (208.390 µm², 65,710 ns) contra `asic/rom/resultados/final/metrics.json` (208.439 µm², 65,725 ns) |
 
 **Cómo queda la respuesta.** Hay que darla vuelta: "¿por qué **sí** incorporaron B2?". Porque la ALU
 estaba en el camino de alineación y write-back de la carga: registrar `addr[1:0]` al emitir la carga
-saca ese camino de la ruta crítica, cuesta dos flip-flops en la LSU y vale 1,5 ns de período sobre
-este mismo pipeline (23 ns sin B2 contra 21,5 ns con B2, barrido `pr_*` contra barrido `f2_*`). Se
+saca ese camino de la ruta crítica, cuesta dos flip-flops en la LSU y vale 1 ns de período sobre
+este mismo pipeline (22,5 ns sin B2 contra 21,5 ns con B2, barrido `pr_*` contra barrido `f2_*`). Se
 verificó con las 20 comprobaciones de la sección 3 de `sw/hazard_test.s` (c14 a c33: lb, lbu, lh, lhu
 y lw con offsets 0 a 3, con y sin signo, desde la RAM y desde el periférico). El argumento viejo de
 que B2 empeoraba el slew tampoco se sostiene: la corrida final tiene 0 violaciones.
@@ -2320,7 +2320,7 @@ medición, el slew quedó en 0 y la equivalencia formal y la simulación con SDF
 netlist nuevo. Tampoco siguen abiertos los dos huecos que el mapa de la etapa 1 daba por pendientes:
 la comparación de las dos estrategias de memoria con la configuración final ya se corrió (`s3_t100` y
 `s4_t100`, en `docs/datos_informe.md` sección 3.2) y el aporte de B2 sobre este pipeline ya está
-medido con el barrido `pr_*` (1,5 ns de período). Lo que queda, dicho con nombre y apellido:
+medido con el barrido `pr_*` (1 ns de período). Lo que queda, dicho con nombre y apellido:
 registrar `illegal_insn_o` para que no quede desfasada (observación O3, hoy solo documentada en el
 RTL); terminar el barrido de período de la estrategia 2 por debajo de 50 ns (`s4_t45` y `s4_t42` están
 corriendo) y agregar el punto de 22,5 ns del barrido `pr_*`, que son los dos tramos de resolución que
@@ -2724,7 +2724,7 @@ el detalle, con el archivo de origen de cada cifra, está en `docs/datos_informe
 | Estrategia 2 con el core y la configuración nuevos | `s4_t100`: síntesis 696.640 µm², PnR **977.015 µm²**, **4.673** flip-flops, die **1.801.610 µm² (1,802 mm²)**, utilización 0,562, cables 2.242.954 µm, **0 nets con violación de antena** (6 diodos), 62 slew y 14 cap, WNS 55,558 ns. CPI del juego **2,665** (`EarlyRead = 0`) | `asic/final.md`, sección de `s4_*`; `asic/ff/resultados/s4_t100/` |
 | Costo de la estrategia 2 | 1,801610 mm² x 23.000 = **41.437 dólares**, 4,3 veces el de la estrategia 1 (9.640) | cálculo sobre `design__die__area` |
 | La violación de antena de la estrategia 2 | **desaparece** con el core y la configuración nuevos: 0 nets contra 1 en las corridas `s2_*` de v1. Ojo con `e2_t100`, que es una corrida temprana con el RTL de v1 (`asic/ff/resultados/LEEME.md`) | `asic/ff/resultados/s4_t100/metrics.json` |
-| Aporte de B2 con el flujo final | sin B2 el período mínimo es **23 ns** (43,5 MHz, 26,1 MIPS) y con B2 21,5: **B2 compra 1,5 ns**. Al mismo período de 23 ns da 1,031 ns más de holgura y ocupa 1.690 µm² menos | `asic/final.md`, sección `pr_*`; `docs/datos_informe.md` 3.4 |
+| Aporte de B2 con el flujo final | sin B2 el período mínimo es **22,5 ns** (44,4 MHz, 26,7 MIPS) y con B2 21,5: **B2 compra 1 ns**, es decir 1,2 MIPS. Al mismo período de 23 ns da 1,031 ns más de holgura y ocupa 1.690 µm² menos | `asic/final.md`, sección `pr_*`; `docs/datos_informe.md` 3.4 |
 | Ruta crítica al período mínimo | identificada en los dos extremos y partida en tramos, con el cálculo del tiempo requerido | `asic/rutas.md`; `docs/datos_informe.md` 3.4 |
 | Tabla de evolución del rendimiento | seis etapas, de 6,8 a 27,9 MIPS, con el reparto del aumento entre el RTL y el flujo | `asic/evolucion.md` |
 | Simulación post-PnR con SDF | `d2_pnr` cierra; tres esquinas con Icarus y con CVC, 18 ejecuciones con un solo md5, 0 violaciones de timing y control positivo con 8 violaciones; y el netlist real a 320.000 ciclos con la misma traza que el RTL | `asic/sim/resultado_sdf.md` |
@@ -2889,7 +2889,7 @@ corridas):
    "por medir".
 5. **Pregunta 48, 67 y 132**: el barrido de período de `pr_*` (sin B2) ya está medido:
    `pr_t24` 1,556 y `pr_t23` 0,463 cierran, `pr_t22` -0,597, `pr_t21p5` -0,938 y `pr_t21` -1,634 no.
-   Sin B2 el mínimo que cierra es 23 ns, así que **B2 vale 1,5 ns de período** sobre este pipeline.
+   Sin B2 el mínimo que cierra es 22,5 ns, así que **B2 vale 1 ns de período** sobre este pipeline.
    Lo único que falta de ese barrido es el punto de 22,5 ns.
 6. **Pregunta 40 y 96**: el flip-flop de llegada de la ruta crítica del período mínimo ya está
    identificado: `asic/rutas.md`, líneas 17 a 25, resuelve `_4440_` en el netlist como

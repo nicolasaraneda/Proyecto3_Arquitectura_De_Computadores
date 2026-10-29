@@ -45,7 +45,7 @@ echo "escribiendo $MD"
 agrega "asic/rom/resultados/final/${E}_ruta_critica.rpt"      "Corrida final nueva a 100 ns (tag final)"
 agrega "asic/rom/resultados/f2_t21p5/${E}_ruta_critica.rpt"   "Corrida final nueva al periodo minimo (f2_t21p5, 21,5 ns)"
 agrega "asic/rom/resultados/f2_t22/${E}_ruta_critica.rpt"     "Corrida final nueva a 22 ns (f2_t22)"
-for t in pr_t100 pr_t22 pr_t21p5 pr_t21 pr_t23 pr_t24; do
+for t in pr_t100 pr_t22p5 pr_t22 pr_t21p5 pr_t21 pr_t23 pr_t24; do
   agrega "build/exp_pipeline/asic/rom/resultados/$t/${E}_ruta_critica.rpt" "exp/pipeline sin B2 con el flujo final ($t)"
 done
 agrega "asic/rom/resultados/v1_final/${E}_ruta_critica.rpt"   "Corrida final de v1 a 100 ns (historia)"

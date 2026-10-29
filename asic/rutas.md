@@ -134,6 +134,35 @@ El total es la llegada del dato: 36.085 ns (línea `data arrival time` del repor
 | **tiempo requerido** | **101.796** | `data required time` |
 | llegada del dato | -36.085 | `data arrival time` |
 
+### exp/pipeline sin B2 con el flujo final (pr_t22p5)
+
+Esquina `max_ss_125C_4v50`, grupo `clk`, tipo `max`. Startpoint `_4112_`, endpoint `u_soc.u_core.u_rf/_3952_`. Generado por `python3 asic/ruta_tramos.py build/exp_pipeline/asic/rom/resultados/pr_t22p5/max_ss_125C_4v50_ruta_critica.rpt`.
+
+| tramo | celdas | retardo (ns) | hasta | nets del RTL por los que pasa |
+|---|---|---|---|---|
+| árbol de reloj (latencia de lanzamiento) | 3 | 2.746 | `_4112_/CLK` |  |
+| reloj a Q del flip-flop de inicio | 1 | 1.860 | `_4112_/Q` |  |
+| lógica aplanada (sin nombre jerárquico) | 6 | 3.025 | `_2788_/ZN` | `u_soc.u_core.u_id.alu_op_a_sel[2]`, `net942`, `_1025_`, `net1381`, `net1392`, `_1028_` |
+| u_soc.u_core.u_id.u_alu | 13 | 8.422 | `u_soc.u_core.u_id.u_alu/_0818_/ZN` | `u_soc.u_core.u_id.operand_a[2]`, `u_soc.u_core.u_id.u_alu/_0172_`, `u_soc.u_core.u_id.u_alu/net627`, `u_soc.u_core.u_id.u_alu/_0173_`, `u_soc.u_core.u_id.u_alu/_0175_`, `u_soc.u_core.u_id.u_alu/_0178_`, `u_soc.u_core.u_id.u_alu/_0187_`,... |
+| lógica aplanada (sin nombre jerárquico) | 8 | 5.523 | `_2693_/ZN` | `u_soc.u_core.lsu_addr[0]`, `net176`, `_0906_`, `_0907_`, `_0913_`, `net157`, `_0951_`, `_0953_` |
+| u_soc.u_core.u_rf | 3 | 2.794 | `u_soc.u_core.u_rf/_2238_/Z` | `u_soc.u_core.rf_wdata[14]`, `u_soc.u_core.u_rf/net64`, `u_soc.u_core.u_rf/net63` |
+| entrada al flip-flop de llegada (pin D) | 0 | 0.000 | `u_soc.u_core.u_rf/_3952_/D` | `u_soc.u_core.u_rf/_0334_` |
+| **total** | | **24.369** | | |
+
+El total es la llegada del dato: 24.369 ns (línea `data arrival time` del reporte).
+
+#### Cálculo del tiempo requerido
+
+| término | valor (ns) | de dónde sale |
+|---|---|---|
+| período del reloj (flanco de captura) | 22.500 | `clock clk (rise edge)` del segundo bloque |
+| latencia del árbol de reloj hasta el flip-flop de llegada | +2.453 | `u_soc.u_core.u_rf/_3952_/CLK` del segundo bloque menos el período |
+| incertidumbre del reloj | -0.250 | `clock uncertainty` |
+| pesimismo de reconvergencia (CRPR) | +0.117 | `clock reconvergence pessimism` |
+| setup de la biblioteca | -0.443 | `library setup time` |
+| **tiempo requerido** | **24.377** | `data required time` |
+| llegada del dato | -24.369 | `data arrival time` |
+
 ### exp/pipeline sin B2 con el flujo final (pr_t22)
 
 Esquina `max_ss_125C_4v50`, grupo `clk`, tipo `max`. Startpoint `_4112_`, endpoint `u_soc.u_core.u_rf/_4143_`. Generado por `python3 asic/ruta_tramos.py build/exp_pipeline/asic/rom/resultados/pr_t22/max_ss_125C_4v50_ruta_critica.rpt`.

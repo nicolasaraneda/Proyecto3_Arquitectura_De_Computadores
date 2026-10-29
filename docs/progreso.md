@@ -71,8 +71,8 @@ Tablas: `asic/tabla_sesion.py` con `asic/ramas_sesion.json`.
 | E4 verificación de la integración | hecha: 15 comprobaciones en verde | `docs/verificacion/integracion.md` y los `integracion_*.txt` al lado |
 | E5 corrida final nueva | hecha: cierra, 0 violaciones de slew y 1 de capacitancia | `bash asic/encolar.sh . asic/rom/config.yaml final 100`, después `bash asic/final.sh --sin-corrida` |
 | E6 barrido de período (f2_*) | hecha: cierra a 100, 30, 25, 24, 23, 22 y 21,5 ns y no cierra a 21; período mínimo 21,5 ns (46,5 MHz, 27,9 MIPS) | `bash asic/encolar.sh . asic/rom/config.yaml f2_tNN NN`; tabla en `asic/final.md` |
-| E7 barrido de utilización (u2_*) | en curso | `bash asic/encolar.sh . asic/rom/config.yaml u2_uNN 100 FP_CORE_UTIL=NN` |
-| E8 pipeline sin B2 con el flujo final (pr_*) | en curso | `bash asic/encolar.sh build/exp_pipeline asic/rom/config_final.yaml pr_tNN NN` |
+| E7 barrido de utilización (u2_*) | hecha: cierran 40, 50, 60, 70, 72 y 73 %, y fallan 74, 75, 78, 80 y 90; máxima que cierra 73 % con die 0,235 mm² | `bash asic/encolar.sh . asic/rom/config.yaml u2_uNN 100 FP_CORE_UTIL=NN` |
+| E8 pipeline sin B2 con el flujo final (pr_*) | hecha: cierra a 100, 24, 23 y 22,5 ns y no cierra a 22; período mínimo 22,5 ns (44,4 MHz, 26,7 MIPS), así que B2 vale 1 ns | `bash asic/encolar.sh build/exp_pipeline asic/rom/config_final.yaml pr_tNN NN` |
 | E9 estrategias con la configuración nueva (s3, s4) | en curso | `bash asic/encolar.sh . asic/ff/config_final.yaml s4_tNN NN` |
 | E10 síntesis jerárquica (h3_t100) y `asic/sintesis.md` | hecha | `python3 asic/analisis_sintesis.py --final asic/rom/runs/final --jerarquica asic/rom/runs/h3_t100 --md asic/sintesis.md` |
 | E11 ruta crítica por tramos y evolución | hechas | `bash asic/rutas.sh` -> `asic/rutas.md`; `python3 asic/evolucion.py --md asic/evolucion.md` |

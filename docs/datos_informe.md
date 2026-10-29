@@ -285,22 +285,26 @@ qué aporta **con el flujo final** se corrió el mismo RTL sin B2 (la rama `exp/
 `pr_*`. Tabla en `asic/final.md`, sección "El pipeline sin B2 con la configuración final"; rutas por
 tramos en `asic/rutas.md`.
 
-- **Período mínimo sin B2: 23 ns** (43,5 MHz). `pr_t23` cierra con WNS 0,463 ns en `max_ss` y
-  `pr_t22` no cierra por 0,597 ns (TNS -3,869). Con B2 son 21,5 ns y 46,5 MHz, así que **B2 compra
-  1,5 ns**. Con el CPI de 1,665 (que B2 no cambia, porque no toca ningún ciclo) eso es 26,1 contra
-  27,9 MIPS.
+- **Período mínimo sin B2: 22,5 ns** (44,4 MHz). `pr_t22p5` cierra con WNS 0,007 ns en `max_ss` y
+  TNS 0, y `pr_t22` no cierra por 0,597 ns (TNS -3,869), así que **la regla de los 0,5 ns queda
+  cerrada también en el barrido sin B2** (`build/exp_pipeline/asic/rom/resultados/pr_t22p5/cierre.md`
+  y `pr_t22/cierre.md`). Con B2 son 21,5 ns y 46,5 MHz, así que **B2 compra 1 ns de período**. Con el
+  CPI de 1,665 (que B2 no cambia, porque no toca ningún ciclo) eso es **26,7 contra 27,9 MIPS**, es
+  decir 1,2 MIPS, un 4,5 por ciento del rendimiento final. Los 0,007 ns de holgura de `pr_t22p5`
+  además dicen que 22,5 ns es el límite exacto: no hay margen para un punto intermedio.
 - **Al mismo período el efecto se ve directo**: a 23 ns el diseño con B2 cierra con 1,494 ns de WNS y
   el diseño sin B2 con 0,463, es decir **+1,031 ns de holgura**, y además **ocupa 1.690 µm² menos**
   (222.714 contra 224.404 µm², -0,75 por ciento; `metrics.json` de `f2_t23` y `pr_t23`). A 100 ns los
   dos ocupan prácticamente lo mismo (208.439 contra 208.390 µm², +0,02 por ciento). **B2 sale gratis:
   da holgura y no cuesta área.**
-- **Qué tramo acorta, con los dos reportes al lado**: sin B2, la ruta crítica a 23 ns
-  (`pr_t23`) empieza en el registro de decode `alu_op_a_sel[2]` (`_4112_`), pasa por el mux del
-  operando A (6 celdas), por la ALU (13 celdas, 8,618 ns) hasta `u_soc.u_core.lsu_addr[0]`, y de ahí
-  por **9 celdas aplanadas que son la alineación del dato de la carga y el mux de write-back** hasta
-  `u_soc.u_core.rf_wdata[13]`, para terminar dentro del banco de registros
-  (`u_soc.u_core.u_rf/_4143_`, 4 celdas más): llegada 24,327 ns, 36 celdas de datos. Con B2 esa cola
-  desaparece de la ruta larga: la crítica de `f2_t21p5` sale del mismo registro de decode, pasa por
+- **Qué tramo acorta, con los dos reportes al lado**: sin B2, la ruta crítica a su período mínimo
+  (`pr_t22p5`, 22,5 ns) empieza en el registro de decode `alu_op_a_sel[2]` (`_4112_`), pasa por el
+  mux del operando A (6 celdas, 3,025 ns), por la ALU (13 celdas, 8,422 ns) hasta
+  `u_soc.u_core.lsu_addr[0]`, y de ahí por **8 celdas aplanadas que son la alineación del dato de la
+  carga y el mux de write-back** hasta `u_soc.u_core.rf_wdata[14]`, para terminar dentro del banco de
+  registros (`u_soc.u_core.u_rf/_3952_`, 3 celdas más): llegada 24,369 ns, 30 celdas de datos. La de
+  23 ns (`pr_t23`) es la misma ruta con 36 celdas y llegada 24,327 ns. Con B2 esa cola desaparece de
+  la ruta larga: la crítica de `f2_t21p5` sale del mismo registro de decode, pasa por
   el mux del operando y la ALU, y termina en el registro del display del periférico
   (`u_soc.u_periph.digit_q[4]`) sin volver al banco de registros. **Eso es exactamente lo que hace
   B2: registrar `addr_i[1:0]` al emitir la carga saca la ALU del camino de alineación**, así que el
