@@ -39,7 +39,7 @@ ETAPAS = [
       "asic/rom/resultados/s1_t40"]),
     ("p1 (pre-decodificación, D18, con el flujo de D15)",
      "el decode pasa a un registro (D18), con la configuración de flujo de D15 y D16",
-     2.665, "igual que la fila anterior: D18 no cambia ningún ciclo",
+     2.665, "el mismo de la fila anterior, porque D18 no cambia ningún ciclo",
      "asic/rom/resultados/p1_t100",
      ["asic/rom/resultados/p1_t50", "asic/rom/resultados/p1_t45",
       "asic/rom/resultados/p1_t42", "asic/rom/resultados/p1_t40",
@@ -127,7 +127,7 @@ def main():
     L = ["# Evolución del rendimiento del diseño (sección 3.4)", "",
          "Generada por `python3 asic/evolucion.py`. El período mínimo de cada etapa es el menor",
          "`CLOCK_PERIOD` de su barrido que cumple el criterio de cierre (D14 más DRC de Magic, LVS y",
-         "antenas); entre paréntesis, el primer período que no cierra, para que se vea la resolución",
+         "antenas); la columna siguiente da el primer período que no cierra, para que se vea la resolución",
          "del barrido. El área, el slew y la capacitancia son los de la corrida a 100 ns de cada etapa.",
          "MIPS = f máx / CPI del juego completo (Ley de Hierro).", "",
          "| etapa | T mínimo (ns) | primer T que no cierra | f máx (MHz) | CPI del juego | MIPS | "
@@ -160,7 +160,7 @@ def main():
     L.append("Descripción y origen del CPI de cada etapa:")
     L.append("")
     for nombre, desc, cpi, origen in [(e[0], e[1], e[2], e[3]) for e in ETAPAS]:
-        L.append(f"- **{nombre}**: {desc}. CPI {num(cpi, 3)}, de {origen}.")
+        L.append(f"- **{nombre}**: {desc}. CPI {num(cpi, 3)}; origen del CPI: {origen}.")
     L.append("")
 
     # descomposicion del aumento de MIPS entre RTL y flujo

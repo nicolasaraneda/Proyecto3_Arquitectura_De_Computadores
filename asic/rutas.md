@@ -14,6 +14,16 @@ se trata, la ultima columna lista los nets, que si conservan el nombre del RTL.
 La funcion de cada tramo (fetch, decode, ejecucion, acceso a memoria o write-back) esta
 interpretada en `docs/datos_informe.md`, seccion 3.4.
 
+Los nombres de inicio y de llegada que el reporte da aplanados (`_4136_`, `_4440_`) se resuelven
+en el netlist de la corrida, que si guarda el nombre del RTL en el net de salida. Por ejemplo,
+para la corrida del periodo minimo:
+
+    grep -A3 "dffrnq_1 _4440_" asic/rom/runs/f2_t21p5/final/nl/asic_top.nl.v
+
+devuelve `.Q(\u_soc.u_periph.digit_q[4] )`, es decir que el flip-flop de llegada es el bit 4 del
+registro del display del periferico. Lo mismo con el de inicio: el net de la primera fila de la
+tabla de tramos ya lo nombra (`u_soc.u_core.u_id.alu_op_a_sel[2]`).
+
 ### Corrida final nueva a 100 ns (tag final)
 
 Esquina `max_ss_125C_4v50`, grupo `clk`, tipo `max`. Startpoint `_4287_`, endpoint `u_soc.u_core.u_rf/_4123_`. Generado por `python3 asic/ruta_tramos.py asic/rom/resultados/final/max_ss_125C_4v50_ruta_critica.rpt`.

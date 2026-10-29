@@ -151,20 +151,66 @@ Un solo pin, el mismo en las nueve esquinas: **`clkbuf_0_clk/Z`, la raíz del á
    no está versionado y los reportes de v1 estaban ya copiados a `asic/rom/resultados/v1_final/`, así
    que no se perdió nada que el informe use; el log de la corrida nueva quedó completo.
 
+5. **El empuje forzado de `exp/candidata-rc` quedó denegado por el permiso de la sesión.** El rebase
+   sobre `main` reescribe los hashes de la rama, así que actualizarla en `origin` pedía
+   `git push --force-with-lease`, y el clasificador de permisos lo rechazó. La rama rebasada se
+   empujó con otro nombre, `exp/candidata-rc-rebasada`, y `origin/exp/candidata-rc` sigue apuntando
+   al commit anterior al rebase (`297c5fe`, el mismo que guarda el tag `candidata-rc-pre-rebase`).
+   No afecta a nada medido: lo que se mezcló en `main` es la rama rebasada y los dos estados siguen
+   alcanzables. Para mover `exp/candidata-rc` en su lugar hace falta autorizar el empuje forzado.
+
 ## 8. Corridas incompletas
 
 Ninguna corrida se detuvo por la regla de 40 minutos de la cola en esta sesión
 (`asic/logs/detenidas.txt` no registra ninguna del 28-10 por la tarde). Las cuatro que no
 completaron son las del punto 7.1, que fallaron por el diseño y no por tiempo.
 
-## 9. Commits y tags
+## 9. Disco y memoria
 
-Todos en `origin`. El detalle, con el `git ls-remote` que lo confirma, está en la sección final del
-reporte de la sesión.
+La cola revisa memoria y disco antes de lanzar cada corrida y lo anota en
+`asic/logs/cola_estado.txt`, en la misma línea del lanzamiento (`usados=<MB> libre=<GB>
+disco=<GB>`). Ninguna corrida se saltó ni se mató por esas guardas en esta sesión.
 
-| referencia | qué es |
+| qué | cuánto | de dónde |
+|---|---|---|
+| Disco del sistema de archivos | 1.007 GB en total, 337 GB usados, 620 GB libres (36 %) | `df -h .` |
+| El repositorio completo con todo lo generado | 311 GB | `du -sh .` |
+| Corridas de LibreLane de la estrategia 1 (`asic/rom/runs`) | 70 GB | `du -sh` |
+| Corridas de la estrategia 2 (`asic/ff/runs`) | 62 GB | `du -sh` |
+| Árboles de trabajo de las ramas de exploración (`build/`) | 178 GB | `du -sh` |
+| Lo que sí está versionado de las corridas (`asic/rom/resultados`) | 20 MB | `du -sh` |
+
+El reparto importa para reproducir: de los 311 GB, **solo 20 MB están en git**. Los
+`asic/*/resultados/<tag>/` guardan de cada corrida el `metrics.json`, los reportes de STA, el
+`cierre.md` y, cuando falla, el extracto `falla.txt`; el resto (los `runs/`, los ODB, los GDS, los
+VCD) se puede volver a generar con la configuración versionada y no se sube.
+
+## 10. Commits y tags
+
+La sesión dejó **35 commits en `main`** sobre el tag `v1-final`, uno por hito
+(`git log --oneline v1-final..HEAD`). Todas las referencias están en `origin`, confirmado con
+`git ls-remote origin`:
+
+| referencia | commit en `origin` | qué es |
+|---|---|---|
+| rama `main` | `bfbd18a` | la integración y todo el trabajo de la sesión; igual al `HEAD` local |
+| tag `v1-final` | `f868867` | `main` antes de integrar: el estado al que se vuelve en la segunda vuelta atrás |
+| tag `candidata-rc-pre-rebase` | `968ab00` | `exp/candidata-rc` antes del rebase, para que los hashes que citan los documentos sigan alcanzables |
+| rama `exp/candidata-rc-rebasada` | `90a3efd` | la rama rebasada tal como se mezcló en `main` (es el segundo padre del merge `d974a9f`) |
+| rama `exp/candidata-rc` | `297c5fe` | quedó en el commit anterior al rebase: ver el punto 7.5 |
+
+Los hitos de la integración, en orden:
+
+| commit | hito |
 |---|---|
-| tag `v1-final` | `main` antes de integrar: el estado al que se vuelve en la segunda vuelta atrás |
-| tag `candidata-rc-pre-rebase` | `exp/candidata-rc` antes del rebase, para que los hashes que citan los documentos sigan alcanzables |
-| rama `exp/candidata-rc-rebasada` | la rama rebasada tal como se mezcló en `main` |
-| rama `main` | la integración y todo el trabajo de la sesión |
+| `d974a9f` | merge `--no-ff` de `exp/candidata-rc` en `main` |
+| `71fe7a0` | la configuración final de D23 pasa a `asic/rom/config.yaml` |
+| `6d4382e` | el origen del modelo de cable queda reproducible (`asic/modelo_cable.py`) |
+| `c926425` | la corrida final nueva cierra y las 15 verificaciones quedan en verde |
+| `236da63` | ruta crítica por tramos y tabla de evolución del rendimiento |
+| `38981bf` | potencia con actividad real comparada contra v1 y contra la candidata |
+| `217f7b7` y `8844ca5` | equivalencia formal del diseño nuevo, completa |
+| `289dd44` | SDF en tres esquinas con Icarus y con CVC sobre `d2_pnr` |
+| `04fa633` | `docs/hechos_flujo.md` reescrito como acta de la corrida final nueva |
+| `1858fb9` | barridos de utilización y de `pr_*` completos |
+| `7dd2fb4` | `docs/cambios_informe.md`, sección por sección y pregunta por pregunta |

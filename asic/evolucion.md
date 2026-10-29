@@ -2,7 +2,7 @@
 
 Generada por `python3 asic/evolucion.py`. El período mínimo de cada etapa es el menor
 `CLOCK_PERIOD` de su barrido que cumple el criterio de cierre (D14 más DRC de Magic, LVS y
-antenas); entre paréntesis, el primer período que no cierra, para que se vea la resolución
+antenas); la columna siguiente da el primer período que no cierra, para que se vea la resolución
 del barrido. El área, el slew y la capacitancia son los de la corrida a 100 ns de cada etapa.
 MIPS = f máx / CPI del juego completo (Ley de Hierro).
 
@@ -17,12 +17,12 @@ MIPS = f máx / CPI del juego completo (Ley de Hierro).
 
 Descripción y origen del CPI de cada etapa:
 
-- **s1 (estrategia 1, configuración de D14 a D16)**: RTL del Proyecto 3 antes de la pre-decodificación (equivalente ciclo a ciclo a `116fa20`), con la configuración corregida de esquinas y celdas de retardo. CPI 2,665, de `make check` de v1 (`game_tb`); D18 es equivalente ciclo a ciclo a este RTL.
-- **p1 (pre-decodificación, D18, con el flujo de D15)**: el decode pasa a un registro (D18), con la configuración de flujo de D15 y D16. CPI 2,665, de igual que la fila anterior: D18 no cambia ningún ciclo.
-- **v1 (corrida final de v1, tag `v1-final`)**: lo anterior más el flujo final de D20 y D21 (sin `buf_1`, margen del resizer de 10 ns, terminales por función). CPI 2,665, de `make check` de v1 (`game_tb`): 1.599.759 / 600.218.
-- **co_rcm (el RTL de v1 con el modelo de cable)**: el mismo RTL de v1 con `LAYERS_RC` y la reparación post-GRT: mide cuánto del salto es del flujo y no del diseño. CPI 2,665, de el RTL es el de v1, así que el CPI es el mismo.
-- **pr (el pipeline sin B2, con el flujo final)**: el pipeline con lectura del banco y decodificación en el fetch, sin el offset de byte de la carga registrado en la LSU, con la configuración final: mide el aporte de B2. CPI 1,665, de `make check` del worktree `build/exp_pipeline`; A y A+B2 tienen el mismo CPI.
-- **final (la corrida final de D23)**: el pipeline con B2 más el modelo de cable y la reparación post-GRT. CPI 1,665, de `docs/verificacion/integracion_01_make_check.txt` (`game_tb`): 1.595.814 / 958.358.
+- **s1 (estrategia 1, configuración de D14 a D16)**: RTL del Proyecto 3 antes de la pre-decodificación (equivalente ciclo a ciclo a `116fa20`), con la configuración corregida de esquinas y celdas de retardo. CPI 2,665; origen del CPI: `make check` de v1 (`game_tb`); D18 es equivalente ciclo a ciclo a este RTL.
+- **p1 (pre-decodificación, D18, con el flujo de D15)**: el decode pasa a un registro (D18), con la configuración de flujo de D15 y D16. CPI 2,665; origen del CPI: el mismo de la fila anterior, porque D18 no cambia ningún ciclo.
+- **v1 (corrida final de v1, tag `v1-final`)**: lo anterior más el flujo final de D20 y D21 (sin `buf_1`, margen del resizer de 10 ns, terminales por función). CPI 2,665; origen del CPI: `make check` de v1 (`game_tb`): 1.599.759 / 600.218.
+- **co_rcm (el RTL de v1 con el modelo de cable)**: el mismo RTL de v1 con `LAYERS_RC` y la reparación post-GRT: mide cuánto del salto es del flujo y no del diseño. CPI 2,665; origen del CPI: el RTL es el de v1, así que el CPI es el mismo.
+- **pr (el pipeline sin B2, con el flujo final)**: el pipeline con lectura del banco y decodificación en el fetch, sin el offset de byte de la carga registrado en la LSU, con la configuración final: mide el aporte de B2. CPI 1,665; origen del CPI: `make check` del worktree `build/exp_pipeline`; A y A+B2 tienen el mismo CPI.
+- **final (la corrida final de D23)**: el pipeline con B2 más el modelo de cable y la reparación post-GRT. CPI 1,665; origen del CPI: `docs/verificacion/integracion_01_make_check.txt` (`game_tb`): 1.595.814 / 958.358.
 
 ## Cuánto del aumento de MIPS viene del RTL y cuánto del flujo
 
