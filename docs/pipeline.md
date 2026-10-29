@@ -1,10 +1,26 @@
-# Rama exp/pipeline (frente A): lectura del banco de registros y decode en el fetch
+# El core del pipeline: lectura del banco de registros y decode en el fetch
+
+**Este es el core de la corrida final desde D23** (28-10-2026): el RTL de `main` lo trae, con el
+parámetro `EarlyRead = 1` para la estrategia 1 de memoria, y la corrida final lo usa junto con el
+modelo de cable del resizer (`docs/modelo_cable.md`). Lo que sigue es el documento del frente que lo
+diseñó y lo verificó, conservado como está porque es la explicación del mecanismo y de su
+verificación; la revisión independiente de ese trabajo está en `docs/revision_frente_a.md` y las
+comprobaciones que se repitieron sobre `main` ya integrado, en `docs/verificacion/integracion.md`.
+
+Dónde leer qué:
+
+- el mecanismo, los riesgos de datos y cómo se resuelve cada uno: secciones 1 a 4 de este documento;
+- las cifras de la corrida final nueva (período mínimo 21,5 ns, 46,5 MHz, CPI 1,665, 27,9 MIPS):
+  `asic/final.md`, `asic/evolucion.md` y `docs/datos_informe.md`;
+- cuánto aporta B2 con el flujo final: las corridas `pr_*` de `asic/final.md`.
 
 Sesión del 27-10-2026. Rama `exp/pipeline`, creada desde `main` (50f8a39); worktree
 `build/exp_pipeline`. Sub-ramas `exp/pipeline-b5` (banco de latches de B5) y
 `exp/pipeline-b2` (offset de byte registrado de B2), creadas desde `exp/pipeline`.
 Tags de las corridas: `pa_*`. Tabla de corridas generada por `asic/recolectar.py`:
 `asic/barrido_exp.md`. Salidas completas de la verificación: `docs/verificacion/*.txt`.
+Los períodos que cita este documento (25,5 ns para A+B2) son los de la configuración de v1, sin el
+modelo de cable; con la configuración final de D23 el mismo RTL cierra a 21,5 ns.
 
 ## 1. Idea y diseño
 

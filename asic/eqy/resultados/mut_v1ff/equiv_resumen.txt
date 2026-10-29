@@ -1,0 +1,96 @@
+script: build/eqy/mut_v1ff/equiv.ys
+read_rtlil build/eqy/mut_v1ff/gold.il
+rename asic_top gold
+read_rtlil build/eqy/mut_v1ff/gate.il
+rename asic_top gate
+delete t:$scopeinfo
+async2sync
+equiv_make gold gate equiv
+hierarchy -top equiv
+stat
+equiv_status
+equiv_simple -seq 2
+equiv_status
+equiv_induct -seq 4
+equiv_status
+
+tiempo_real_734.82_s;usuario_726.17_s;sistema_7.41_s;memoria_maxima_671228_KB
+
+equiv_status (en orden: tras equiv_make, tras equiv_simple, tras equiv_induct):
+2141:7. Executing EQUIV_STATUS pass.
+2142:Found 976 $equiv cells in equiv:
+2143:  Of those cells 0 are proven and 976 are unproven.
+3122:8. Executing EQUIV_SIMPLE pass.
+3123:Found 976 unproven $equiv cells (976 groups) in equiv:
+7025:Proved 5 previously unproven $equiv cells.
+7027:9. Executing EQUIV_STATUS pass.
+7028:Found 976 $equiv cells in equiv:
+7029:  Of those cells 5 are proven and 971 are unproven.
+8003:10. Executing EQUIV_INDUCT pass.
+8004:Found 971 unproven $equiv cells in module equiv:
+8988:Proved 771 previously unproven $equiv cells.
+8990:11. Executing EQUIV_STATUS pass.
+8991:Found 976 $equiv cells in equiv:
+8992:  Of those cells 776 are proven and 200 are unproven.
+
+no probados al final:
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$9013: \u_soc.u_periph.digit_q[7]_gold \u_soc.u_periph.digit_q[7]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$9012: \u_soc.u_periph.digit_q[6]_gold \u_soc.u_periph.digit_q[6]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$9011: \u_soc.u_periph.digit_q[5]_gold \u_soc.u_periph.digit_q[5]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$9010: \u_soc.u_periph.digit_q[4]_gold \u_soc.u_periph.digit_q[4]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$9009: \u_soc.u_periph.digit_q[3]_gold \u_soc.u_periph.digit_q[3]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$9008: \u_soc.u_periph.digit_q[2]_gold \u_soc.u_periph.digit_q[2]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$9007: \u_soc.u_periph.digit_q[1]_gold \u_soc.u_periph.digit_q[1]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$9006: \u_soc.u_periph.digit_q[0]_gold \u_soc.u_periph.digit_q[0]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8958: \u_soc.u_core.u_rf.regs[9][31]_gold \u_soc.u_core.u_rf.regs[9][31]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8957: \u_soc.u_core.u_rf.regs[9][30]_gold \u_soc.u_core.u_rf.regs[9][30]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8862: \u_soc.u_core.u_rf.regs[6][31]_gold \u_soc.u_core.u_rf.regs[6][31]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8830: \u_soc.u_core.u_rf.regs[5][31]_gold \u_soc.u_core.u_rf.regs[5][31]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8798: \u_soc.u_core.u_rf.regs[4][31]_gold \u_soc.u_core.u_rf.regs[4][31]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8606: \u_soc.u_core.u_rf.regs[13][31]_gold \u_soc.u_core.u_rf.regs[13][31]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8574: \u_soc.u_core.u_rf.regs[12][31]_gold \u_soc.u_core.u_rf.regs[12][31]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8542: \u_soc.u_core.u_rf.regs[11][31]_gold \u_soc.u_core.u_rf.regs[11][31]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8510: \u_soc.u_core.u_rf.regs[10][31]_gold \u_soc.u_core.u_rf.regs[10][31]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8403: \u_soc.u_core.rf_rdata_a[31]_gold \u_soc.u_core.rf_rdata_a[31]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8343: \u_soc.u_core.lsu_wdata[31]_gold \u_soc.u_core.lsu_wdata[31]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8319: \u_soc.rd_is_spi_gold \u_soc.rd_is_spi_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8318: \u_soc.rd_is_per_gold \u_soc.rd_is_per_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8317: \u_soc.per_rdata[9]_gold \u_soc.per_rdata[9]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8316: \u_soc.per_rdata[8]_gold \u_soc.per_rdata[8]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8315: \u_soc.per_rdata[7]_gold \u_soc.per_rdata[7]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8314: \u_soc.per_rdata[6]_gold \u_soc.per_rdata[6]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8313: \u_soc.per_rdata[5]_gold \u_soc.per_rdata[5]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8312: \u_soc.per_rdata[4]_gold \u_soc.per_rdata[4]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8311: \u_soc.per_rdata[3]_gold \u_soc.per_rdata[3]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8310: \u_soc.per_rdata[31]_gold \u_soc.per_rdata[31]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8309: \u_soc.per_rdata[30]_gold \u_soc.per_rdata[30]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8308: \u_soc.per_rdata[2]_gold \u_soc.per_rdata[2]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8307: \u_soc.per_rdata[29]_gold \u_soc.per_rdata[29]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8306: \u_soc.per_rdata[28]_gold \u_soc.per_rdata[28]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8305: \u_soc.per_rdata[27]_gold \u_soc.per_rdata[27]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8304: \u_soc.per_rdata[26]_gold \u_soc.per_rdata[26]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8303: \u_soc.per_rdata[25]_gold \u_soc.per_rdata[25]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8302: \u_soc.per_rdata[24]_gold \u_soc.per_rdata[24]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8301: \u_soc.per_rdata[23]_gold \u_soc.per_rdata[23]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8300: \u_soc.per_rdata[22]_gold \u_soc.per_rdata[22]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8299: \u_soc.per_rdata[21]_gold \u_soc.per_rdata[21]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8298: \u_soc.per_rdata[20]_gold \u_soc.per_rdata[20]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8297: \u_soc.per_rdata[1]_gold \u_soc.per_rdata[1]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8296: \u_soc.per_rdata[19]_gold \u_soc.per_rdata[19]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8295: \u_soc.per_rdata[18]_gold \u_soc.per_rdata[18]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8294: \u_soc.per_rdata[17]_gold \u_soc.per_rdata[17]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8293: \u_soc.per_rdata[16]_gold \u_soc.per_rdata[16]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8292: \u_soc.per_rdata[15]_gold \u_soc.per_rdata[15]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8291: \u_soc.per_rdata[14]_gold \u_soc.per_rdata[14]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8290: \u_soc.per_rdata[13]_gold \u_soc.per_rdata[13]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8289: \u_soc.per_rdata[12]_gold \u_soc.per_rdata[12]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8288: \u_soc.per_rdata[11]_gold \u_soc.per_rdata[11]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8287: \u_soc.per_rdata[10]_gold \u_soc.per_rdata[10]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8286: \u_soc.per_rdata[0]_gold \u_soc.per_rdata[0]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8285: \u_soc.g_mem_rom.u_mem.g_ram.ram[3][9]_gold \u_soc.g_mem_rom.u_mem.g_ram.ram[3][9]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8284: \u_soc.g_mem_rom.u_mem.g_ram.ram[3][8]_gold \u_soc.g_mem_rom.u_mem.g_ram.ram[3][8]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8283: \u_soc.g_mem_rom.u_mem.g_ram.ram[3][7]_gold \u_soc.g_mem_rom.u_mem.g_ram.ram[3][7]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8282: \u_soc.g_mem_rom.u_mem.g_ram.ram[3][6]_gold \u_soc.g_mem_rom.u_mem.g_ram.ram[3][6]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8281: \u_soc.g_mem_rom.u_mem.g_ram.ram[3][5]_gold \u_soc.g_mem_rom.u_mem.g_ram.ram[3][5]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8280: \u_soc.g_mem_rom.u_mem.g_ram.ram[3][4]_gold \u_soc.g_mem_rom.u_mem.g_ram.ram[3][4]_gate
+  Unproven $equiv $auto$equiv_make.cc:295:find_same_wires$8279: \u_soc.g_mem_rom.u_mem.g_ram.ram[3][3]_gold \u_soc.g_mem_rom.u_mem.g_ram.ram[3][3]_gate

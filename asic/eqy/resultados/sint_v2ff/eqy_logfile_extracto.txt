@@ -1,80 +1,80 @@
-EQY 21:20:48 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.0.31' using strategy 'pdr': partitions not equivalent
-EQY 21:20:48 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.0.5' using strategy 'pdr': partitions not equivalent
-EQY 21:20:48 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.0.7' using strategy 'pdr': partitions not equivalent
-EQY 21:20:48 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.0.6' using strategy 'pdr': partitions not equivalent
-EQY 21:20:48 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.0.8' using strategy 'pdr': partitions not equivalent
-EQY 21:20:49 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.0.9' using strategy 'pdr': partitions not equivalent
-EQY 21:20:49 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.0' using strategy 'pdr': partitions not equivalent
-EQY 21:20:50 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.10' using strategy 'pdr': partitions not equivalent
-EQY 21:20:50 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.1' using strategy 'pdr': partitions not equivalent
-EQY 21:20:50 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.11' using strategy 'pdr': partitions not equivalent
-EQY 21:20:50 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.13' using strategy 'pdr': partitions not equivalent
-EQY 21:20:50 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.12' using strategy 'pdr': partitions not equivalent
-EQY 21:20:50 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.14' using strategy 'pdr': partitions not equivalent
-EQY 21:20:50 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.15' using strategy 'pdr': partitions not equivalent
-EQY 21:20:51 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.16' using strategy 'pdr': partitions not equivalent
-EQY 21:20:51 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.17' using strategy 'pdr': partitions not equivalent
-EQY 21:20:51 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.18' using strategy 'pdr': partitions not equivalent
-EQY 21:20:52 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.19' using strategy 'pdr': partitions not equivalent
-EQY 21:20:52 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.20' using strategy 'pdr': partitions not equivalent
-EQY 21:20:52 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.21' using strategy 'pdr': partitions not equivalent
-EQY 21:20:52 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.2' using strategy 'pdr': partitions not equivalent
-EQY 21:20:52 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.22' using strategy 'pdr': partitions not equivalent
-EQY 21:20:53 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.23' using strategy 'pdr': partitions not equivalent
-EQY 21:20:53 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.24' using strategy 'pdr': partitions not equivalent
-EQY 21:20:53 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.25' using strategy 'pdr': partitions not equivalent
-EQY 21:20:53 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.26' using strategy 'pdr': partitions not equivalent
-EQY 21:20:54 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.27' using strategy 'pdr': partitions not equivalent
-EQY 21:20:54 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.28' using strategy 'pdr': partitions not equivalent
-EQY 21:20:54 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.29' using strategy 'pdr': partitions not equivalent
-EQY 21:20:54 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.3' using strategy 'pdr': partitions not equivalent
-EQY 21:20:54 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.30' using strategy 'pdr': partitions not equivalent
-EQY 21:20:55 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.31' using strategy 'pdr': partitions not equivalent
-EQY 21:20:55 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.4' using strategy 'pdr': partitions not equivalent
-EQY 21:20:55 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.5' using strategy 'pdr': partitions not equivalent
-EQY 21:20:55 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.8' using strategy 'pdr': partitions not equivalent
-EQY 21:20:55 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.6' using strategy 'pdr': partitions not equivalent
-EQY 21:20:55 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.7' using strategy 'pdr': partitions not equivalent
-EQY 21:20:55 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.1.9' using strategy 'pdr': partitions not equivalent
-EQY 21:20:56 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.0' using strategy 'pdr': partitions not equivalent
-EQY 21:20:56 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.1' using strategy 'pdr': partitions not equivalent
-EQY 21:20:56 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.10' using strategy 'pdr': partitions not equivalent
-EQY 21:20:56 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.11' using strategy 'pdr': partitions not equivalent
-EQY 21:20:56 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.13' using strategy 'pdr': partitions not equivalent
-EQY 21:20:56 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.12' using strategy 'pdr': partitions not equivalent
-EQY 21:20:56 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.14' using strategy 'pdr': partitions not equivalent
-EQY 21:20:57 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.15' using strategy 'pdr': partitions not equivalent
-EQY 21:20:57 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.16' using strategy 'pdr': partitions not equivalent
-EQY 21:20:57 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.17' using strategy 'pdr': partitions not equivalent
-EQY 21:20:57 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.18' using strategy 'pdr': partitions not equivalent
-EQY 21:20:58 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.19' using strategy 'pdr': partitions not equivalent
-EQY 21:20:58 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.20' using strategy 'pdr': partitions not equivalent
-EQY 21:20:58 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.2' using strategy 'pdr': partitions not equivalent
-EQY 21:20:58 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.21' using strategy 'pdr': partitions not equivalent
-EQY 21:20:58 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.22' using strategy 'pdr': partitions not equivalent
-EQY 21:20:58 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.23' using strategy 'pdr': partitions not equivalent
-EQY 21:20:59 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.24' using strategy 'pdr': partitions not equivalent
-EQY 21:20:59 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.25' using strategy 'pdr': partitions not equivalent
-EQY 21:20:59 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.26' using strategy 'pdr': partitions not equivalent
-EQY 21:20:59 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.27' using strategy 'pdr': partitions not equivalent
-EQY 21:20:59 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.28' using strategy 'pdr': partitions not equivalent
-EQY 21:20:59 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.29' using strategy 'pdr': partitions not equivalent
-EQY 21:20:59 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.3' using strategy 'pdr': partitions not equivalent
-EQY 21:21:00 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.30' using strategy 'pdr': partitions not equivalent
-EQY 21:21:00 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.31' using strategy 'pdr': partitions not equivalent
-EQY 21:21:00 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.4' using strategy 'pdr': partitions not equivalent
-EQY 21:21:00 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.5' using strategy 'pdr': partitions not equivalent
-EQY 21:21:00 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.6' using strategy 'pdr': partitions not equivalent
-EQY 21:21:00 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.8' using strategy 'pdr': partitions not equivalent
-EQY 21:21:01 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.7' using strategy 'pdr': partitions not equivalent
-EQY 21:21:01 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.2.9' using strategy 'pdr': partitions not equivalent
-EQY 21:21:01 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.3.0' using strategy 'pdr': partitions not equivalent
-EQY 21:21:02 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.3.1' using strategy 'pdr': partitions not equivalent
-EQY 21:21:02 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.3.10' using strategy 'pdr': partitions not equivalent
-EQY 21:21:02 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.3.11' using strategy 'pdr': partitions not equivalent
-EQY 21:21:02 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.3.12' using strategy 'pdr': partitions not equivalent
-EQY 21:21:02 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.3.13' using strategy 'pdr': partitions not equivalent
-EQY 21:21:02 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.3.14' using strategy 'pdr': partitions not equivalent
-EQY 21:21:02 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.3.15' using strategy 'pdr': partitions not equivalent
-EQY 21:21:02 [build/eqy/sint_v2ff/eqy] run: Could not prove equivalence of partition 'asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.3.16' using strategy 'pdr': partitions not equivalent
-EQY 21:21:03 [build/eqy/sint_v2ff/eqy] run: terminating process
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.g_ram.ram.0.0
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.9
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.8
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.7
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.6
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.5
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.4
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.3
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.31
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.30
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.2
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.29
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.28
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.27
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.26
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.25
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.24
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.23
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.22
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.21
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.20
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.1
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.19
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.18
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.17
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.16
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.15
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.14
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.13
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.12
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.11
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.10
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.b_rdata_o.0
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.9
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.8
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.7
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.6
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.5
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.4
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.3
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.31
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.30
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.2
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.29
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.28
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.27
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.26
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.25
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.24
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.23
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.22
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.21
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.20
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.1
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.19
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.18
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.17
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.16
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.15
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.14
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.13
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.12
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.11
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.10
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.g_mem_rom.u_mem.a_addr_i.0
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.data_wdata.7
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.data_wdata.6
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.data_wdata.5
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.data_wdata.4
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.data_wdata.3
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.data_wdata.2
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.data_wdata.1
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.u_soc.data_wdata.0
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.led.3
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.led.2
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.led.1
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] Failed to prove equivalence of partition asic_top.led.0
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] summary: Elapsed clock time [H:MM:SS (secs)]: 0:10:37 (637)
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] summary: Elapsed process time [H:MM:SS (secs)]: 1:01:34 (3694)
+EQY 21:05:55 [build/eqy/sint_v2ff/eqy] DONE (FAIL, rc=2)

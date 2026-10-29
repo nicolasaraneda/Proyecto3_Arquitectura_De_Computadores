@@ -17,17 +17,17 @@ prep -top miter_reset
 [files]
 miter_reset.sv
 
-tiempo_real_33.62_s;usuario_29.96_s;sistema_9.55_s;memoria_maxima_179788_KB
+tiempo_real_31.15_s;usuario_27.61_s;sistema_9.18_s;memoria_maxima_188640_KB
 
-SBY 21:17:47 [miter_reset] engine_0: ##   0:00:21  Checking assertions in step 19..
-SBY 21:17:48 [miter_reset] engine_0: ##   0:00:23  Checking assertions in step 20..
-SBY 21:17:50 [miter_reset] engine_0: ##   0:00:24  Checking assertions in step 21..
-SBY 21:17:52 [miter_reset] engine_0: ##   0:00:26  Checking assertions in step 22..
-SBY 21:17:53 [miter_reset] engine_0: ##   0:00:28  Checking assertions in step 23..
-SBY 21:17:54 [miter_reset] engine_0: ##   0:00:29  Status: passed
-SBY 21:17:55 [miter_reset] engine_0: Status returned by engine: pass
-SBY 21:17:55 [miter_reset] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:33 (33)
-SBY 21:17:55 [miter_reset] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:39 (39)
-SBY 21:17:55 [miter_reset] summary: engine_0 (smtbmc yices) returned pass
-SBY 21:17:55 [miter_reset] summary: engine_0 did not produce any traces
-SBY 21:17:55 [miter_reset] DONE (PASS, rc=0)
+SBY 21:08:18 [miter_reset] engine_0: ##   0:00:19  Checking assertions in step 19..
+SBY 21:08:20 [miter_reset] engine_0: ##   0:00:20  Checking assertions in step 20..
+SBY 21:08:21 [miter_reset] engine_0: ##   0:00:22  Checking assertions in step 21..
+SBY 21:08:23 [miter_reset] engine_0: ##   0:00:23  Checking assertions in step 22..
+SBY 21:08:25 [miter_reset] engine_0: ##   0:00:25  Checking assertions in step 23..
+SBY 21:08:26 [miter_reset] engine_0: ##   0:00:26  Status: passed
+SBY 21:08:26 [miter_reset] engine_0: Status returned by engine: pass
+SBY 21:08:26 [miter_reset] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:31 (31)
+SBY 21:08:26 [miter_reset] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:36 (36)
+SBY 21:08:26 [miter_reset] summary: engine_0 (smtbmc yices) returned pass
+SBY 21:08:26 [miter_reset] summary: engine_0 did not produce any traces
+SBY 21:08:26 [miter_reset] DONE (PASS, rc=0)

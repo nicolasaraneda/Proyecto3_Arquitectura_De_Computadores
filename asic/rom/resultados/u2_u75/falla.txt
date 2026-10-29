@@ -1,0 +1,46 @@
+asic/logs/u2_u75.log, linea 18658 en adelante; corrida asic/rom/runs/u2_u75
+[INFO RSZ-0036] Found 155 capacitance violations.
+[INFO RSZ-0039] Resized 95 instances.
+[INFO RSZ-0038] Inserted 343 buffers in 442 nets.
++ detailed_placement -max_displacement  500 100
+[INFO DPL-0034] Detailed placement failed on the following 77 instances:
+[INFO DPL-0035]  u_soc.u_core.u_rf/_3359_
+[INFO DPL-0035]  fanout776
+[INFO DPL-0035]  u_soc.u_core.u_rf/_2734_
+[INFO DPL-0035]  u_soc.u_core.u_rf/_2734_
+[INFO DPL-0035]  u_soc.u_core.u_rf/_3169_
+[INFO DPL-0035]  u_soc.u_core.u_rf/_3169_
+[INFO DPL-0035]  u_soc.u_core.u_rf/fanout245
+[INFO DPL-0035]  u_soc.u_core.u_rf/fanout104
+[INFO DPL-0035]  u_soc.u_core.u_rf/fanout247
+[INFO DPL-0035]  output21
+[INFO DPL-0035]  u_soc.u_core.u_rf/_3336_
+[INFO DPL-0035]  u_soc.u_core.u_rf/fanout318
+[INFO DPL-0035]  u_soc.u_core.u_rf/fanout318
+[INFO DPL-0035]  u_soc.u_core.u_rf/_2715_
+[INFO DPL-0035]  u_soc.u_core.u_rf/_2712_
+[INFO DPL-0035]  u_soc.u_core.u_rf/_3507_
+[INFO DPL-0035]  u_soc.u_core.u_rf/_2703_
+[INFO DPL-0035]  u_soc.u_core.u_rf/_2893_
+[INFO DPL-0035]  output6
+[INFO DPL-0035]  output6
+[INFO DPL-0035]  u_soc.u_core.u_rf/_2897_
+[INFO DPL-0035]  u_soc.u_core.u_rf/_2897_
+[INFO DPL-0035]  u_soc.u_core.u_rf/fanout294
+[INFO DPL-0035]  u_soc.u_core.u_rf/fanout298
+[INFO DPL-0035]  u_soc.u_core.u_rf/fanout298
+[INFO DPL-0035]  u_soc.u_core.u_rf/fanout298
+[INFO DPL-0035]  u_soc.u_core.u_rf/_3321_
+[INFO DPL-0035]  u_soc.u_core.u_rf/_2707_
+[INFO DPL-0035]  u_soc.u_core.u_rf/wire872
+[INFO DPL-0035]  output23
+[INFO DPL-0035]  u_soc.u_core.u_rf/wire932
+[INFO DPL-0035]  u_soc.u_core.u_rf/wire932
+[INFO DPL-0035]  _3405_
+[INFO DPL-0035]  _3405_
+[INFO DPL-0035]  u_soc.u_core.u_rf/_2654_
+[INFO DPL-0035]  u_soc.u_core.u_rf/_2654_
+[INFO DPL-0035]  u_soc.u_core.u_rf/_2649_
+[INFO DPL-0035]  u_soc.u_core.u_rf/_2649_
+[INFO DPL-0035]  _3421_
+[INFO DPL-0035]  _3421_
