@@ -3,11 +3,12 @@
 Lista de tareas del bloque final, con su estado y el comando para retomar cada una.
 Se actualiza al cerrar cada tarea para que otra sesión pueda continuar.
 
-Convenciones: las corridas de LibreLane se lanzan desde la raíz con el entorno
-activado (`source ~/herramientas/librelane/bin/activate`); máximo 3 a la vez
-(`PAR=3 bash asic/barrido.sh < lista.txt`) y con `bash asic/vigilar.sh &` corriendo
-(detiene las que pasen de 40 min o si la memoria usada pasa de 26000 MB). No lanzar
-corridas nuevas si `free -m` muestra más de 20000 MB usados.
+Convenciones: las corridas de LibreLane se lanzan con la **cola única**, no a mano:
+`bash asic/cola.sh &` levanta el daemon (máximo 3 simultáneas, corte a los 40 minutos,
+revisión de memoria y de disco), `bash asic/encolar.sh <dir> <config.yaml> <tag> <T> [VAR=VAL]`
+encola, `bash asic/esperar.sh <tag>...` espera y `touch asic/logs/cola.fin` lo termina. El
+tag tiene que ser único en toda la sesión. Bitácora en `asic/logs/cola_estado.txt`. No
+lanzar corridas nuevas si `free -m` muestra más de 20000 MB usados.
 
 | Tarea | Estado | Cómo retomar / verificar |
 |---|---|---|
@@ -58,3 +59,24 @@ Tablas: `asic/tabla_sesion.py` con `asic/ramas_sesion.json`.
 | Revisión independiente del frente A | hecha: APROBADA CON OBSERVACIONES; agregó 48 comprobaciones de riesgos (`sw/hazard_review.s`), 5 de CYCLES y dos mutaciones propias; sin errores funcionales. Observación principal: rebasar la rama sobre main y repetir `make check` y `make post-synth` antes de adoptarla | `docs/revision_frente_a.md` |
 | Exploración del modelo de cable (coordinador) | hecha: con los RC medidos del frente C el RTL de main cierra a 22 ns y el de la candidata a 21,5 ns (las dos con la regla de 0,5 ns cerrada y 0 violaciones de slew en las 9 esquinas), pero el área queda sobre el límite (110,4 y 114,4 por ciento), así que no puede ser la corrida final | `asic/exploraciones.md`, `docs/propuesta_d23.md` 6 bis, `docs/modelo_cable.md` de `exp/candidata-rc` |
 | Paquete de decisión | hecha: `docs/propuesta_d23.md` y D23 en estado de propuesta, con "Elegida: pendiente (Nicolás)" | `docs/propuesta_d23.md`, `docs/decisiones.md` |
+
+## Integración de D23 (28-10-2026): la corrida final pasa a exp/candidata-rc
+
+| Tarea | Estado | Cómo retomar / verificar |
+|---|---|---|
+| E0 D23 resuelta en `docs/decisiones.md` | hecha: "Elegida: (b), variante `exp/candidata-rc`", con la nota de que el límite de 105 % de área de celdas era una regla del grupo y no del enunciado, la fecha de corte (1-11-2026 23:59) y las dos vueltas atrás | `docs/decisiones.md`, D23 |
+| E1 v1 marcado y copiado | hecha: tag `v1-final` (commit `d881583`), reportes en `asic/rom/resultados/v1_final/` con `LEEME.md`, corrida en disco en `asic/rom/runs/v1_final_run/` | `git show v1-final --stat`; `git ls-remote --tags origin v1-final` |
+| E2 rebase e integración | hecha: `exp/candidata-rc` rebasada sobre main (el `Makefile` se mezcló solo) y mezclada con `merge --no-ff`; el estado anterior de la rama queda en el tag `candidata-rc-pre-rebase` para que los hashes que citan los documentos sigan alcanzables | `git log --oneline v1-final..main`; `git show candidata-rc-pre-rebase` |
+| E3 configuración final | hecha: `asic/rom/config.yaml` lleva `EarlyRead=1`, el bloque `LAYERS_RC` y las cuatro variables de la reparación post-GRT; `asic/ff/config_final.yaml` es la estrategia 2 con la misma configuración; `asic/rom/config_rc.yaml` se eliminó | `python3 asic/modelo_cable.py build/exp_rf_latch/asic/rom/runs/b5_t100 --comparar asic/rom/config.yaml` (código 0 si los valores coinciden) |
+| E4 verificación de la integración | hecha: 15 comprobaciones en verde | `docs/verificacion/integracion.md` y los `integracion_*.txt` al lado |
+| E5 corrida final nueva | hecha: cierra, 0 violaciones de slew y 1 de capacitancia | `bash asic/encolar.sh . asic/rom/config.yaml final 100`, después `bash asic/final.sh --sin-corrida` |
+| E6 barrido de período (f2_*) | hecha: cierra a 100, 30, 25, 24, 23, 22 y 21,5 ns y no cierra a 21; período mínimo 21,5 ns (46,5 MHz, 27,9 MIPS) | `bash asic/encolar.sh . asic/rom/config.yaml f2_tNN NN`; tabla en `asic/final.md` |
+| E7 barrido de utilización (u2_*) | en curso | `bash asic/encolar.sh . asic/rom/config.yaml u2_uNN 100 FP_CORE_UTIL=NN` |
+| E8 pipeline sin B2 con el flujo final (pr_*) | en curso | `bash asic/encolar.sh build/exp_pipeline asic/rom/config_final.yaml pr_tNN NN` |
+| E9 estrategias con la configuración nueva (s3, s4) | en curso | `bash asic/encolar.sh . asic/ff/config_final.yaml s4_tNN NN` |
+| E10 síntesis jerárquica (h3_t100) y `asic/sintesis.md` | hecha | `python3 asic/analisis_sintesis.py --final asic/rom/runs/final --jerarquica asic/rom/runs/h3_t100 --md asic/sintesis.md` |
+| E11 ruta crítica por tramos y evolución | hechas | `bash asic/rutas.sh` -> `asic/rutas.md`; `python3 asic/evolucion.py --md asic/evolucion.md` |
+| E12 potencia con actividad real | hecha: 9,620 mW sin actividad y 13,936 a 16,615 mW con actividad en nom_tt | `bash asic/potencia/correr.sh todo`; resultado en `asic/potencia/resultado.md` |
+| E13 equivalencia formal | en curso: eqy prueba 29 de 30 particiones, el flujo clásico de Yosys prueba las 976 celdas y el BMC desde reset pasa a 24 pasos; falta el control negativo que discrimine | `bash asic/eqy/correr.sh todo`; resultado en `docs/equivalencia.md` |
+| E14 simulación post-PnR con SDF (d2_pnr) | en curso | `bash asic/encolar.sh . asic/sim/config_pnr.yaml d2_pnr 100`, después `make post-pnr-sdf` y `make post-pnr-cvc` |
+| E15 documentos | en curso: `asic/final.md`, `asic/sintesis.md`, `asic/rom/resultados/final/{cierre,avisos}.md`, `docs/datos_informe.md` (2, 3.3, 3.4, 3.6 y 3.7), `asic/sim/README.md`, `README.md` y `docs/modelo_cable.md` hechos; faltan 3.2, 3.5 y 3.8 de `datos_informe`, `docs/hechos_flujo.md`, `asic/exploraciones.md` y `docs/cambios_informe.md` | |

@@ -318,5 +318,62 @@
   ],
   "potencia_mw": null,
   "nota": "114,4 por ciento del area de main: fuera del limite; 0 slew en las 9 esquinas; ver docs/modelo_cable.md de la rama"
+ },
+ {
+  "nombre": "main integrado (la corrida final de D23)",
+  "rama": "main",
+  "cambio": "el RTL del pipeline (EarlyRead, write-through, B2) mas el modelo de cable del resizer y la reparacion post-GRT",
+  "verificacion": "15 comprobaciones en verde (docs/verificacion/integracion.md): check PASS, equiv funcional contra 116fa20 y contra v1 con isa_test, hazard_test y hazard_review, las dos mutaciones detectadas, 0 X usados, post-synth PASS con control negativo",
+  "cpi_isa": 1.969,
+  "cpi_juego": 1.665,
+  "corrida_100": "asic/rom/runs/final",
+  "corridas_periodo": [
+   "asic/rom/runs/f2_t30",
+   "asic/rom/runs/f2_t25",
+   "asic/rom/runs/f2_t24",
+   "asic/rom/runs/f2_t23",
+   "asic/rom/runs/f2_t22",
+   "asic/rom/runs/f2_t21p5",
+   "asic/rom/runs/f2_t21"
+  ],
+  "potencia_mw": 16.615,
+  "nota": "potencia con actividad: ventana de espera de 3 s en nom_tt (asic/potencia/resultado.md). Es la corrida final del informe"
+ },
+ {
+  "nombre": "exp/pipeline sin B2 con el flujo final (pr_*)",
+  "rama": "exp/pipeline",
+  "cambio": "el frente A (lectura del banco y decode en el fetch) sin el offset de byte registrado en la LSU, con la configuracion final de D23",
+  "verificacion": "la del frente A (docs/pipeline.md) mas la revision independiente; no se repitio make check en el worktree",
+  "cpi_isa": 1.969,
+  "cpi_juego": 1.665,
+  "corrida_100": "build/exp_pipeline/asic/rom/runs/pr_t100",
+  "corridas_periodo": [
+   "build/exp_pipeline/asic/rom/runs/pr_t24",
+   "build/exp_pipeline/asic/rom/runs/pr_t23",
+   "build/exp_pipeline/asic/rom/runs/pr_t22",
+   "build/exp_pipeline/asic/rom/runs/pr_t21p5",
+   "build/exp_pipeline/asic/rom/runs/pr_t21"
+  ],
+  "potencia_mw": null,
+  "nota": "mide cuanto aporta B2 con el flujo final; el CPI es el mismo que el de la corrida final porque B2 no cambia ningun ciclo"
+ },
+ {
+  "nombre": "estrategia 2 con la configuracion final (s4_*)",
+  "rama": "main",
+  "cambio": "memoria unificada en flip-flops con el core nuevo (EarlyRead = 0 por omision) y la configuracion final de D23",
+  "verificacion": "make check corre las dos estrategias; el CPI de la 2 es el de v1",
+  "cpi_isa": 2.953,
+  "cpi_juego": 2.665,
+  "corrida_100": "asic/ff/runs/s4_t100",
+  "corridas_periodo": [
+   "asic/ff/runs/s4_t65",
+   "asic/ff/runs/s4_t60",
+   "asic/ff/runs/s4_t55",
+   "asic/ff/runs/s4_t50",
+   "asic/ff/runs/s4_t45",
+   "asic/ff/runs/s4_t42"
+  ],
+  "potencia_mw": null,
+  "nota": "la estrategia 2 lee la memoria registrada y no puede anticipar la lectura del banco, asi que reproduce el CPI de v1 (seccion 3.2)"
  }
 ]
