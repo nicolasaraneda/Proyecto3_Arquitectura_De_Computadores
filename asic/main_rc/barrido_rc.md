@@ -1,3 +1,10 @@
+# Barrido del modelo de cable sobre el RTL de v1 (exploración del coordinador)
+
+Nota de contexto, agregada al integrar D23: estas corridas se hicieron cuando la configuración del
+modelo de cable vivía en un archivo aparte, `asic/rom/config_rc.yaml`, y las perillas del post-GRT
+iban por línea de comandos. **Desde D23 las dos cosas son `asic/rom/config.yaml`**, la configuración
+final, y ese archivo aparte se eliminó. El RTL de estas corridas es el de v1 (tag `v1-final`), no el
+de la corrida final. Lectura y conclusiones en `docs/modelo_cable.md`, sección 4.
 
 ## Modelo de cable medido (LAYERS_RC) sobre el RTL de main
 

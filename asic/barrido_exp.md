@@ -1,3 +1,11 @@
+# Barridos de las ramas del frente A y de la exploración del modelo de cable
+
+Nota de contexto, agregada al integrar D23: los barridos `pa_*` de este archivo se corrieron con la
+configuración de v1 (sin el modelo de cable del resizer), que es con la que se comparó cada
+exploración. **El RTL de `pa_b2_*` es el de la corrida final de D23, pero su configuración no**: con
+la configuración final el mismo RTL cierra a 21,5 ns y no a 25,5 (`asic/final.md`, barrido `f2_*`).
+Los `co_rc_*` del final de este archivo sí usan la configuración del modelo de cable, que desde D23
+es `asic/rom/config.yaml` y ya no un `config_rc.yaml` aparte.
 
 ## exp/pipeline: lectura del banco y decode en el fetch (EarlyRead), barrido de período
 
