@@ -103,7 +103,7 @@ configuración, lo que vale como reproducción independiente de la corrida final
 | Utilización real del core | 0,535 | 0,562 | `design__instance__utilization` |
 | Largo de cables | 377.509 µm | 2.242.954 µm (5,9 veces) | `route__wirelength` |
 | Nets con violación de antena | 0 (1 diodo) | **0 (6 diodos)** | `antenna__violating__nets`, `antenna_diodes_count` |
-| Violaciones de max slew / max cap | 0 / 1 | 62 / 14 | `design__max_slew_violation__count` y `__max_cap__` |
+| Violaciones de max slew / max cap | 0 / 1 | 62 / 14 | `design__max_slew_violation__count` y `design__max_cap_violation__count` |
 | Setup WNS peor esquina | 65,725 ns | 55,558 ns | `cierre.md` |
 | Hold WNS peor esquina | 0,173 ns | 0,171 ns | `cierre.md` |
 | CPI del juego completo | **1,665** | **2,665** | `docs/verificacion/integracion_01_make_check.txt` |
@@ -302,7 +302,7 @@ alineación de la LSU al banco de registros (`_4309_`), 25 celdas, con llegada 3
 
 B2 es el offset de byte de la carga registrado en la LSU (`addr_q[1:0]`, 2 flip-flops). Para medir
 qué aporta **con el flujo final** se corrió el mismo RTL sin B2 (la rama `exp/pipeline`, worktree
-`build/exp_pipeline`, `asic/rom/config_final.yaml` = la configuración final de D23) con los tags
+`build/exp_pipeline`, con su propio `asic/rom/config_final.yaml`, que es la configuración final de D23 copiada a esa rama y no existe en `main`) con los tags
 `pr_*`. Tabla en `asic/final.md`, sección "El pipeline sin B2 con la configuración final"; rutas por
 tramos en `asic/rutas.md`.
 

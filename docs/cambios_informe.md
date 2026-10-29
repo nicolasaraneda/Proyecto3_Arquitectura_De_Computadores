@@ -1728,7 +1728,7 @@ sino un `dffq_4`, y el de llegada al período mínimo es un `dffrnq_1`.
 | qué cita | valor viejo | valor nuevo | archivo de origen |
 |---|---|---|---|
 | frecuencia de la pregunta | 40 MHz | 46,5 MHz (1 / 21,5 ns) | `asic/rom/resultados/f2_t21p5/cierre.md` |
-| `CYCLES_PER_TENTH` | 4.000.000 = 0x3D0900, `lui 0x3D1` y `addi -1792` | 4.651.162 = 0x46F89A, `lui 0x470` y `addi -1894` | cálculo con el período medido de `f2_t21p5/cierre.md` y el algoritmo de `li` de `sw/asm.py` (pregunta 119): 0,1 / 21,5 ns = 4.651.162,79, hi = (4.651.162 + 0x800) >> 12 = 0x470, lo = 4.651.162 - (0x470 << 12) = -1894 |
+| `CYCLES_PER_TENTH` | 4.000.000 = 0x3D0900, `lui 0x3D1` y `addi -1792` | 4.651.162 = 0x46F89A, `lui 0x470` y `addi -1894` | cálculo con el período medido de `f2_t21p5/cierre.md` y el algoritmo de `li` del assembler (`assembler/core.py`; pregunta 119): 0,1 / 21,5 ns = 4.651.162,79, hi = (4.651.162 + 0x800) >> 12 = 0x470, lo = 4.651.162 - (0x470 << 12) = -1894 |
 | período de muestreo del debounce | 0,82 ms | 0,70 ms (2^15 / 46,51 MHz) | cálculo con `DebounceDivBits = 15`, que está en `rtl/asic_top.v` línea 24, `rtl/pochoco_soc.v` línea 20 y `rtl/pochoco_periph.v` línea 13 (en `rtl/debounce.v` el parámetro se llama `DivBits`, línea 17), y el período medido |
 | vuelta de CYCLES | 107 s | 92 s (2^32 / 46,51 MHz) | cálculo con el período medido |
 
