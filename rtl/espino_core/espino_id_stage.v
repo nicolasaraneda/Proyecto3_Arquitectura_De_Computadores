@@ -91,6 +91,15 @@ module espino_id_stage #(
   // Sync-read handshake to controller
   output wire        rf_ready_o,
 
+  // Salida combinacional del decodificador. OJO con la temporizacion: con
+  // EarlyRead = 1 el decodificador trabaja sobre dec_instr = instr_next_i, o sea
+  // sobre la instruccion SIGUIENTE, asi que illegal_insn_o va un ciclo adelantado
+  // respecto de la instruccion que esta en el registro de instruccion. Hoy es
+  // inocuo porque la señal no se usa en ninguna parte (no hay trap: espino_core.v
+  // la declara y la conecta, y nada mas la lee). Si alguna vez se agrega un trap,
+  // hay que registrarla junto con el resto del decode (en el mismo flanco que
+  // alu_operator y compañia) para que apunte a la instruccion correcta.
+  // Observacion O3 de docs/revision_frente_a.md.
   output wire        illegal_insn_o
 );
 
