@@ -109,68 +109,60 @@ qué no, en la sección 2.4.
 
 ### 2.3 Instante de aplicación de las entradas (ESTIMULO) y el corrimiento de un ciclo
 
-El testbench de `make post-synth` aplica `rst_n` y los botones 1 ns después del flanco de subida
-y muestrea las salidas 1 ns después. Con el SDF anotado eso NO sirve: el reloj llega a los
-flip-flops después de la latencia del árbol de reloj (sección 1: entre 0,8 y 2,7 ns según la
-esquina), es decir después de ese +1 ns, así que el netlist captura cada entrada en el flanco del
-MISMO ciclo en que el testbench la aplica, y el RTL (sin retardos) en el siguiente. Con ESTIMULO=1
-y muestreo a +50 ns, el netlist anotado dio en `nom_tt` y `max_ss` exactamente la misma secuencia de
-17 líneas que el RTL pero con TODOS los ciclos restados en 1 (387 en vez de 388, 425 en vez de 426,
-1573 en vez de 1574, ..., hasta 4038 en vez de 4039), md5 `114791491cb3919872c49576ab3f1932`, y
-`comparar.py` dio FAIL. Está medido dos veces: tres ejecuciones por esquina en la corrida de las
-13:46 (`build/post_pnr/make_nom_tt.log` y `make_max_ss.log`, los tres md5 iguales) y una
-ejecución guardada aparte con
-`make post-pnr-sdf ESTIMULO=1 ETIQUETA=_control_estimulo1 REPETIR=1`
-(`build/post_pnr/make_sdf_control_estimulo1.log`, salida en
-`build/post_pnr/d1_pnr/nom_tt_025C_5v00_control_estimulo1/`: `traza_1.txt`, `comparacion_1.txt`,
-`resumen.md`; mismo md5, 52,575 s), que es la que queda como evidencia porque las primeras se
-sobreescribieron al correr la configuración buena. Para eso se le agregó el parámetro `ETIQUETA` a
-`asic/sim/post_pnr_sdf.sh`, igual al de `cvc_sdf.sh`.
-Por eso `tb/post_synth_tb.v` tiene ahora el parámetro `ESTIMULO` (ns después del flanco en que se
-aplican las entradas; 1 por defecto) además de `MUESTREO`, y `make post-pnr-sdf` usa 50 y 50 en el
-RTL de referencia y en el netlist: a mitad de ciclo las dos simulaciones ven lo mismo. En el RTL el
-valor de ESTIMULO no cambia nada: `make post-synth` y `make post-synth-control` con los valores por
-defecto siguen dando la misma traza (mismo md5) y PASS y FAIL respectivamente, y
-`asic/sim/estimulos.txt` y `asic/sim/resultado.md` quedan iguales. El control positivo con CVC
-(sección 4.3) muestra qué pasa físicamente con ESTIMULO=1: violaciones de removal y de setup en los
-sincronizadores de entrada.
+El testbench de `make post-synth` aplica `rst_n` y los botones 1 ns después del flanco de subida y
+muestrea las salidas 1 ns después. Con el SDF anotado eso NO sirve: el reloj llega a los flip-flops
+después de la latencia del árbol de reloj (sección 1: entre 0,98 y 2,80 ns según la esquina), es
+decir después de ese +1 ns, así que el netlist captura cada entrada en el flanco del MISMO ciclo en
+que el testbench la aplica, y el RTL (sin retardos) en el siguiente, y toda la traza sale corrida un
+ciclo. Por eso `tb/post_synth_tb.v` tiene el parámetro `ESTIMULO` (ns después del flanco en que se
+aplican las entradas; 1 por defecto) además de `MUESTREO`, y `make post-pnr-sdf` usa **50 y 50** en
+el RTL de referencia y en el netlist: a mitad de ciclo las dos simulaciones ven lo mismo. En el RTL
+el valor de `ESTIMULO` no cambia nada: `make post-synth` y `make post-synth-control` con los valores
+por defecto siguen dando PASS y FAIL respectivamente.
+
+El corrimiento de un ciclo está medido con Icarus sobre el diseño de v1 y no se repitió acá, porque
+el mecanismo no depende del diseño: está en `docs/equivalencia_v1.md`... (corresponde al historial de
+git de este archivo, corrida `d1_pnr`, control
+`make post-pnr-sdf ESTIMULO=1 ETIQUETA=_control_estimulo1`). Sobre el diseño nuevo lo que sí se
+midió, y muestra lo mismo pero físicamente, es el **control positivo con CVC** de la sección 4.3:
+con `ESTIMULO=1` el netlist anotado reporta violaciones de `$recovery` y `$removal` en el
+sincronizador de reset y de `$setup` en el sincronizador de botones, y la traza se cae a X.
 
 ### 2.4 Qué se anotó y qué no (conteo de mensajes de `$sdf_annotate`)
 
-Entradas del SDF de cada esquina (`grep -c` sobre `asic_top__<esquina>.sdf`, 131.254 líneas, 11.530 CELL):
-38.086 IOPATH, 14.566 INTERCONNECT y 977 bloques TIMINGCHECK (uno por flip-flop) con 7.358 checks:
-1.954 SETUP, 1.954 HOLD, 2.127 WIDTH, 173 RECOVERY, 173 REMOVAL, 977 PERIOD, 0 SETUPHOLD y 0 RECREM.
+Entradas del SDF de cada esquina (`asic_top__<esquina>.sdf`, **138.072 líneas, 14.110 CELL**):
+**36.473 IOPATH, 16.301 INTERCONNECT y 951 bloques TIMINGCHECK** (uno por flip-flop) con **7.173
+checks**: 1.902 SETUP, 1.902 HOLD, 2.074 WIDTH, 172 RECOVERY, 172 REMOVAL, 951 PERIOD, 0 SETUPHOLD y
+0 RECREM (`build/post_pnr/d2_pnr/<esquina>/resumen.md`).
 
-Mensajes de vvp al anotar (`vvp_1.log`; los mismos mensajes y las mismas cantidades en las cuatro
+Mensajes de vvp al anotar (`vvp_1.log`; los mismos mensajes y las mismas cantidades en las tres
 esquinas, solo cambia el nombre del archivo SDF; resumen en `mensajes_sdf.txt`):
 
 | mensaje | cantidad | qué es |
 |---|---|---|
-| `SDF ERROR: ... Unable to match ModPath S -> Z in post_synth_tb.dut._N_` | 1516 | los dos IOPATH S->Z de las 758 `mux2_2` |
-| `SDF ERROR: ... Unable to match ModPath A1 -> Z` y `A2 -> Z` | 254 + 254 | los cuatro IOPATH de las 127 `xor2_1` |
-| `SDF ERROR: ... Unable to match ModPath A1 -> ZN` y `A2 -> ZN` | 76 + 76 | los cuatro IOPATH de las 38 `xnor2_1` |
-| `SDF WARNING: ... TIMINGCHECK not supported.` | 977 | los 977 bloques TIMINGCHECK, ignorados |
-| `SDF ERROR: ... Could not find intermodpath!` (y `VPI error: Could not insert intermodpath!`) | 1 | `(INTERCONNECT asic_top.Z spi_miso)`: el puerto `spi_miso` es una constante (`assign spi_miso = net622`) |
+| `SDF ERROR: ... Unable to match ModPath S -> Z` | 1.768 | los dos IOPATH S->Z de las 884 `mux2_2` |
+| `SDF ERROR: ... Unable to match ModPath A1 -> Z` y `A2 -> Z` | 266 + 266 | los cuatro IOPATH de las 133 `xor2_1` |
+| `SDF ERROR: ... Unable to match ModPath A1 -> ZN` y `A2 -> ZN` | 84 + 84 | los cuatro IOPATH de las 42 `xnor2_1` |
+| `SDF WARNING: ... TIMINGCHECK not supported.` | 951 | los 951 bloques TIMINGCHECK, ignorados |
+| `SDF ERROR: ... Could not find intermodpath!` (y `VPI error: Could not insert intermodpath!`) | 1 | `(INTERCONNECT asic_top.Z spi_miso)`: el puerto `spi_miso` es una constante |
 | `SDF ERROR: Cannot find ... in scope` | 0 | ninguna celda sin encontrar (con las instancias renombradas) |
 
-Los 2.176 IOPATH sin anotar (5,7 %) son exactamente los arcos que el modelo del PDK declara como
-`ifnone (posedge S => (Z:S))` (y `negedge`), una forma que la norma 1364 no admite: iverilog los
-descarta al compilar con 120 avisos `sorry: ifnone with an edge-sensitive path is not supported`
-(uno por arco del archivo del modelo) y vvp no encuentra el arco al anotar. Esas 923 celdas quedan con
-retardo cero en esos arcos (sus INTERCONNECT sí se anotan). Los otros 35.910 IOPATH y 14.565 de los
-14.566 INTERCONNECT se anotan sin mensaje. Al compilar, iverilog imprime además 1.926 avisos
-`warning: Timing checks are not supported.`, uno por cada `$setup`, `$hold`, `$width`, `$recovery`,
-`$removal` o `$period` de los bloques specify del modelo.
+Los **2.468 IOPATH sin anotar (6,8 por ciento)** son exactamente los arcos que el modelo del PDK
+declara como `ifnone (posedge S => (Z:S))` (y `negedge`), una forma que la norma 1364 no admite:
+iverilog los descarta al compilar con 120 avisos `sorry: ifnone with an edge-sensitive path is not
+supported` (uno por arco del archivo del modelo) y vvp no encuentra el arco al anotar. Esas celdas
+quedan con retardo cero en esos arcos (sus INTERCONNECT sí se anotan). Los otros **34.005 IOPATH y
+16.300 de los 16.301 INTERCONNECT** se anotan sin mensaje. Al compilar, iverilog imprime además
+**1.926 avisos** `warning: Timing checks are not supported.`, uno por cada `$setup`, `$hold`,
+`$width`, `$recovery`, `$removal` o `$period` de los bloques specify del modelo.
 
-Nota sobre el intento anterior (Icarus 14.0-devel del host, 25-10): vvp abortaba al anotar con
-`vpi_scan(vpiHandle): Assertion 0 failed` (código 139) y solo una ejecución completó. La causa no era
-la versión: el netlist plano de OpenROAD llama `\u_soc.u_core.u_rf/_2913_ ` a las celdas de los
-módulos con jerarquía conservada (`SYNTH_KEEP_HIERARCHY_MODULES`) y el lector de SDF de Icarus parte
-esos nombres por los puntos como si fueran una ruta jerárquica (`Cannot find u_soc in scope`); el
-primer INTERCONNECT a una de ellas termina en `vpi_scan(NULL)` y aborta, en 13.0 y en 14.0.
-`asic/sim/renombrar_instancias.py` renombra esas 2.828 instancias (`u_soc__u_core__u_rf___2913_`) en
-el netlist y en el SDF (16.883 referencias), comprobando que no choquen con otros identificadores;
-con eso ninguna ejecución abortó.
+El renombrado de instancias sigue siendo necesario y creció con el diseño nuevo:
+`asic/sim/renombrar_instancias.py` renombra **3.787 instancias** con nombre jerárquico escapado
+(`\u_soc.u_core.u_rf/_2913_ ` pasa a `u_soc__u_core__u_rf___2913_`) en el netlist y **20.939
+referencias** en el SDF, comprobando que no choquen con otros identificadores. Sin eso vvp aborta
+con `vpi_scan(vpiHandle): Assertion 0 failed` en el primer INTERCONNECT a una de esas celdas, en
+Icarus 13.0 y en 14.0: el lector de SDF parte el nombre por los puntos como si fuera una ruta
+jerárquica. Con el renombrado, ninguna de las nueve ejecuciones abortó.
 
 ### 2.5 Escenario final (opcional): el netlist real de la corrida final, 320.000 ciclos
 
@@ -218,16 +210,16 @@ build/post_pnr/prueba_tchk/tchk.v:11: warning: Timing checks are not supported.
 
 y vvp no imprime nada ante las violaciones (`fin: q=0` y `$finish`). El 14.0-devel del host
 (`s20260301-403-g5ab23063f-dirty`) imprime los mismos cinco avisos y tampoco reporta nada. Sin
-`-gspecify` ni siquiera avisa. En el netlist completo son los 1.926 avisos al compilar y los 977
+`-gspecify` ni siquiera avisa. En el netlist completo son los 1.926 avisos al compilar y los 951
 `TIMINGCHECK not supported` al anotar de la sección 2.4.
 
 Conclusión: la simulación con Icarus demuestra que el netlist post-PnR con los retardos de celda e
-interconexión anotados ejecuta el programa igual que el RTL (misma traza, sin X) en las cuatro
-esquinas simuladas, pero NO verifica ningún margen de setup, hold, ancho de pulso, recovery ni
-removal: los
-7.358 checks del SDF se ignoran. `make post-pnr-sdf` lo dice en su resumen y no reporta "0
+interconexión anotados ejecuta el programa igual que el RTL (misma traza, sin X) en las tres esquinas
+simuladas, pero NO verifica ningún margen de setup, hold, ancho de pulso, recovery ni removal: los
+**7.173 checks** del SDF se ignoran. `make post-pnr-sdf` lo dice en su resumen y no reporta "0
 violaciones". Esos márgenes los garantiza el STA de las 9 esquinas (`asic/verificar_cierre.py`:
-WNS de setup 63,7 ns y de hold 0,173 ns en la peor esquina de d1_pnr) y, en simulación, CVC (sección 4).
+WNS de setup 59,174 ns y de hold 0,082 ns en la peor esquina de `d2_pnr`,
+`asic/sim/resultados/d2_pnr/cierre.md`) y, en simulación, CVC (sección 4).
 
 ## 4. Open Verilog CVC 7.00b: timing checks evaluados (`make post-pnr-cvc ESQUINA=<esquina>`)
 
@@ -277,32 +269,27 @@ la deja `make post-pnr-sdf`), que es la misma de `make post-synth`.
 
 ### 4.2 Resultado por esquina
 
-Fuente: `build/post_pnr/cvc/d1_pnr/<esquina>/resumen.md`, `cvcsim_<n>.log`, `sdf_cvc_<n>.log`,
-`tiempo_<n>.txt`, `traza_<n>.txt` y `comparacion_<n>.txt` (n = 1, 2, 3), y el log de `make` de cada
-esquina (`build/post_pnr/make_cvc3_<esquina>.log`).
+Fuente: `build/post_pnr/cvc/d2_pnr/<esquina>/resumen.md`, `cvcsim_<n>.log`, `sdf_cvc_<n>.log`,
+`tiempo_<n>.txt`, `traza_<n>.txt` y `comparacion_<n>.txt` (n = 1, 2, 3).
 
 | esquina | ciclos | cambios de salida | con X | igual al RTL | 3 md5 iguales | tiempo real de cvc64 +interp (s), 3 ejecuciones | anotación: errores / avisos | violaciones de timing reportadas |
 |---|---|---|---|---|---|---|---|---|
-| nom_tt_025C_5v00 | 4500 | 16 | 0 | sí (3 de 3) | sí | 11,558 / 12,178 / 13,024 | 0 / 6 (aviso 3106, puertos de entrada) | 0 |
-| max_ss_125C_4v50 | 4500 | 16 | 0 | sí (3 de 3) | sí | 11,369 / 12,021 / 11,877 | 0 / 6 | 0 |
-| min_ff_n40C_5v50 | 4500 | 16 | 0 | sí (3 de 3) | sí | 13,159 / 13,098 / 12,220 | 0 / 6 | 0 |
-| nom_ss_125C_4v50 (*) | 4500 | 16 | 0 | sí (3 de 3) | sí | 13,986 / 13,341 / 12,354 | 0 / 6 | 0 |
+| nom_tt_025C_5v00 | 4500 | 16 | 0 | **sí (3 de 3)** | sí | 19,576 / 19,279 / 18,195 | 0 / 6 (aviso 3106, puertos de entrada) | **0** |
+| max_ss_125C_4v50 | 4500 | 16 | 0 | **sí (3 de 3)** | sí | 20,582 / 21,556 / 18,167 | 0 / 6 | **0** |
+| min_ff_n40C_5v50 | 4500 | 16 | 0 | **sí (3 de 3)** | sí | 20,636 / 19,864 / 18,520 | 0 / 6 | **0** |
 
-md5 de las doce trazas: `4f14ec05462e4789a3d873d2ba50fd97`, el mismo del RTL y el mismo de las doce
-trazas de Icarus de la sección 2.2.
+md5 de las nueve trazas: **`5b6cebfb898a90a258b592fb29e64651`**, el mismo del RTL y el mismo de las
+nueve trazas de Icarus de la sección 2.2. La referencia del RTL es la de Icarus, porque CVC no
+compila el RTL (cae con Segmentation fault, sección 4.1).
 
-(*) Cuarta esquina, prueba de punta a punta de `make post-pnr-cvc`, igual que en la sección 2.2.
-
-Las cuatro esquinas se corrieron primero una sola vez cada una (logs `build/post_pnr/cvc_<esquina>.log`,
-`cvc_nom_tt.log` y `make_cvc_nom_tt.log`, de las 16:10 a las 20:59 del 27-10; mismos 16 cambios, mismo
-md5 y 0 violaciones, con tiempos de 9,699 a 12,329 s) porque `asic/sim/cvc_sdf.sh` ejecutaba cvc64 una
-sola vez. Se le agregó el parámetro `REPETIR` (3 por defecto, como el de `post_pnr_sdf.sh`) y se
-repitieron las cuatro esquinas: esos son los números de la tabla.
-
-CVC evalúa los 7.358 checks de los 977 bloques TIMINGCHECK (menos los 19 INTERCONNECT quitados, que
-no son checks) y en 4.500 ciclos a 100 ns no reporta ninguna violación en ninguna de las esquinas ni
-en ninguna de las tres ejecuciones (el script comprueba que el conteo de violaciones sea el mismo en
-las tres). Es consistente con el STA: el peor WNS de setup de d1_pnr es 63,7 ns y el de hold 0,173 ns.
+CVC evalúa los **7.173 checks** de los 951 bloques TIMINGCHECK (menos los 19 INTERCONNECT quitados,
+que no son checks) y en 4.500 ciclos a 100 ns **no reporta ninguna violación** en ninguna de las tres
+esquinas ni en ninguna de las tres ejecuciones (el script comprueba que el conteo de violaciones sea
+el mismo en las tres). Es consistente con el STA: el peor WNS de setup de `d2_pnr` es 59,174 ns y el
+de hold 0,082 ns. La anotación es completa: 0 errores y 6 avisos (el 3106, de puertos de entrada)
+sobre los 36.473 IOPATH, los 16.301 INTERCONNECT menos los 19 quitados y los 951 bloques
+TIMINGCHECK, contra los 2.468 IOPATH que Icarus no puede anotar (sección 2.4). Esa es la razón de
+correr los dos simuladores.
 
 ### 4.3 Control positivo: los checks sí se evalúan
 
@@ -321,48 +308,47 @@ Dos pruebas:
   `[616] path destination q does not have a driver`, del retardo de ruta del modulito de prueba, no
   un timing check. El `$width` no se viola: el pulso del reloj es de 5 ns y exige 5 ns).
 - Netlist completo con las entradas a +1 ns (`make post-pnr-cvc ESTIMULO=1 ETIQUETA=_control_estimulo1`,
-  esquina `nom_tt`, `build/post_pnr/cvc/d1_pnr/nom_tt_025C_5v00_control_estimulo1/`,
-  log `build/post_pnr/make_cvc3_nom_tt_025C_5v00_control_estimulo1.log`): 10 violaciones en 4
-  instancias (6 `$setup`, 2 `$removal`, 2 `$recovery`; `violaciones_por_tipo.txt` y
-  `violaciones_por_instancia.txt`), las mismas en las tres ejecuciones (4,828 / 4,937 / 4,599 s,
-  mismo md5 `72fe2fbc5b3e0dcc51367756add6b9d1`), con los límites del SDF:
-  - `$removal` y `$recovery` en `_4327_` y `_4328_` (los dos flip-flops `dffrnq_1` del sincronizador de
-    reset, `rst_sync_q`): `rst_n` llega al pin RN a los 351.292 ps y el reloj al pin CLK a los 351.325 ps
-    (latencia 1,325 ns desde el flanco externo de los 350 ns), 33 ps antes del flanco con 372 ps de
-    removal exigidos (`(REMOVAL (posedge RN) (posedge CLK) (0.372:0.372:0.372))` en el SDF). El RECOVERY
-    del SDF es `(-0.240:-0.240:-0.240)` (negativo) y CVC lo aplicó como 240 ps, sin el signo:
-    pesimista. En el SDF de d1_pnr (`nom_tt`) los 173 RECOVERY son negativos y 175 de los 3.908
-    SETUP/HOLD también, todos ellos HOLD (los 1.954 SETUP son positivos; p. ej.
-    `(HOLD (COND ENABLE_RN === 1'b1 (posedge D)) ... (-0.059:-0.059:-0.059))` en el mismo
-    `dffrnq_1`); solo se comprobó el tratamiento de CVC
-    en el RECOVERY del control. Un límite negativo aplicado sin signo solo puede agregar violaciones,
-    nunca ocultarlas, y con ESTIMULO=50 no apareció ninguna, así que ese pesimismo no cambia la
-    sección 4.2.
-  - `$setup` x6 en `_4363_` y `_4364_` (`btn_meta`, primera etapa del sincronizador de botones): el
-    botón cambia 88 a 107 ps antes del flanco interno con 265 a 270 ps de setup exigidos (posedge D)
-    y 105 ps (negedge D), valores del SDF de cada instancia.
-  - Como los modelos del PDK tienen `notifier`, los flip-flops violados pasan a X y la traza queda
-    `0 led=xxxx disp=XX` (1 cambio, con X): `comparar.py` da FAIL. Con Icarus la misma configuración
-    (ESTIMULO=1) no produce ningún aviso ni X y solo corre la traza un ciclo (sección 2.3): Icarus no
-    detecta el problema, CVC sí.
+  esquina `nom_tt`, `build/post_pnr/cvc/d2_pnr/nom_tt_025C_5v00_control_estimulo1/`): **8 violaciones
+  en 4 instancias (4 `$setup`, 2 `$removal`, 2 `$recovery`)**, las mismas en las tres ejecuciones
+  (4,720 / 4,798 / 4,624 s, mismo md5 `72fe2fbc5b3e0dcc51367756add6b9d1`), y la traza se cae: 1 cambio
+  de salida y ese cambio con valores X, contra los 16 sin X de la configuración buena. `comparar.py`
+  da FAIL y el objetivo falla, que es lo que el control exige. Con los límites del SDF:
+  - **`$removal` y `$recovery` en `_4334_` y `_4335_`**, que son los dos flip-flops `dffrnq_1` del
+    sincronizador de reset (`rst_sync_q[0]` y `rst_sync_q[1]` en
+    `asic/sim/runs/d2_pnr/final/nl/asic_top.nl.v`): `rst_n` llega al pin RN a los 351.296 ps y el
+    reloj al pin CLK a los 351.410 ps, o sea **114 ps** de diferencia, contra 359 ps de removal y
+    229 ps de recovery exigidos por el SDF.
+  - **`$setup` en `_4340_` y `_4341_`**, los dos primeros flip-flops del sincronizador de botones
+    (`u_soc.u_periph.btn_meta[0]` y `[1]`): el dato llega **146 ps** antes del flanco en `btn_meta[0]`
+    con 289 ps exigidos, y **176 ps** antes en `btn_meta[1]` con 282 ps exigidos. Cada uno viola dos
+    veces, en los dos flancos de la pulsación.
 
-Con ESTIMULO=50 (las entradas a mitad de ciclo, como en 4.2) ninguna de esas violaciones aparece.
+  Los cuatro son exactamente los flip-flops que reciben una entrada del exterior, que es lo que el
+  control manipula: con `ESTIMULO = 1` la entrada cambia 1 ns después del flanco externo, y el reloj
+  llega a esos flip-flops 1,4 ns después del flanco externo (sección 1), así que la entrada cambia
+  dentro de la ventana de setup o de recovery. **Esto es lo que demuestra el control**: CVC sí evalúa
+  los checks con los valores del SDF, y los reporta con el instante y el límite exacto.
 
 ## 5. Conclusión
 
-- El netlist post-PnR de d1_pnr con los retardos de celda e interconexión del SDF ejecuta el escenario
-  de la sección 3.7 exactamente igual que el RTL en las esquinas típica, lenta y rápida, sin valores X,
-  reproducible (tres ejecuciones con el mismo md5 por esquina y por simulador: 24 ejecuciones en total
-  contando la cuarta esquina), con Icarus 13.0 de la imagen (43 a 66 s por ejecución) y con CVC 7.00b
-  (11 a 14 s).
-- El netlist real de la corrida final con su SDF de `nom_tt` completó con Icarus los 320.000 ciclos del
-  escenario de `make post-synth-final` con la misma traza que el RTL (una ejecución, 24 min 45 s).
-- Icarus NO evalúa los timing checks (aviso textual al compilar, 977 bloques TIMINGCHECK ignorados al
-  anotar): su resultado prueba la función con retardos, no los márgenes. Los márgenes los verifica el
-  STA de las 9 esquinas (criterio de cierre) y, en simulación, CVC: 0 violaciones en las cuatro
-  esquinas simuladas, en las tres ejecuciones de cada una, con 7.358 checks activos, y un control
-  positivo que las reporta cuando las entradas llegan antes que el reloj interno.
-- Para simular con retardos las entradas tienen que aplicarse lejos del flanco (ESTIMULO=50): con el +1 ns
-  de `make post-synth` el reloj interno (latencia 0,8 a 2,7 ns) captura la entrada un ciclo antes que el
-  RTL; en el chip real los botones son asíncronos y el sincronizador de dos etapas resuelve ese caso,
-  que es justamente lo que el control positivo muestra como violación de setup en `btn_meta`.
+- **El netlist post-PnR de `d2_pnr` con los retardos de celda e interconexión del SDF ejecuta el
+  escenario de la sección 3.7 exactamente igual que el RTL** en las esquinas típica, lenta y rápida,
+  sin valores X y de forma reproducible: 18 ejecuciones en total (tres por esquina y por simulador)
+  con un solo md5, `5b6cebfb898a90a258b592fb29e64651`, que es también el de la traza del RTL y el de
+  `make post-synth`. Icarus 13.0 de la imagen tarda 77 a 103 s por ejecución y CVC 7.00b, 18 a 22 s.
+- **Icarus NO evalúa los timing checks** (aviso textual al compilar, 951 bloques TIMINGCHECK
+  ignorados al anotar): su resultado prueba la función con retardos, no los márgenes. Los márgenes
+  los verifica el STA de las 9 esquinas (criterio de cierre) y, en simulación, **CVC: 0 violaciones
+  en las tres esquinas, en las tres ejecuciones de cada una, con 7.173 checks activos**, y un control
+  positivo que reporta 8 violaciones en los cuatro flip-flops que reciben entradas del exterior
+  cuando esas entradas llegan antes que el reloj interno.
+- **Los dos simuladores se complementan en la anotación**: Icarus deja 2.468 IOPATH sin anotar (los
+  arcos `ifnone` con flanco de `mux2_2`, `xor2_1` y `xnor2_1`, que la norma 1364 no admite) y CVC
+  anota todo con 0 errores, a cambio de necesitar el modelo sin esos `ifnone` y el SDF sin los 19
+  INTERCONNECT hacia puertos de salida. Que las dos anotaciones distintas den la misma traza es
+  evidencia de que la diferencia no cambia el comportamiento.
+- **Para simular con retardos las entradas tienen que aplicarse lejos del flanco** (`ESTIMULO = 50`):
+  con el +1 ns de `make post-synth` el reloj interno (latencia 0,98 a 2,80 ns según la esquina)
+  captura la entrada un ciclo antes que el RTL. En el chip real los botones son asíncronos y el
+  sincronizador de dos etapas resuelve ese caso, que es justamente lo que el control positivo muestra
+  como violación de setup en `btn_meta`.
