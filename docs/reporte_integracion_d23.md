@@ -208,13 +208,13 @@ VCD) se puede volver a generar con la configuración versionada y no se sube.
 
 La sesión dejó **35 commits en `main`** sobre el tag `v1-final`, uno por hito
 (`git log --oneline v1-final..HEAD`). Todas las referencias están en `origin`, confirmado con
-`git ls-remote origin`:
+`git ls-remote origin` (los dos tags son anotados, así que `ls-remote` imprime el hash del objeto de tag y no el del commit; la tabla da los dos):
 
 | referencia | commit en `origin` | qué es |
 |---|---|---|
 | rama `main` | `bfbd18a` | la integración y todo el trabajo de la sesión; igual al `HEAD` local |
-| tag `v1-final` | `f868867` | `main` antes de integrar: el estado al que se vuelve en la segunda vuelta atrás |
-| tag `candidata-rc-pre-rebase` | `968ab00` | `exp/candidata-rc` antes del rebase, para que los hashes que citan los documentos sigan alcanzables |
+| tag `v1-final` | `f868867` (tag anotado; apunta al commit `d881583`) | `main` antes de integrar: el estado al que se vuelve en la segunda vuelta atrás |
+| tag `candidata-rc-pre-rebase` | `968ab00` (tag anotado; apunta al commit `297c5fe`) | `exp/candidata-rc` antes del rebase, para que los hashes que citan los documentos sigan alcanzables |
 | rama `exp/candidata-rc-rebasada` | `90a3efd` | la rama rebasada tal como se mezcló en `main` (es el segundo padre del merge `d974a9f`) |
 | rama `exp/candidata-rc` | `297c5fe` | quedó en el commit anterior al rebase: ver el punto 7.5 |
 

@@ -193,9 +193,12 @@ empeora:
   mismo de la candidata (sección 3.5);
 - lo que sube es la **utilización real del core**, de 47,9 a 53,5 por ciento
   (`design__instance__utilization`: 0,479898 en `asic/rom/resultados/v1_final/metrics.json`,
-  0,478613 en la candidata y 0,535110 en `co_rc_t100`). Sigue muy por debajo del 90,3 por ciento
-  con el que cierra la utilización máxima medida (`u1_u78`), así que el área que gastan los buffers
-  nuevos cabe en el die que ya estaba elegido.
+  0,478613 en la candidata y 0,535110 en `co_rc_t100`). Sigue muy por debajo del 91,8 por ciento
+  con el que cierra la utilización real máxima medida después con esta misma configuración
+  (`u2_u73`, `FP_CORE_UTIL = 73`), así que el área que gastan los buffers nuevos cabe en el die que
+  ya estaba elegido. (Cuando se escribió esta nota el barrido de utilización con la configuración
+  nueva todavía no existía y la referencia era el 90,3 por ciento de v1, `u1_u78`; el barrido
+  posterior la confirmó.)
 
 Dicho de otro modo: el área de celdas sube 14,4 por ciento (208.439 contra 182.265 µm²) pero el
 chip que se fabrica y lo que cuesta son los mismos, y a cambio el período mínimo baja de 24,5 a
@@ -211,7 +214,7 @@ todas las verificaciones y el cierre completo, se vuelve atrás en este orden:
    `LAYERS_RC` ni reparación post-GRT): período mínimo 25,5 ns, 39,2 MHz, 23,6 MIPS, 186.432 µm².
    Es un cambio de configuración, no de RTL, así que toda la verificación funcional sigue valiendo.
 2. **Segunda vuelta atrás: `main` v1**, el estado de `main` antes de integrar, marcado con el tag
-   `v1-final` (commit `bcb147b`) y con sus reportes copiados a `asic/rom/resultados/v1_final/`:
+   `v1-final` (tag anotado `f868867`, que apunta al commit `d881583`) y con sus reportes copiados a `asic/rom/resultados/v1_final/`:
    período mínimo 24,5 ns, 40,8 MHz, 15,3 MIPS, 182.265 µm².
 
 En cualquiera de los dos casos hay que reportarlo explícitamente.
