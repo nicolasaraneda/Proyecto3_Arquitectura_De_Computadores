@@ -55,7 +55,7 @@ por lo que `MUESTREO` y `ESTIMULO` valen 50 ns y no 1.
 
 ### 2.1 Comandos y versiones
 
-`make post-pnr-sdf ESQUINA=<esquina>` llama a `asic/sim/post_pnr_sdf.sh asic/sim/runs/d1_pnr <esquina> 3 sim 50 50 ''`
+`make post-pnr-sdf ESQUINA=<esquina>` llama a `asic/sim/post_pnr_sdf.sh asic/sim/runs/d2_pnr <esquina> 3 sim 50 50 ''`
 (los últimos argumentos son `REPETIR`, `ESCENARIO`, `MUESTREO`, `ESTIMULO` y `ETIQUETA`),
 que corre `iverilog` y `vvp` con
 `docker run --rm --user "$(id -u):$(id -g)" -v "$HOME:$HOME" -w "$(pwd)" -e HOME="$HOME" ghcr.io/librelane/librelane:3.0.16 ...`:
@@ -65,21 +65,21 @@ iverilog -V        -> Icarus Verilog version 13.0 (devel) ()      (imagen sha256
 vvp -V             -> Icarus Verilog runtime version 13.0 (devel) ()
 # 1. referencia del RTL, mismo Icarus, mismo testbench, estímulos y parámetros
 iverilog -g2012 -I asic/sim/gen -DESTIMULOS="asic/sim/estimulos.txt" -DTRAZA=... -DCICLOS=4500 -DDIV_BITS=2 \
-        -DMUESTREO=50 -DESTIMULO=50 -o build/post_pnr/d1_pnr/tb_rtl_sim tb/post_synth_tb.v rtl/*.v rtl/espino_core/*.v asic/sim/gen/pochoco_rom.v
-vvp build/post_pnr/d1_pnr/tb_rtl_sim
+        -DMUESTREO=50 -DESTIMULO=50 -o build/post_pnr/d2_pnr/tb_rtl_sim tb/post_synth_tb.v rtl/*.v rtl/espino_core/*.v asic/sim/gen/pochoco_rom.v
+vvp build/post_pnr/d2_pnr/tb_rtl_sim
 # 2. netlist y SDF con las instancias jerárquicas renombradas (sección 2.4)
-python3 asic/sim/renombrar_instancias.py --netlist asic/sim/runs/d1_pnr/final/nl/asic_top.nl.v \
-        --salida build/post_pnr/d1_pnr/<esquina> asic/sim/runs/d1_pnr/final/sdf/<esquina>/asic_top__<esquina>.sdf
+python3 asic/sim/renombrar_instancias.py --netlist asic/sim/runs/d2_pnr/final/nl/asic_top.nl.v \
+        --salida build/post_pnr/d2_pnr/<esquina> asic/sim/runs/d2_pnr/final/sdf/<esquina>/asic_top__<esquina>.sdf
 # 3. netlist con los modelos del PDK CON sus bloques specify (sin -DFUNCTIONAL) y $sdf_annotate (-DSDF)
-iverilog -g2012 -gspecify -ginterconnect -DNETLIST -DSDF="build/post_pnr/d1_pnr/<esquina>/asic_top__<esquina>.sdf" \
+iverilog -g2012 -gspecify -ginterconnect -DNETLIST -DSDF="build/post_pnr/d2_pnr/<esquina>/asic_top__<esquina>.sdf" \
         -DESTIMULOS="asic/sim/estimulos.txt" -DTRAZA=... -DCICLOS=4500 -DMUESTREO=50 -DESTIMULO=50 \
-        -o build/post_pnr/d1_pnr/<esquina>/tb_sdf tb/post_synth_tb.v build/post_pnr/d1_pnr/<esquina>/asic_top.nl.v \
+        -o build/post_pnr/d2_pnr/<esquina>/tb_sdf tb/post_synth_tb.v build/post_pnr/d2_pnr/<esquina>/asic_top.nl.v \
         $PDK_ROOT/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/verilog/primitives.v \
         $PDK_ROOT/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/verilog/gf180mcu_fd_sc_mcu7t5v0.v
 # 4. tres ejecuciones del mismo binario; la traza se borra antes de cada una
-rm -f traza.txt; time vvp build/post_pnr/d1_pnr/<esquina>/tb_sdf        (x3, md5sum de cada traza)
+rm -f traza.txt; time vvp build/post_pnr/d2_pnr/<esquina>/tb_sdf        (x3, md5sum de cada traza)
 # 5. comparación de cada traza con la del RTL
-python3 asic/sim/comparar.py build/post_pnr/d1_pnr/traza_rtl_sim.txt build/post_pnr/d1_pnr/<esquina>/traza_<n>.txt
+python3 asic/sim/comparar.py build/post_pnr/d2_pnr/traza_rtl_sim.txt build/post_pnr/d2_pnr/<esquina>/traza_<n>.txt
 ```
 
 `PDK_ROOT=$HOME/.ciel/ciel/gf180mcu/versions/54435919abffb937387ec956209f9cf5fd2dfbee`. Sin `-ginterconnect`
@@ -121,10 +121,12 @@ el valor de `ESTIMULO` no cambia nada: `make post-synth` y `make post-synth-cont
 por defecto siguen dando PASS y FAIL respectivamente.
 
 El corrimiento de un ciclo está medido con Icarus sobre el diseño de v1 y no se repitió acá, porque
-el mecanismo no depende del diseño: está en `docs/equivalencia_v1.md`... (corresponde al historial de
-git de este archivo, corrida `d1_pnr`, control
-`make post-pnr-sdf ESTIMULO=1 ETIQUETA=_control_estimulo1`). Sobre el diseño nuevo lo que sí se
-midió, y muestra lo mismo pero físicamente, es el **control positivo con CVC** de la sección 4.3:
+el mecanismo no depende del diseño: con `ESTIMULO=1` el netlist anotado daba la misma secuencia de 17
+líneas que el RTL pero con todos los ciclos restados en 1, y `comparar.py` daba FAIL (corrida
+`d1_pnr`, control `make post-pnr-sdf ESTIMULO=1 ETIQUETA=_control_estimulo1`; está en la versión
+anterior de este archivo, que se recupera con `git log -p asic/sim/resultado_sdf.md`). Sobre el
+diseño nuevo lo que sí se midió, y muestra lo mismo pero físicamente, es el **control positivo con
+CVC** de la sección 4.3:
 con `ESTIMULO=1` el netlist anotado reporta violaciones de `$recovery` y `$removal` en el
 sincronizador de reset y de `$setup` en el sincronizador de botones, y la traza se cae a X.
 
@@ -188,7 +190,7 @@ sola vez (REPETIR=1) por su duración; el md5 coincide con el del RTL. El SDF de
 37.654 IOPATH, 14.780 INTERCONNECT y 990 bloques TIMINGCHECK con 7.488 checks (1.980 SETUP, 1.980 HOLD,
 2.166 WIDTH, 186 RECOVERY, 186 REMOVAL, 990 PERIOD); vvp no anota 2.230 IOPATH (los arcos `ifnone` con
 flanco de las 759 `mux2_2`, 131 `xor2_1` y 47 `xnor2_1` del netlist final; `mensajes_sdf.txt`) ni el
-INTERCONNECT a `spi_miso`, e ignora los 990 TIMINGCHECK, igual que en d1_pnr. Este es el escenario que
+INTERCONNECT a `spi_miso`, e ignora los 990 TIMINGCHECK, igual que en `d2_pnr`. Este es el escenario que
 el intento del 25-10 con el Icarus 14.0-devel del host completó una sola vez y después abortaba; con las
 instancias renombradas y el 13.0 de la imagen no abortó. Los tiempos de ese intento no son comparables
 (otro binario y anotación incompleta, sección 2.4).
@@ -233,18 +235,18 @@ fuerza `-m32` y falla por falta de la libc de 32 bits, log `build/cvc/compilacio
 `/usr/include/stdio.h:28:10: fatal error: bits/libc-header-start.h: No such file or directory`).
 Binario: `build/cvc/open-src-cvc/build64/cvc64`, `cvc64 -h` -> `OSS_CVC_7.00b-x86_64-rhel6x of 07/07/14 (Linux-elf)`.
 
-`make post-pnr-cvc ESQUINA=<esquina>` llama a `asic/sim/cvc_sdf.sh asic/sim/runs/d1_pnr <esquina> sim 50 50 '' 3`
+`make post-pnr-cvc ESQUINA=<esquina>` llama a `asic/sim/cvc_sdf.sh asic/sim/runs/d2_pnr <esquina> sim 50 50 '' 3`
 (`REPETIR=3`, igual que con Icarus):
 
 ```
-python3 asic/sim/renombrar_instancias.py ...            (igual que con Icarus, a build/post_pnr/cvc/d1_pnr/<esquina>/)
+python3 asic/sim/renombrar_instancias.py ...            (igual que con Icarus, a build/post_pnr/cvc/d2_pnr/<esquina>/)
 python3 asic/sim/modelo_cvc.py $PDK_ROOT/.../gf180mcu_fd_sc_mcu7t5v0.v build/post_pnr/cvc/gf180mcu_fd_sc_mcu7t5v0_cvc.v
-cd build/post_pnr/cvc/d1_pnr/<esquina>
+cd build/post_pnr/cvc/d2_pnr/<esquina>
 # tres ejecuciones; la traza se borra antes de cada una
 rm -f traza.txt; time cvc64 +interp -l cvcsim_<n>.log +typdelays +sdf_log_file sdf_cvc_<n>.log \
       defs.v tb/post_synth_tb.v asic_top.nl.v \
       $PDK_ROOT/.../primitives.v build/post_pnr/cvc/gf180mcu_fd_sc_mcu7t5v0_cvc.v        (n = 1, 2, 3)
-python3 asic/sim/comparar.py build/post_pnr/d1_pnr/traza_rtl_sim.txt traza_<n>.txt        (n = 1, 2, 3)
+python3 asic/sim/comparar.py build/post_pnr/d2_pnr/traza_rtl_sim.txt traza_<n>.txt        (n = 1, 2, 3)
 ```
 
 `defs.v` define `NETLIST`, `SDF`, `ESTIMULOS`, `TRAZA`, `CICLOS=4500`, `MUESTREO=50` y `ESTIMULO=50` con
@@ -264,7 +266,7 @@ rutas absolutas (CVC no tiene `-D`). Tres adaptaciones, todas documentadas en lo
    semántica según su documentación.
 
 El RTL no se pudo compilar con CVC (cae con `Segmentation fault` en la elaboración, sin mensaje), así
-que la referencia es la traza del RTL con el Icarus de la imagen (`build/post_pnr/d1_pnr/traza_rtl_sim.txt`,
+que la referencia es la traza del RTL con el Icarus de la imagen (`build/post_pnr/d2_pnr/traza_rtl_sim.txt`,
 la deja `make post-pnr-sdf`), que es la misma de `make post-synth`.
 
 ### 4.2 Resultado por esquina
