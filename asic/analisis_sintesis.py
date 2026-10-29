@@ -80,7 +80,7 @@ FF_ESPERADOS = {
     "pochoco_mem_rom": {"dffq": (192, "registro de instrucción a_rdata_o (32) + RAM de 4 x 32 (128) + b_rdata_o (32)"), "dffrnq": (0, "")},
     "espino_id_stage": {"dffq": (82, "decode registrado: alu_operator 4 + alu_op_a_sel 2 + alu_op_b_sel 1 + imm_operand 32 + imm_target 32 + rf_we 1 + rf_wd_sel 2 + is_branch/is_jal/is_jalr 3 + lsu_req/lsu_we 2 + lsu_type 2 + lsu_sign 1"), "dffrnq": (0, "con EarlyRead = 1 no hay ops_valid_q: el bloque g_wait, que aportaba ese flip-flop con reset en v1, no se genera")},
     "espino_if_stage": {"dffq": (0, ""), "dffrnq": (65, "pc_q 32 + pc_id_q 32 + valid_q 1")},
-    "espino_load_store_unit": {"dffq": (2, "addr_q[1:0] de B2: el offset de byte de la carga registrado al emitirla"), "dffrnq": (1, "busy_q")},
+    "espino_load_store_unit": {"dffq": (2, "boff_q[1:0] de B2: el offset de byte de la carga registrado al emitirla"), "dffrnq": (1, "busy_q")},
     "pochoco_soc": {"dffq": (0, ""), "dffrnq": (2, "rd_is_per y rd_is_spi")},
     "asic_top": {"dffq": (0, ""), "dffrnq": (2, "rst_sync_q[1:0]")},
     "pochoco_periph": {"dffq": (0, ""), "dffrnq": (52, "btn_meta 4 + btn_sync 4 + led_q 4 + digit_q 8 + rdata_o 32")},

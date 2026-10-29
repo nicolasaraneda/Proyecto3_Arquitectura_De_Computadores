@@ -91,12 +91,14 @@ def grafico_util(runs, salida):
     h2, l2 = a2.get_legend_handles_labels()
     a.legend(h1 + h2, l1 + l2, loc="center right", fontsize=8)
     a.grid(alpha=0.3)
-    for d in datos:
-        if not d["completa"]:
-            for eje in (ejes[0][1], ejes[1][0], ejes[1][1]):
-                eje.axvline(d["util_cfg"], color="tab:red", ls=":", lw=1)
-            ejes[0][0].annotate("el flujo falla", (d["util_cfg"], 1), textcoords="offset points", xytext=(0, 10),
-                                ha="center", fontsize=8, color="tab:red", rotation=90)
+    fallan = [d["util_cfg"] for d in datos if not d["completa"]]
+    for u in fallan:
+        for eje in (ejes[0][0], ejes[0][1], ejes[1][0], ejes[1][1]):
+            eje.axvline(u, color="tab:red", ls=":", lw=1)
+    if fallan:
+        # una sola etiqueta, junto a la primera utilizacion que no completa el flujo
+        ejes[0][0].annotate("el flujo falla", (min(fallan), 1), textcoords="offset points", xytext=(4, 10),
+                            ha="left", fontsize=8, color="tab:red", rotation=90)
     fig.tight_layout()
     os.makedirs(os.path.dirname(salida) or ".", exist_ok=True)
     fig.savefig(salida, dpi=150)

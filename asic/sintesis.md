@@ -87,7 +87,7 @@ La síntesis de la corrida final deja 5.577 celdas de 36 tipos. Son las celdas q
 | `espino_register_file` | 544 | 544 | 15 registros x 32 bits = 480 de almacenamiento + 2 puertos de lectura registrados x 32 = 64; el write-through no agrega registros, solo muxes (coincide) |
 | `pochoco_mem_rom` | 192 | 192 | registro de instrucción a_rdata_o (32) + RAM de 4 x 32 (128) + b_rdata_o (32) (coincide) |
 | `espino_id_stage` | 82 | 82 | decode registrado: alu_operator 4 + alu_op_a_sel 2 + alu_op_b_sel 1 + imm_operand 32 + imm_target 32 + rf_we 1 + rf_wd_sel 2 + is_branch/is_jal/is_jalr 3 + lsu_req/lsu_we 2 + lsu_type 2 + lsu_sign 1 (coincide) |
-| `espino_load_store_unit` | 2 | 2 | addr_q[1:0] de B2: el offset de byte de la carga registrado al emitirla (coincide) |
+| `espino_load_store_unit` | 2 | 2 | boff_q[1:0] de B2: el offset de byte de la carga registrado al emitirla (coincide) |
 
 Total esperado desde el RTL: 820; síntesis jerárquica: 820; corrida final: 779. La diferencia de 41 entre la jerárquica y la final son flip-flops que la síntesis aplanada elimina al propagar constantes a través de los bordes de módulo (por ejemplo, bits de inmediato que siempre valen 0).
 

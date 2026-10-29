@@ -152,11 +152,13 @@ assembler) y no corren LibreLane: el netlist y los SDF tienen que existir en `RU
   `min_ff_n40C_5v50`, con los dos simuladores, la traza del netlist con retardos es
   idéntica a la del RTL (mismo md5 en las tres ejecuciones de cada simulador en cada
   esquina), sin X; Icarus
-  anota 35.910 de 38.086 IOPATH (los 2.176 que faltan son los arcos `ifnone` con flanco de
-  mux2, xor2 y xnor2) y 14.565 de 14.566 INTERCONNECT, e ignora los 977 bloques
-  TIMINGCHECK; CVC anota todo, evalúa los 7.358 checks y no reporta ninguna violación en
-  4.500 ciclos a 100 ns, y en el control positivo reporta 10 (removal/recovery de 33 ps en
-  `rst_sync_q` y setup de 88 a 107 ps en `btn_meta`), con lo que la traza queda en X. El netlist
+  anota 34.005 de 36.473 IOPATH (los 2.468 que faltan son los arcos `ifnone` con flanco de
+  mux2, xor2 y xnor2) y 16.300 de 16.301 INTERCONNECT, e ignora los 951 bloques
+  TIMINGCHECK; CVC anota todo, evalúa los 7.173 checks y no reporta ninguna violación en
+  4.500 ciclos a 100 ns, y en el control positivo reporta 8 (4 `$setup` en `btn_meta[0]` y
+  `btn_meta[1]`, 2 `$removal` y 2 `$recovery` en `rst_sync_q[0]` y `rst_sync_q[1]`), con lo
+  que la traza queda en X. Cifras de la corrida `d2_pnr`; las de v1 (`d1_pnr`) están en el
+  historial de `asic/sim/resultado_sdf.md`. El netlist
   real de la corrida final con su SDF de `nom_tt` (`make post-pnr-sdf RUN=asic/rom/runs/final
   ESCENARIO=final REPETIR=1`) completó con Icarus los 320.000 ciclos del escenario de
-  `make post-synth-final` con la misma traza que el RTL (una ejecución de 24 min 45 s).
+  `make post-synth-final` con la misma traza que el RTL (una ejecución de 42 min 36 s).

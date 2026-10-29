@@ -302,7 +302,7 @@ alineación de la LSU al banco de registros (`_4309_`), 25 celdas, con llegada 3
 
 ### Qué aporta B2 con el flujo final: las corridas pr_*
 
-B2 es el offset de byte de la carga registrado en la LSU (`addr_q[1:0]`, 2 flip-flops). Para medir
+B2 es el offset de byte de la carga registrado en la LSU (`boff_q[1:0]`, 2 flip-flops). Para medir
 qué aporta **con el flujo final** se corrió el mismo RTL sin B2 (la rama `exp/pipeline`, worktree
 `build/exp_pipeline`, con su propio `asic/rom/config_final.yaml`, que es la configuración final de D23 copiada a esa rama y no existe en `main`) con los tags
 `pr_*`. Tabla en `asic/final.md`, sección "El pipeline sin B2 con la configuración final"; rutas por
@@ -337,7 +337,7 @@ tramos en `asic/rutas.md`.
   los dos). El die queda en 418.503 contra 419.131 µm² (0,15 por ciento menos), por los **2
   flip-flops** que B2 agrega: 962 contra 964
   (`design__instance__count__class:sequential_cell` de `pr_t100` y de `final`), que es exactamente
-  `addr_q[1:0]`.
+  `boff_q[1:0]`.
 
 ### Cambio de RTL: de la pre-decodificación al pipeline
 
@@ -477,9 +477,10 @@ de comparación de esa tabla es v1 y está rotulada como tal.
   buffers de salida. Figura: `asic/rom/resultados/final/layout/bloques.png`.
   Efecto contra la ubicación automática (corrida `u1_auto`, `asic/rom/config_pines_auto.yaml`,
   tabla en `asic/final.md`, figura `asic/rom/resultados/u1_auto/layout/bloques.png`): el flujo
-  pone clk en la esquina noroeste, los cuatro pines SPI amontonados en la esquina suroeste,
-  rst_n y btn[3:0] juntos en el sur, y los 14 segmentos y los 4 LEDs intercalados en el este
-  (seg1[5] junto a seg1[1], led[2] junto a led[0]). Contra D21 ahorra 0,4 % de largo de cables
+  pone clk cerca de la esquina noroeste, tres de los cuatro pines SPI amontonados en la esquina
+  suroeste (spi_miso queda en x = 206,36 µm), rst_n y btn[3:0] juntos en el sur, y los LEDs y los
+  dos displays en el este, cada bus en su tramo pero con los bits desordenados (seg1[5] junto a
+  seg1[1], led[2] junto a led[0]). Contra D21 ahorra 0,4 % de largo de cables
   (350.998 contra 352.253 µm; ruteo global 492.382 contra 494.524 µm), el cable más largo
   pasa de 1.409 a 1.193 µm, el ruteo detallado parte con 6 violaciones en vez de 1.546
   (las dos terminan en 0), el timing es el mismo (WNS 65,21 contra 65,22 ns en max_ss) y
